@@ -30,54 +30,49 @@ const METHODS = new Set(TELEMETRY_METHODS);
 const NEEDLE = new RegExp(`\\.(${[...METHODS].join('|')})\\(`);
 
 module.exports = function stripMtTelemetryLoader(source) {
-    if (!NEEDLE.test(source)) return source; // fast path
-    try {
-        // Lazy-require INSIDE the try: SWC-only rspeedy projects often don't have
-        // @babel/core installed, and a missing module must not break the build.
-        // (If absent, the catch returns source unchanged — telemetry stays, build is fine.)
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy optional dep
-        const babel = require('@babel/core');
-        const out = babel.transformSync(source, {
-            babelrc: false,
-            configFile: false,
-            compact: false,
-            sourceMaps: false,
-            parserOpts: {
-                sourceType: 'unambiguous',
-                allowReturnOutsideFunction: true,
-            },
-            plugins: [
-                function stripPlugin({ types: t }) {
-                    const isTelemetry = (node) => {
-                        const c = node?.callee;
-                        if (!c) return false;
-                        const member =
-                            c.type === 'MemberExpression' ||
-                            c.type === 'OptionalMemberExpression';
-                        return (
-                            member &&
-                            c.property &&
-                            c.property.type === 'Identifier' &&
-                            METHODS.has(c.property.name)
-                        );
-                    };
-                    const handle = (path) => {
-                        if (isTelemetry(path.node))
-                            path.replaceWith(
-                                t.unaryExpression('void', t.numericLiteral(0)),
-                            );
-                    };
-                    return {
-                        visitor: {
-                            CallExpression: handle,
-                            OptionalCallExpression: handle,
-                        },
-                    };
-                },
-            ],
-        });
-        return out?.code ? out.code : source;
-    } catch {
-        return source; // never break the build
-    }
+  if (!NEEDLE.test(source)) return source; // fast path
+  try {
+    // Lazy-require INSIDE the try: SWC-only rspeedy projects often don't have
+    // @babel/core installed, and a missing module must not break the build.
+    // (If absent, the catch returns source unchanged — telemetry stays, build is fine.)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy optional dep
+    const babel = require('@babel/core');
+    const out = babel.transformSync(source, {
+      babelrc: false,
+      configFile: false,
+      compact: false,
+      sourceMaps: false,
+      parserOpts: {
+        sourceType: 'unambiguous',
+        allowReturnOutsideFunction: true,
+      },
+      plugins: [
+        function stripPlugin({ types: t }) {
+          const isTelemetry = (node) => {
+            const c = node?.callee;
+            if (!c) return false;
+            const member =
+              c.type === 'MemberExpression' ||
+              c.type === 'OptionalMemberExpression';
+            return (
+              member &&
+              c.property &&
+              c.property.type === 'Identifier' &&
+              METHODS.has(c.property.name)
+            );
+          };
+          const handle = (path) => {
+            if (isTelemetry(path.node))
+              path.replaceWith(t.unaryExpression('void', t.numericLiteral(0)));
+          };
+          return {
+            visitor: { CallExpression: handle, OptionalCallExpression: handle },
+          };
+        },
+      ],
+    });
+    return out?.code ? out.code : source;
+  } catch {
+    return source; // never break the build
+  }
 };
