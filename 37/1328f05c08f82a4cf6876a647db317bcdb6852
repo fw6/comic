@@ -1,0 +1,19 @@
+.npmrc
+  s_23996ba9c78ad6::t_9266ca42b43f7a 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "371328f05c08f82a4cf6876a647db317bcdb6852",
+  "prompts": {},
+  "sessions": {
+    "s_23996ba9c78ad6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "sess_300fe6e4-075e-4693-a286-646fcb4da6b6",
+        "model": "unknown"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
