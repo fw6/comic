@@ -1,0 +1,102 @@
+src/screens/Chapters.tsx
+  s_23996ba9c78ad6::t_01ff896f3004b6 89,116
+  s_23996ba9c78ad6::t_eaffb65190bc78 141
+  s_23996ba9c78ad6::t_3311be2ea8abd8 69-78,97,157-159
+src/screens/Task.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 82,86,120,141
+  s_23996ba9c78ad6::t_01ff896f3004b6 48,102,132,162
+  s_23996ba9c78ad6::t_3311be2ea8abd8 46-47,62-71,79-80,99-101,138
+src/screens/About.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 9,35-44,46-53,56-57,78-84
+  s_23996ba9c78ad6::t_01ff896f3004b6 21
+  s_23996ba9c78ad6::t_eaffb65190bc78 58-59,66
+src/screens/Result.tsx
+  s_23996ba9c78ad6::t_01ff896f3004b6 82,119
+  s_23996ba9c78ad6::t_eaffb65190bc78 72,91,93,103,120,126,135,137,147,149
+  s_23996ba9c78ad6::t_3311be2ea8abd8 50-59,64-65,88-89,116-118,165-166,173-175
+src/screens/Detail.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 181,212,217,289,372-373,381,390-391,399,442,450-451
+  s_23996ba9c78ad6::t_3311be2ea8abd8 49-50,57-59,68-69,138-147,209-210,230-232,264-268,301-305,313-314,364-366,370-371,408-410,422-424,432-433
+  s_23996ba9c78ad6::t_01ff896f3004b6 51,70,233
+src/screens/Reader.tsx
+  s_23996ba9c78ad6::t_01ff896f3004b6 147,177,188,284
+  s_23996ba9c78ad6::t_eaffb65190bc78 233
+  s_23996ba9c78ad6::t_3311be2ea8abd8 50-51,145-146,174-176,186-187,219-227,254,266-268
+src/screens/Backup.tsx
+  s_23996ba9c78ad6::t_01ff896f3004b6 106
+  s_23996ba9c78ad6::t_eaffb65190bc78 101,109,129,138-139,141-142,149,163,174,185,199,229
+  s_23996ba9c78ad6::t_3311be2ea8abd8 97,117-126,188-194,207-213,217-224,247-249
+src/screens/EventSettings.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 70-79,97-98,108-109,167-169
+  s_23996ba9c78ad6::t_01ff896f3004b6 226
+  s_23996ba9c78ad6::t_eaffb65190bc78 85,90,114,183-185
+src/screens/ReaderConfig.tsx
+  s_23996ba9c78ad6::t_01ff896f3004b6 31,87,148,177
+  s_23996ba9c78ad6::t_eaffb65190bc78 36-37,40,45-46,131
+  s_23996ba9c78ad6::t_3311be2ea8abd8 19,63-72,76-77
+src/screens/Search.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 46,53,143-144,177-178,190,207,212
+  s_23996ba9c78ad6::t_3311be2ea8abd8 25-34,70-75,118,133-137,141-142,151-154,164,175-176,217-224
+src/screens/SourceDetail.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 18-27,29-36,39-40,65-66,74-78,86-93,95-99
+  s_23996ba9c78ad6::t_eaffb65190bc78 41-42,49,68
+src/screens/Library.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 140-147,151-152,239-248,251,269-270,278-280,294-301,335-336
+  s_23996ba9c78ad6::t_31fef3108a8b9f 253
+  s_23996ba9c78ad6::t_eaffb65190bc78 264,271-272,338
+  s_23996ba9c78ad6::t_87b46c07d86e9c 307
+  s_23996ba9c78ad6::t_01ff896f3004b6 153,170,284
+  s_23996ba9c78ad6::t_3178f2c92c64d1 252,261
+src/screens/Sources.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 84
+  s_23996ba9c78ad6::t_3311be2ea8abd8 24-33,79,105-113
+  s_23996ba9c78ad6::t_01ff896f3004b6 73
+src/screens/TagEditor.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 59-68,95,110-114,125-128,137-141,145-152
+  s_23996ba9c78ad6::t_eaffb65190bc78 86,92,135
+src/App.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 92-100
+src/components/Fab.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 16-17
+  s_23996ba9c78ad6::t_eaffb65190bc78 21-22,30
+src/components/TopBar.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 20,33,45,79-80,96,99
+  s_23996ba9c78ad6::t_01ff896f3004b6 54
+  s_23996ba9c78ad6::t_3311be2ea8abd8 17,64-70
+android/app/src/main/java/com/cimoc/app/YourApplication.kt
+  s_23996ba9c78ad6::t_7e90a0e5070b08 41
+src/screens/Main.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 67,69,77-78,153,207
+  s_23996ba9c78ad6::t_3311be2ea8abd8 64-66,161-163,186-195
+  s_23996ba9c78ad6::t_7b2d6bb904143f 203-204,217
+src/components/ComicInfoDialog.tsx
+  s_23996ba9c78ad6::t_01ff896f3004b6 58
+  s_23996ba9c78ad6::t_3311be2ea8abd8 48,67-68,107-108
+  s_23996ba9c78ad6::t_eaffb65190bc78 55,86,126,141
+src/screens/Category.tsx
+  s_23996ba9c78ad6::t_eaffb65190bc78 49,71
+  s_23996ba9c78ad6::t_3311be2ea8abd8 20-29,46
+  s_23996ba9c78ad6::t_01ff896f3004b6 40,64
+src/screens/Settings.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 39,57-59,81-85,91-92,143-152,289-291,367-369,381-383
+  s_23996ba9c78ad6::t_eaffb65190bc78 102-103,116,305-307
+  s_23996ba9c78ad6::t_01ff896f3004b6 51,339
+src/components/ComicCard.tsx
+  s_23996ba9c78ad6::t_3311be2ea8abd8 16-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "2d116a9cfe744d3da53b222da5c97a3a5aa079ad",
+  "prompts": {},
+  "sessions": {
+    "s_23996ba9c78ad6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "sess_300fe6e4-075e-4693-a286-646fcb4da6b6",
+        "model": "unknown"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
