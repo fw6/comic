@@ -1,0 +1,14 @@
+biome.json
+  h_212141a2d9d4c8 1-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "b3db9deb28b413494404406ecc9d384652a0dae5",
+  "prompts": {},
+  "humans": {
+    "h_212141a2d9d4c8": {
+      "author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
