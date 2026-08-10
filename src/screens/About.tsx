@@ -6,6 +6,7 @@ function Row({ title, value }: { title: string; value?: string }) {
     return (
         <view
             style={{
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 paddingTop: '14px',
@@ -17,7 +18,7 @@ function Row({ title, value }: { title: string; value?: string }) {
                 backgroundColor: '#fff',
             }}
         >
-            <text style={{ flex: 1, fontSize: '15px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
                 {title}
             </text>
             {value ? (
@@ -31,20 +32,38 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar theme={theme} title="关于" onBack={() => nav.pop()} />
-            <view style={{ alignItems: 'center', padding: 40 }}>
+            <view
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '40px',
+                }}
+            >
                 <view
                     style={{
-                        width: 72,
-                        height: 72,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '72px',
+                        height: '72px',
                         borderRadius: '16px',
                         backgroundColor: theme.theme.primary,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: 36 }}>📖</text>
+                    <text style={{ color: '#fff', fontSize: '36px' }}>📖</text>
                 </view>
                 <text
                     style={{
@@ -56,7 +75,13 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                 >
                     Cimoc
                 </text>
-                <text style={{ fontSize: '14px', color: '#999', marginTop: 4 }}>
+                <text
+                    style={{
+                        fontSize: '14px',
+                        color: '#999',
+                        marginTop: '4px',
+                    }}
+                >
                     v1.0.0
                 </text>
                 <text

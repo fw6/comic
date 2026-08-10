@@ -38,6 +38,7 @@ class YourApplication : Application() {
             null
         )
         LynxEnv.inst().enableLynxDebug(true)
+        LynxEnv.inst().enableDevtool(true)
         LynxEnv.inst().enableLogBox(true)
 
         // Register Cimoc native bridge modules for the JS data layer.

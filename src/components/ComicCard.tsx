@@ -13,6 +13,8 @@ export function ComicCover({
     return (
         <view
             style={{
+                display: 'flex',
+                flexDirection: 'column',
                 width: '100%',
                 aspectRatio: 3 / 4,
                 backgroundColor: color,

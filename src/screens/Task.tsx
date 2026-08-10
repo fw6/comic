@@ -43,7 +43,9 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
         return (
             <view
                 style={{
-                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1,
                     backgroundColor: '#fafafa',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -57,7 +59,16 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
     }
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title={`${comic.title} · 已下载`}
@@ -65,12 +76,14 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
             />
             <view
                 style={{
+                    alignItems: 'stretch',
+                    display: 'flex',
                     flexDirection: 'row',
-                    padding: 16,
+                    padding: '16px',
                     backgroundColor: '#fff',
                 }}
             >
-                <view style={{ width: 56, height: 74 }}>
+                <view style={{ width: '56px', height: '74px' }}>
                     <ComicCover
                         color={comic.cover}
                         title={comic.title}
@@ -83,7 +96,10 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                 </view>
                 <view
                     style={{
-                        flex: 1,
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flexGrow: 1,
                         marginLeft: '12px',
                         justifyContent: 'center',
                     }}
@@ -101,7 +117,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                         style={{
                             fontSize: '13px',
                             color: '#999',
-                            marginTop: 4,
+                            marginTop: '4px',
                         }}
                     >
                         已下载 {downloaded.length} 话
@@ -113,15 +129,16 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                 listType="single"
                 spanCount={1}
                 scrollOrientation="vertical"
-                style={{ flex: 1 }}
+                style={{ flexGrow: 1 }}
             >
                 {downloaded.map((idx) => (
                     <list-item item-key={`${idx}`} key={idx}>
                         <view
                             style={{
+                                display: 'flex',
                                 flexDirection: 'row',
                                 alignItems: 'center',
-                                padding: 14,
+                                padding: '14px',
                                 backgroundColor: '#fff',
                                 borderBottomWidth: '1px',
                                 borderBottomColor: '#f0f0f0',
@@ -142,7 +159,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                             </text>
                             <text
                                 style={{
-                                    flex: 1,
+                                    flexGrow: 1,
                                     marginLeft: '10px',
                                     fontSize: '15px',
                                     color: '#212121',

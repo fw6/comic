@@ -14,9 +14,10 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
     return (
         <view
             style={{
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                height: 88,
+                height: '88px',
                 paddingTop: '24px',
                 backgroundColor: theme.theme.primary,
                 paddingLeft: '12px',
@@ -29,7 +30,7 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
                         style={{
                             color: '#fff',
                             fontSize: '22px',
-                            lineHeight: 28,
+                            lineHeight: '28px',
                         }}
                     >
                         ☰
@@ -41,7 +42,7 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
                         style={{
                             color: '#fff',
                             fontSize: '24px',
-                            lineHeight: 28,
+                            lineHeight: '28px',
                         }}
                     >
                         ‹
@@ -50,7 +51,7 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
             ) : null}
             <text
                 style={{
-                    flex: 1,
+                    flexGrow: 1,
                     color: '#fff',
                     fontSize: '20px',
                     fontWeight: '600',
@@ -60,7 +61,13 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
                 {title}
             </text>
             {actions ? (
-                <view style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <view
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
+                >
                     {actions}
                 </view>
             ) : null}
@@ -69,8 +76,8 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
 }
 
 const iconBtn = {
-    width: 44,
-    height: 44,
+    width: '44px',
+    height: '44px',
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
 };
@@ -86,10 +93,10 @@ export function ToolbarAction({
 }) {
     return (
         <view
-            style={{ ...iconBtn, paddingLeft: '4px', paddingRight: 4 }}
+            style={{ ...iconBtn, paddingLeft: '4px', paddingRight: '4px' }}
             bindtap={onTap}
         >
-            <text style={{ color, fontSize: 15 }}>{label}</text>
+            <text style={{ color, fontSize: '15px' }}>{label}</text>
         </view>
     );
 }

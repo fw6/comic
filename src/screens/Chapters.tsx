@@ -66,7 +66,16 @@ export function ChaptersScreen({
     };
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title={`下载 · ${comic?.title ?? ''}`}
@@ -77,7 +86,7 @@ export function ChaptersScreen({
                 listType="single"
                 spanCount={1}
                 scrollOrientation="vertical"
-                style={{ flex: 1 }}
+                style={{ flexGrow: 1 }}
             >
                 {chapters.map((ch) => {
                     const isDownloaded = store.isDownloaded(comicId, ch.index);
@@ -85,6 +94,7 @@ export function ChaptersScreen({
                         <list-item item-key={`${ch.index}`} key={ch.index}>
                             <view
                                 style={{
+                                    display: 'flex',
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     backgroundColor: '#fff',
@@ -103,7 +113,7 @@ export function ChaptersScreen({
                                 />
                                 <text
                                     style={{
-                                        flex: 1,
+                                        flexGrow: 1,
                                         marginLeft: '12px',
                                         fontSize: '15px',
                                         color: '#212121',
@@ -128,7 +138,7 @@ export function ChaptersScreen({
             </List>
             <view
                 style={{
-                    padding: 16,
+                    padding: '16px',
                     backgroundColor: '#fff',
                     borderTopWidth: '1px',
                     borderTopColor: '#eee',
@@ -144,6 +154,9 @@ export function ChaptersScreen({
             {msg ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         bottom: '80px',
                         alignSelf: 'center',

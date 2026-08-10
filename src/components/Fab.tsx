@@ -13,11 +13,13 @@ export function Fab({
         <view
             bindtap={onTap}
             style={{
+                display: 'flex',
+                flexDirection: 'column',
                 position: 'absolute',
                 right: '16px',
                 bottom: '24px',
-                width: 56,
-                height: 56,
+                width: '56px',
+                height: '56px',
                 borderRadius: '28px',
                 backgroundColor: theme.theme.accent,
                 alignItems: 'center',
@@ -25,7 +27,7 @@ export function Fab({
                 boxShadow: '0 4px 8px rgba(0,0,0,0.35)',
             }}
         >
-            <text style={{ color: '#fff', fontSize: 22 }}>{label}</text>
+            <text style={{ color: '#fff', fontSize: '22px' }}>{label}</text>
         </view>
     );
 }

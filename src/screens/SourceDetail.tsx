@@ -15,20 +15,38 @@ export function SourceDetailScreen({
     const source = sourceList().find((s) => s.id === sourceId);
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar theme={theme} title="图源详情" onBack={() => nav.pop()} />
-            <view style={{ padding: 20, alignItems: 'center' }}>
+            <view
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '20px',
+                    alignItems: 'center',
+                }}
+            >
                 <view
                     style={{
-                        width: 64,
-                        height: 64,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '64px',
+                        height: '64px',
                         borderRadius: '12px',
                         backgroundColor: theme.theme.primary,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: 30 }}>🗂</text>
+                    <text style={{ color: '#fff', fontSize: '30px' }}>🗂</text>
                 </view>
                 <text
                     style={{
@@ -44,14 +62,20 @@ export function SourceDetailScreen({
             <view style={{ backgroundColor: '#fff' }}>
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
                         flexDirection: 'row',
-                        padding: 16,
+                        padding: '16px',
                         borderBottomWidth: '1px',
                         borderBottomColor: '#f0f0f0',
                     }}
                 >
                     <text
-                        style={{ width: 90, fontSize: '15px', color: '#999' }}
+                        style={{
+                            width: '90px',
+                            fontSize: '15px',
+                            color: '#999',
+                        }}
                     >
                         图源编号
                     </text>
@@ -59,9 +83,20 @@ export function SourceDetailScreen({
                         {sourceId}
                     </text>
                 </view>
-                <view style={{ flexDirection: 'row', padding: 16 }}>
+                <view
+                    style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        padding: '16px',
+                    }}
+                >
                     <text
-                        style={{ width: 90, fontSize: '15px', color: '#999' }}
+                        style={{
+                            width: '90px',
+                            fontSize: '15px',
+                            color: '#999',
+                        }}
                     >
                         收藏数量
                     </text>

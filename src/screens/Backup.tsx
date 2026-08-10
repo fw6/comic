@@ -94,18 +94,19 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
         <view
             key={type}
             style={{
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 backgroundColor: '#fff',
-                padding: 16,
+                padding: '16px',
                 borderBottomWidth: '1px',
                 borderBottomColor: '#f0f0f0',
             }}
         >
-            <text style={{ flex: 1, fontSize: '15px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
                 {LABELS[type]}
             </text>
-            <Button style={{ marginRight: 8 }} onClick={() => save(type)}>
+            <Button style={{ marginRight: '8px' }} onClick={() => save(type)}>
                 保存
             </Button>
             <Button onClick={() => restoreLocal(type)}>恢复</Button>
@@ -113,10 +114,19 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
     );
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar theme={theme} title="备份" onBack={() => nav.pop()} />
             {(['favorites', 'tags', 'settings'] as BackupType[]).map(renderRow)}
-            <view style={{ padding: 16 }}>
+            <view style={{ padding: '16px' }}>
                 <Button onClick={() => showMsg('备份记录已清空')}>
                     清空备份记录
                 </Button>
@@ -125,18 +135,18 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
             {/* WebDAV 云备份（Cimoc WebDAV 后端） */}
             <view
                 style={{
-                    margin: 16,
-                    marginTop: 8,
+                    margin: '16px',
+                    marginTop: '8px',
                     backgroundColor: '#fff',
-                    borderRadius: 6,
-                    padding: 16,
+                    borderRadius: '6px',
+                    padding: '16px',
                 }}
             >
                 <text
                     style={{
                         fontSize: '15px',
                         fontWeight: '600',
-                        marginBottom: 12,
+                        marginBottom: '12px',
                         color: '#212121',
                     }}
                 >
@@ -150,7 +160,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         width: '100%',
                         height: '44px',
                         fontSize: '14px',
-                        marginBottom: 8,
+                        marginBottom: '8px',
                     }}
                 />
                 <Input
@@ -161,7 +171,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         width: '100%',
                         height: '44px',
                         fontSize: '14px',
-                        marginBottom: 8,
+                        marginBottom: '8px',
                     }}
                 />
                 <Input
@@ -172,15 +182,21 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         width: '100%',
                         height: '44px',
                         fontSize: '14px',
-                        marginBottom: 12,
+                        marginBottom: '12px',
                     }}
                 />
-                <view style={{ flexDirection: 'row' }}>
+                <view
+                    style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'row',
+                    }}
+                >
                     {(['favorites', 'tags', 'settings'] as BackupType[]).map(
                         (t) => (
                             <Button
                                 key={t}
-                                style={{ marginRight: 8 }}
+                                style={{ marginRight: '8px' }}
                                 onClick={() => backupToWebdav(t)}
                             >
                                 {LABELS[t]}
@@ -188,16 +204,29 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         ),
                     )}
                 </view>
-                <text style={{ fontSize: '12px', color: '#999', marginTop: 8 }}>
+                <text
+                    style={{
+                        fontSize: '12px',
+                        color: '#999',
+                        marginTop: '8px',
+                    }}
+                >
                     点击标签将备份到 WebDAV；长按思路同
                     Cimoc：收藏/标签/设置三项独立备份。
                 </text>
-                <view style={{ flexDirection: 'row', marginTop: 8 }}>
+                <view
+                    style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        marginTop: '8px',
+                    }}
+                >
                     {(['favorites', 'tags', 'settings'] as BackupType[]).map(
                         (t) => (
                             <Button
                                 key={t}
-                                style={{ marginRight: 8 }}
+                                style={{ marginRight: '8px' }}
                                 onClick={() => restoreFromWebdav(t)}
                             >
                                 恢复
@@ -215,6 +244,9 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
             {msg ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         bottom: '80px',
                         alignSelf: 'center',

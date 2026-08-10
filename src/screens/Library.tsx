@@ -137,11 +137,20 @@ function TabContent({
     }
 
     return (
-        <view style={{ flex: 1 }}>
+        <view
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flexGrow: 1,
+                alignItems: 'stretch',
+            }}
+        >
             {loading ? (
                 <view
                     style={{
-                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flexGrow: 1,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}
@@ -158,7 +167,7 @@ function TabContent({
                     mainAxisGap={12}
                     crossAxisGap={12}
                     scrollOrientation="vertical"
-                    style={{ flex: 1, padding: 12 }}
+                    style={{ flexGrow: 1, padding: '12px' }}
                 >
                     {display.map((comic) => (
                         <list-item item-key={comic.id} key={comic.id}>
@@ -227,9 +236,21 @@ export function LibraryScreen({
     const chips = ['全部', '完结', '连载', ...favoriteTags];
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <view
                 style={{
+                    alignItems: 'stretch',
+                    display: 'flex',
+                    flexDirection: 'column',
                     backgroundColor: theme.theme.primary,
                     paddingLeft: '12px',
                     paddingRight: '12px',
@@ -237,25 +258,30 @@ export function LibraryScreen({
             >
                 <view
                     style={{
+                        display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
-                        height: 64,
+                        height: '64px',
                     }}
                 >
                     <view
                         style={{
-                            width: 44,
-                            height: 44,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '44px',
+                            height: '44px',
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}
                         bindtap={onOpenDrawer}
                     >
-                        <text style={{ color: '#fff', fontSize: 22 }}>☰</text>
+                        <text style={{ color: '#fff', fontSize: '22px' }}>
+                            ☰
+                        </text>
                     </view>
                     <text
                         style={{
-                            flex: 1,
+                            flexGrow: 1,
                             color: '#fff',
                             fontSize: '20px',
                             fontWeight: '600',
@@ -265,13 +291,20 @@ export function LibraryScreen({
                     </text>
                 </view>
                 {/* TabLayout */}
-                <view style={{ flexDirection: 'row', height: 44 }}>
+                <view
+                    style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        height: '44px',
+                    }}
+                >
                     {TABS.map((t, i) => (
                         <view
                             key={t.key}
                             bindtap={() => setTab(t.key)}
                             style={{
-                                flex: 1,
+                                flexGrow: 1,
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 borderBottomWidth: '2px',
@@ -299,8 +332,10 @@ export function LibraryScreen({
             {tab === 'favorite' && chips.length > 1 ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
                         flexDirection: 'row',
-                        padding: 8,
+                        padding: '8px',
                         backgroundColor: '#fff',
                         borderBottomWidth: '1px',
                         borderBottomColor: '#eee',

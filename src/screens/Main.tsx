@@ -61,9 +61,12 @@ function DrawerHeader() {
     return (
         <view
             style={{
-                height: 250,
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '250px',
                 backgroundColor: theme.theme.primary,
-                padding: 16,
+                padding: '16px',
                 justifyContent: 'flex-end',
             }}
         >
@@ -71,8 +74,8 @@ function DrawerHeader() {
                 <>
                     <view
                         style={{
-                            width: 56,
-                            height: 74,
+                            width: '56px',
+                            height: '74px',
                             borderRadius: '4px',
                             overflow: 'hidden',
                         }}
@@ -147,7 +150,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    height: 48,
+                    height: '48px',
                     paddingLeft: '16px',
                     paddingRight: '16px',
                     backgroundColor: active
@@ -155,7 +158,9 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                         : 'transparent',
                 }}
             >
-                <text style={{ fontSize: '18px', width: 32 }}>{item.icon}</text>
+                <text style={{ fontSize: '18px', width: '32px' }}>
+                    {item.icon}
+                </text>
                 <text
                     style={{
                         fontSize: '15px',
@@ -178,7 +183,16 @@ export function MainScreen({ nav }: { nav: NavApi }) {
         );
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             {contentEl}
             <SheetRoot
                 show={open}
@@ -186,10 +200,11 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 side="left"
                 screenWidth={screenWidth}
             >
-                <SheetBackdrop />
+                {/* 关闭时 backdrop 不可挂载：opacity:0 的遮罩仍会拦截全部点击 */}
+                {open ? <SheetBackdrop /> : null}
                 <SheetContent
                     style={{
-                        width: 280,
+                        width: '280px',
                         backgroundColor: '#fff',
                         height: '100%',
                     }}
@@ -199,7 +214,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                         {CONTENT_ITEMS.map(renderItem)}
                         <view
                             style={{
-                                height: 1,
+                                height: '1px',
                                 backgroundColor: '#eee',
                                 marginTop: '8px',
                                 marginBottom: '8px',

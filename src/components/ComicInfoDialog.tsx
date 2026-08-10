@@ -45,16 +45,17 @@ export function ComicInfoDialog({
     const row = (label: string, value: string) => (
         <view
             style={{
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 paddingTop: '6px',
                 paddingBottom: '6px',
             }}
         >
-            <text style={{ width: 100, fontSize: '14px', color: '#999' }}>
+            <text style={{ width: '100px', fontSize: '14px', color: '#999' }}>
                 {label}
             </text>
-            <text style={{ flex: 1, fontSize: '14px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '14px', color: '#212121' }}>
                 {value}
             </text>
         </view>
@@ -63,6 +64,8 @@ export function ComicInfoDialog({
     return (
         <view
             style={{
+                display: 'flex',
+                flexDirection: 'column',
                 position: 'absolute',
                 top: 0,
                 left: 0,
@@ -80,7 +83,7 @@ export function ComicInfoDialog({
                 style={{
                     backgroundColor: '#fff',
                     borderRadius: '6px',
-                    padding: 20,
+                    padding: '20px',
                     width: '100%',
                 }}
                 bindtap={() => {}}
@@ -101,6 +104,8 @@ export function ComicInfoDialog({
                 {row('最后阅读', formatReadTime(comic.lastReadTime))}
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'flex-end',
                         marginTop: '12px',
@@ -118,7 +123,7 @@ export function ComicInfoDialog({
                             marginRight: '12px',
                         }}
                     >
-                        <text style={{ color: '#fff', fontSize: 14 }}>
+                        <text style={{ color: '#fff', fontSize: '14px' }}>
                             {actionLabel}
                         </text>
                     </view>
@@ -133,7 +138,7 @@ export function ComicInfoDialog({
                             paddingBottom: '8px',
                         }}
                     >
-                        <text style={{ color: '#212121', fontSize: 14 }}>
+                        <text style={{ color: '#212121', fontSize: '14px' }}>
                             取消
                         </text>
                     </view>

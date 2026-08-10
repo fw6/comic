@@ -56,7 +56,16 @@ export function TagEditorScreen({
     };
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title={`编辑标签 · ${comic?.title ?? ''}`}
@@ -74,15 +83,16 @@ export function TagEditorScreen({
                             paddingBottom: '8px',
                         }}
                     >
-                        <text style={{ color: '#fff', fontSize: 15 }}>
+                        <text style={{ color: '#fff', fontSize: '15px' }}>
                             保存
                         </text>
                     </view>
                 }
             />
-            <view style={{ padding: 16 }}>
+            <view style={{ padding: '16px' }}>
                 <view
                     style={{
+                        display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
                         backgroundColor: '#fff',
@@ -97,7 +107,11 @@ export function TagEditorScreen({
                         value={input}
                         onInput={(v) => setInput(v)}
                         placeholder="添加自定义标签"
-                        style={{ flex: 1, height: 44, fontSize: 15 }}
+                        style={{
+                            flexGrow: 1,
+                            height: '44px',
+                            fontSize: '15px',
+                        }}
                     />
                     <view
                         bindtap={addCustom}
@@ -108,20 +122,34 @@ export function TagEditorScreen({
                         }}
                     >
                         <text
-                            style={{ color: theme.theme.accent, fontSize: 18 }}
+                            style={{
+                                color: theme.theme.accent,
+                                fontSize: '18px',
+                            }}
                         >
                             ＋
                         </text>
                     </view>
                 </view>
             </view>
-            <view style={{ paddingLeft: '16px', paddingRight: 16 }}>
+            <view style={{ paddingLeft: '16px', paddingRight: '16px' }}>
                 <text
-                    style={{ fontSize: '13px', color: '#999', marginBottom: 8 }}
+                    style={{
+                        fontSize: '13px',
+                        color: '#999',
+                        marginBottom: '8px',
+                    }}
                 >
                     常用标签
                 </text>
-                <view style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                <view
+                    style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                    }}
+                >
                     {PRESET_TAGS.map((t) => {
                         const active = tags.includes(t);
                         return (

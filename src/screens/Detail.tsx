@@ -46,13 +46,17 @@ export function DetailScreen({
         return (
             <view
                 style={{
-                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1,
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: '#fafafa',
                 }}
             >
-                <text style={{ fontSize: 15, color: '#999' }}>加载中...</text>
+                <text style={{ fontSize: '15px', color: '#999' }}>
+                    加载中...
+                </text>
             </view>
         );
     }
@@ -61,7 +65,9 @@ export function DetailScreen({
         return (
             <view
                 style={{
-                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1,
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}
@@ -129,7 +135,16 @@ export function DetailScreen({
     ];
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title={comic.title}
@@ -163,7 +178,7 @@ export function DetailScreen({
                         backgroundColor: '#fff',
                         borderRadius: '4px',
                         zIndex: 10,
-                        minWidth: 140,
+                        minWidth: '140px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                     }}
                 >
@@ -191,13 +206,15 @@ export function DetailScreen({
             {/* Header */}
             <view
                 style={{
+                    alignItems: 'stretch',
+                    display: 'flex',
                     flexDirection: 'row',
-                    padding: 16,
+                    padding: '16px',
                     backgroundColor: '#fff',
                 }}
                 bindlongpress={() => setShowIntro(true)}
             >
-                <view style={{ width: 90, height: 120 }}>
+                <view style={{ width: '90px', height: '120px' }}>
                     <ComicCover
                         color={comic.cover}
                         title={comic.title}
@@ -210,7 +227,10 @@ export function DetailScreen({
                 </view>
                 <view
                     style={{
-                        flex: 1,
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flexGrow: 1,
                         marginLeft: '14px',
                         justifyContent: 'space-between',
                     }}
@@ -241,7 +261,11 @@ export function DetailScreen({
 
             {/* Intro */}
             <view
-                style={{ padding: 16, backgroundColor: '#fff', marginTop: 1 }}
+                style={{
+                    padding: '16px',
+                    backgroundColor: '#fff',
+                    marginTop: '1px',
+                }}
             >
                 <text
                     style={{
@@ -262,7 +286,7 @@ export function DetailScreen({
                     fontSize: '15px',
                     fontWeight: '600',
                     color: '#333',
-                    padding: 12,
+                    padding: '12px',
                 }}
             >
                 章节列表（{chapters.length}）
@@ -274,7 +298,11 @@ export function DetailScreen({
                 mainAxisGap={10}
                 crossAxisGap={10}
                 scrollOrientation="vertical"
-                style={{ flex: 1, paddingLeft: '12px', paddingRight: 12 }}
+                style={{
+                    flexGrow: 1,
+                    paddingLeft: '12px',
+                    paddingRight: '12px',
+                }}
             >
                 {ordered.map((ch) => {
                     const isDownloaded = store.isDownloaded(comic.id, ch.index);
@@ -282,6 +310,8 @@ export function DetailScreen({
                         <list-item item-key={`${ch.index}`} key={ch.index}>
                             <view
                                 style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
                                     backgroundColor: ch.read
                                         ? '#E3F2FD'
                                         : '#fff',
@@ -331,12 +361,16 @@ export function DetailScreen({
             </List>
 
             {/* Dual FABs: continue-reading above favorite */}
-            <view style={{ position: 'absolute', right: '16px', bottom: 96 }}>
+            <view
+                style={{ position: 'absolute', right: '16px', bottom: '96px' }}
+            >
                 <view
                     bindtap={startReading}
                     style={{
-                        width: 48,
-                        height: 48,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '48px',
+                        height: '48px',
                         borderRadius: '24px',
                         backgroundColor: theme.theme.primary,
                         alignItems: 'center',
@@ -344,7 +378,7 @@ export function DetailScreen({
                         boxShadow: '0 4px 8px rgba(0,0,0,0.35)',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: 20 }}>▶</text>
+                    <text style={{ color: '#fff', fontSize: '20px' }}>▶</text>
                 </view>
             </view>
             <view
@@ -353,8 +387,8 @@ export function DetailScreen({
                     position: 'absolute',
                     right: '16px',
                     bottom: '24px',
-                    width: 56,
-                    height: 56,
+                    width: '56px',
+                    height: '56px',
                     borderRadius: '28px',
                     backgroundColor: theme.theme.accent,
                     alignItems: 'center',
@@ -362,7 +396,7 @@ export function DetailScreen({
                     boxShadow: '0 4px 8px rgba(0,0,0,0.35)',
                 }}
             >
-                <text style={{ color: '#fff', fontSize: 24 }}>
+                <text style={{ color: '#fff', fontSize: '24px' }}>
                     {fav ? '❤' : '♡'}
                 </text>
             </view>
@@ -371,6 +405,9 @@ export function DetailScreen({
             {snack ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         bottom: '100px',
                         alignSelf: 'center',
@@ -382,7 +419,9 @@ export function DetailScreen({
                         borderRadius: '4px',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: 14 }}>{snack}</text>
+                    <text style={{ color: '#fff', fontSize: '14px' }}>
+                        {snack}
+                    </text>
                 </view>
             ) : null}
 
@@ -390,6 +429,8 @@ export function DetailScreen({
             {showIntro ? (
                 <view
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         top: 0,
                         left: 0,
@@ -398,7 +439,7 @@ export function DetailScreen({
                         backgroundColor: 'rgba(0,0,0,0.5)',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: 40,
+                        padding: '40px',
                     }}
                     bindtap={() => setShowIntro(false)}
                 >
@@ -406,8 +447,8 @@ export function DetailScreen({
                         style={{
                             backgroundColor: '#fff',
                             borderRadius: '6px',
-                            padding: 20,
-                            maxWidth: 320,
+                            padding: '20px',
+                            maxWidth: '320px',
                             width: '100%',
                         }}
                         bindtap={() => {}}

@@ -16,6 +16,7 @@ function ToggleRow({
         <view
             bindtap={onTap}
             style={{
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 backgroundColor: '#fff',
@@ -27,22 +28,22 @@ function ToggleRow({
                 borderBottomColor: '#f0f0f0',
             }}
         >
-            <text style={{ flex: 1, fontSize: '15px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
                 {title}
             </text>
             <view
                 style={{
-                    width: 48,
-                    height: 26,
+                    width: '48px',
+                    height: '26px',
                     borderRadius: '13px',
                     backgroundColor: value ? '#4CAF50' : '#ccc',
-                    padding: 3,
+                    padding: '3px',
                 }}
             >
                 <view
                     style={{
-                        width: 20,
-                        height: 20,
+                        width: '20px',
+                        height: '20px',
                         borderRadius: '10px',
                         backgroundColor: '#fff',
                         marginLeft: value ? 22 : 0,
@@ -59,10 +60,21 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
     const [tab, setTab] = useState<'page' | 'stream'>('page');
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar theme={theme} title="阅读配置" onBack={() => nav.pop()} />
             <view
                 style={{
+                    alignItems: 'stretch',
+                    display: 'flex',
                     flexDirection: 'row',
                     backgroundColor: theme.theme.primary,
                 }}
@@ -72,7 +84,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                         key={t}
                         bindtap={() => setTab(t)}
                         style={{
-                            flex: 1,
+                            flexGrow: 1,
                             paddingTop: '12px',
                             paddingBottom: '12px',
                             alignItems: 'center',
@@ -116,7 +128,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                     value={false}
                     onTap={() => {}}
                 />
-                <view style={{ marginTop: 8 }}>
+                <view style={{ marginTop: '8px' }}>
                     <view
                         bindtap={() =>
                             nav.push({ name: 'eventSettings', mode: tab })
@@ -133,7 +145,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                     >
                         <text
                             style={{
-                                flex: 1,
+                                flexGrow: 1,
                                 fontSize: '15px',
                                 color: '#212121',
                             }}
@@ -162,7 +174,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                     >
                         <text
                             style={{
-                                flex: 1,
+                                flexGrow: 1,
                                 fontSize: '15px',
                                 color: '#212121',
                             }}

@@ -22,7 +22,16 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
     };
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title="搜索"
@@ -34,14 +43,14 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                     />
                 }
             />
-            <view style={{ padding: 16 }}>
+            <view style={{ padding: '16px' }}>
                 {/* Source multi-select (Cimoc 图源 dialog) */}
                 {showSourcePicker ? (
                     <view
                         style={{
                             backgroundColor: '#fff',
                             borderRadius: '4px',
-                            padding: 12,
+                            padding: '12px',
                             marginBottom: '16px',
                             borderWidth: '1px',
                             borderColor: '#eee',
@@ -58,7 +67,12 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                             选择搜索图源
                         </text>
                         <view
-                            style={{ flexDirection: 'row', flexWrap: 'wrap' }}
+                            style={{
+                                alignItems: 'stretch',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                flexWrap: 'wrap',
+                            }}
                         >
                             {sourceList().map((s) => {
                                 const active = !!selSources[s.id];
@@ -101,6 +115,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
 
                 <view
                     style={{
+                        display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
                         backgroundColor: '#fff',
@@ -115,19 +130,28 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         value={keyword}
                         onInput={(value) => setKeyword(value)}
                         placeholder="输入漫画名称或作者"
-                        style={{ flex: 1, height: 48, fontSize: 16 }}
+                        style={{
+                            flexGrow: 1,
+                            height: '48px',
+                            fontSize: '16px',
+                        }}
                     />
                     <view
                         style={{
-                            width: 44,
-                            height: 44,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '44px',
+                            height: '44px',
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}
                         bindtap={submit}
                     >
                         <text
-                            style={{ color: theme.theme.accent, fontSize: 22 }}
+                            style={{
+                                color: theme.theme.accent,
+                                fontSize: '22px',
+                            }}
                         >
                             🔍
                         </text>
@@ -137,6 +161,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                 {/* strict search */}
                 <view
                     style={{
+                        display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
                         marginTop: '16px',
@@ -147,8 +172,10 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                 >
                     <view
                         style={{
-                            width: 20,
-                            height: 20,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '20px',
+                            height: '20px',
                             borderRadius: '3px',
                             borderWidth: '2px',
                             borderColor: theme.theme.accent,
@@ -160,7 +187,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         }}
                     >
                         {strict ? (
-                            <text style={{ color: '#fff', fontSize: 12 }}>
+                            <text style={{ color: '#fff', fontSize: '12px' }}>
                                 ✓
                             </text>
                         ) : null}
@@ -177,17 +204,24 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                 </view>
 
                 {/* suggestions */}
-                <view style={{ marginTop: 24 }}>
+                <view style={{ marginTop: '24px' }}>
                     <text
                         style={{
                             fontSize: '14px',
                             color: '#999',
-                            marginBottom: 8,
+                            marginBottom: '8px',
                         }}
                     >
                         热门搜索
                     </text>
-                    <view style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                    <view
+                        style={{
+                            alignItems: 'stretch',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                        }}
+                    >
                         {[
                             'Eleceed',
                             'unOrdinary',

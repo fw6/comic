@@ -36,6 +36,7 @@ function Row({
         <view
             bindtap={onTap}
             style={{
+                display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 backgroundColor: '#fff',
@@ -47,13 +48,15 @@ function Row({
                 borderBottomColor: '#f0f0f0',
             }}
         >
-            <text style={{ flex: 1, fontSize: '15px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
                 {title}
             </text>
             {value ? (
                 <text style={{ fontSize: '14px', color: '#999' }}>{value}</text>
             ) : null}
-            <text style={{ color: '#bbb', fontSize: '18px', marginLeft: 8 }}>
+            <text
+                style={{ color: '#bbb', fontSize: '18px', marginLeft: '8px' }}
+            >
                 ›
             </text>
         </view>
@@ -75,12 +78,18 @@ function ThemeRow() {
             }}
         >
             <text
-                style={{ fontSize: '15px', color: '#212121', marginBottom: 10 }}
+                style={{
+                    fontSize: '15px',
+                    color: '#212121',
+                    marginBottom: '10px',
+                }}
             >
                 主题颜色
             </text>
             <view
                 style={{
+                    alignItems: 'stretch',
+                    display: 'flex',
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                 }}
@@ -90,8 +99,8 @@ function ThemeRow() {
                         key={name}
                         bindtap={() => choose(name)}
                         style={{
-                            width: 44,
-                            height: 44,
+                            width: '44px',
+                            height: '44px',
                             borderRadius: '22px',
                             backgroundColor: THEMES[name].primary,
                             alignItems: 'center',
@@ -104,7 +113,7 @@ function ThemeRow() {
                         }}
                     >
                         {theme.theme.name === name ? (
-                            <text style={{ color: '#fff', fontSize: 18 }}>
+                            <text style={{ color: '#fff', fontSize: '18px' }}>
                                 ✓
                             </text>
                         ) : null}
@@ -131,7 +140,16 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
     const showSnack = (msg: string) => setSnack(msg);
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar theme={theme} title="设置" onBack={() => nav.pop()} />
             <view>
                 <SectionHeader title="阅读设置" color={theme.theme.primary} />
@@ -268,6 +286,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
             {showStartup ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         top: 0,
                         left: 0,
@@ -281,9 +302,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     <view
                         style={{
                             backgroundColor: '#fff',
-                            borderTopLeftRadius: 12,
-                            borderTopRightRadius: 12,
-                            padding: 16,
+                            borderTopLeftRadius: '12px',
+                            borderTopRightRadius: '12px',
+                            padding: '16px',
                         }}
                         bindtap={() => {}}
                     >
@@ -315,7 +336,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                                 >
                                     <text
                                         style={{
-                                            flex: 1,
+                                            flexGrow: 1,
                                             fontSize: '14px',
                                             color: '#333',
                                         }}
@@ -343,6 +364,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
             {snack ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         bottom: '60px',
                         alignSelf: 'center',
@@ -354,7 +378,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                         borderRadius: '4px',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: 14 }}>{snack}</text>
+                    <text style={{ color: '#fff', fontSize: '14px' }}>
+                        {snack}
+                    </text>
                 </view>
             ) : null}
         </view>

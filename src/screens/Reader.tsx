@@ -47,6 +47,8 @@ function PageImage({
     return (
         <view
             style={{
+                display: 'flex',
+                flexDirection: 'column',
                 width: '100%',
                 height: '100%',
                 backgroundColor: color,
@@ -140,7 +142,9 @@ export function ReaderScreen({
         return (
             <view
                 style={{
-                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexGrow: 1,
                     backgroundColor: '#000',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -167,7 +171,10 @@ export function ReaderScreen({
     return (
         <view
             style={{
-                flex: 1,
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                flexGrow: 1,
                 backgroundColor: isDark ? '#000' : '#fff',
             }}
             bindtap={toggleHud}
@@ -176,7 +183,9 @@ export function ReaderScreen({
             {loading ? (
                 <view
                     style={{
-                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flexGrow: 1,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}
@@ -207,13 +216,21 @@ export function ReaderScreen({
                     )}
                 </Swiper>
             ) : (
-                <view style={{ flex: 1 }}>
+                <view
+                    style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '100%',
+                        height: '100%',
+                    }}
+                >
                     {images.map((src, i) => (
                         <view
                             key={i}
                             style={{
                                 width: '100%',
-                                height: 600,
+                                height: '600px',
                                 backgroundColor: colors[i] ?? '#333',
                             }}
                         >
@@ -234,6 +251,7 @@ export function ReaderScreen({
                 >
                     <view
                         style={{
+                            display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
                             backgroundColor: 'rgba(0,0,0,0.5)',
@@ -245,6 +263,9 @@ export function ReaderScreen({
                     >
                         <view
                             style={{
+                                alignItems: 'stretch',
+                                display: 'flex',
+                                flexDirection: 'column',
                                 width: '44px',
                                 height: '44px',
                                 justifyContent: 'center',
@@ -260,7 +281,7 @@ export function ReaderScreen({
                         </view>
                         <text
                             style={{
-                                flex: 1,
+                                flexGrow: 1,
                                 color: '#fff',
                                 fontSize: '16px',
                                 marginLeft: '8px',

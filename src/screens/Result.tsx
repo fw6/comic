@@ -47,18 +47,29 @@ export function ResultScreen({
         : `"${keyword}" 的搜索结果`;
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar theme={theme} title={title} onBack={() => nav.pop()} />
             {loading ? (
                 <view
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         top: '45%',
                         width: '100%',
                         alignItems: 'center',
                     }}
                 >
-                    <text style={{ fontSize: 15, color: '#999' }}>
+                    <text style={{ fontSize: '15px', color: '#999' }}>
                         加载中...
                     </text>
                 </view>
@@ -68,16 +79,18 @@ export function ResultScreen({
                     listType="single"
                     spanCount={1}
                     scrollOrientation="vertical"
-                    style={{ flex: 1 }}
+                    style={{ flexGrow: 1 }}
                 >
                     {results.map((comic) => (
                         <list-item item-key={comic.id} key={comic.id}>
                             <view
                                 style={{
+                                    alignItems: 'stretch',
+                                    display: 'flex',
                                     flexDirection: 'row',
-                                    padding: 12,
+                                    padding: '12px',
                                     backgroundColor: '#fff',
-                                    borderBottomWidth: 1,
+                                    borderBottomWidth: '1px',
                                     borderBottomColor: '#eee',
                                 }}
                                 bindtap={() =>
@@ -87,7 +100,7 @@ export function ResultScreen({
                                     })
                                 }
                             >
-                                <view style={{ width: 60, height: 80 }}>
+                                <view style={{ width: '60px', height: '80px' }}>
                                     <ComicCover
                                         color={comic.cover}
                                         title={comic.title}
@@ -100,14 +113,17 @@ export function ResultScreen({
                                 </view>
                                 <view
                                     style={{
-                                        flex: 1,
-                                        marginLeft: 12,
+                                        alignItems: 'stretch',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        flexGrow: 1,
+                                        marginLeft: '12px',
                                         justifyContent: 'center',
                                     }}
                                 >
                                     <text
                                         style={{
-                                            fontSize: 16,
+                                            fontSize: '16px',
                                             color: '#212121',
                                             fontWeight: '500',
                                         }}
@@ -116,9 +132,9 @@ export function ResultScreen({
                                     </text>
                                     <text
                                         style={{
-                                            fontSize: 13,
+                                            fontSize: '13px',
                                             color: '#999',
-                                            marginTop: 4,
+                                            marginTop: '4px',
                                         }}
                                     >
                                         {comic.sourceTitle}
@@ -128,9 +144,9 @@ export function ResultScreen({
                                     </text>
                                     <text
                                         style={{
-                                            fontSize: 12,
+                                            fontSize: '12px',
                                             color: '#bbb',
-                                            marginTop: 4,
+                                            marginTop: '4px',
                                         }}
                                     >
                                         {comic.status === 'finish'
@@ -146,13 +162,17 @@ export function ResultScreen({
             {!loading && results.length === 0 ? (
                 <view
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         top: '45%',
                         width: '100%',
                         alignItems: 'center',
                     }}
                 >
-                    <text style={{ fontSize: 16, color: '#999' }}>无结果</text>
+                    <text style={{ fontSize: '16px', color: '#999' }}>
+                        无结果
+                    </text>
                 </view>
             ) : null}
         </view>

@@ -89,7 +89,15 @@ export function App() {
     }, []);
 
     return (
-        <view style={{ flex: 1 }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+            }}
+        >
             <ScreenView screen={screen} nav={nav} />
             {/* Night mode overlay: translucent black mask over the light theme */}
             {theme.night ? (

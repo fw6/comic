@@ -17,7 +17,16 @@ export function CategoryScreen({
     const categories = categoriesForSource(sourceId);
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title={source ? `${source.title} · 分类` : '分类'}
@@ -28,15 +37,16 @@ export function CategoryScreen({
                 listType="single"
                 spanCount={1}
                 scrollOrientation="vertical"
-                style={{ flex: 1 }}
+                style={{ flexGrow: 1 }}
             >
                 {categories.map((c) => (
                     <list-item item-key={c} key={c}>
                         <view
                             style={{
+                                display: 'flex',
                                 flexDirection: 'row',
                                 alignItems: 'center',
-                                padding: 16,
+                                padding: '16px',
                                 backgroundColor: '#fff',
                                 borderBottomWidth: '1px',
                                 borderBottomColor: '#f0f0f0',
@@ -51,14 +61,14 @@ export function CategoryScreen({
                         >
                             <text
                                 style={{
-                                    flex: 1,
+                                    flexGrow: 1,
                                     fontSize: '16px',
                                     color: '#212121',
                                 }}
                             >
                                 {c}
                             </text>
-                            <text style={{ color: '#bbb', fontSize: 18 }}>
+                            <text style={{ color: '#bbb', fontSize: '18px' }}>
                                 ›
                             </text>
                         </view>

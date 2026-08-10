@@ -67,24 +67,35 @@ export function EventSettingsScreen({
     const currentMap = editing?.map === 'long' ? longMap : clickMap;
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#f5f5f5',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title={`点击事件 · ${mode === 'page' ? '翻页模式' : '卷纸模式'}`}
                 onBack={() => nav.pop()}
             />
-            <view style={{ padding: 16 }}>
+            <view style={{ padding: '16px' }}>
                 <text
                     style={{
                         fontSize: '14px',
                         color: '#999',
-                        marginBottom: 12,
+                        marginBottom: '12px',
                     }}
                 >
                     点击屏幕 3×3 区域的触发事件（长按区域单独配置）
                 </text>
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
                         flexDirection: 'row',
                         flexWrap: 'wrap',
                         justifyContent: 'space-between',
@@ -94,11 +105,13 @@ export function EventSettingsScreen({
                         <view
                             key={z.key}
                             style={{
+                                display: 'flex',
+                                flexDirection: 'column',
                                 width: '31%',
                                 backgroundColor: '#fff',
                                 borderRadius: '6px',
                                 marginBottom: '10px',
-                                padding: 10,
+                                padding: '10px',
                                 alignItems: 'center',
                                 borderWidth: '1px',
                                 borderColor: '#eee',
@@ -151,6 +164,9 @@ export function EventSettingsScreen({
             {editing ? (
                 <view
                     style={{
+                        alignItems: 'stretch',
+                        display: 'flex',
+                        flexDirection: 'column',
                         position: 'absolute',
                         top: 0,
                         left: 0,
@@ -164,9 +180,9 @@ export function EventSettingsScreen({
                     <view
                         style={{
                             backgroundColor: '#fff',
-                            borderTopLeftRadius: 12,
-                            borderTopRightRadius: 12,
-                            padding: 16,
+                            borderTopLeftRadius: '12px',
+                            borderTopRightRadius: '12px',
+                            padding: '16px',
                         }}
                         bindtap={() => {}}
                     >
@@ -207,7 +223,7 @@ export function EventSettingsScreen({
                             >
                                 <text
                                     style={{
-                                        flex: 1,
+                                        flexGrow: 1,
                                         fontSize: '14px',
                                         color: '#333',
                                     }}

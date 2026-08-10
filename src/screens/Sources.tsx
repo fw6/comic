@@ -21,7 +21,16 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
         );
 
     return (
-        <view style={{ flex: 1, backgroundColor: '#fafafa' }}>
+        <view
+            style={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#fafafa',
+            }}
+        >
             <TopBar
                 theme={theme}
                 title="图源"
@@ -61,17 +70,18 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                 mainAxisGap={12}
                 crossAxisGap={12}
                 scrollOrientation="vertical"
-                style={{ flex: 1, padding: 12 }}
+                style={{ flexGrow: 1, padding: '12px' }}
             >
                 {sourceList().map((source: Source) => (
                     <list-item item-key={source.id} key={source.id}>
                         <view
                             style={{
+                                display: 'flex',
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 backgroundColor: '#fff',
                                 borderRadius: '6px',
-                                padding: 14,
+                                padding: '14px',
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
                             }}
                             bindtap={() =>
@@ -92,7 +102,15 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                                 checked={enabled[source.id]}
                                 onChange={() => toggle(source.id)}
                             />
-                            <view style={{ marginLeft: '10px', flex: 1 }}>
+                            <view
+                                style={{
+                                    alignItems: 'stretch',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    marginLeft: '10px',
+                                    flexGrow: 1,
+                                }}
+                            >
                                 <text
                                     style={{
                                         fontSize: '16px',
