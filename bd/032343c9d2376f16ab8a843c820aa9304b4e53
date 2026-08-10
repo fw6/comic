@@ -1,0 +1,21 @@
+README.md
+  s_23996ba9c78ad6::t_ef72d7fcdb9125 72
+.github/workflows/release.yml
+  s_23996ba9c78ad6::t_c1137c5c00da02 64-67,73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "bd032343c9d2376f16ab8a843c820aa9304b4e53",
+  "prompts": {},
+  "sessions": {
+    "s_23996ba9c78ad6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "sess_300fe6e4-075e-4693-a286-646fcb4da6b6",
+        "model": "unknown"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
