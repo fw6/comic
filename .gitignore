@@ -7,6 +7,12 @@
 node_modules
 dist/
 
+# Android build artifacts
+Cimoc-debug.apk
+android/local.properties
+android/.gradle/
+android/app/build/
+
 # IDE
 .vscode/*
 !.vscode/extensions.json

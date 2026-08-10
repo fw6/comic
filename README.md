@@ -1,21 +1,75 @@
-## Rspeedy project
+# Cimoc · Lynx
 
-This is a ReactLynx project bootstrapped with `create-rspeedy`.
+使用 **Lynx + @lynx-js/lynx-ui** 100% 复刻的在线漫画阅读器 [Cimoc](https://github.com/Haleydu/Cimoc)。
 
-## Getting Started
+本项目以 Material Design 视觉风格和交互方式忠实还原 Cimoc 的界面与功能结构，**数据层为真实图源链路**（Webtoons），在非原生环境（web/测试）自动回退到 mock 数据。
 
-First, install the dependencies:
+## 真实数据链路
+
+- **真实图源解析**（`src/data/webtoons.ts`）：抓取 Webtoons 公开页面解析搜索、分类、详情、章节与图片 URL（HTML 解析，无需登录）。
+- **原生桥**（`src/native/bridge.ts` + Android 宿主 Kotlin 模块）：
+  - `NetworkModule` — okhttp HTTP GET（图源抓取）
+  - `StorageModule` — 收藏/历史/设置/标签/下载 JSON 持久化
+  - `DownloadModule` — 章节图片真实下载到应用私有目录
+  - `LocalModule` — SAF 文件夹选择 + 本地漫画扫描（本地标签页）
+  - `WebDavModule` — WebDAV 云备份/恢复（备份页）
+- **数据服务层**（`src/data/service.ts`）：统一异步数据访问，搜索/分类/详情/章节/图片全部走真实图源；收藏/历史/设置/标签/下载通过原生桥持久化并在启动时恢复。
+
+## 功能
+
+- **主界面 · 漫画**：Material 导航抽屉（漫画 / 图源 / 日间·夜间 / 备份 / 设置 / 关于），抽屉头部展示最近阅读漫画。
+- **四大标签页**：历史 / 收藏 / 下载 / 本地，3 列封面网格 + 每页独立 FAB。
+  - 长按漫画弹出 **信息弹窗**（标题 / 图源 / 状态 / 当前章节 / 最后阅读时间），按标签页提供删除 / 取消收藏操作。
+  - 收藏页支持 **标签 / 状态筛选**（全部 / 完结 / 连载 / 自定义标签），历史页 FAB 一键清空，下载页 FAB 暂停 / 继续。
+- **图源**：2 列网格，可开关图源；点击进入该图源的 **分类浏览**（Category），长按查看图源详情；工具栏含搜索 / 全选 / 反选 / 清空。
+- **搜索**：关键词搜索 + 严格搜索 + **图源多选过滤**（工具栏"图源"）+ 热门搜索建议。
+- **漫画详情**：封面 / 作者 / 简介 / 状态 / 更新时间头部，3 列章节网格（含已下载标记），收藏 / 继续阅读双 FAB，长按头部弹简介；工具栏含**下载 / 编辑标签 / 搜索标题 / 搜索作者 / 分享漫画 / 反转列表**。
+- **编辑标签（TagEditor）**：预设标签 + 自定义标签，收藏页按标签筛选。
+- **阅读器**：翻页模式（Swiper）与卷纸模式（滚动），黑色背景 + 半透明 HUD（章节 / 页码 / **时钟**信息块 + 进度滑条），点按切换 HUD、左右区域翻章，进入自动记录阅读历史。
+- **阅读配置**：翻页 / 卷纸双页签 + **自定义点击 / 长按事件**（3×3 区域映射 14 种事件）。
+- **已下载列表（Task）**：下载漫画的离线章节列表，点击直接阅读。
+- **设置**：阅读 / 下载 / 搜索 / 应用四组设置，含**启动画面选择、存储位置、清除缓存**；主题 6 色 + 夜间遮罩透明度。
+- **备份 / 关于**：收藏 / 标签 / 设置三项备份与恢复；应用介绍与许可信息。
+- **主题系统**：6 种强调色（天蓝 / 蓝灰 / 青绿 / 紫色 / 粉色 / 棕色）+ 可调透明度的夜间遮罩。
+- 状态管理使用 **jotai**（`src/store.ts`）。
+
+## 快速开始
 
 ```bash
-pnpm install
+npm install
+npm run dev        # 启动开发服务器，扫描二维码预览
+npm run build      # 生产构建
+npm test           # 运行测试
+npm run check      # Biome 代码检查
 ```
 
-Then, run the development server:
+## Android APK 构建
+
+项目自带 `android/` 原生宿主工程（基于官方 [integrating-lynx-demo-projects](https://github.com/lynx-family/integrating-lynx-demo-projects) 精简），将 Lynx bundle 打包进独立可安装的 APK。
 
 ```bash
-pnpm run dev
+npm run apk:build    # 构建 Lynx bundle → 同步到 android assets → gradle 打 Debug APK
 ```
 
-Scan the QRCode in the terminal with your LynxExplorer App to see the result.
+产物位于 `android/app/build/outputs/apk/debug/app-debug.apk`。
 
-You can start editing the page by modifying `src/App.tsx`. The page auto-updates as you edit the file.
+连接已开启 USB 调试的真机（或启动模拟器）后：
+
+```bash
+npm run apk:install  # adb 安装
+```
+
+前提：`ANDROID_HOME` 指向 Android SDK（本机为 `~/Library/Android/sdk`），`android/gradlew` 会自动下载所需的 Gradle 8.7。
+
+## 目录结构
+
+```
+src/
+  App.tsx          应用入口 + 路由 + 夜间遮罩
+  store.ts         jotai 状态（设置、主题、收藏、历史）
+  theme/           6 套主题与夜间遮罩
+  data/            领域模型与 mock 数据
+  nav/             屏幕栈路由
+  components/      通用组件（顶栏、FAB、漫画卡片）
+  screens/         全部界面
+```
