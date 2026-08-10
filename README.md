@@ -61,6 +61,25 @@ npm run apk:install  # adb 安装
 
 前提：`ANDROID_HOME` 指向 Android SDK（本机为 `~/Library/Android/sdk`），`android/gradlew` 会自动下载所需的 Gradle 8.7。
 
+## GitHub Actions 发布
+
+`.github/workflows/release.yml` 在 CI 上完成「构建 → 测试 → 打 APK → 发布」全流程：
+
+- **触发方式**
+  - 推送 `v*` 标签（如 `v1.0.0`）：构建完成后自动创建 GitHub Release，并附上 Debug APK 作为下载资产；
+  - 手动触发（Actions 页面的 *Run workflow*）：仅构建并上传 APK 为 workflow artifact，不创建 Release。
+- **构建内容**：Node 22 安装依赖并跑测试 → 构建 Lynx bundle → 同步到 Android assets → JDK 17 + Android SDK 34 执行 `./gradlew assembleDebug`。
+- **产物**：`Cimoc-<版本>-debug.apk`，发布在对应 tag 的 Release 页面。
+
+发布一个版本：
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+> 说明：当前发布的是 Debug APK（与本地 `npm run apk:build` 产物一致）。如需正式签名包，可在 `android/app/build.gradle.kts` 中配置 `signingConfigs`，并通过 GitHub Secrets 注入 keystore 后在 workflow 中增加 `assembleRelease` 步骤。
+
 ## 目录结构
 
 ```
