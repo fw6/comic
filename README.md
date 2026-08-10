@@ -69,7 +69,7 @@ npm run apk:install  # adb 安装
   - 推送 `v*` 标签（如 `v1.0.0`）：构建完成后自动创建 GitHub Release，并附上 Debug APK 作为下载资产；
   - 手动触发（Actions 页面的 *Run workflow*）：仅构建并上传 APK 为 workflow artifact，不创建 Release。
 - **构建内容**：Node 22 安装依赖并跑测试 → 构建 Lynx bundle → 同步到 Android assets → JDK 17 + Android SDK 34 执行 `./gradlew assembleDebug`。
-- **产物**：`Cimoc-<版本>-debug.apk`，发布在对应 tag 的 Release 页面。
+- **产物**：`Cimoc-<版本>.apk`（如 `Cimoc-v1.0.0.apk`），发布在对应 tag 的 Release 页面。
 
 发布一个版本：
 

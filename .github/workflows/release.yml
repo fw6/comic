@@ -61,10 +61,14 @@ jobs:
           name: cimoc-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Rename APK for release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "Cimoc-${{ github.ref_name }}.apk"
+
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           name: Cimoc ${{ github.ref_name }}
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+          files: Cimoc-${{ github.ref_name }}.apk
           generate_release_notes: true
