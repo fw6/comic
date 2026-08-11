@@ -16,6 +16,8 @@ import {
     loadChapterImages,
     loadChapters,
     loadComic,
+    searchComics,
+    sourceList,
 } from '../data/service.js';
 import { historyAtom, progressAtom, useAppStore } from '../store.js';
 import type { AppStore } from '../store.js';
@@ -49,6 +51,37 @@ const fakeNativeModules = {
             }
             if (url.includes('viewer?title_no=1571')) {
                 return cb({ status: 200, body: fixture('viewer.html') });
+            }
+            // MangaDex API（多源分派测试）
+            if (url.includes('/manga/tag')) {
+                return cb({
+                    status: 200,
+                    body: fixture('mangadex-tags.json'),
+                });
+            }
+            if (url.includes('/at-home/server/')) {
+                return cb({
+                    status: 200,
+                    body: fixture('mangadex-at-home.json'),
+                });
+            }
+            if (url.includes('/manga/7e544761-7d3d-4fce-8137-719814d7d138/feed')) {
+                return cb({
+                    status: 200,
+                    body: fixture('mangadex-feed.json'),
+                });
+            }
+            if (url.includes('/manga/7e544761-7d3d-4fce-8137-719814d7d138')) {
+                return cb({
+                    status: 200,
+                    body: fixture('mangadex-detail.json'),
+                });
+            }
+            if (url.includes('/manga?title=eleceed')) {
+                return cb({
+                    status: 200,
+                    body: fixture('mangadex-search.json'),
+                });
             }
             cb(false, `unknown url ${url}`);
         },
@@ -233,5 +266,53 @@ describe('真实数据链路（走原生桥）', () => {
         const imgs = await svc.loadChapterImages('webtoons-1571', 398);
         expect(imgs).toHaveLength(3);
         expect(imgs[0]).toMatch(/^https:\/\//);
+    });
+});
+
+describe('多图源分派（注册表）', () => {
+    it('sourceList 只返回真实图源（无 mock）', () => {
+        const sources = sourceList();
+        expect(sources.map((s) => s.id).sort()).toEqual([
+            'mangadex',
+            'webtoons',
+        ]);
+    });
+
+    it('searchComics 跨多图源并发搜索并合并去重', async () => {
+        const results = await searchComics('eleceed', ['webtoons', 'mangadex']);
+        const ids = results.map((c) => c.id);
+        // webtoons 1 条（webtoons-1571）+ mangadex 2 条
+        expect(ids).toContain('webtoons-1571');
+        expect(ids).toContain('mangadex-7e544761-7d3d-4fce-8137-719814d7d138');
+        expect(ids).toContain('mangadex-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+        expect(new Set(ids).size).toBe(ids.length); // 无重复
+        const titles = results.map((c) => c.title);
+        expect(titles.filter((t) => t === 'Eleceed')).toHaveLength(2); // 两源同名
+    });
+
+    it('loadComic / loadChapters / loadChapterImages 按前缀路由到 MangaDex', async () => {
+        const comic = await loadComic(
+            'mangadex-7e544761-7d3d-4fce-8137-719814d7d138',
+        );
+        expect(comic?.title).toBe('Eleceed');
+        expect(comic?.source).toBe('mangadex');
+
+        const chapters = await loadChapters(
+            'mangadex-7e544761-7d3d-4fce-8137-719814d7d138',
+        );
+        expect(chapters.map((c) => c.index)).toEqual([1, 2, 3]);
+
+        const imgs = await loadChapterImages(
+            'mangadex-7e544761-7d3d-4fce-8137-719814d7d138',
+            1,
+        );
+        expect(imgs).toHaveLength(2);
+        expect(imgs[0]).toMatch(/^https:\/\/.*\.mangadex\.network\/data\//);
+    });
+
+    it('未知前缀的漫画如实返回空（无 mock 回退）', async () => {
+        expect(await loadComic('unknown-1')).toBeNull();
+        expect(await loadChapters('unknown-1')).toEqual([]);
+        expect(await loadChapterImages('unknown-1', 1)).toEqual([]);
     });
 });

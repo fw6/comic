@@ -1,5 +1,4 @@
 import { Checkbox, List } from '@lynx-js/lynx-ui';
-import { useState } from '@lynx-js/react';
 import { ToolbarAction, TopBar } from '../components/TopBar.js';
 import type { Source } from '../data/models.js';
 import { sourceList } from '../data/service.js';
@@ -9,16 +8,14 @@ import { useAppStore } from '../store.js';
 export function SourcesScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
-    const [enabled, setEnabled] = useState<Record<string, boolean>>(() =>
-        Object.fromEntries(sourceList().map((s) => [s.id, s.enabled])),
-    );
+    // 图源开关与 Search 页共享，持久化在原生存储
+    const enabled = store.sources;
 
-    const toggle = (id: string) =>
-        setEnabled((prev) => ({ ...prev, [id]: !prev[id] }));
-    const setAll = (value: boolean) =>
-        setEnabled((prev) =>
-            Object.fromEntries(Object.keys(prev).map((k) => [k, value])),
-        );
+    const setAll = (value: boolean) => {
+        const next: Record<string, boolean> = {};
+        for (const s of sourceList()) next[s.id] = value;
+        store.updateSources(next);
+    };
 
     return (
         <view
@@ -48,12 +45,10 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                         <ToolbarAction
                             label="反选"
                             onTap={() => {
-                                setEnabled((prev) => {
-                                    const next: Record<string, boolean> = {};
-                                    for (const k of Object.keys(prev))
-                                        next[k] = !prev[k];
-                                    return next;
-                                });
+                                const next: Record<string, boolean> = {};
+                                for (const s of sourceList())
+                                    next[s.id] = !enabled[s.id];
+                                store.updateSources(next);
                             }}
                         />
                         <ToolbarAction
@@ -99,8 +94,8 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                             }
                         >
                             <Checkbox
-                                checked={enabled[source.id]}
-                                onChange={() => toggle(source.id)}
+                                checked={!!enabled[source.id]}
+                                onChange={() => store.toggleSource(source.id)}
                             />
                             <view
                                 style={{

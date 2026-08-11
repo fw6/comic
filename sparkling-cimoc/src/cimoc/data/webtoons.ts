@@ -1,6 +1,6 @@
 /**
  * Webtoons 图源解析器（真实数据链路）。
- * 通过原生 NetworkModule 抓取 HTML 并解析，替代 mock 数据。
+ * 通过原生 NetworkModule 抓取 HTML 并解析。
  * 覆盖 Cimoc 图源接口：搜索、分类、详情、章节、图片。
  */
 
@@ -54,7 +54,7 @@ export function webtoonsCategories(): string[] {
     return GENRES.map((g) => g.label);
 }
 
-/** 非 200 响应直接抛错，让服务层回退到 mock，而不是把错误页解析成垃圾数据 */
+/** 非 200 响应直接抛错，让服务层如实返回空（无 mock 数据） */
 function ensureOk(res: { status: number }, label: string): void {
     if (res.status !== 200) {
         throw new Error(`Webtoons ${label} page HTTP ${res.status}`);

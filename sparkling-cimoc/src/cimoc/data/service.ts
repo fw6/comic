@@ -1,8 +1,7 @@
 /**
- * 统一数据服务层：真实数据链路（Webtoons 图源 + 原生桥持久化）。
- * - 浏览/搜索/详情/章节/图片：来自真实 Webtoons 数据。
- * - 收藏/历史/标签/下载/设置：通过原生 StorageModule 持久化。
- * - 当原生桥不可用（web/jsdom 测试环境）时回退到 mock，保证 UI 可开发验证。
+ * 统一数据服务层：真实图源链路（Webtoons / MangaDex）+ 原生桥持久化。
+ * 不含任何 mock 数据：图源请求失败如实返回空（null/[]），由 UI 呈现空态；
+ * 收藏/历史/标签/下载/设置/进度/图源开关通过原生 StorageModule 持久化。
  */
 
 import {
@@ -12,32 +11,18 @@ import {
     storeGet,
     storeSet,
 } from '../native/bridge.js';
+import type { Chapter, Comic, DownloadItem, LibraryTab, Source } from './models.js';
 import {
-    getChapters as getMockChapters,
-    COMICS as MOCK_COMICS,
-    SOURCES as MOCK_SOURCES,
-} from './mock.js';
-import type {
-    Chapter,
-    Comic,
-    DownloadItem,
-    LibraryTab,
-    Source,
-} from './models.js';
-import {
-    categoryWebtoons,
-    dumpSeriesUrlCache,
-    fetchChapterImages,
-    fetchComicDetail,
-    hydrateSeriesUrlCache,
-    searchWebtoons,
-    WEBTOONS_SOURCE,
-    webtoonsCategories,
-} from './webtoons.js';
+    adapterForComic,
+    adapterForSource,
+    adapters,
+    type SourceAdapter,
+} from './sources.js';
 
 export { scanLocalComics } from '../native/bridge.js';
+export type { SourceAdapter };
 
-// --- 原生能力探测：在非 Lynx 环境（测试）中回退到 mock ---
+// --- 原生能力探测：非 Lynx 环境（web/jsdom 测试）不发起真实网络/持久化 ---
 let nativeReady: boolean | null = null;
 export function isNativeReady(): boolean {
     if (nativeReady !== null) return nativeReady;
@@ -51,59 +36,26 @@ const comicCache = new Map<string, Comic>();
 const chapterCache = new Map<string, Chapter[]>();
 const imageCache = new Map<string, string[]>();
 
-// 系列 URL 缓存的跨会话恢复只做一次（幂等），避免与 App 启动时的 store 恢复竞争。
-let dataHydrated = false;
-async function ensureDataHydrated(): Promise<void> {
-    if (dataHydrated || !isNativeReady()) return;
-    dataHydrated = true;
-    try {
-        const urls = await loadSeriesUrls();
-        if (urls) hydrateSeriesUrlCache(urls);
-    } catch {
-        // 恢复失败不阻塞真实数据请求
-    }
-}
-
-/** 每次成功解析到系列 URL 后持久化，保证重启后历史/收藏里的真实漫画仍可打开 */
-function persistSeriesUrlsSoon(): void {
-    if (!isNativeReady()) return;
-    void persistSeriesUrls(dumpSeriesUrlCache());
-}
-
-const ID_PREFIX = 'webtoons-';
-
-function isWebtoonsId(id: string): boolean {
-    return id.startsWith(ID_PREFIX);
-}
-
 /** 从缓存或网络获取漫画 */
 export async function loadComic(id: string): Promise<Comic | null> {
     const cached = comicCache.get(id);
-    // 若缓存标题是占位（Webtoon xxx），说明仅来自列表页，需用详情页刷新完整信息
+    // 若缓存标题是占位（仅来自列表页），需用详情页刷新完整信息
     const needDetail =
         cached === undefined || cached.title.startsWith('Webtoon ');
     if (!needDetail) return cached;
-    if (isNativeReady() && isWebtoonsId(id)) {
+    const adapter = adapterForComic(id);
+    if (isNativeReady() && adapter) {
         try {
-            await ensureDataHydrated();
-            const titleNo = id.slice(ID_PREFIX.length);
-            const { comic, chapters } = await fetchComicDetail(titleNo);
+            const { comic, chapters } = await adapter.fetchDetail(id);
             comicCache.set(id, comic);
             chapterCache.set(
                 id,
                 chapters.map((c) => ({ ...c })),
             );
-            persistSeriesUrlsSoon();
             return comic;
         } catch {
-            // 网络失败 → 回退
+            // 网络失败 → 如实返回 null
         }
-    }
-    const mock = MOCK_COMICS.find((c) => c.id === id);
-    if (mock) {
-        comicCache.set(id, mock);
-        chapterCache.set(id, getMockChapters(mock));
-        return mock;
     }
     return null;
 }
@@ -114,24 +66,16 @@ export async function loadChapters(id: string): Promise<Chapter[]> {
     if (cached) return cached;
     const comic = await loadComic(id);
     if (!comic) return [];
-    if (isNativeReady() && isWebtoonsId(id)) {
+    const adapter = adapterForComic(id);
+    if (isNativeReady() && adapter) {
         try {
-            await ensureDataHydrated();
-            const titleNo = id.slice(ID_PREFIX.length);
-            const { chapters } = await fetchComicDetail(titleNo);
+            const { chapters } = await adapter.fetchDetail(id);
             const chs = chapters.map((c) => ({ ...c }));
             chapterCache.set(id, chs);
-            persistSeriesUrlsSoon();
             return chs;
         } catch {
-            // fall through to mock
+            // 网络失败 → 如实返回空
         }
-    }
-    const mock = MOCK_COMICS.find((c) => c.id === id);
-    if (mock) {
-        const chs = getMockChapters(mock);
-        chapterCache.set(id, chs);
-        return chs;
     }
     return [];
 }
@@ -144,79 +88,77 @@ export async function loadChapterImages(
     const key = `${id}/${chapterIndex}`;
     const cachedImgs = imageCache.get(key);
     if (cachedImgs) return cachedImgs;
-    if (isNativeReady() && isWebtoonsId(id)) {
+    const adapter = adapterForComic(id);
+    if (isNativeReady() && adapter) {
         try {
-            await ensureDataHydrated();
-            const titleNo = id.slice(ID_PREFIX.length);
-            const imgs = await fetchChapterImages(titleNo, chapterIndex);
+            const imgs = await adapter.fetchChapterImages(id, chapterIndex);
             if (imgs.length > 0) {
                 imageCache.set(key, imgs);
                 return imgs;
             }
         } catch {
-            // fall through
+            // 网络失败 → 如实返回空
         }
     }
-    // mock：生成占位色块（图片加载失败时兜底）
-    const chapters = await loadChapters(id);
-    const ch = chapters.find((c) => c.index === chapterIndex);
-    const n = ch?.pages.length ?? 12;
-    return Array.from({ length: n }, (_, i) => `mock-color-${i}`);
+    return [];
 }
 
-/** 搜索（真实） */
-export async function searchComics(keyword: string): Promise<Comic[]> {
-    if (isNativeReady()) {
-        try {
-            await ensureDataHydrated();
-            const results = await searchWebtoons(keyword);
-            if (results.length > 0) {
-                for (const r of results) comicCache.set(r.id, r);
-                persistSeriesUrlsSoon();
-                return results;
-            }
-        } catch {
-            // fall through
+/** 搜索：可限定图源（多源并发合并），否则在所有已启用图源上搜索 */
+export async function searchComics(
+    keyword: string,
+    sourceIds?: string[],
+): Promise<Comic[]> {
+    if (!isNativeReady()) return [];
+    const targets: SourceAdapter[] =
+        sourceIds && sourceIds.length > 0
+            ? (sourceIds
+                  .map((id) => adapterForSource(id))
+                  .filter((a): a is SourceAdapter => a !== undefined))
+            : adapters;
+    const results = await Promise.all(
+        targets.map((a) => a.search(keyword).catch(() => [] as Comic[])),
+    );
+    const seen = new Set<string>();
+    const merged: Comic[] = [];
+    for (const list of results) {
+        for (const c of list) {
+            if (seen.has(c.id)) continue;
+            seen.add(c.id);
+            merged.push(c);
         }
     }
-    return MOCK_COMICS.filter(
-        (c) =>
-            c.title.includes(keyword) ||
-            c.author.includes(keyword) ||
-            c.tags.some((t) => t.includes(keyword)),
-    ).slice(0, 30);
+    return merged;
 }
 
-/** 分类浏览（真实） */
-export async function categoryComics(label: string): Promise<Comic[]> {
-    if (isNativeReady()) {
-        try {
-            await ensureDataHydrated();
-            const results = await categoryWebtoons(label);
-            if (results.length > 0) {
-                for (const r of results) comicCache.set(r.id, r);
-                persistSeriesUrlsSoon();
-                return results;
-            }
-        } catch {
-            // fall through
-        }
+/** 分类浏览（指定图源） */
+export async function categoryComics(
+    label: string,
+    sourceId: string,
+): Promise<Comic[]> {
+    if (!isNativeReady()) return [];
+    const adapter = adapterForSource(sourceId);
+    if (!adapter) return [];
+    try {
+        return await adapter.category(label);
+    } catch {
+        return [];
     }
-    return MOCK_COMICS.filter((c) => c.tags.includes(label)).slice(0, 30);
 }
 
 export function sourceList(): Source[] {
-    if (isNativeReady()) {
-        return [WEBTOONS_SOURCE, ...MOCK_SOURCES.slice(1)];
-    }
-    return MOCK_SOURCES;
+    return adapters.map((a) => a.source);
 }
 
-export function categoriesForSource(sourceId: string): string[] {
-    if (sourceId === 'webtoons') return webtoonsCategories();
-    return MOCK_SOURCES.find((s) => s.id === sourceId)
-        ? ['热门', '最新', '热血', '恋爱']
-        : [];
+export async function categoriesForSource(
+    sourceId: string,
+): Promise<string[]> {
+    const adapter = adapterForSource(sourceId);
+    if (!adapter) return [];
+    try {
+        return await adapter.categories();
+    } catch {
+        return [];
+    }
 }
 
 // --- 真实下载 ---
@@ -225,7 +167,6 @@ export async function downloadChapter(
     chapterIndex: number,
     images: string[],
 ): Promise<boolean> {
-    if (!isNativeReady()) return true; // 非原生环境直接标记成功
     try {
         for (let i = 0; i < images.length; i++) {
             const ok = await downloadImage(images[i], comicId, chapterIndex, i);
@@ -278,7 +219,7 @@ const PERSIST_KEYS = {
     downloads: 'downloads',
     settings: 'settings',
     progress: 'progress',
-    seriesUrls: 'series-urls',
+    sources: 'sources',
 } as const;
 
 export async function persistState(key: string, value: unknown): Promise<void> {
@@ -360,14 +301,14 @@ export async function loadProgress(): Promise<
     );
 }
 
-/** 系列 URL 映射（titleNo -> 详情页 URL），供重启后恢复真实图源链路 */
-export async function persistSeriesUrls(
-    map: Record<string, string>,
+/** 图源开关：sourceId -> enabled（Sources 页与 Search 页共享） */
+export async function persistSources(
+    map: Record<string, boolean>,
 ): Promise<void> {
-    await persistState(PERSIST_KEYS.seriesUrls, map);
+    await persistState(PERSIST_KEYS.sources, map);
 }
-export async function loadSeriesUrls(): Promise<Record<string, string> | null> {
-    return loadPersisted<Record<string, string>>(PERSIST_KEYS.seriesUrls);
+export async function loadSources(): Promise<Record<string, boolean> | null> {
+    return loadPersisted<Record<string, boolean>>(PERSIST_KEYS.sources);
 }
 
 /** 仅更新内存中的漫画缓存（详情/信息弹窗展示最新续读位置）；进度持久化由 store 负责 */

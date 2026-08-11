@@ -11,14 +11,15 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
     const [keyword, setKeyword] = useState('');
     const [strict, setStrict] = useState(false);
     const [showSourcePicker, setShowSourcePicker] = useState(false);
-    const [selSources, setSelSources] = useState<Record<string, boolean>>(() =>
-        Object.fromEntries(sourceList().map((s) => [s.id, s.enabled])),
-    );
+    // 与 Sources 页共享的图源开关（持久化），默认全选已启用的图源
+    const [selSources, setSelSources] = useState<Record<string, boolean>>(() => ({
+        ...store.sources,
+    }));
 
     const submit = () => {
         if (!keyword.trim()) return;
         const sources = Object.keys(selSources).filter((k) => selSources[k]);
-        nav.push({ name: 'result', keyword: keyword.trim(), sources });
+        nav.push({ name: 'result', keyword: keyword.trim(), sources, mode: 'search' });
     };
 
     return (
@@ -79,12 +80,14 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                                 return (
                                     <view
                                         key={s.id}
-                                        bindtap={() =>
+                                        bindtap={() => {
                                             setSelSources((prev) => ({
                                                 ...prev,
                                                 [s.id]: !prev[s.id],
-                                            }))
-                                        }
+                                            }));
+                                            // 与 Sources 页共享并持久化
+                                            store.toggleSource(s.id);
+                                        }}
                                         style={{
                                             backgroundColor: active
                                                 ? theme.theme.primary
@@ -239,6 +242,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                                         name: 'result',
                                         keyword: s,
                                         sources,
+                                        mode: 'search',
                                     });
                                 }}
                                 style={{

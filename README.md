@@ -6,7 +6,7 @@
 > Sparkling 提供官方原生 Shell、多页面容器、CLI 与 Debug Panel，替代原先手写的 LynxView 宿主；
 > 原自建宿主代码（根目录 `src/`、`android/`）保留作历史参考，不再维护。
 
-本项目以 Material Design 视觉风格和交互方式忠实还原 Cimoc 的界面与功能结构，**数据层为真实图源链路**（Webtoons），在非原生环境（web/测试）自动回退到 mock 数据。
+本项目以 Material Design 视觉风格和交互方式忠实还原 Cimoc 的界面与功能结构，**数据层为真实图源链路**（Webtoons + MangaDex），**不含任何 mock 数据**：图源请求失败如实返回空，由 UI 呈现空态。
 
 ## Sparkling 版（sparkling-cimoc/）
 
@@ -17,21 +17,23 @@ npm run run:android  # 构建 bundle + 安装 Android debug 包并启动
 ```
 
 - 页面入口：`sparkling-cimoc/src/pages/main/`（渲染 Cimoc 应用）
-- 应用源码：`sparkling-cimoc/src/cimoc/`（App / 17 屏 / jotai store / Webtoons 数据层 / 原生桥）
+- 应用源码：`sparkling-cimoc/src/cimoc/`（App / 17 屏 / jotai store / 多图源数据层 / 原生桥）
 - 原生桥：5 个 Lynx Module（Network/Storage/Download/Local/WebDAV）接入 Sparkling 壳并在 `SparklingApplication` 注册
-- 已验证（模拟器端到端）：历史/收藏里真实漫画可打开 → 详情（真实标题/作者/简介/11 个真实章节）→ 阅读器显示真实章节图片（155 页）；
-  阅读进度（章节/时间）随 `recordHistory` 持久化，「继续阅读」按最后章节续读，重启后凭持久化的系列 URL 恢复。
+- 已验证（模拟器端到端）：Webtoons 与 MangaDex 两个真实图源均可打开 → 详情（真实标题/作者/简介/真实章节）→ 阅读器显示真实章节图片；
+  阅读进度（章节/时间）随 `recordHistory` 持久化，「继续阅读」按最后章节续读；搜索可跨多图源并发合并结果。
 
 ## 真实数据链路
 
-- **真实图源解析**（`src/data/webtoons.ts`）：抓取 Webtoons 公开页面解析搜索、分类、详情、章节与图片 URL（HTML 解析，无需登录）。
+- **图源注册表**（`src/data/sources.ts`）：统一 `SourceAdapter` 接口，按 id 前缀路由漫画/搜索/分类/详情/图片，新增图源只需注册一个 adapter。
+- **Webtoons**（`src/data/webtoons.ts`）：HTML 解析搜索、分类、详情、章节与图片 URL（无需登录），系列 URL 持久化供重启恢复。
+- **MangaDex**（`src/data/mangadex.ts`）：官方公开 JSON API（`api.mangadex.org`），搜索/分类（tags）/详情/章节/图片全链路，图片 CDN 无热链保护。
 - **原生桥**（`src/native/bridge.ts` + Android 宿主 Kotlin 模块）：
   - `NetworkModule` — okhttp HTTP GET（图源抓取）
-  - `StorageModule` — 收藏/历史/设置/标签/下载 JSON 持久化
+  - `StorageModule` — 收藏/历史/设置/标签/下载/图源开关 JSON 持久化
   - `DownloadModule` — 章节图片真实下载到应用私有目录
   - `LocalModule` — SAF 文件夹选择 + 本地漫画扫描（本地标签页）
   - `WebDavModule` — WebDAV 云备份/恢复（备份页）
-- **数据服务层**（`src/data/service.ts`）：统一异步数据访问，搜索/分类/详情/章节/图片全部走真实图源；收藏/历史/设置/标签/下载通过原生桥持久化并在启动时恢复。
+- **数据服务层**（`src/data/service.ts`）：统一异步数据访问，搜索/分类/详情/章节/图片全部走真实图源；收藏/历史/标签/下载/设置/进度/图源开关通过原生桥持久化并在启动时恢复。
 
 ## 功能
 

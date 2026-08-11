@@ -4,7 +4,7 @@ export type Screen =
     | { name: 'main' } // drawer + library tabs
     | { name: 'sources' }
     | { name: 'search' }
-    | { name: 'result'; keyword: string; sources: string[] }
+    | { name: 'result'; keyword: string; sources: string[]; mode: 'search' | 'category' }
     | { name: 'detail'; comicId: string }
     | {
           name: 'reader';

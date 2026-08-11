@@ -11,10 +11,12 @@ export function ResultScreen({
     nav,
     keyword,
     sources,
+    mode,
 }: {
     nav: NavApi;
     keyword: string;
     sources: string[];
+    mode: 'search' | 'category';
 }) {
     const store = useAppStore();
     const { theme } = store;
@@ -25,11 +27,11 @@ export function ResultScreen({
         let cancelled = false;
         setLoading(true);
         const load = async () => {
-            // 分类浏览（sources 限定）走真实图源分类；否则走搜索。
+            // 分类浏览走指定图源的分类；搜索可跨多图源并发合并。
             const data =
-                sources.length > 0
-                    ? await categoryComics(keyword)
-                    : await searchComics(keyword);
+                mode === 'category'
+                    ? await categoryComics(keyword, sources[0])
+                    : await searchComics(keyword, sources);
             if (!cancelled) {
                 setResults(data);
                 setLoading(false);
@@ -39,9 +41,9 @@ export function ResultScreen({
         return () => {
             cancelled = true;
         };
-    }, [keyword, sources]);
+    }, [keyword, sources, mode]);
 
-    const isCategory = sources.length > 0;
+    const isCategory = mode === 'category';
     const title = isCategory
         ? `${keyword}（${sources.length} 个图源）`
         : `"${keyword}" 的搜索结果`;

@@ -111,7 +111,12 @@ export function DetailScreen({
         {
             label: '搜索标题',
             onTap: () =>
-                nav.push({ name: 'result', keyword: comic.title, sources: [] }),
+                nav.push({
+                    name: 'result',
+                    keyword: comic.title,
+                    sources: [],
+                    mode: 'search',
+                }),
         },
         {
             label: '搜索作者',
@@ -120,6 +125,7 @@ export function DetailScreen({
                     name: 'result',
                     keyword: comic.author,
                     sources: [],
+                    mode: 'search',
                 }),
         },
         {

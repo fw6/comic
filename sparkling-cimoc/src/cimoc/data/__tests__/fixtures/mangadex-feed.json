@@ -1,0 +1,21 @@
+{
+  "result": "ok",
+  "response": "collection",
+  "data": [
+    {
+      "id": "59dcd5b1-8d41-4940-b5c6-60c684be5f69",
+      "type": "chapter",
+      "attributes": { "chapter": "1", "title": "Welcome", "translatedLanguage": "en" }
+    },
+    {
+      "id": "aaaaaaaa-1111-2222-3333-444444444444",
+      "type": "chapter",
+      "attributes": { "chapter": "2", "title": null, "translatedLanguage": "en" }
+    },
+    {
+      "id": "bbbbbbbb-1111-2222-3333-444444444444",
+      "type": "chapter",
+      "attributes": { "chapter": "3", "title": "Rival", "translatedLanguage": "en" }
+    }
+  ]
+}

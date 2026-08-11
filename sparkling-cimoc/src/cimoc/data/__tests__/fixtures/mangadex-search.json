@@ -1,0 +1,50 @@
+{
+  "result": "ok",
+  "response": "collection",
+  "data": [
+    {
+      "id": "7e544761-7d3d-4fce-8137-719814d7d138",
+      "type": "manga",
+      "attributes": {
+        "title": { "en": "Eleceed" },
+        "description": {
+          "en": "Jiwoo is a kind-hearted young man who harnesses the lightning quick reflexes of a cat to secretly make the world a better place."
+        },
+        "status": "ongoing",
+        "tags": [
+          {
+            "id": "391b0423-d847-456f-aff0-8b0cfc03066b",
+            "attributes": { "name": { "en": "Action" }, "group": "genre" }
+          },
+          {
+            "id": "3e2b8dae-350e-4ab8-a8ce-016e844b9f0d",
+            "attributes": { "name": { "en": "Long Strip" }, "group": "format" }
+          }
+        ]
+      },
+      "relationships": [
+        {
+          "type": "author",
+          "id": "2c315c92-1e35-46e5-9bf3-7b7b83c59800",
+          "attributes": { "name": "Son Jae-Ho" }
+        },
+        {
+          "type": "cover_art",
+          "id": "3694ce8e-ce3d-4f73-8b18-5cfb8a22c465",
+          "attributes": { "fileName": "52cf193d-6862-43e8-9de4-1025c0e6e297.jpg" }
+        }
+      ]
+    },
+    {
+      "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "type": "manga",
+      "attributes": {
+        "title": { "en": "Eleceed Another" },
+        "description": {},
+        "status": "completed",
+        "tags": []
+      },
+      "relationships": []
+    }
+  ]
+}

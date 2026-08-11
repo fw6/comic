@@ -25,41 +25,14 @@ function currentClock(): string {
     return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function PageImage({
-    src,
-    color,
-    pageNo,
-}: {
-    src: string;
-    color: string;
-    pageNo: number;
-}) {
-    // 真实图片 URL 用 <image>；mock 占位色块显示页码
-    if (src.startsWith('http')) {
-        return (
-            <image
-                src={src}
-                mode="aspectFit"
-                style={{ width: '100%', height: '100%' }}
-            />
-        );
-    }
+function PageImage({ src }: { src: string }) {
+    // 真实图源图片 URL 直接加载（无 mock 占位）
     return (
-        <view
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: color,
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-        >
-            <text style={{ color: 'rgba(255,255,255,0.85)', fontSize: '24px' }}>
-                第 {pageNo} 页
-            </text>
-        </view>
+        <image
+            src={src}
+            mode="aspectFit"
+            style={{ width: '100%', height: '100%' }}
+        />
     );
 }
 
@@ -158,7 +131,6 @@ export function ReaderScreen({
     const chapter = chapters.find((c) => c.index === curChapter);
     const chapterTitle = chapter?.title ?? `第 ${curChapter} 话`;
     const isDark = !store.settings.whiteBackground;
-    const colors = images.map((_, i) => `hsl(${(i * 47) % 360}, 45%, 55%)`);
 
     const toggleHud = () => setShowHud(!showHud);
     // 章节号不一定是连续数组下标（真实图源为话数，排序新旧不一），
@@ -210,13 +182,9 @@ export function ReaderScreen({
                     onChange={(current) => setCurPage(current)}
                     style={{ width: screenWidth, height: screenHeight }}
                 >
-                    {({ item, index }) => (
+                    {({ item }) => (
                         <SwiperItem>
-                            <PageImage
-                                src={item}
-                                color={colors[index]}
-                                pageNo={index + 1}
-                            />
+                            <PageImage src={item} />
                         </SwiperItem>
                     )}
                 </Swiper>
@@ -236,14 +204,9 @@ export function ReaderScreen({
                             style={{
                                 width: '100%',
                                 height: '600px',
-                                backgroundColor: colors[i] ?? '#333',
                             }}
                         >
-                            <PageImage
-                                src={src}
-                                color={colors[i] ?? '#333'}
-                                pageNo={i + 1}
-                            />
+                            <PageImage src={src} />
                         </view>
                     ))}
                 </view>

@@ -12,14 +12,17 @@ import {
     loadHistory,
     loadProgress,
     loadSettings,
+    loadSources,
     loadTags,
     persistDownloads,
     persistFavorites,
     persistHistory,
     persistProgress,
     persistSettings,
+    persistSources,
     persistTags,
     type ReadingProgress,
+    sourceList,
     updateComicProgress,
 } from './data/service.js';
 import { type AppTheme, THEMES, type ThemeName } from './theme/index.js';
@@ -79,37 +82,18 @@ export const DEFAULT_READER: ReaderSettings = {
 // --- atoms ---
 export const settingsAtom = atom<ReaderSettings>(DEFAULT_READER);
 export const nightAtom = atom(false);
-export const favoritesAtom = atom<string[]>([
-    'comic-2',
-    'comic-5',
-    'comic-8',
-    'comic-11',
-    'comic-14',
-    'comic-17',
-    'comic-20',
-    'comic-23',
-    'comic-26',
-]);
-export const historyAtom = atom<string[]>([
-    'comic-0',
-    'comic-1',
-    'comic-2',
-    'comic-3',
-    'comic-4',
-    'comic-5',
-    'comic-6',
-    'comic-7',
-]);
+export const favoritesAtom = atom<string[]>([]);
+export const historyAtom = atom<string[]>([]);
+/** 图源开关：sourceId -> enabled（默认取注册表静态配置，可被原生存储覆盖） */
+export const sourcesAtom = atom<Record<string, boolean>>(
+    Object.fromEntries(sourceList().map((s) => [s.id, s.enabled])),
+);
 /** Custom user tags per comic id (Cimoc: 编辑标签). */
 export const tagsAtom = atom<Record<string, string[]>>({});
 /** 阅读进度：comicId -> 最后阅读章节与时间（用于“继续阅读”续读）。 */
 export const progressAtom = atom<Record<string, ReadingProgress>>({});
 /** Downloads queue: comicId -> list of chapter indexes. */
-export const downloadsAtom = atom<Record<string, number[]>>({
-    'comic-1': [0, 1, 2],
-    'comic-4': [0, 1],
-    'comic-9': [0],
-});
+export const downloadsAtom = atom<Record<string, number[]>>({});
 
 /** Derived theme object combining the selected theme, night flag and alpha. */
 export const themeAtom = atom<AppTheme>((get) => {
@@ -126,22 +110,24 @@ export function useIsFavorite(comicId: string): boolean {
     return useAtomValue(favoritesAtom).includes(comicId);
 }
 
-/** 从原生存储恢复状态（收藏/历史/设置/标签/下载/进度）。App 启动时调用一次。 */
+/** 从原生存储恢复状态（收藏/历史/设置/标签/下载/进度/图源开关）。App 启动时调用一次。 */
 export async function hydrateAppState(): Promise<void> {
     const store = getDefaultStore();
-    const [favs, hist, st, tg, dl, prog] = await Promise.all([
+    const [favs, hist, st, tg, dl, prog, srcs] = await Promise.all([
         loadFavorites(),
         loadHistory(),
         loadSettings(),
         loadTags(),
         loadDownloads(),
         loadProgress(),
+        loadSources(),
     ]);
     if (favs) store.set(favoritesAtom, favs);
     if (hist) store.set(historyAtom, hist);
     if (tg) store.set(tagsAtom, tg);
     if (dl) store.set(downloadsAtom, dl);
     if (prog) store.set(progressAtom, prog);
+    if (srcs) store.set(sourcesAtom, srcs);
     if (st) {
         store.set(settingsAtom, (prev) => ({
             ...prev,
@@ -171,6 +157,9 @@ export interface AppStore {
     addDownload: (comicId: string, chapterIndexes: number[]) => void;
     removeDownload: (comicId: string) => void;
     isDownloaded: (comicId: string, chapterIndex: number) => boolean;
+    sources: Record<string, boolean>;
+    toggleSource: (sourceId: string) => void;
+    updateSources: (next: Record<string, boolean>) => void;
 }
 
 /** Convenience hook exposing the same API used across screens. */
@@ -182,6 +171,7 @@ export function useAppStore(): AppStore {
     const [tags, setTags] = useAtom(tagsAtom);
     const [downloads, setDownloads] = useAtom(downloadsAtom);
     const [progress, setProgress] = useAtom(progressAtom);
+    const [sources, setSources] = useAtom(sourcesAtom);
     const theme = useAtomValue(themeAtom);
 
     return {
@@ -209,19 +199,20 @@ export function useAppStore(): AppStore {
         isFavorite: (comicId) => favorites.includes(comicId),
         history,
         recordHistory: (comicId, chapterIndex) => {
-            const next = [comicId, ...history.filter((id) => id !== comicId)];
+            // 从实时 atom 读取（而非渲染闭包），连续记录不丢失更新
+            const current = getDefaultStore().get(historyAtom);
+            const next = [comicId, ...current.filter((id) => id !== comicId)];
             setHistory(next);
             void persistHistory(next);
             if (chapterIndex !== undefined) {
                 const now = Date.now();
-                setProgress((prev) => ({
-                    ...prev,
+                const prog = getDefaultStore().get(progressAtom);
+                const nextProg = {
+                    ...prog,
                     [comicId]: { chapter: chapterIndex, time: now },
-                }));
-                void persistProgress({
-                    ...progress,
-                    [comicId]: { chapter: chapterIndex, time: now },
-                });
+                };
+                setProgress(nextProg);
+                void persistProgress(nextProg);
                 // 同步内存中的漫画缓存，让详情页/信息弹窗展示最新续读位置
                 updateComicProgress(comicId, chapterIndex, now);
             }
@@ -257,5 +248,15 @@ export function useAppStore(): AppStore {
         },
         isDownloaded: (comicId, chapterIndex) =>
             (downloads[comicId] ?? []).includes(chapterIndex),
+        sources,
+        toggleSource: (sourceId) => {
+            const next = { ...sources, [sourceId]: !sources[sourceId] };
+            setSources(next);
+            void persistSources(next);
+        },
+        updateSources: (next) => {
+            setSources(next);
+            void persistSources(next);
+        },
     };
 }

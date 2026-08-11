@@ -39,6 +39,7 @@ function ScreenView({
                     nav={nav}
                     keyword={screen.keyword}
                     sources={screen.sources}
+                    mode={screen.mode}
                 />
             );
         case 'detail':
