@@ -1,8 +1,25 @@
-# Cimoc · Lynx
+# Cimoc · Sparkling
 
-使用 **Lynx + @lynx-js/lynx-ui** 100% 复刻的在线漫画阅读器 [Cimoc](https://github.com/Haleydu/Cimoc)。
+使用 **Sparkling**（TikTok 跨端容器框架，底层 Lynx）+ **React** 100% 复刻的在线漫画阅读器 [Cimoc](https://github.com/Haleydu/Cimoc)。
+
+> **2026-08 迁移**：应用已从「自建 Android 宿主」迁移到官方 Sparkling 脚手架（`sparkling-cimoc/`）。
+> Sparkling 提供官方原生 Shell、多页面容器、CLI 与 Debug Panel，替代原先手写的 LynxView 宿主；
+> 原自建宿主代码（根目录 `src/`、`android/`）保留作历史参考，不再维护。
 
 本项目以 Material Design 视觉风格和交互方式忠实还原 Cimoc 的界面与功能结构，**数据层为真实图源链路**（Webtoons），在非原生环境（web/测试）自动回退到 mock 数据。
+
+## Sparkling 版（sparkling-cimoc/）
+
+```bash
+cd sparkling-cimoc
+npm run build        # sparkling-app-cli build：构建 Lynx bundle + 拷贝到原生 assets
+npm run run:android  # 构建 bundle + 安装 Android debug 包并启动
+```
+
+- 页面入口：`sparkling-cimoc/src/pages/main/`（渲染 Cimoc 应用）
+- 应用源码：`sparkling-cimoc/src/cimoc/`（App / 17 屏 / jotai store / Webtoons 数据层 / 原生桥）
+- 原生桥：5 个 Lynx Module（Network/Storage/Download/Local/WebDAV）接入 Sparkling 壳并在 `SparklingApplication` 注册
+- 已验证（真机）：主屏网格/页签/抽屉/详情/返回交互正常；原生桥可用；真实 Webtoons 搜索链路返回真实结果（Eleceed）
 
 ## 真实数据链路
 
