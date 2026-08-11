@@ -6,7 +6,20 @@ import { createVitestConfig } from '@lynx-js/react/testing-library/vitest-config
 
 const defaultConfig = await createVitestConfig()
 const config = defineConfig({
+  resolve: {
+    alias: {
+      // jotai 等依赖直接 import 'react'，测试环境需指向 Lynx 的 React 实现
+      react: '@lynx-js/react',
+      'react/jsx-runtime': '@lynx-js/react/jsx-runtime',
+    },
+  },
   test: {
+    server: {
+      deps: {
+        // jotai 直接 import 'react'，需内联让 Vite 的 alias 生效（指向 Lynx React）
+        inline: ['jotai'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'lcov', 'html'],

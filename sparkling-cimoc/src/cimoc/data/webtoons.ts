@@ -36,8 +36,29 @@ export const WEBTOONS_SOURCE: Source = {
 /** 缓存 titleNo -> 系列详情页 URL（含 genre slug） */
 const seriesUrlCache = new Map<string, string>();
 
+/**
+ * 系列 URL 需要跨会话可用：历史/收藏里的真实漫画在重启后靠它打开详情与图片。
+ * 服务层在每次成功解析后调用 dump/hydrate 持久化（StorageModule）。
+ */
+export function dumpSeriesUrlCache(): Record<string, string> {
+    return Object.fromEntries(seriesUrlCache.entries());
+}
+
+export function hydrateSeriesUrlCache(urls: Record<string, string>): void {
+    for (const [id, url] of Object.entries(urls)) {
+        if (!seriesUrlCache.has(id)) seriesUrlCache.set(id, url);
+    }
+}
+
 export function webtoonsCategories(): string[] {
     return GENRES.map((g) => g.label);
+}
+
+/** 非 200 响应直接抛错，让服务层回退到 mock，而不是把错误页解析成垃圾数据 */
+function ensureOk(res: { status: number }, label: string): void {
+    if (res.status !== 200) {
+        throw new Error(`Webtoons ${label} page HTTP ${res.status}`);
+    }
 }
 
 /** HTML 实体解码 */
@@ -70,6 +91,7 @@ export async function fetchSeriesList(
         url = `${BASE}/genres/${genre.key}`;
     }
     const res = await netGetText(url, UA_HEADERS);
+    ensureOk(res, `search "${keyword}"`);
     const html = res.body;
     const comics: Comic[] = [];
     // 系列卡片：<a href=".../list?title_no=NNN">，标题在 <p class="subj"> 或 title 属性
@@ -127,13 +149,13 @@ export async function categoryWebtoons(label: string): Promise<Comic[]> {
 export async function fetchComicDetail(
     titleNo: string,
 ): Promise<{ comic: Comic; chapters: Chapter[] }> {
-    // 优先使用分类/搜索阶段缓存的系列 URL（含 genre slug）；否则构造兜底路径
+    // 优先使用分类/搜索阶段缓存的系列 URL（含 genre slug）；否则构造兜底路径。
+    // 注意：兜底路径（/any/）真实环境返回 500，只用于触发回退，不写入缓存——
+    // 缓存只记录真实页面解析出的系列 URL，避免污染图片解析的 slug 提取。
     const seriesUrl =
         seriesUrlCache.get(titleNo) ?? `${BASE}/any/list?title_no=${titleNo}`;
-    if (!seriesUrlCache.has(titleNo)) {
-        seriesUrlCache.set(titleNo, seriesUrl);
-    }
     const res = await netGetText(seriesUrl, UA_HEADERS);
+    ensureOk(res, `detail ${titleNo}`);
     const html = res.body;
 
     // 标题：优先 h1（跨页面变体最稳定），其次 <title> 标签
@@ -194,11 +216,14 @@ export async function fetchComicDetail(
         const epNo = parseInt(em[2], 10);
         if (seenEp.has(epNo)) continue;
         seenEp.add(epNo);
-        // 附近标题
-        const ctx = html.slice(Math.max(0, em.index - 200), em.index + 120);
+        // 附近标题：真实结构为 <a ...><img ... alt="Episode N"><span class="subj"><span>Episode N</span>
+        // 缩略图 alt 在 href 之后约 300 字符处，最稳定；subj 在 ~330 字符处。
+        const after = html.slice(em.index, em.index + 600);
         const tM =
-            ctx.match(/<span[^>]*class="subj"[^>]*>\s*([^<]+)/) ||
-            ctx.match(/class="subj"[^>]*>\s*([^<]+)/);
+            after.match(/alt="([^"]+)"/) ||
+            after.match(
+                /<span[^>]*class="subj"[^>]*>\s*(?:<span[^>]*>\s*)?([^<]+)/,
+            );
         chapters.push({
             index: epNo,
             title: tM ? decodeEntities(tM[1].trim()) : `第 ${epNo} 话`,
@@ -232,6 +257,7 @@ export async function fetchChapterImages(
         Referer: seriesUrl ?? `${BASE}/any/list?title_no=${titleNo}`,
     };
     const res = await netGetText(path, headers);
+    ensureOk(res, `viewer ${titleNo}/${episodeNo}`);
     const html = res.body;
     // viewer 页每个真实章节图片是 <img class="_images" data-url="..."> 元素
     const re = /class="_images"\s+data-url="([^"]+)"/g;

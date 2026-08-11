@@ -19,7 +19,8 @@ npm run run:android  # 构建 bundle + 安装 Android debug 包并启动
 - 页面入口：`sparkling-cimoc/src/pages/main/`（渲染 Cimoc 应用）
 - 应用源码：`sparkling-cimoc/src/cimoc/`（App / 17 屏 / jotai store / Webtoons 数据层 / 原生桥）
 - 原生桥：5 个 Lynx Module（Network/Storage/Download/Local/WebDAV）接入 Sparkling 壳并在 `SparklingApplication` 注册
-- 已验证（真机）：主屏网格/页签/抽屉/详情/返回交互正常；原生桥可用；真实 Webtoons 搜索链路返回真实结果（Eleceed）
+- 已验证（模拟器端到端）：历史/收藏里真实漫画可打开 → 详情（真实标题/作者/简介/11 个真实章节）→ 阅读器显示真实章节图片（155 页）；
+  阅读进度（章节/时间）随 `recordHistory` 持久化，「继续阅读」按最后章节续读，重启后凭持久化的系列 URL 恢复。
 
 ## 真实数据链路
 
@@ -77,6 +78,10 @@ npm run apk:install  # adb 安装
 ```
 
 前提：`ANDROID_HOME` 指向 Android SDK（本机为 `~/Library/Android/sdk`），`android/gradlew` 会自动下载所需的 Gradle 8.7。
+
+> **图片加载**（`SparklingApplication.initFresco`）：Webtoons 图片 CDN（`pstatic.net`）有热链保护，
+> 不带 `Referer` 会返回 403 —— 宿主用 `OkHttpNetworkFetcher` 给图片请求统一补上 `Referer: https://www.webtoons.com/`；
+> 同时 `MemoryChunkType.BUFFER_MEMORY` 使用 Java 字节数组内存块，避免 16KB 页大小设备上加载 `libimagepipeline.so` 崩溃。
 
 ## GitHub Actions 发布
 

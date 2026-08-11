@@ -103,9 +103,9 @@ export function ReaderScreen({
     }, [comicId]);
 
     useEffect(() => {
-        // record reading history (Cimoc auto-saves on entering reader)
-        if (comic) store.recordHistory(comic.id);
-    }, [comic]);
+        // record reading history + 进度（Cimoc 进入阅读器即自动记录）
+        if (comic) store.recordHistory(comic.id, curChapter);
+    }, [comic, curChapter]);
 
     useEffect(() => {
         // 加载当前章节图片（真实网络或已下载本地）
@@ -161,11 +161,16 @@ export function ReaderScreen({
     const colors = images.map((_, i) => `hsl(${(i * 47) % 360}, 45%, 55%)`);
 
     const toggleHud = () => setShowHud(!showHud);
+    // 章节号不一定是连续数组下标（真实图源为话数，排序新旧不一），
+    // 用最小/最大话数作为翻章边界，且与排序无关。
+    const epNos = chapters.map((c) => c.index);
+    const minEp = epNos.length > 0 ? Math.min(...epNos) : 0;
+    const maxEp = epNos.length > 0 ? Math.max(...epNos) : 0;
     const prevChapter = () => {
-        if (curChapter > 0) setCurChapter(curChapter - 1);
+        if (curChapter > minEp) setCurChapter(curChapter - 1);
     };
     const nextChapter = () => {
-        if (curChapter < chapters.length - 1) setCurChapter(curChapter + 1);
+        if (curChapter < maxEp) setCurChapter(curChapter + 1);
     };
 
     return (

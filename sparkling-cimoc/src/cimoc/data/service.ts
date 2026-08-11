@@ -26,8 +26,10 @@ import type {
 } from './models.js';
 import {
     categoryWebtoons,
+    dumpSeriesUrlCache,
     fetchChapterImages,
     fetchComicDetail,
+    hydrateSeriesUrlCache,
     searchWebtoons,
     WEBTOONS_SOURCE,
     webtoonsCategories,
@@ -49,6 +51,25 @@ const comicCache = new Map<string, Comic>();
 const chapterCache = new Map<string, Chapter[]>();
 const imageCache = new Map<string, string[]>();
 
+// 系列 URL 缓存的跨会话恢复只做一次（幂等），避免与 App 启动时的 store 恢复竞争。
+let dataHydrated = false;
+async function ensureDataHydrated(): Promise<void> {
+    if (dataHydrated || !isNativeReady()) return;
+    dataHydrated = true;
+    try {
+        const urls = await loadSeriesUrls();
+        if (urls) hydrateSeriesUrlCache(urls);
+    } catch {
+        // 恢复失败不阻塞真实数据请求
+    }
+}
+
+/** 每次成功解析到系列 URL 后持久化，保证重启后历史/收藏里的真实漫画仍可打开 */
+function persistSeriesUrlsSoon(): void {
+    if (!isNativeReady()) return;
+    void persistSeriesUrls(dumpSeriesUrlCache());
+}
+
 const ID_PREFIX = 'webtoons-';
 
 function isWebtoonsId(id: string): boolean {
@@ -64,6 +85,7 @@ export async function loadComic(id: string): Promise<Comic | null> {
     if (!needDetail) return cached;
     if (isNativeReady() && isWebtoonsId(id)) {
         try {
+            await ensureDataHydrated();
             const titleNo = id.slice(ID_PREFIX.length);
             const { comic, chapters } = await fetchComicDetail(titleNo);
             comicCache.set(id, comic);
@@ -71,6 +93,7 @@ export async function loadComic(id: string): Promise<Comic | null> {
                 id,
                 chapters.map((c) => ({ ...c })),
             );
+            persistSeriesUrlsSoon();
             return comic;
         } catch {
             // 网络失败 → 回退
@@ -93,10 +116,12 @@ export async function loadChapters(id: string): Promise<Chapter[]> {
     if (!comic) return [];
     if (isNativeReady() && isWebtoonsId(id)) {
         try {
+            await ensureDataHydrated();
             const titleNo = id.slice(ID_PREFIX.length);
             const { chapters } = await fetchComicDetail(titleNo);
             const chs = chapters.map((c) => ({ ...c }));
             chapterCache.set(id, chs);
+            persistSeriesUrlsSoon();
             return chs;
         } catch {
             // fall through to mock
@@ -121,6 +146,7 @@ export async function loadChapterImages(
     if (cachedImgs) return cachedImgs;
     if (isNativeReady() && isWebtoonsId(id)) {
         try {
+            await ensureDataHydrated();
             const titleNo = id.slice(ID_PREFIX.length);
             const imgs = await fetchChapterImages(titleNo, chapterIndex);
             if (imgs.length > 0) {
@@ -142,9 +168,11 @@ export async function loadChapterImages(
 export async function searchComics(keyword: string): Promise<Comic[]> {
     if (isNativeReady()) {
         try {
+            await ensureDataHydrated();
             const results = await searchWebtoons(keyword);
             if (results.length > 0) {
                 for (const r of results) comicCache.set(r.id, r);
+                persistSeriesUrlsSoon();
                 return results;
             }
         } catch {
@@ -163,9 +191,11 @@ export async function searchComics(keyword: string): Promise<Comic[]> {
 export async function categoryComics(label: string): Promise<Comic[]> {
     if (isNativeReady()) {
         try {
+            await ensureDataHydrated();
             const results = await categoryWebtoons(label);
             if (results.length > 0) {
                 for (const r of results) comicCache.set(r.id, r);
+                persistSeriesUrlsSoon();
                 return results;
             }
         } catch {
@@ -247,6 +277,8 @@ const PERSIST_KEYS = {
     tags: 'tags',
     downloads: 'downloads',
     settings: 'settings',
+    progress: 'progress',
+    seriesUrls: 'series-urls',
 } as const;
 
 export async function persistState(key: string, value: unknown): Promise<void> {
@@ -307,6 +339,48 @@ export async function loadDownloads(): Promise<Record<
     number[]
 > | null> {
     return loadPersisted<Record<string, number[]>>(PERSIST_KEYS.downloads);
+}
+
+export interface ReadingProgress {
+    chapter: number;
+    time: number;
+}
+
+/** 阅读进度：comicId -> 最后阅读的章节（Chapter.index，真实图源为话数）与时间 */
+export async function persistProgress(
+    m: Record<string, ReadingProgress>,
+): Promise<void> {
+    await persistState(PERSIST_KEYS.progress, m);
+}
+export async function loadProgress(): Promise<
+    Record<string, ReadingProgress> | null
+> {
+    return loadPersisted<Record<string, ReadingProgress>>(
+        PERSIST_KEYS.progress,
+    );
+}
+
+/** 系列 URL 映射（titleNo -> 详情页 URL），供重启后恢复真实图源链路 */
+export async function persistSeriesUrls(
+    map: Record<string, string>,
+): Promise<void> {
+    await persistState(PERSIST_KEYS.seriesUrls, map);
+}
+export async function loadSeriesUrls(): Promise<Record<string, string> | null> {
+    return loadPersisted<Record<string, string>>(PERSIST_KEYS.seriesUrls);
+}
+
+/** 仅更新内存中的漫画缓存（详情/信息弹窗展示最新续读位置）；进度持久化由 store 负责 */
+export function updateComicProgress(
+    comicId: string,
+    chapterIndex: number,
+    time: number,
+): void {
+    const cached = comicCache.get(comicId);
+    if (cached) {
+        cached.lastReadChapter = chapterIndex;
+        cached.lastReadTime = time;
+    }
 }
 
 export type { Chapter, Comic, DownloadItem, LibraryTab };

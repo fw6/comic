@@ -1,6 +1,7 @@
 import { useEffect, useState } from '@lynx-js/react';
 import type { Comic } from '../data/models.js';
 import { loadChapters } from '../data/service.js';
+import { useAppStore } from '../store.js';
 
 function formatReadTime(ts: number): string {
     const d = new Date(ts);
@@ -22,6 +23,11 @@ export function ComicInfoDialog({
     onAction: () => void;
     onClose: () => void;
 }) {
+    const store = useAppStore();
+    const progress = store.getProgress(comic.id);
+    // 章节号（话数）不是数组下标，需按 index 精确匹配
+    const lastChapterIndex = progress?.chapter ?? comic.lastReadChapter ?? 0;
+    const lastReadTime = progress?.time ?? comic.lastReadTime ?? 0;
     const [lastChapterTitle, setLastChapterTitle] = useState('-');
 
     useEffect(() => {
@@ -29,18 +35,17 @@ export function ComicInfoDialog({
         const load = async () => {
             const chapters = await loadChapters(comic.id);
             if (!cancelled && chapters.length > 0) {
-                const idx = Math.min(
-                    comic.lastReadChapter,
-                    chapters.length - 1,
+                const ch = chapters.find(
+                    (c) => c.index === lastChapterIndex,
                 );
-                setLastChapterTitle(chapters[idx]?.title ?? '-');
+                setLastChapterTitle(ch?.title ?? '-');
             }
         };
         void load();
         return () => {
             cancelled = true;
         };
-    }, [comic.id]);
+    }, [comic.id, lastChapterIndex]);
 
     const row = (label: string, value: string) => (
         <view
@@ -101,7 +106,7 @@ export function ComicInfoDialog({
                 {row('图源', comic.sourceTitle)}
                 {row('状态', comic.status === 'finish' ? '已完结' : '连载中')}
                 {row('当前章节', lastChapterTitle)}
-                {row('最后阅读', formatReadTime(comic.lastReadTime))}
+                {row('最后阅读', formatReadTime(lastReadTime))}
                 <view
                     style={{
                         alignItems: 'stretch',

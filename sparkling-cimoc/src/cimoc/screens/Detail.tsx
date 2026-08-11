@@ -81,7 +81,11 @@ export function DetailScreen({
     const fav = store.isFavorite(comicId);
 
     const startReading = () => {
-        const idx = comic.lastReadChapter;
+        // 优先从持久化的阅读进度续读，其次回退到漫画缓存的最后章节
+        const idx =
+            store.getProgress(comicId)?.chapter ??
+            comic.lastReadChapter ??
+            0;
         nav.push({
             name: 'reader',
             comicId: comic.id,

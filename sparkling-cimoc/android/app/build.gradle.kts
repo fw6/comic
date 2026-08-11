@@ -69,6 +69,7 @@ android {
         implementation(libs.fresco.animated.webp)
         implementation(libs.fresco.webp.support)
         implementation(libs.fresco.animated.base)
+        implementation(libs.fresco.okhttp3)
 
 //    kapt(libs.lynx.processor)
 

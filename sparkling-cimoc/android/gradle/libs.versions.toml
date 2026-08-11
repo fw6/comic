@@ -13,6 +13,7 @@ lynxSdk="3.6.0"
 primjs="3.6.1"
 coroutines="1.5.6"
 fresco = "2.3.0"
+frescoOkhttp3 = "2.3.0"
 
 
 [libraries]
@@ -38,6 +39,7 @@ fresco-animated-gif = { group = "com.facebook.fresco", name = "animated-gif", ve
 fresco-animated-webp = { group = "com.facebook.fresco", name = "animated-webp", version.ref = "fresco" }
 fresco-webp-support = { group = "com.facebook.fresco", name = "webpsupport", version.ref = "fresco" }
 fresco-animated-base = { group = "com.facebook.fresco", name = "animated-base", version.ref = "fresco" }
+fresco-okhttp3 = { group = "com.facebook.fresco", name = "imagepipeline-okhttp3", version.ref = "frescoOkhttp3" }
 
 
 [plugins]

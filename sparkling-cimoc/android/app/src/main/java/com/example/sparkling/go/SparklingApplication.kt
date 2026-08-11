@@ -6,7 +6,9 @@ package com.example.sparkling.go
 import android.app.Application
 
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.imagepipeline.backends.okhttp3.OkHttpNetworkFetcher
 import com.facebook.imagepipeline.core.ImagePipelineConfig
+import com.facebook.imagepipeline.core.MemoryChunkType
 import com.facebook.imagepipeline.memory.PoolConfig
 import com.facebook.imagepipeline.memory.PoolFactory
 import com.lynx.tasm.behavior.Behavior
@@ -23,6 +25,7 @@ import com.tiktok.sparkling.method.router.utils.RouterProvider
 import com.example.sparkling.go.LynxInputComponent
 import com.lynx.tasm.LynxEnv
 import com.example.sparkling.go.BuiltinTemplateProvider
+import okhttp3.OkHttpClient
 
 
 class SparklingApplication : Application() {
@@ -35,7 +38,27 @@ class SparklingApplication : Application() {
 
     private fun initFresco() {
         val factory = PoolFactory(PoolConfig.newBuilder().build())
-        val builder = ImagePipelineConfig.newBuilder(applicationContext).setPoolFactory(factory)
+        // Webtoons 图片 CDN（pstatic.net）有热链保护：不带 Referer 返回 403。
+        // 用 OkHttp 网络抓取器给图片请求补上 Referer，保证阅读器真实图片可加载。
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request()
+                val newRequest = if (request.url.toString().contains("pstatic.net")) {
+                    request.newBuilder()
+                        .header("Referer", "https://www.webtoons.com/")
+                        .build()
+                } else {
+                    request
+                }
+                chain.proceed(newRequest)
+            }
+            .build()
+        val builder = ImagePipelineConfig.newBuilder(applicationContext)
+            .setPoolFactory(factory)
+            .setNetworkFetcher(OkHttpNetworkFetcher(okHttpClient))
+            // 16KB 页大小设备上 libimagepipeline.so 未按 16KB 对齐，加载即崩溃；
+            // 用 Java 字节数组内存块（BUFFER_MEMORY）绕过原生库，功能等价。
+            .setMemoryChunkType(MemoryChunkType.BUFFER_MEMORY)
         Fresco.initialize(applicationContext, builder.build())
     }
 
