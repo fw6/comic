@@ -1,0 +1,83 @@
+sparkling-cimoc/src/cimoc/__tests__/reading.test.ts
+  s_bfcc642f0920ba::t_02f0fa3877b681 1-9,11-22,31,33-118,120,125-140,144,152-183,185,206-207,209-216,218,221-234,236-237
+  s_bfcc642f0920ba::t_56391d7a27546b 10,23-30,32
+  s_bfcc642f0920ba::t_11c31c4b195906 146,148-150
+  s_bfcc642f0920ba::t_43329bbae36ad1 184,186-205,208,217,219-220,235
+  s_bfcc642f0920ba::t_1bc15613e7511e 119,121-124,141-143,145,147,151
+sparkling-cimoc/src/cimoc/screens/Detail.tsx
+  s_bfcc642f0920ba::t_a9da54ac0fa4ac 84-88
+sparkling-cimoc/android/app/build.gradle.kts
+  s_bfcc642f0920ba::t_5436b4a80c5435 72
+sparkling-cimoc/src/cimoc/store.ts
+  s_bfcc642f0920ba::t_b58d4a9f810ac1 105-106
+  s_bfcc642f0920ba::t_29361f476fc2fc 163,165-166
+  s_bfcc642f0920ba::t_da9dd8b6f4607e 184
+  s_bfcc642f0920ba::t_753aa6f8285d5c 129,132,138,144
+  s_bfcc642f0920ba::t_a2352e1ef215c6 211,215-227,234-235
+  s_bfcc642f0920ba::t_e270d8fcd2ebf6 13,19,22-23
+sparkling-cimoc/android/gradle/libs.versions.toml
+  s_bfcc642f0920ba::t_5436b4a80c5435 16,42
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingApplication.kt
+  s_bfcc642f0920ba::t_6b36227f7d349f 11
+  s_bfcc642f0920ba::t_c9488b7643ec40 59
+  s_bfcc642f0920ba::t_dd1d9b56883df0 60-61
+  s_bfcc642f0920ba::t_d0e85a94097e64 9,28
+  s_bfcc642f0920ba::t_192d5f8033a597 41-58
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/detail.html
+  s_bfcc642f0920ba::t_024414b68c5eac 1-46
+sparkling-cimoc/vitest.config.ts
+  s_bfcc642f0920ba::t_5d1e14de29c895 9-15
+  s_bfcc642f0920ba::t_9902d1f4805fe1 17-22
+sparkling-cimoc/src/cimoc/data/service.ts
+  s_bfcc642f0920ba::t_a21a338e064d9f 171,175
+  s_bfcc642f0920ba::t_75bd8735ec1f73 88,96
+  s_bfcc642f0920ba::t_13ca325aacbf5e 344-385
+  s_bfcc642f0920ba::t_13e6148ecc8263 149
+  s_bfcc642f0920ba::t_f1d62f81255125 280-281
+  s_bfcc642f0920ba::t_987732a52780ac 194,198
+  s_bfcc642f0920ba::t_e0f4cfdebb6495 29,32
+  s_bfcc642f0920ba::t_7b00065bead759 119,124
+  s_bfcc642f0920ba::t_02f408b7a1a31c 54-72
+sparkling-cimoc/src/cimoc/screens/Reader.tsx
+  s_bfcc642f0920ba::t_5f982b92e52bbd 106-108
+  s_bfcc642f0920ba::t_6240f84b7869bc 164-168,170,173
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/viewer.html
+  s_bfcc642f0920ba::t_945f11c7fd3701 1-3
+sparkling-cimoc/src/cimoc/data/__tests__/webtoons.test.ts
+  s_bfcc642f0920ba::t_d6fe84d0aa7a22 7,23-30,32
+  s_bfcc642f0920ba::t_e60995135b820c 1-6,8-22,31,33-107
+sparkling-cimoc/src/cimoc/data/webtoons.ts
+  s_bfcc642f0920ba::t_3fb321fd577308 152-154
+  s_bfcc642f0920ba::t_e8e9477512a2ba 219,223-224
+  s_bfcc642f0920ba::t_d8c226c332adce 220-221
+  s_bfcc642f0920ba::t_4083e204bddb90 260
+  s_bfcc642f0920ba::t_4a7712185d4948 39-52,57-61
+  s_bfcc642f0920ba::t_72246e6275877a 158
+  s_bfcc642f0920ba::t_5e19c17637de27 94
+  s_bfcc642f0920ba::t_20599eb6cc8028 225-226
+sparkling-cimoc/src/cimoc/components/ComicInfoDialog.tsx
+  s_bfcc642f0920ba::t_d69ec7ed24b96d 26-30,38-39,41,48
+  s_bfcc642f0920ba::t_78ee68cbbe761b 109
+  s_bfcc642f0920ba::t_a70634f892f16b 4
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/search-card.html
+  s_bfcc642f0920ba::t_945f11c7fd3701 1-48
+README.md
+  s_bfcc642f0920ba::t_6aa51ff131c3a3 82-85
+  s_bfcc642f0920ba::t_e2afe59ffddc10 22-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "c8cbf5b84e9fa924693ea7c1e99c54fadef39273",
+  "prompts": {},
+  "sessions": {
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
