@@ -1,0 +1,31 @@
+sparkling-cimoc/ios/SparklingGo/SparklingGo/SparklingSwiftVC.swift
+  s_bf4c999b8c1427::t_f092b7579d245c 33-34
+  s_bf4c999b8c1427::t_abc2b22e716bd0 28
+sparkling-cimoc/ios/Podfile
+  s_bf4c999b8c1427::t_c86a8bf1efc9b7 33,38,52,55,58,77-112
+sparkling-cimoc/ios/SparklingServiceRegistration.m
+  s_bf4c999b8c1427::t_076a9c0e2aa1c4 1-14,16-17
+  s_bf4c999b8c1427::t_d9b9586247fcf3 15,18
+sparkling-cimoc/Gemfile.lock
+  ai_agent 115-116
+sparkling-cimoc/src/pages/main/index.tsx
+  s_bf4c999b8c1427::t_74d999b718ab20 1,6-15
+sparkling-cimoc/ios/Podfile.lock
+  ai_agent 132-136,138,141,145,149-151,153-154,157-160,162,164,166,186,188-190,230-232,234
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "c2579c7070d01d14413a9a93a77e9fd685445c86",
+  "prompts": {},
+  "sessions": {
+    "s_bf4c999b8c1427": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_300fe6e4-075e-4693-a286-646fcb4da6b6",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
