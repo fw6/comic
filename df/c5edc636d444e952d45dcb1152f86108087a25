@@ -1,0 +1,77 @@
+.gitignore
+  s_bfcc642f0920ba::t_6e28112a907ec8 23
+sparkling-cimoc/src/cimoc/screens/Reader.tsx
+  s_bfcc642f0920ba::t_d58b1e048e6b26 185,187,209
+  s_bfcc642f0920ba::t_0c03c993b8b24e 28-29,31-35
+sparkling-cimoc/src/cimoc/screens/Search.tsx
+  s_bfcc642f0920ba::t_543b23a09917b2 14-17,22
+  s_bfcc642f0920ba::t_59a5a7bf35b4aa 83,87-90
+  s_bfcc642f0920ba::t_f18f60e16b4c21 245
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/mangadex-detail.json
+  s_bfcc642f0920ba::t_16dabbcddf3329 1-33
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/mangadex-at-home.json
+  s_bfcc642f0920ba::t_a298d4732e961c 1-11
+README.md
+  s_bfcc642f0920ba::t_1dbc5ee7da6d80 20,22-23,27-29,32,36
+  s_bfcc642f0920ba::t_34d0f9d58acfb3 9
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/mangadex-tags.json
+  s_bfcc642f0920ba::t_51a584d865b9ee 1-26
+sparkling-cimoc/src/cimoc/screens/Category.tsx
+  s_bfcc642f0920ba::t_2b0de60c0071f5 2,18-35,53-77,79-85,87-94,96-112
+sparkling-cimoc/src/cimoc/App.tsx
+  s_bfcc642f0920ba::t_91dc911acf278e 42
+sparkling-cimoc/src/cimoc/screens/Sources.tsx
+  s_bfcc642f0920ba::t_b671b22b07def1 97-98
+  s_bfcc642f0920ba::t_6c69ff1aef3823 48-51
+  s_bfcc642f0920ba::t_b1dd14ed35b008 11-12,14-18
+sparkling-cimoc/src/cimoc/store.ts
+  s_bfcc642f0920ba::t_299d482f3f4c96 15,22,25
+  s_bfcc642f0920ba::t_9d01ddefb8628a 160-162
+  s_bfcc642f0920ba::t_c2a372bde7ee8d 174
+  s_bfcc642f0920ba::t_615dea4788959b 113,116,123,130
+  s_bfcc642f0920ba::t_7385473990785e 202-204,209-211,213-215
+  s_bfcc642f0920ba::t_297b6411103070 85-90
+  s_bfcc642f0920ba::t_4ca0ad2939a12f 96
+  s_bfcc642f0920ba::t_dc232f5c5fc372 251-260
+sparkling-cimoc/src/cimoc/data/sources.ts
+  s_bfcc642f0920ba::t_1f9de17202368c 1-112
+sparkling-cimoc/src/cimoc/data/service.ts
+  s_bfcc642f0920ba::t_80f9a07535339e 2-4,14,16-20,23,25,42,46-47,49,57,69-70,72,77,91-92,94,100,103,106-127,130,133-144,149,152-161,222,304-306,308,310-311
+sparkling-cimoc/src/cimoc/__tests__/reading.test.tsx
+  s_bfcc642f0920ba::t_8100d0d4d3df8a 55-85
+  s_bfcc642f0920ba::t_95270b853fa5f3 271-318
+  s_bfcc642f0920ba::t_47b90f7ce36e3c 19-20
+sparkling-cimoc/src/cimoc/data/__tests__/mangadex.test.ts
+  s_bfcc642f0920ba::t_d6ceea45cc5b4f 1-132
+sparkling-cimoc/src/cimoc/data/webtoons.ts
+  s_bfcc642f0920ba::t_fa3e6f86923926 57
+  s_bfcc642f0920ba::t_e18795d4b2b5ce 3
+sparkling-cimoc/src/cimoc/screens/Result.tsx
+  s_bfcc642f0920ba::t_88819eefae8dc6 14,19,30,32-34,44,46
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/mangadex-search.json
+  s_bfcc642f0920ba::t_024984142642ee 1-50
+sparkling-cimoc/src/cimoc/data/mangadex.ts
+  s_bfcc642f0920ba::t_6fe61c08f2f57e 1-55,58-59,62-67,69-83,87-100,103-104,106-124,126-143,146-163,166-181,184-217
+sparkling-cimoc/src/cimoc/nav/index.ts
+  s_bfcc642f0920ba::t_fa7f122896a698 7
+sparkling-cimoc/src/cimoc/data/__tests__/fixtures/mangadex-feed.json
+  s_bfcc642f0920ba::t_103959b03da7eb 1-21
+sparkling-cimoc/src/cimoc/screens/Detail.tsx
+  s_bfcc642f0920ba::t_5028d67558582d 114-119,128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "dfc5edc636d444e952d45dcb1152f86108087a25",
+  "prompts": {},
+  "sessions": {
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
