@@ -1,0 +1,23 @@
+sparkling-cimoc/android/app/src/main/res/drawable/ic_launcher_background.xml
+  s_bf4c999b8c1427::t_d977a942439448 8
+sparkling-cimoc/ios/SparklingGo/SparklingGo/Assets.xcassets/AppIcon.appiconset/Contents.json
+  s_bf4c999b8c1427::t_9018b8fe9104b3 4
+sparkling-cimoc/android/app/src/main/res/drawable/ic_launcher_foreground.xml
+  s_bf4c999b8c1427::t_d977a942439448 1,7,10-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "cb3c5255d7986891e3df83d41a20df0486471f83",
+  "prompts": {},
+  "sessions": {
+    "s_bf4c999b8c1427": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_300fe6e4-075e-4693-a286-646fcb4da6b6",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
