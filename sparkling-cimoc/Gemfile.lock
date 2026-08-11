@@ -112,6 +112,8 @@ DEPENDENCIES
   cocoapods (>= 1.14)
   ffi (= 1.16.3)
 
+RUBY VERSION
+   ruby 3.2.9p265
 
 BUNDLED WITH
    2.3.27

@@ -30,12 +30,12 @@ def sparkling_kit
   pod 'Sparkling', SPARKLING_VERSION
   sparkling_methods
   sparkling_methods_dep
-  
+
   pod 'Lynx', '3.6.0', :subspecs => [
     'Framework',
     'ReleaseResource'
   ]
-  
+
   pod 'PrimJS', '3.6.1', :subspecs => ['quickjs', 'napi']
 
   pod 'LynxService', '3.6.0', :subspecs => [
@@ -49,13 +49,13 @@ def sparkling_kit
   pod 'LynxDevtool', '3.6.0', :subspecs => [
    'Framework',
   ]
-  
+
   pod 'SnapKit'
   pod 'Mantle', '~> 2.2.0'
-  
+
   pod 'SDWebImage','5.15.5'
   pod 'SDWebImageWebPCoder', '0.11.0'
-  
+
 end
 
 use_frameworks!
@@ -73,4 +73,40 @@ end
 
 target 'SparklingGoUITests' do
   sparkling_kit
+end
+
+post_install do |installer|
+  # --- Cimoc patch: Sparkling SDK 2.0.1 Swift @section 注册无法在新 Swift 编译器下编译 ---
+  # 1) 移除两个 Swift 文件中的失败注册块（改用 C section 注册，见 SparklingServiceRegistration.m）
+  files_to_patch = [
+    'Pods/Sparkling/packages/sparkling-sdk/ios/Sparkling/Service/LynxService/SPKLynxService.swift',
+    'Pods/Sparkling/packages/sparkling-sdk/ios/Sparkling/Application/Container/Resource/SPKResourceLoaderImpl.swift',
+  ]
+  files_to_patch.each do |rel|
+    path = File.expand_path(rel, __dir__)
+    if File.exist?(path)
+      File.chmod(0o644, path) rescue nil
+      src = File.read(path)
+      patched = src.gsub(
+        /@_used[[:space:]]*\n@_section\("[^"]*"\)[[:space:]]*\nnonisolated\(unsafe\)[[:space:]]*\nprivate let spkRegister\w+: UnsafePointer<CChar>\? = UnsafeRawPointer\(\([^)]*\)\.utf8Start\)\.assumingMemoryBound\(to: CChar\.self\)[[:space:]]*\n/,
+        "\n// registration moved to C section (see SparklingServiceRegistration.m)\n"
+      )
+      File.write(path, patched) if patched != src
+    end
+  end
+
+  # 2) 把 C 注册文件加入 Sparkling pod target 的编译源
+  # （incremental_installation 下需 --clean-install 才会重新生成 project）
+  projects = []
+  projects << installer.pods_project if installer.respond_to?(:pods_project) && installer.pods_project
+  projects.concat(installer.generated_projects) if installer.respond_to?(:generated_projects)
+  projects.compact.uniq.each do |project|
+    target = project.targets.find { |t| t.name == 'Sparkling' }
+    if target
+      m_path = File.expand_path('SparklingServiceRegistration.m', __dir__)
+      ref = project.main_group.new_file(m_path)
+      target.source_build_phase.add_file_reference(ref)
+      puts '[Cimoc-patch] added SparklingServiceRegistration.m to Sparkling target'
+    end
+  end
 end
