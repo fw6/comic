@@ -29,6 +29,12 @@ jobs:
         working-directory: sparkling-cimoc
         run: npm ci
 
+      # app 以 file:../sparkling-cimoc-bridge 依赖方法包；方法包自身的
+      # sparkling-method（rc.36）需单独 npm ci，否则测试/打包时无法解析。
+      - name: Install bridge dependencies
+        working-directory: sparkling-cimoc-bridge
+        run: npm ci
+
       - name: Run tests
         working-directory: sparkling-cimoc
         run: npm test
