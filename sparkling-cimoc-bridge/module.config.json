@@ -1,0 +1,35 @@
+{
+  "name": "sparkling-cimoc-bridge",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "platforms": ["android", "ios"],
+  "description": "Cimoc native bridge methods: HTTP fetch, key-value storage, comic download, local scan, WebDAV backup",
+  "methods": {
+    "getText": {},
+    "getBytes": {},
+    "isNetworkAvailable": {},
+    "setValue": {},
+    "getValue": {},
+    "removeValue": {},
+    "listKeys": {},
+    "downloadChapter": {},
+    "listDownloadedChapters": {},
+    "deleteComicDownload": {},
+    "getDownloadDir": {},
+    "scanLocalComics": {},
+    "listLocalChapters": {},
+    "pickFolder": {},
+    "webdavPutFile": {},
+    "webdavGetFile": {}
+  },
+  "android": {
+    "packageName": "com.tiktok.sparkling.methods.cimoc",
+    "className": "CimocMethod",
+    "buildGradle": "android/build.gradle.kts"
+  },
+  "ios": {
+    "moduleName": "Cimoc",
+    "className": "CimocMethod",
+    "podspecPath": "ios/Sparkling-Cimoc.podspec"
+  }
+}

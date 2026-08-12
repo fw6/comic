@@ -1,0 +1,83 @@
+{
+  "name": "webdavPutFile",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "WebDavPutRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "WebDavPutResponse"
+  },
+  "interfaces": {
+    "WebDavPutRequest": {
+      "name": "WebDavPutRequest",
+      "fields": [
+        {
+          "name": "base",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "user",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "password",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "fileName",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "content",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "WebDavPutResponse": {
+      "name": "WebDavPutResponse",
+      "fields": [
+        {
+          "name": "success",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "boolean"
+          }
+        },
+        {
+          "name": "status",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "number"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.908Z"
+}

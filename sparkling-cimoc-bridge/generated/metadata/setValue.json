@@ -1,0 +1,51 @@
+{
+  "name": "setValue",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "StorageSetRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "StorageSetResponse"
+  },
+  "interfaces": {
+    "StorageSetRequest": {
+      "name": "StorageSetRequest",
+      "fields": [
+        {
+          "name": "key",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "StorageSetResponse": {
+      "name": "StorageSetResponse",
+      "fields": [
+        {
+          "name": "success",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "boolean"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.887Z"
+}

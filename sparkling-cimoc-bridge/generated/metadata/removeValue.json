@@ -1,0 +1,43 @@
+{
+  "name": "removeValue",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "StorageRemoveRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "StorageRemoveResponse"
+  },
+  "interfaces": {
+    "StorageRemoveRequest": {
+      "name": "StorageRemoveRequest",
+      "fields": [
+        {
+          "name": "key",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "StorageRemoveResponse": {
+      "name": "StorageRemoveResponse",
+      "fields": [
+        {
+          "name": "success",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "boolean"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.891Z"
+}

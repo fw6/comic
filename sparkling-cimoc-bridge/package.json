@@ -1,0 +1,25 @@
+{
+  "name": "sparkling-cimoc-bridge",
+  "version": "1.0.0",
+  "description": "Cimoc native bridge methods for Sparkling (network/storage/download/local/webdav)",
+  "author": "Cimoc contributors",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "codegen": "sparkling-method-cli codegen",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "sparkling-method": "~2.1.0-rc.36"
+  },
+  "devDependencies": {
+    "@lynx-js/types": "^3.7.0",
+    "sparkling-method-cli": "~2.1.0-rc.36",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": "^22 || ^24"
+  }
+}

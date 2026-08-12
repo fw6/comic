@@ -39,6 +39,7 @@ include(":app")
 val sparklingAutolinkProjects =
     listOf<Pair<String, java.io.File>>(
         "sparkling-navigation" to file("../node_modules/sparkling-navigation/android"),
+        "sparkling-cimoc-bridge" to file("../node_modules/sparkling-cimoc-bridge/android"),
     )
 sparklingAutolinkProjects.forEach { (name, dir) ->
     include(":$name")

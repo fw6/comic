@@ -2,6 +2,7 @@ import { useEffect, useState } from '@lynx-js/react';
 import type { Comic } from '../data/models.js';
 import { loadChapters } from '../data/service.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 function formatReadTime(ts: number): string {
     const d = new Date(ts);
@@ -24,6 +25,7 @@ export function ComicInfoDialog({
     onClose: () => void;
 }) {
     const store = useAppStore();
+    const t = store.theme.tokens;
     const progress = store.getProgress(comic.id);
     // 章节号（话数）不是数组下标，需按 index 精确匹配
     const lastChapterIndex = progress?.chapter ?? comic.lastReadChapter ?? 0;
@@ -57,10 +59,10 @@ export function ComicInfoDialog({
                 paddingBottom: '6px',
             }}
         >
-            <text style={{ width: '100px', fontSize: '14px', color: '#999' }}>
+            <text style={{ width: '100px', fontSize: '14px', color: t.textMut }}>
                 {label}
             </text>
-            <text style={{ flexGrow: 1, fontSize: '14px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '14px', color: t.text }}>
                 {value}
             </text>
         </view>
@@ -76,7 +78,7 @@ export function ComicInfoDialog({
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: 'rgba(0,0,0,0.5)',
+                backgroundColor: t.overlay,
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: '40px',
@@ -86,8 +88,8 @@ export function ComicInfoDialog({
         >
             <view
                 style={{
-                    backgroundColor: '#fff',
-                    borderRadius: '6px',
+                    backgroundColor: t.surfaceRaised,
+                    borderRadius: RADIUS.lg,
                     padding: '20px',
                     width: '100%',
                 }}
@@ -97,7 +99,9 @@ export function ComicInfoDialog({
                     style={{
                         fontSize: '18px',
                         fontWeight: '600',
-                        color: '#212121',
+                        color: t.text,
+                        ...FONT_SERIF,
+                        letterSpacing: '0.5px',
                         marginBottom: '8px',
                     }}
                 >
@@ -119,8 +123,8 @@ export function ComicInfoDialog({
                     <view
                         bindtap={onAction}
                         style={{
-                            backgroundColor: '#E53935',
-                            borderRadius: '4px',
+                            backgroundColor: t.accent,
+                            borderRadius: RADIUS.sm,
                             paddingLeft: '20px',
                             paddingRight: '20px',
                             paddingTop: '8px',
@@ -128,22 +132,27 @@ export function ComicInfoDialog({
                             marginRight: '12px',
                         }}
                     >
-                        <text style={{ color: '#fff', fontSize: '14px' }}>
+                        <text
+                            style={{
+                                color: t.onAccent,
+                                fontSize: '14px',
+                            }}
+                        >
                             {actionLabel}
                         </text>
                     </view>
                     <view
                         bindtap={onClose}
                         style={{
-                            backgroundColor: '#eee',
-                            borderRadius: '4px',
+                            backgroundColor: t.surfaceSunken,
+                            borderRadius: RADIUS.sm,
                             paddingLeft: '20px',
                             paddingRight: '20px',
                             paddingTop: '8px',
                             paddingBottom: '8px',
                         }}
                     >
-                        <text style={{ color: '#212121', fontSize: '14px' }}>
+                        <text style={{ color: t.text, fontSize: '14px' }}>
                             取消
                         </text>
                     </view>

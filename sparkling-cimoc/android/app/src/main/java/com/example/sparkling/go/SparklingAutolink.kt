@@ -20,5 +20,29 @@ object SparklingAutolink {
                         "com.tiktok.sparkling.method.router.close.RouterCloseMethod",
                     ),
             ),
+            SparklingAutolinkModule(
+                name = "sparkling-cimoc-bridge",
+                androidPackage = "com.tiktok.sparkling.methods.cimoc",
+                className = "CimocMethod",
+                methodClassNames =
+                    listOf(
+                        "com.tiktok.sparkling.methods.cimoc.getText.CimocGetTextMethod",
+                        "com.tiktok.sparkling.methods.cimoc.getBytes.CimocGetBytesMethod",
+                        "com.tiktok.sparkling.methods.cimoc.isNetworkAvailable.CimocIsNetworkAvailableMethod",
+                        "com.tiktok.sparkling.methods.cimoc.setValue.CimocSetValueMethod",
+                        "com.tiktok.sparkling.methods.cimoc.getValue.CimocGetValueMethod",
+                        "com.tiktok.sparkling.methods.cimoc.removeValue.CimocRemoveValueMethod",
+                        "com.tiktok.sparkling.methods.cimoc.listKeys.CimocListKeysMethod",
+                        "com.tiktok.sparkling.methods.cimoc.downloadChapter.CimocDownloadChapterMethod",
+                        "com.tiktok.sparkling.methods.cimoc.listDownloadedChapters.CimocListDownloadedChaptersMethod",
+                        "com.tiktok.sparkling.methods.cimoc.deleteComicDownload.CimocDeleteComicDownloadMethod",
+                        "com.tiktok.sparkling.methods.cimoc.getDownloadDir.CimocGetDownloadDirMethod",
+                        "com.tiktok.sparkling.methods.cimoc.scanLocalComics.CimocScanLocalComicsMethod",
+                        "com.tiktok.sparkling.methods.cimoc.listLocalChapters.CimocListLocalChaptersMethod",
+                        "com.tiktok.sparkling.methods.cimoc.pickFolder.CimocPickFolderMethod",
+                        "com.tiktok.sparkling.methods.cimoc.webdavPutFile.CimocWebdavPutFileMethod",
+                        "com.tiktok.sparkling.methods.cimoc.webdavGetFile.CimocWebdavGetFileMethod",
+                    ),
+            ),
         )
 }

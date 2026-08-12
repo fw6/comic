@@ -1,5 +1,7 @@
 import { Button, Checkbox, List } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
+import { Screen } from '../components/Screen.js';
+import { Snackbar } from '../components/Snackbar.js';
 import { TopBar } from '../components/TopBar.js';
 import type { Chapter, Comic } from '../data/models.js';
 import {
@@ -20,6 +22,7 @@ export function ChaptersScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [selected, setSelected] = useState<Record<number, boolean>>({});
@@ -66,16 +69,7 @@ export function ChaptersScreen({
     };
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title={`下载 · ${comic?.title ?? ''}`}
@@ -97,13 +91,13 @@ export function ChaptersScreen({
                                     display: 'flex',
                                     flexDirection: 'row',
                                     alignItems: 'center',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: t.surface,
                                     paddingTop: '14px',
                                     paddingBottom: '14px',
                                     paddingLeft: '16px',
                                     paddingRight: '16px',
                                     borderBottomWidth: '1px',
-                                    borderBottomColor: '#f0f0f0',
+                                    borderBottomColor: t.hairline,
                                 }}
                                 bindtap={() => toggle(ch.index)}
                             >
@@ -116,7 +110,7 @@ export function ChaptersScreen({
                                         flexGrow: 1,
                                         marginLeft: '12px',
                                         fontSize: '15px',
-                                        color: '#212121',
+                                        color: t.text,
                                     }}
                                 >
                                     {ch.title}
@@ -125,7 +119,7 @@ export function ChaptersScreen({
                                     <text
                                         style={{
                                             fontSize: '12px',
-                                            color: '#43A047',
+                                            color: t.success,
                                         }}
                                     >
                                         已下载
@@ -139,9 +133,9 @@ export function ChaptersScreen({
             <view
                 style={{
                     padding: '16px',
-                    backgroundColor: '#fff',
+                    backgroundColor: t.surface,
                     borderTopWidth: '1px',
-                    borderTopColor: '#eee',
+                    borderTopColor: t.hairline,
                 }}
             >
                 <Button
@@ -151,28 +145,7 @@ export function ChaptersScreen({
                     {downloading ? '下载中...' : `开始下载（${selectedCount}）`}
                 </Button>
             </view>
-            {msg ? (
-                <view
-                    style={{
-                        alignItems: 'stretch',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'absolute',
-                        bottom: '80px',
-                        alignSelf: 'center',
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        paddingLeft: '20px',
-                        paddingRight: '20px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        borderRadius: '4px',
-                    }}
-                >
-                    <text style={{ color: '#fff', fontSize: '14px' }}>
-                        {msg}
-                    </text>
-                </view>
-            ) : null}
-        </view>
+            {msg ? <Snackbar theme={theme} message={msg} /> : null}
+        </Screen>
     );
 }

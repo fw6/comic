@@ -1,7 +1,9 @@
+import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import { sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function SourceDetailScreen({
     nav,
@@ -12,19 +14,11 @@ export function SourceDetailScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const source = sourceList().find((s) => s.id === sourceId);
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f5f5f5',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar theme={theme} title="图源详情" onBack={() => nav.pop()} />
             <view
                 style={{
@@ -40,26 +34,34 @@ export function SourceDetailScreen({
                         flexDirection: 'column',
                         width: '64px',
                         height: '64px',
-                        borderRadius: '12px',
-                        backgroundColor: theme.theme.primary,
+                        borderRadius: RADIUS.lg,
+                        backgroundColor: t.accent,
                         alignItems: 'center',
                         justifyContent: 'center',
+                        boxShadow:
+                            theme.mode === 'ink'
+                                ? '0 6px 16px rgba(0,0,0,0.45)'
+                                : '0 6px 16px rgba(60,40,20,0.2)',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: '30px' }}>🗂</text>
+                    <text style={{ color: t.onAccent, fontSize: '30px' }}>
+                        🗂
+                    </text>
                 </view>
                 <text
                     style={{
                         fontSize: '22px',
                         fontWeight: '600',
                         marginTop: '12px',
-                        color: '#212121',
+                        color: t.text,
+                        ...FONT_SERIF,
+                        letterSpacing: '0.5px',
                     }}
                 >
                     {source?.title ?? sourceId}
                 </text>
             </view>
-            <view style={{ backgroundColor: '#fff' }}>
+            <view style={{ backgroundColor: t.surface }}>
                 <view
                     style={{
                         alignItems: 'stretch',
@@ -67,19 +69,19 @@ export function SourceDetailScreen({
                         flexDirection: 'row',
                         padding: '16px',
                         borderBottomWidth: '1px',
-                        borderBottomColor: '#f0f0f0',
+                        borderBottomColor: t.hairline,
                     }}
                 >
                     <text
                         style={{
                             width: '90px',
                             fontSize: '15px',
-                            color: '#999',
+                            color: t.textMut,
                         }}
                     >
                         图源编号
                     </text>
-                    <text style={{ fontSize: '15px', color: '#212121' }}>
+                    <text style={{ fontSize: '15px', color: t.text }}>
                         {sourceId}
                     </text>
                 </view>
@@ -95,16 +97,16 @@ export function SourceDetailScreen({
                         style={{
                             width: '90px',
                             fontSize: '15px',
-                            color: '#999',
+                            color: t.textMut,
                         }}
                     >
                         收藏数量
                     </text>
-                    <text style={{ fontSize: '15px', color: '#212121' }}>
+                    <text style={{ fontSize: '15px', color: t.text }}>
                         {source?.favoriteCount ?? 0}
                     </text>
                 </view>
             </view>
-        </view>
+        </Screen>
     );
 }

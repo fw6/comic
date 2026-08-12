@@ -1,7 +1,9 @@
 import { useState } from '@lynx-js/react';
+import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 // Cimoc 的可配置阅读事件
 const EVENTS = [
@@ -44,6 +46,7 @@ export function EventSettingsScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     // key: click zone -> event; longPress separate map
     const [clickMap, setClickMap] = useState<Record<string, EventName>>({
         tl: '上一页',
@@ -67,16 +70,7 @@ export function EventSettingsScreen({
     const currentMap = editing?.map === 'long' ? longMap : clickMap;
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f5f5f5',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title={`点击事件 · ${mode === 'page' ? '翻页模式' : '卷纸模式'}`}
@@ -86,8 +80,10 @@ export function EventSettingsScreen({
                 <text
                     style={{
                         fontSize: '14px',
-                        color: '#999',
+                        color: t.textMut,
                         marginBottom: '12px',
+                        ...FONT_SERIF,
+                        letterSpacing: '0.5px',
                     }}
                 >
                     点击屏幕 3×3 区域的触发事件（长按区域单独配置）
@@ -108,16 +104,16 @@ export function EventSettingsScreen({
                                 display: 'flex',
                                 flexDirection: 'column',
                                 width: '31%',
-                                backgroundColor: '#fff',
-                                borderRadius: '6px',
+                                backgroundColor: t.surface,
+                                borderRadius: RADIUS.md,
                                 marginBottom: '10px',
                                 padding: '10px',
                                 alignItems: 'center',
                                 borderWidth: '1px',
-                                borderColor: '#eee',
+                                borderColor: t.hairline,
                             }}
                         >
-                            <text style={{ fontSize: '12px', color: '#999' }}>
+                            <text style={{ fontSize: '12px', color: t.textMut }}>
                                 {z.label}
                             </text>
                             <text
@@ -126,7 +122,7 @@ export function EventSettingsScreen({
                                 }
                                 style={{
                                     fontSize: '14px',
-                                    color: theme.theme.primary,
+                                    color: t.accent,
                                     marginTop: '6px',
                                     textAlign: 'center',
                                 }}
@@ -136,7 +132,7 @@ export function EventSettingsScreen({
                             <text
                                 style={{
                                     fontSize: '10px',
-                                    color: '#bbb',
+                                    color: t.textMut,
                                     marginTop: '4px',
                                 }}
                             >
@@ -148,7 +144,7 @@ export function EventSettingsScreen({
                                 }
                                 style={{
                                     fontSize: '11px',
-                                    color: theme.theme.accent,
+                                    color: t.textSub,
                                     marginTop: '2px',
                                     textDecorationLine: 'underline',
                                 }}
@@ -172,16 +168,16 @@ export function EventSettingsScreen({
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        backgroundColor: t.overlay,
                         justifyContent: 'flex-end',
                     }}
                     bindtap={() => setEditing(null)}
                 >
                     <view
                         style={{
-                            backgroundColor: '#fff',
-                            borderTopLeftRadius: '12px',
-                            borderTopRightRadius: '12px',
+                            backgroundColor: t.surfaceRaised,
+                            borderTopLeftRadius: RADIUS.lg,
+                            borderTopRightRadius: RADIUS.lg,
                             padding: '16px',
                         }}
                         bindtap={() => {}}
@@ -190,6 +186,9 @@ export function EventSettingsScreen({
                             style={{
                                 fontSize: '16px',
                                 fontWeight: '600',
+                                color: t.text,
+                                ...FONT_SERIF,
+                                letterSpacing: '0.5px',
                                 marginBottom: '10px',
                             }}
                         >
@@ -216,7 +215,7 @@ export function EventSettingsScreen({
                                     paddingTop: '10px',
                                     paddingBottom: '10px',
                                     borderBottomWidth: '1px',
-                                    borderBottomColor: '#f0f0f0',
+                                    borderBottomColor: t.hairline,
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                 }}
@@ -225,7 +224,7 @@ export function EventSettingsScreen({
                                     style={{
                                         flexGrow: 1,
                                         fontSize: '14px',
-                                        color: '#333',
+                                        color: t.text,
                                     }}
                                 >
                                     {ev}
@@ -233,7 +232,7 @@ export function EventSettingsScreen({
                                 {currentMap[editing.zone] === ev ? (
                                     <text
                                         style={{
-                                            color: theme.theme.primary,
+                                            color: t.accent,
                                             fontSize: '14px',
                                         }}
                                     >
@@ -245,6 +244,6 @@ export function EventSettingsScreen({
                     </view>
                 </view>
             ) : null}
-        </view>
+        </Screen>
     );
 }

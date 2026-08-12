@@ -1,8 +1,11 @@
+import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
-function Row({ title, value }: { title: string; value?: string }) {
+function Row({ theme, title, value }: { theme: ReturnType<typeof useAppStore>['theme']; title: string; value?: string }) {
+    const t = theme.tokens;
     return (
         <view
             style={{
@@ -14,15 +17,17 @@ function Row({ title, value }: { title: string; value?: string }) {
                 paddingLeft: '16px',
                 paddingRight: '16px',
                 borderBottomWidth: '1px',
-                borderBottomColor: '#f0f0f0',
-                backgroundColor: '#fff',
+                borderBottomColor: t.hairline,
+                backgroundColor: t.surface,
             }}
         >
-            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
+            <text style={{ flexGrow: 1, fontSize: '15px', color: t.text }}>
                 {title}
             </text>
             {value ? (
-                <text style={{ fontSize: '14px', color: '#999' }}>{value}</text>
+                <text style={{ fontSize: '14px', color: t.textSub }}>
+                    {value}
+                </text>
             ) : null}
         </view>
     );
@@ -31,17 +36,9 @@ function Row({ title, value }: { title: string; value?: string }) {
 export function AboutScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f5f5f5',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar theme={theme} title="关于" onBack={() => nav.pop()} />
             <view
                 style={{
@@ -57,20 +54,28 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                         flexDirection: 'column',
                         width: '72px',
                         height: '72px',
-                        borderRadius: '16px',
-                        backgroundColor: theme.theme.primary,
+                        borderRadius: RADIUS.xl,
+                        backgroundColor: t.accent,
                         alignItems: 'center',
                         justifyContent: 'center',
+                        boxShadow:
+                            theme.mode === 'ink'
+                                ? '0 6px 16px rgba(0,0,0,0.45)'
+                                : '0 6px 16px rgba(60,40,20,0.2)',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: '36px' }}>📖</text>
+                    <text style={{ color: t.onAccent, fontSize: '36px' }}>
+                        📖
+                    </text>
                 </view>
                 <text
                     style={{
                         fontSize: '22px',
                         fontWeight: '600',
                         marginTop: '16px',
-                        color: '#212121',
+                        color: t.text,
+                        ...FONT_SERIF,
+                        letterSpacing: '3px',
                     }}
                 >
                     Cimoc
@@ -78,7 +83,7 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                 <text
                     style={{
                         fontSize: '14px',
-                        color: '#999',
+                        color: t.textMut,
                         marginTop: '4px',
                     }}
                 >
@@ -87,7 +92,7 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                 <text
                     style={{
                         fontSize: '13px',
-                        color: '#666',
+                        color: t.textSub,
                         marginTop: '20px',
                         textAlign: 'center',
                         lineHeight: '20px',
@@ -99,10 +104,32 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                 </text>
             </view>
             <view>
-                <Row title="开源许可" value="GPL-3.0" />
-                <Row title="项目主页" value="GitHub" />
-                <Row title="反馈与建议" />
+                <Row theme={theme} title="开源许可" value="GPL-3.0" />
+                <Row theme={theme} title="项目主页" value="GitHub" />
+                <Row theme={theme} title="反馈与建议" />
             </view>
-        </view>
+            {/* Created By Deerflow 署名：低调页脚 */}
+            <view
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingTop: '20px',
+                    paddingBottom: '28px',
+                }}
+            >
+                <text
+                    style={{
+                        fontSize: '11px',
+                        color: t.textMut,
+                        letterSpacing: '1px',
+                        opacity: 0.65,
+                    }}
+                >
+                    ✦ Deerflow
+                </text>
+            </view>
+        </Screen>
     );
 }

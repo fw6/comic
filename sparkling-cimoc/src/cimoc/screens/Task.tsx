@@ -1,6 +1,8 @@
 import { List } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
 import { ComicCover } from '../components/ComicCard.js';
+import { EmptyState } from '../components/EmptyState.js';
+import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { Chapter, Comic } from '../data/models.js';
 import {
@@ -10,11 +12,13 @@ import {
 } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF } from '../theme/index.js';
 
 // Cimoc TaskActivity：已下载漫画的章节列表，用于离线阅读入口。
 export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [downloaded, setDownloaded] = useState<number[]>([]);
@@ -41,34 +45,14 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
 
     if (loading || !comic) {
         return (
-            <view
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1,
-                    backgroundColor: '#fafafa',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <text style={{ fontSize: '15px', color: '#999' }}>
-                    加载中...
-                </text>
-            </view>
+            <Screen theme={theme}>
+                <EmptyState theme={theme} text="加载中..." glyph="📖" />
+            </Screen>
         );
     }
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title={`${comic.title} · 已下载`}
@@ -80,10 +64,21 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                     display: 'flex',
                     flexDirection: 'row',
                     padding: '16px',
-                    backgroundColor: '#fff',
+                    backgroundColor: t.surface,
+                    borderBottomWidth: '1px',
+                    borderBottomColor: t.hairline,
                 }}
             >
-                <view style={{ width: '56px', height: '74px' }}>
+                <view
+                    style={{
+                        width: '56px',
+                        height: '74px',
+                        boxShadow:
+                            theme.mode === 'ink'
+                                ? '0 4px 12px rgba(0,0,0,0.4)'
+                                : '0 2px 8px rgba(60,40,20,0.14)',
+                    }}
+                >
                     <ComicCover
                         color={comic.cover}
                         title={comic.title}
@@ -108,7 +103,9 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                         style={{
                             fontSize: '17px',
                             fontWeight: '600',
-                            color: '#212121',
+                            color: t.text,
+                            ...FONT_SERIF,
+                            letterSpacing: '0.5px',
                         }}
                     >
                         {comic.title}
@@ -116,7 +113,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                     <text
                         style={{
                             fontSize: '13px',
-                            color: '#999',
+                            color: t.textSub,
                             marginTop: '4px',
                         }}
                     >
@@ -139,9 +136,9 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 padding: '14px',
-                                backgroundColor: '#fff',
+                                backgroundColor: t.surface,
                                 borderBottomWidth: '1px',
-                                borderBottomColor: '#f0f0f0',
+                                borderBottomColor: t.hairline,
                             }}
                             bindtap={() =>
                                 nav.push({
@@ -152,9 +149,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                                 })
                             }
                         >
-                            <text
-                                style={{ fontSize: '12px', color: '#43A047' }}
-                            >
+                            <text style={{ fontSize: '12px', color: t.success }}>
                                 ✓
                             </text>
                             <text
@@ -162,7 +157,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                                     flexGrow: 1,
                                     marginLeft: '10px',
                                     fontSize: '15px',
-                                    color: '#212121',
+                                    color: t.text,
                                 }}
                             >
                                 {chapters.find((c) => c.index === idx)?.title ??
@@ -172,6 +167,6 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                     </list-item>
                 ))}
             </List>
-        </view>
+        </Screen>
     );
 }

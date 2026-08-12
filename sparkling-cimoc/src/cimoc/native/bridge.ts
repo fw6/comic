@@ -1,34 +1,59 @@
 /**
- * 原生桥封装：将 Lynx NativeModule 的 callback 风格 API 转换为 Promise。
- * 宿主侧模块：NetworkModule / StorageModule / DownloadModule / LocalModule / WebDavModule。
- *
- * 约定：原生 `callback.invoke(result)` 传入单个结果对象；
- * 失败时 `callback.invoke(false, message)`（首个参数为 false）。
+ * 原生桥封装：将 Sparkling 方法包（sparkling-cimoc-bridge）的 callback 风格 API 转换为 Promise。
+ * 方法包基于 pipe 协议：回调收到 {code, msg, data}，code === 1 表示成功，data 为结果模型字段。
+ * 导出签名与旧 NativeModule 桥保持一致，service.ts / screens 无需改动。
  */
-declare const NativeModules: Record<
-    string,
-    Record<string, (...args: unknown[]) => void>
->;
+import {
+    deleteComicDownload as bridgeDeleteComicDownload,
+    downloadChapter as bridgeDownloadChapter,
+    getBytes as bridgeGetBytes,
+    getDownloadDir as bridgeGetDownloadDir,
+    getText as bridgeGetText,
+    getValue as bridgeGetValue,
+    isNetworkAvailable as bridgeIsNetworkAvailable,
+    listDownloadedChapters as bridgeListDownloadedChapters,
+    listKeys as bridgeListKeys,
+    listLocalChapters as bridgeListLocalChapters,
+    pickFolder as bridgePickFolder,
+    removeValue as bridgeRemoveValue,
+    scanLocalComics as bridgeScanLocalComics,
+    setValue as bridgeSetValue,
+    webdavGetFile as bridgeWebdavGetFile,
+    webdavPutFile as bridgeWebdavPutFile,
+    type DeleteComicDownloadResponse,
+    type DownloadChapterResponse,
+    type GetBytesResponse,
+    type GetDownloadDirResponse,
+    type GetTextResponse,
+    type GetValueResponse,
+    type IsNetworkAvailableResponse,
+    type ListDownloadedChaptersResponse,
+    type ListKeysResponse,
+    type ListLocalChaptersResponse,
+    type PickFolderResponse,
+    type PipeResult,
+    type RemoveValueResponse,
+    type ScanLocalComicsResponse,
+    type SetValueResponse,
+    type WebdavGetFileResponse,
+    type WebdavPutFileResponse,
+} from 'sparkling-cimoc-bridge';
 
-export function nativeCall<T>(
-    module: string,
-    method: string,
-    ...params: unknown[]
+function toPromise<T>(
+    call: (cb: (result: PipeResult<T>) => void) => void,
 ): Promise<T> {
-    const mod = NativeModules?.[module];
-    if (!mod || typeof mod[method] !== 'function') {
-        // 非原生环境（web/jsdom 测试）下调用失败，返回空结果。
-        return Promise.reject(
-            new Error(`NativeModule ${module}.${method} not available`),
-        );
-    }
     return new Promise<T>((resolve, reject) => {
         try {
-            mod[method](...params, (...args: unknown[]) => {
-                if (args.length > 0 && args[0] === false) {
-                    reject(new Error(String(args[1] ?? 'native call failed')));
+            call((result) => {
+                if (result.code === 1) {
+                    resolve(result.data as T);
                 } else {
-                    resolve(args[0] as T);
+                    reject(
+                        new Error(
+                            result.msg ||
+                                `cimoc bridge call failed (code ${result.code})`,
+                        ),
+                    );
                 }
             });
         } catch (e) {
@@ -42,25 +67,43 @@ export const netGetText = (
     url: string,
     headers?: Record<string, string>,
 ): Promise<{ status: number; body: string }> =>
-    nativeCall('NetworkModule', 'getText', url, headers ?? {});
+    toPromise<GetTextResponse>((cb) =>
+        bridgeGetText(
+            { url, headers: headers ? JSON.stringify(headers) : undefined },
+            cb,
+        ),
+    );
 
 export const netGetBytes = (
     url: string,
 ): Promise<{ status: number; base64: string }> =>
-    nativeCall('NetworkModule', 'getBytes', url);
+    toPromise<GetBytesResponse>((cb) => bridgeGetBytes({ url }, cb));
 
 export const isNetworkAvailable = (): Promise<boolean> =>
-    nativeCall('NetworkModule', 'isNetworkAvailable');
+    toPromise<IsNetworkAvailableResponse>((cb) =>
+        bridgeIsNetworkAvailable(cb),
+    ).then((r) => r.available);
 
 // --- Storage ---
 export const storeSet = (key: string, value: string): Promise<boolean> =>
-    nativeCall('StorageModule', 'set', key, value);
+    toPromise<SetValueResponse>((cb) => bridgeSetValue({ key, value }, cb)).then(
+        (r) => r.success,
+    );
 
 export const storeGet = (key: string): Promise<string> =>
-    nativeCall('StorageModule', 'get', key);
+    toPromise<GetValueResponse>((cb) => bridgeGetValue({ key }, cb)).then(
+        (r) => r.value,
+    );
 
 export const storeRemove = (key: string): Promise<boolean> =>
-    nativeCall('StorageModule', 'remove', key);
+    toPromise<RemoveValueResponse>((cb) =>
+        bridgeRemoveValue({ key }, cb),
+    ).then((r) => r.success);
+
+export const listKeys = (): Promise<string[]> =>
+    toPromise<ListKeysResponse>((cb) => bridgeListKeys(cb)).then(
+        (r) => r.keys,
+    );
 
 // --- Download ---
 export const downloadImage = (
@@ -69,38 +112,59 @@ export const downloadImage = (
     chapterIndex: number,
     pageIndex: number,
 ): Promise<boolean> =>
-    nativeCall(
-        'DownloadModule',
-        'download',
-        url,
-        comicId,
-        chapterIndex,
-        pageIndex,
-    );
+    toPromise<DownloadChapterResponse>((cb) =>
+        bridgeDownloadChapter({ url, comicId, chapterIndex, pageIndex }, cb),
+    ).then((r) => r.success);
 
 export const listDownloaded = (
     comicId: string,
 ): Promise<Record<string, string[]>> =>
-    nativeCall('DownloadModule', 'listDownloaded', comicId);
+    toPromise<ListDownloadedChaptersResponse>((cb) =>
+        bridgeListDownloadedChapters({ comicId }, cb),
+    ).then(
+        (r) => JSON.parse(r.chaptersJson) as Record<string, string[]>,
+    );
 
 export const deleteComicDownload = (comicId: string): Promise<boolean> =>
-    nativeCall('DownloadModule', 'deleteComic', comicId);
+    toPromise<DeleteComicDownloadResponse>((cb) =>
+        bridgeDeleteComicDownload({ comicId }, cb),
+    ).then((r) => r.success);
 
 export const getDownloadDir = (): Promise<string> =>
-    nativeCall('DownloadModule', 'getDownloadDir');
+    toPromise<GetDownloadDirResponse>((cb) => bridgeGetDownloadDir(cb)).then(
+        (r) => r.dir,
+    );
 
 // --- Local ---
 export const scanLocalComics = (): Promise<
     Array<{ comicId: string; chapterCount: number }>
-> => nativeCall('LocalModule', 'scanLocalComics');
+> =>
+    toPromise<ScanLocalComicsResponse>((cb) => bridgeScanLocalComics(cb)).then(
+        (r) =>
+            JSON.parse(r.comicsJson) as Array<{
+                comicId: string;
+                chapterCount: number;
+            }>,
+    );
 
 export const listLocalChapters = (
     comicId: string,
 ): Promise<Array<{ chapterIndex: number; pageCount: number; dir: string }>> =>
-    nativeCall('LocalModule', 'listLocalChapters', comicId);
+    toPromise<ListLocalChaptersResponse>((cb) =>
+        bridgeListLocalChapters({ comicId }, cb),
+    ).then(
+        (r) =>
+            JSON.parse(r.chaptersJson) as Array<{
+                chapterIndex: number;
+                pageCount: number;
+                dir: string;
+            }>,
+    );
 
 export const pickFolder = (): Promise<boolean> =>
-    nativeCall('LocalModule', 'pickFolder');
+    toPromise<PickFolderResponse>((cb) => bridgePickFolder(cb)).then(
+        (r) => r.success,
+    );
 
 // --- WebDav ---
 export const webdavPut = (
@@ -110,15 +174,9 @@ export const webdavPut = (
     fileName: string,
     content: string,
 ): Promise<boolean> =>
-    nativeCall(
-        'WebDavModule',
-        'putFile',
-        base,
-        user,
-        password,
-        fileName,
-        content,
-    );
+    toPromise<WebdavPutFileResponse>((cb) =>
+        bridgeWebdavPutFile({ base, user, password, fileName, content }, cb),
+    ).then((r) => r.success);
 
 export const webdavGet = (
     base: string,
@@ -130,4 +188,7 @@ export const webdavGet = (
     content?: string;
     status?: number;
     error?: string;
-}> => nativeCall('WebDavModule', 'getFile', base, user, password, fileName);
+}> =>
+    toPromise<WebdavGetFileResponse>((cb) =>
+        bridgeWebdavGetFile({ base, user, password, fileName }, cb),
+    );

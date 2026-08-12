@@ -1,13 +1,17 @@
 import { Input } from '@lynx-js/lynx-ui';
 import { useState } from '@lynx-js/react';
+import { Chip } from '../components/Chip.js';
+import { Screen } from '../components/Screen.js';
 import { ToolbarAction, TopBar } from '../components/TopBar.js';
 import { sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function SearchScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [keyword, setKeyword] = useState('');
     const [strict, setStrict] = useState(false);
     const [showSourcePicker, setShowSourcePicker] = useState(false);
@@ -23,22 +27,14 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
     };
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title="搜索"
                 onBack={() => nav.pop()}
                 actions={
                     <ToolbarAction
+                        theme={theme}
                         label="图源"
                         onTap={() => setShowSourcePicker(!showSourcePicker)}
                     />
@@ -49,12 +45,12 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                 {showSourcePicker ? (
                     <view
                         style={{
-                            backgroundColor: '#fff',
-                            borderRadius: '4px',
+                            backgroundColor: t.surface,
+                            borderRadius: RADIUS.md,
                             padding: '12px',
                             marginBottom: '16px',
                             borderWidth: '1px',
-                            borderColor: '#eee',
+                            borderColor: t.hairline,
                         }}
                     >
                         <text
@@ -62,7 +58,9 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                                 fontSize: '14px',
                                 fontWeight: '600',
                                 marginBottom: '8px',
-                                color: '#333',
+                                color: t.text,
+                                ...FONT_SERIF,
+                                letterSpacing: '0.5px',
                             }}
                         >
                             选择搜索图源
@@ -90,13 +88,13 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                                         }}
                                         style={{
                                             backgroundColor: active
-                                                ? theme.theme.primary
-                                                : '#f0f0f0',
-                                            borderRadius: '12px',
-                                            paddingLeft: '10px',
-                                            paddingRight: '10px',
-                                            paddingTop: '4px',
-                                            paddingBottom: '4px',
+                                                ? t.accent
+                                                : t.surfaceSunken,
+                                            borderRadius: RADIUS.pill,
+                                            paddingLeft: '12px',
+                                            paddingRight: '12px',
+                                            paddingTop: '5px',
+                                            paddingBottom: '5px',
                                             marginRight: '8px',
                                             marginBottom: '8px',
                                         }}
@@ -104,7 +102,9 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                                         <text
                                             style={{
                                                 fontSize: '12px',
-                                                color: active ? '#fff' : '#555',
+                                                color: active
+                                                    ? t.onAccent
+                                                    : t.textSub,
                                             }}
                                         >
                                             {s.title}
@@ -121,10 +121,10 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
-                        backgroundColor: '#fff',
-                        borderRadius: '4px',
+                        backgroundColor: t.surface,
+                        borderRadius: RADIUS.md,
                         borderWidth: '1px',
-                        borderColor: '#ddd',
+                        borderColor: t.border,
                         paddingLeft: '12px',
                         paddingRight: '12px',
                     }}
@@ -137,6 +137,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                             flexGrow: 1,
                             height: '48px',
                             fontSize: '16px',
+                            color: t.text,
                         }}
                     />
                     <view
@@ -152,7 +153,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                     >
                         <text
                             style={{
-                                color: theme.theme.accent,
+                                color: t.accent,
                                 fontSize: '22px',
                             }}
                         >
@@ -179,18 +180,16 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                             flexDirection: 'column',
                             width: '20px',
                             height: '20px',
-                            borderRadius: '3px',
+                            borderRadius: '4px',
                             borderWidth: '2px',
-                            borderColor: theme.theme.accent,
+                            borderColor: t.accent,
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: strict
-                                ? theme.theme.accent
-                                : '#fff',
+                            backgroundColor: strict ? t.accent : t.surface,
                         }}
                     >
                         {strict ? (
-                            <text style={{ color: '#fff', fontSize: '12px' }}>
+                            <text style={{ color: t.onAccent, fontSize: '12px' }}>
                                 ✓
                             </text>
                         ) : null}
@@ -199,7 +198,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         style={{
                             marginLeft: '10px',
                             fontSize: '15px',
-                            color: '#333',
+                            color: t.text,
                         }}
                     >
                         严格搜索
@@ -211,8 +210,10 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                     <text
                         style={{
                             fontSize: '14px',
-                            color: '#999',
+                            color: t.textMut,
                             marginBottom: '8px',
+                            ...FONT_SERIF,
+                            letterSpacing: '1px',
                         }}
                     >
                         热门搜索
@@ -233,41 +234,30 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         ].map((s) => (
                             <view
                                 key={s}
-                                bindtap={() => {
-                                    setKeyword(s);
-                                    const sources = Object.keys(
-                                        selSources,
-                                    ).filter((k) => selSources[k]);
-                                    nav.push({
-                                        name: 'result',
-                                        keyword: s,
-                                        sources,
-                                        mode: 'search',
-                                    });
-                                }}
-                                style={{
-                                    backgroundColor: '#fff',
-                                    borderRadius: '16px',
-                                    paddingLeft: '14px',
-                                    paddingRight: '14px',
-                                    paddingTop: '6px',
-                                    paddingBottom: '6px',
-                                    marginRight: '8px',
-                                    marginBottom: '8px',
-                                    borderWidth: '1px',
-                                    borderColor: '#eee',
-                                }}
+                                style={{ marginBottom: '8px' }}
                             >
-                                <text
-                                    style={{ fontSize: '14px', color: '#555' }}
-                                >
-                                    {s}
-                                </text>
+                                <Chip
+                                    theme={theme}
+                                    label={s}
+                                    active={false}
+                                    onTap={() => {
+                                        setKeyword(s);
+                                        const sources = Object.keys(
+                                            selSources,
+                                        ).filter((k) => selSources[k]);
+                                        nav.push({
+                                            name: 'result',
+                                            keyword: s,
+                                            sources,
+                                            mode: 'search',
+                                        });
+                                    }}
+                                />
                             </view>
                         ))}
                     </view>
                 </view>
             </view>
-        </view>
+        </Screen>
     );
 }

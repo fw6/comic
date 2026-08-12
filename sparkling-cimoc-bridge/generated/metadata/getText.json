@@ -1,0 +1,60 @@
+{
+  "name": "getText",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "GetTextRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "GetTextResponse"
+  },
+  "interfaces": {
+    "GetTextRequest": {
+      "name": "GetTextRequest",
+      "fields": [
+        {
+          "name": "url",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "headers",
+          "optional": true,
+          "description": "JSON 字符串编码的请求头 Map<string,string>（如 {\"User-Agent\":\"...\"}）",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "GetTextResponse": {
+      "name": "GetTextResponse",
+      "fields": [
+        {
+          "name": "status",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "number"
+          }
+        },
+        {
+          "name": "body",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.873Z"
+}

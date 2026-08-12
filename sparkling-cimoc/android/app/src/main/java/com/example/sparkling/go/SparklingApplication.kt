@@ -12,7 +12,6 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig
 import com.facebook.imagepipeline.core.MemoryChunkType
 import com.facebook.imagepipeline.memory.PoolConfig
 import com.facebook.imagepipeline.memory.PoolFactory
-import com.lynx.tasm.LynxEnv
 import com.lynx.tasm.behavior.Behavior
 import com.lynx.tasm.behavior.LynxContext
 import com.lynx.tasm.behavior.ui.LynxUI
@@ -67,7 +66,6 @@ class SparklingApplication : Application() {
     private fun initSparkling() {
         createSparklingVariantHooks().onApplicationCreate(this)
         initHybridKit()
-        registerCimocModules()
         initSparklingMethods()
     }
 
@@ -89,15 +87,6 @@ class SparklingApplication : Application() {
         }
         HybridKit.setHybridConfig(hybridConfig, this)
         HybridKit.initLynxKit()
-    }
-
-    private fun registerCimocModules() {
-        // Cimoc 数据链路原生桥：图源抓取 / 持久化 / 下载 / 本地扫描 / WebDAV。
-        LynxEnv.inst().registerModule("NetworkModule", NetworkModule::class.java)
-        LynxEnv.inst().registerModule("StorageModule", StorageModule::class.java)
-        LynxEnv.inst().registerModule("DownloadModule", DownloadModule::class.java)
-        LynxEnv.inst().registerModule("LocalModule", LocalModule::class.java)
-        LynxEnv.inst().registerModule("WebDavModule", WebDavModule::class.java)
     }
 
     private fun initSparklingMethods() {

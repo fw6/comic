@@ -1,0 +1,67 @@
+{
+  "name": "downloadChapter",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "DownloadChapterRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "DownloadChapterResponse"
+  },
+  "interfaces": {
+    "DownloadChapterRequest": {
+      "name": "DownloadChapterRequest",
+      "fields": [
+        {
+          "name": "url",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "comicId",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "chapterIndex",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "number"
+          }
+        },
+        {
+          "name": "pageIndex",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "number"
+          }
+        }
+      ]
+    },
+    "DownloadChapterResponse": {
+      "name": "DownloadChapterResponse",
+      "fields": [
+        {
+          "name": "success",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "boolean"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.895Z"
+}

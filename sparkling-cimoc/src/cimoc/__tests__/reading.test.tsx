@@ -34,106 +34,95 @@ function fixture(name: string): string {
     return readFileSync(join(FIXTURES, name), 'utf8');
 }
 
-// --- 模拟 Sparkling 原生宿主：内存存储 + 按 URL 分发 fixture 的网络模块 ---
+// --- 模拟 Sparkling 原生宿主：通过 spkPipe 分发方法（内存存储 + 按 URL 分发 fixture 的网络）---
 const storage = new Map<string, string>();
-const fakeNativeModules = {
-    NetworkModule: {
-        getText: (
-            url: string,
-            _headers: unknown,
-            cb: (a: unknown, b?: unknown) => void,
-        ) => {
+
+/** 按方法名分发到与原生实现一致的结果模型字段。 */
+function handlePipeCall(
+    method: string,
+    data: unknown,
+): { code: number; msg: string; data?: unknown } {
+    const params = (data ?? {}) as Record<string, unknown>;
+    const ok = (d: unknown) => ({ code: 1, msg: 'ok', data: d });
+    const fail = (msg: string) => ({ code: 0, msg });
+    switch (method) {
+        case 'cimoc.getText': {
+            const url = String(params.url ?? '');
             if (url.includes('search?keyword=eleceed')) {
-                return cb({ status: 200, body: fixture('search-card.html') });
+                return ok({ status: 200, body: fixture('search-card.html') });
             }
             if (url.includes('/list?title_no=1571')) {
-                return cb({ status: 200, body: fixture('detail.html') });
+                return ok({ status: 200, body: fixture('detail.html') });
             }
             if (url.includes('viewer?title_no=1571')) {
-                return cb({ status: 200, body: fixture('viewer.html') });
+                return ok({ status: 200, body: fixture('viewer.html') });
             }
             // MangaDex API（多源分派测试）
             if (url.includes('/manga/tag')) {
-                return cb({
-                    status: 200,
-                    body: fixture('mangadex-tags.json'),
-                });
+                return ok({ status: 200, body: fixture('mangadex-tags.json') });
             }
             if (url.includes('/at-home/server/')) {
-                return cb({
-                    status: 200,
-                    body: fixture('mangadex-at-home.json'),
-                });
+                return ok({ status: 200, body: fixture('mangadex-at-home.json') });
             }
             if (url.includes('/manga/7e544761-7d3d-4fce-8137-719814d7d138/feed')) {
-                return cb({
-                    status: 200,
-                    body: fixture('mangadex-feed.json'),
-                });
+                return ok({ status: 200, body: fixture('mangadex-feed.json') });
             }
             if (url.includes('/manga/7e544761-7d3d-4fce-8137-719814d7d138')) {
-                return cb({
-                    status: 200,
-                    body: fixture('mangadex-detail.json'),
-                });
+                return ok({ status: 200, body: fixture('mangadex-detail.json') });
             }
             if (url.includes('/manga?title=eleceed')) {
-                return cb({
-                    status: 200,
-                    body: fixture('mangadex-search.json'),
-                });
+                return ok({ status: 200, body: fixture('mangadex-search.json') });
             }
-            cb(false, `unknown url ${url}`);
+            return fail(`unknown url ${url}`);
+        }
+        case 'cimoc.getBytes':
+            return ok({ status: 200, base64: '' });
+        case 'cimoc.isNetworkAvailable':
+            return ok({ available: true });
+        case 'cimoc.setValue': {
+            storage.set(String(params.key), String(params.value ?? ''));
+            return ok({ success: true });
+        }
+        case 'cimoc.getValue':
+            return ok({ value: storage.get(String(params.key)) ?? '' });
+        case 'cimoc.removeValue': {
+            storage.delete(String(params.key));
+            return ok({ success: true });
+        }
+        case 'cimoc.listKeys':
+            return ok({ keys: [...storage.keys()] });
+        case 'cimoc.downloadChapter':
+            return ok({ success: true });
+        case 'cimoc.listDownloadedChapters':
+            return ok({ chaptersJson: '{}' });
+        case 'cimoc.deleteComicDownload':
+            return ok({ success: true });
+        case 'cimoc.getDownloadDir':
+            return ok({ dir: '/downloads' });
+        case 'cimoc.scanLocalComics':
+            return ok({ comicsJson: '[]' });
+        case 'cimoc.listLocalChapters':
+            return ok({ chaptersJson: '[]' });
+        case 'cimoc.pickFolder':
+            return ok({ success: true });
+        case 'cimoc.webdavPutFile':
+            return ok({ success: true, status: 201 });
+        case 'cimoc.webdavGetFile':
+            return ok({ ok: false });
+        default:
+            return fail(`unknown method ${method}`);
+    }
+}
+
+const fakeNativeModules = {
+    spkPipe: {
+        call: (
+            method: string,
+            payload: { data?: unknown },
+            cb: (v: unknown) => void,
+        ) => {
+            cb(handlePipeCall(method, payload.data));
         },
-        getBytes: (_url: string, cb: (a: unknown) => void) =>
-            cb({ status: 200, base64: '' }),
-        isNetworkAvailable: (cb: (a: unknown) => void) => cb(true),
-    },
-    StorageModule: {
-        set: (key: string, value: string, cb: (a: unknown) => void) => {
-            storage.set(key, value);
-            cb(true);
-        },
-        get: (key: string, cb: (a: unknown) => void) =>
-            cb(storage.get(key) ?? null),
-        remove: (key: string, cb: (a: unknown) => void) => {
-            storage.delete(key);
-            cb(true);
-        },
-    },
-    DownloadModule: {
-        download: (
-            _url: string,
-            _c: string,
-            _ch: number,
-            _p: number,
-            cb: (a: unknown) => void,
-        ) => cb(true),
-        listDownloaded: (_c: string, cb: (a: unknown) => void) => cb({}),
-        deleteComic: (_c: string, cb: (a: unknown) => void) => cb(true),
-        getDownloadDir: (cb: (a: unknown) => void) => cb('/downloads'),
-    },
-    LocalModule: {
-        scanLocalComics: (cb: (a: unknown) => void) => cb([]),
-        listLocalChapters: (_c: string, cb: (a: unknown) => void) => cb([]),
-        pickFolder: (cb: (a: unknown) => void) => cb(true),
-    },
-    WebDavModule: {
-        putFile: (
-            _b: string,
-            _u: string,
-            _p: string,
-            _f: string,
-            _c: string,
-            cb: (a: unknown) => void,
-        ) => cb(true),
-        getFile: (
-            _b: string,
-            _u: string,
-            _p: string,
-            _f: string,
-            cb: (a: unknown) => void,
-        ) => cb({ ok: false }),
     },
 } as unknown as Record<string, Record<string, (...args: unknown[]) => void>>;
 (globalThis as unknown as Record<string, unknown>).NativeModules =

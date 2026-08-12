@@ -18,6 +18,7 @@ import {
 } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 function currentClock(): string {
     const d = new Date();
@@ -118,12 +119,14 @@ export function ReaderScreen({
                     display: 'flex',
                     flexDirection: 'column',
                     flexGrow: 1,
-                    backgroundColor: '#000',
+                    backgroundColor: theme.tokens.readerBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}
             >
-                <text style={{ color: '#fff' }}>加载中...</text>
+                <text style={{ color: theme.tokens.textSub, fontSize: '15px' }}>
+                    加载中...
+                </text>
             </view>
         );
     }
@@ -131,6 +134,7 @@ export function ReaderScreen({
     const chapter = chapters.find((c) => c.index === curChapter);
     const chapterTitle = chapter?.title ?? `第 ${curChapter} 话`;
     const isDark = !store.settings.whiteBackground;
+    const readerBg = store.settings.whiteBackground ? '#FFFFFF' : theme.tokens.readerBg;
 
     const toggleHud = () => setShowHud(!showHud);
     // 章节号不一定是连续数组下标（真实图源为话数，排序新旧不一），
@@ -152,7 +156,7 @@ export function ReaderScreen({
                 display: 'flex',
                 flexDirection: 'column',
                 flexGrow: 1,
-                backgroundColor: isDark ? '#000' : '#fff',
+                backgroundColor: readerBg,
             }}
             bindtap={toggleHud}
         >
@@ -167,7 +171,7 @@ export function ReaderScreen({
                         justifyContent: 'center',
                     }}
                 >
-                    <text style={{ color: '#999', fontSize: '15px' }}>
+                    <text style={{ color: theme.tokens.textMut, fontSize: '15px' }}>
                         图片加载中...
                     </text>
                 </view>
@@ -254,6 +258,8 @@ export function ReaderScreen({
                                 fontSize: '16px',
                                 marginLeft: '8px',
                                 textOverflow: 'ellipsis',
+                                ...FONT_SERIF,
+                                letterSpacing: '0.5px',
                             }}
                             text-maxline={'1'}
                         >
@@ -261,7 +267,7 @@ export function ReaderScreen({
                         </text>
                         <view
                             style={{
-                                backgroundColor: 'rgba(255,255,255,0.15)',
+                                backgroundColor: theme.tokens.accent,
                                 borderRadius: '12px',
                                 paddingLeft: '8px',
                                 paddingRight: '8px',
@@ -270,7 +276,12 @@ export function ReaderScreen({
                                 marginRight: '4px',
                             }}
                         >
-                            <text style={{ color: '#fff', fontSize: '12px' }}>
+                            <text
+                                style={{
+                                    color: theme.tokens.onAccent,
+                                    fontSize: '12px',
+                                }}
+                            >
                                 {curPage + 1}/{images.length}
                             </text>
                         </view>
@@ -315,7 +326,7 @@ export function ReaderScreen({
                             <SliderTrack>
                                 <SliderIndicator
                                     style={{
-                                        backgroundColor: theme.theme.accent,
+                                        backgroundColor: theme.tokens.accent,
                                     }}
                                 />
                             </SliderTrack>
@@ -328,8 +339,8 @@ export function ReaderScreen({
                             position: 'absolute',
                             top: '44px',
                             right: '16px',
-                            backgroundColor: 'rgba(0,0,0,0.6)',
-                            borderRadius: '4px',
+                            backgroundColor: theme.tokens.accent,
+                            borderRadius: RADIUS.sm,
                             paddingLeft: '10px',
                             paddingRight: '10px',
                             paddingTop: '6px',
@@ -340,7 +351,12 @@ export function ReaderScreen({
                             void doDownload();
                         }}
                     >
-                        <text style={{ color: '#fff', fontSize: '12px' }}>
+                        <text
+                            style={{
+                                color: theme.tokens.onAccent,
+                                fontSize: '12px',
+                            }}
+                        >
                             {downloading ? '下载中...' : '下载本章'}
                         </text>
                     </view>

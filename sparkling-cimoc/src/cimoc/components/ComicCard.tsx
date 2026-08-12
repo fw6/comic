@@ -1,13 +1,16 @@
 import type { Comic } from '../data/models.js';
+import { FONT_SERIF, RADIUS, type AppTheme } from '../theme/index.js';
 
 export function ComicCover({
     color,
     title,
     image,
+    radius = RADIUS.md,
 }: {
     color: string;
     title: string;
     image?: string;
+    radius?: string;
 }) {
     // 真实图源封面：优先网络图片，否则占位色块
     return (
@@ -18,7 +21,7 @@ export function ComicCover({
                 width: '100%',
                 aspectRatio: 3 / 4,
                 backgroundColor: color,
-                borderRadius: '4px',
+                borderRadius: radius,
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
@@ -54,12 +57,21 @@ export function ComicCard({
     onTap,
     onLongPress,
     badge,
+    theme,
 }: {
     comic: Comic;
     onTap: () => void;
     onLongPress?: () => void;
+    /** 右上角角标，如「连载 / 完结」 */
     badge?: string;
+    theme: AppTheme;
 }) {
+    const t = theme.tokens;
+    const coverShadow =
+        theme.mode === 'ink'
+            ? '0 4px 12px rgba(0,0,0,0.45)'
+            : '0 2px 8px rgba(60,40,20,0.16)';
+    const badgeLive = badge === '连载';
     return (
         <view
             style={{ width: '100%' }}
@@ -67,28 +79,40 @@ export function ComicCard({
             {...(onLongPress ? { bindlongpress: onLongPress } : {})}
         >
             <view style={{ position: 'relative' }}>
-                <ComicCover
-                    color={comic.cover}
-                    title={comic.title}
-                    image={
-                        comic.cover.startsWith('http') ? comic.cover : undefined
-                    }
-                />
+                <view style={{ boxShadow: coverShadow, borderRadius: RADIUS.md }}>
+                    <ComicCover
+                        color={comic.cover}
+                        title={comic.title}
+                        image={
+                            comic.cover.startsWith('http')
+                                ? comic.cover
+                                : undefined
+                        }
+                    />
+                </view>
                 {badge ? (
                     <view
                         style={{
                             position: 'absolute',
-                            top: '4px',
-                            right: '4px',
-                            backgroundColor: '#E53935',
-                            borderRadius: '8px',
-                            paddingLeft: '5px',
-                            paddingRight: '5px',
-                            paddingTop: '1px',
-                            paddingBottom: '1px',
+                            top: '6px',
+                            right: '6px',
+                            backgroundColor: badgeLive
+                                ? t.accent
+                                : t.surfaceSunken,
+                            borderRadius: RADIUS.pill,
+                            paddingLeft: '6px',
+                            paddingRight: '6px',
+                            paddingTop: '2px',
+                            paddingBottom: '2px',
                         }}
                     >
-                        <text style={{ color: '#fff', fontSize: '10px' }}>
+                        <text
+                            style={{
+                                color: badgeLive ? t.onAccent : t.textSub,
+                                fontSize: '10px',
+                                lineHeight: '14px',
+                            }}
+                        >
                             {badge}
                         </text>
                     </view>
@@ -98,8 +122,10 @@ export function ComicCard({
                 style={{
                     marginTop: '6px',
                     fontSize: '13px',
-                    color: '#212121',
+                    color: t.text,
                     lineHeight: '18px',
+                    ...FONT_SERIF,
+                    letterSpacing: '0.3px',
                     textOverflow: 'ellipsis',
                 }}
                 text-maxline={'2'}

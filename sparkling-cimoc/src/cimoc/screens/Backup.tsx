@@ -1,9 +1,12 @@
 import { Button, Input } from '@lynx-js/lynx-ui';
 import { useState } from '@lynx-js/react';
+import { Screen } from '../components/Screen.js';
+import { Snackbar } from '../components/Snackbar.js';
 import { TopBar } from '../components/TopBar.js';
 import { webdavGet, webdavPut } from '../native/bridge.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 type BackupType = 'favorites' | 'tags' | 'settings';
 
@@ -16,6 +19,7 @@ const LABELS: Record<BackupType, string> = {
 export function BackupScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [msg, setMsg] = useState('');
     const [base, setBase] = useState('');
     const [user, setUser] = useState('');
@@ -97,13 +101,21 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#fff',
+                backgroundColor: t.surface,
                 padding: '16px',
                 borderBottomWidth: '1px',
-                borderBottomColor: '#f0f0f0',
+                borderBottomColor: t.hairline,
             }}
         >
-            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
+            <text
+                style={{
+                    flexGrow: 1,
+                    fontSize: '15px',
+                    color: t.text,
+                    ...FONT_SERIF,
+                    letterSpacing: '0.3px',
+                }}
+            >
                 {LABELS[type]}
             </text>
             <Button style={{ marginRight: '8px' }} onClick={() => save(type)}>
@@ -114,16 +126,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
     );
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f5f5f5',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar theme={theme} title="备份" onBack={() => nav.pop()} />
             {(['favorites', 'tags', 'settings'] as BackupType[]).map(renderRow)}
             <view style={{ padding: '16px' }}>
@@ -137,8 +140,8 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                 style={{
                     margin: '16px',
                     marginTop: '8px',
-                    backgroundColor: '#fff',
-                    borderRadius: '6px',
+                    backgroundColor: t.surface,
+                    borderRadius: RADIUS.md,
                     padding: '16px',
                 }}
             >
@@ -147,7 +150,9 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         fontSize: '15px',
                         fontWeight: '600',
                         marginBottom: '12px',
-                        color: '#212121',
+                        color: t.text,
+                        ...FONT_SERIF,
+                        letterSpacing: '0.5px',
                     }}
                 >
                     WebDAV 云备份
@@ -160,6 +165,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         width: '100%',
                         height: '44px',
                         fontSize: '14px',
+                        color: t.text,
                         marginBottom: '8px',
                     }}
                 />
@@ -171,6 +177,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         width: '100%',
                         height: '44px',
                         fontSize: '14px',
+                        color: t.text,
                         marginBottom: '8px',
                     }}
                 />
@@ -182,6 +189,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                         width: '100%',
                         height: '44px',
                         fontSize: '14px',
+                        color: t.text,
                         marginBottom: '12px',
                     }}
                 />
@@ -207,7 +215,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                 <text
                     style={{
                         fontSize: '12px',
-                        color: '#999',
+                        color: t.textMut,
                         marginTop: '8px',
                     }}
                 >
@@ -241,28 +249,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                 </view>
             </view>
 
-            {msg ? (
-                <view
-                    style={{
-                        alignItems: 'stretch',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'absolute',
-                        bottom: '80px',
-                        alignSelf: 'center',
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        paddingLeft: '20px',
-                        paddingRight: '20px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        borderRadius: '4px',
-                    }}
-                >
-                    <text style={{ color: '#fff', fontSize: '14px' }}>
-                        {msg}
-                    </text>
-                </view>
-            ) : null}
-        </view>
+            {msg ? <Snackbar theme={theme} message={msg} /> : null}
+        </Screen>
     );
 }

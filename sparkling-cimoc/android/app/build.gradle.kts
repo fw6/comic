@@ -104,6 +104,7 @@ dependencies {
     // BEGIN SPARKLING AUTOLINK
     listOf(
         project(":sparkling-navigation"),
+        project(":sparkling-cimoc-bridge"),
     ).forEach { dep -> add("implementation", dep) }
     // END SPARKLING AUTOLINK
 }

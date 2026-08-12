@@ -6,10 +6,12 @@ import {
 } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
 import { ComicCover } from '../components/ComicCard.js';
+import { Screen } from '../components/Screen.js';
 import type { Comic } from '../data/models.js';
 import { loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF } from '../theme/index.js';
 import { LibraryScreen } from './Library.js';
 import { SourcesScreen } from './Sources.js';
 
@@ -22,7 +24,7 @@ type DrawerItem =
       }
     | {
           kind: 'action';
-          key: 'night' | 'backup' | 'settings' | 'about';
+          key: 'mode' | 'backup' | 'settings' | 'about';
           label: string;
           icon: string;
       };
@@ -33,7 +35,7 @@ const CONTENT_ITEMS: DrawerItem[] = [
 ];
 
 const SYSTEM_ITEMS: DrawerItem[] = [
-    { kind: 'action', key: 'night', label: '日间/夜间模式', icon: '🌙' },
+    { kind: 'action', key: 'mode', label: '切换模式', icon: '☾' },
     { kind: 'action', key: 'backup', label: '备份', icon: '💾' },
     { kind: 'action', key: 'settings', label: '设置', icon: '⚙' },
     { kind: 'action', key: 'about', label: '关于', icon: 'ℹ' },
@@ -42,6 +44,7 @@ const SYSTEM_ITEMS: DrawerItem[] = [
 function DrawerHeader() {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [recent, setRecent] = useState<Comic | null>(null);
 
     useEffect(() => {
@@ -65,9 +68,15 @@ function DrawerHeader() {
                 display: 'flex',
                 flexDirection: 'column',
                 height: '250px',
-                backgroundColor: theme.theme.primary,
+                backgroundColor: t.surface,
+                backgroundImage:
+                    theme.mode === 'ink'
+                        ? 'radial-gradient(circle at 85% 20%, rgba(229,57,53,0.14), transparent 55%)'
+                        : 'radial-gradient(circle at 85% 20%, rgba(214,54,44,0.10), transparent 55%)',
                 padding: '16px',
                 justifyContent: 'flex-end',
+                borderBottomWidth: '1px',
+                borderBottomColor: t.hairline,
             }}
         >
             {recent ? (
@@ -78,6 +87,10 @@ function DrawerHeader() {
                             height: '74px',
                             borderRadius: '4px',
                             overflow: 'hidden',
+                            boxShadow:
+                                theme.mode === 'ink'
+                                    ? '0 4px 12px rgba(0,0,0,0.45)'
+                                    : '0 2px 8px rgba(60,40,20,0.16)',
                         }}
                     >
                         <ComicCover
@@ -92,26 +105,51 @@ function DrawerHeader() {
                     </view>
                     <text
                         style={{
-                            color: '#fff',
+                            color: t.text,
                             fontSize: '16px',
                             marginTop: '10px',
                             fontWeight: '500',
+                            ...FONT_SERIF,
+                            letterSpacing: '0.5px',
                         }}
                     >
                         {recent.title}
                     </text>
                 </>
             ) : (
-                <text
-                    style={{
-                        color: '#fff',
-                        fontSize: '18px',
-                        fontWeight: '600',
-                    }}
-                >
-                    Cimoc
-                </text>
+                <view style={{ flexDirection: 'column' }}>
+                    <text
+                        style={{
+                            color: t.text,
+                            fontSize: '22px',
+                            fontWeight: '600',
+                            ...FONT_SERIF,
+                            letterSpacing: '3px',
+                        }}
+                    >
+                        Cimoc
+                    </text>
+                    <text
+                        style={{
+                            color: t.textSub,
+                            fontSize: '12px',
+                            marginTop: '4px',
+                            letterSpacing: '4px',
+                        }}
+                    >
+                        漫画书房
+                    </text>
+                </view>
             )}
+            <view
+                style={{
+                    height: '3px',
+                    width: '36px',
+                    borderRadius: '2px',
+                    backgroundColor: t.accent,
+                    marginTop: '12px',
+                }}
+            />
         </view>
     );
 }
@@ -119,6 +157,7 @@ function DrawerHeader() {
 export function MainScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [open, setOpen] = useState(false);
     const [content, setContent] = useState<'library' | 'sources'>('library');
 
@@ -126,8 +165,9 @@ export function MainScreen({ nav }: { nav: NavApi }) {
         if (item.kind === 'content') {
             setContent(item.key);
             setOpen(false);
-        } else if (item.key === 'night') {
-            store.setNight(!theme.night);
+        } else if (item.key === 'mode') {
+            // 墨色 ↔ 纸面：切换真正的暗色/亮色主题（不再叠加黑色蒙层）
+            store.setMode(theme.mode === 'ink' ? 'paper' : 'ink');
             setOpen(false);
         } else if (item.key === 'backup') {
             setOpen(false);
@@ -141,6 +181,9 @@ export function MainScreen({ nav }: { nav: NavApi }) {
         }
     };
 
+    const modeItemLabel =
+        theme.mode === 'ink' ? '日间·纸面' : '夜间·墨色';
+
     const renderItem = (item: DrawerItem) => {
         const active = item.kind === 'content' && item.key === content;
         return (
@@ -153,23 +196,40 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                     height: '48px',
                     paddingLeft: '16px',
                     paddingRight: '16px',
-                    backgroundColor: active
-                        ? 'rgba(33,150,243,0.08)'
-                        : 'transparent',
+                    backgroundColor: active ? t.accentSoft : 'transparent',
                 }}
             >
-                <text style={{ fontSize: '18px', width: '32px' }}>
-                    {item.icon}
+                {active ? (
+                    <view
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: '10px',
+                            bottom: '10px',
+                            width: '3px',
+                            borderRadius: '2px',
+                            backgroundColor: t.accent,
+                        }}
+                    />
+                ) : null}
+                <text style={{ fontSize: '18px', width: '32px', opacity: 0.9 }}>
+                    {item.key === 'mode'
+                        ? theme.mode === 'ink'
+                            ? '☾'
+                            : '☀'
+                        : item.icon}
                 </text>
                 <text
                     style={{
                         fontSize: '15px',
-                        color: active ? theme.theme.primary : '#212121',
+                        color: active ? t.accent : t.text,
                         fontWeight: active ? '600' : '400',
                         marginLeft: '8px',
                     }}
                 >
-                    {item.label}
+                    {item.kind === 'action' && item.key === 'mode'
+                        ? modeItemLabel
+                        : item.label}
                 </text>
             </view>
         );
@@ -183,16 +243,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
         );
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             {contentEl}
             <SheetRoot
                 show={open}
@@ -205,7 +256,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 <SheetContent
                     style={{
                         width: '280px',
-                        backgroundColor: '#fff',
+                        backgroundColor: t.surfaceRaised,
                         height: '100%',
                     }}
                 >
@@ -215,7 +266,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                         <view
                             style={{
                                 height: '1px',
-                                backgroundColor: '#eee',
+                                backgroundColor: t.hairline,
                                 marginTop: '8px',
                                 marginBottom: '8px',
                             }}
@@ -224,6 +275,6 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                     </view>
                 </SheetContent>
             </SheetRoot>
-        </view>
+        </Screen>
     );
 }

@@ -17,7 +17,6 @@ import { SourcesScreen } from './screens/Sources.js';
 import { TagEditorScreen } from './screens/TagEditor.js';
 import { TaskScreen } from './screens/Task.js';
 import { hydrateAppState, useAppStore } from './store.js';
-import { nightOverlayColor } from './theme/index.js';
 
 function ScreenView({
     screen,
@@ -97,23 +96,10 @@ export function App() {
                 flexDirection: 'column',
                 width: '100%',
                 height: '100%',
+                backgroundColor: theme.tokens.bg,
             }}
         >
             <ScreenView screen={screen} nav={nav} />
-            {/* Night mode overlay: translucent black mask over the light theme */}
-            {theme.night ? (
-                <view
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: nightOverlayColor(theme.nightAlpha),
-                        pointerEvents: 'none',
-                    }}
-                />
-            ) : null}
         </view>
     );
 }

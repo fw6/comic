@@ -1,11 +1,15 @@
 import { List } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
 import { ComicCover } from '../components/ComicCard.js';
+import { EmptyState } from '../components/EmptyState.js';
+import { Screen } from '../components/Screen.js';
+import { Snackbar } from '../components/Snackbar.js';
 import { ToolbarAction, TopBar } from '../components/TopBar.js';
 import type { Chapter, Comic } from '../data/models.js';
 import { loadChapters, loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function DetailScreen({
     nav,
@@ -16,6 +20,7 @@ export function DetailScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,36 +49,17 @@ export function DetailScreen({
 
     if (loading) {
         return (
-            <view
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#fafafa',
-                }}
-            >
-                <text style={{ fontSize: '15px', color: '#999' }}>
-                    加载中...
-                </text>
-            </view>
+            <Screen theme={theme}>
+                <EmptyState theme={theme} text="加载中..." glyph="📖" />
+            </Screen>
         );
     }
 
     if (!comic) {
         return (
-            <view
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexGrow: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <text>未找到漫画</text>
-            </view>
+            <Screen theme={theme}>
+                <EmptyState theme={theme} text="未找到漫画" glyph="❓" />
+            </Screen>
         );
     }
 
@@ -145,16 +131,7 @@ export function DetailScreen({
     ];
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title={comic.title}
@@ -162,6 +139,7 @@ export function DetailScreen({
                 actions={
                     <>
                         <ToolbarAction
+                            theme={theme}
                             label="下载"
                             onTap={() =>
                                 nav.push({
@@ -171,6 +149,7 @@ export function DetailScreen({
                             }
                         />
                         <ToolbarAction
+                            theme={theme}
                             label="···"
                             onTap={() => setShowMenu(!showMenu)}
                         />
@@ -185,11 +164,11 @@ export function DetailScreen({
                         position: 'absolute',
                         top: '88px',
                         right: '8px',
-                        backgroundColor: '#fff',
-                        borderRadius: '4px',
+                        backgroundColor: t.surfaceRaised,
+                        borderRadius: RADIUS.sm,
                         zIndex: 10,
                         minWidth: '140px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
                     }}
                 >
                     {menuItems.map((item) => (
@@ -202,10 +181,12 @@ export function DetailScreen({
                                 paddingLeft: '16px',
                                 paddingRight: '16px',
                                 borderBottomWidth: '1px',
-                                borderBottomColor: '#f0f0f0',
+                                borderBottomColor: t.hairline,
                             }}
                         >
-                            <text style={{ fontSize: '14px', color: '#333' }}>
+                            <text
+                                style={{ fontSize: '14px', color: t.text }}
+                            >
                                 {item.label}
                             </text>
                         </view>
@@ -220,11 +201,22 @@ export function DetailScreen({
                     display: 'flex',
                     flexDirection: 'row',
                     padding: '16px',
-                    backgroundColor: '#fff',
+                    backgroundColor: t.surface,
+                    borderBottomWidth: '1px',
+                    borderBottomColor: t.hairline,
                 }}
                 bindlongpress={() => setShowIntro(true)}
             >
-                <view style={{ width: '90px', height: '120px' }}>
+                <view
+                    style={{
+                        width: '90px',
+                        height: '120px',
+                        boxShadow:
+                            theme.mode === 'ink'
+                                ? '0 4px 12px rgba(0,0,0,0.45)'
+                                : '0 2px 8px rgba(60,40,20,0.16)',
+                    }}
+                >
                     <ComicCover
                         color={comic.cover}
                         title={comic.title}
@@ -249,21 +241,43 @@ export function DetailScreen({
                         style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#212121',
+                            color: t.text,
+                            ...FONT_SERIF,
+                            letterSpacing: '0.5px',
                         }}
                     >
                         {comic.title}
                     </text>
-                    <text style={{ fontSize: '13px', color: '#666' }}>
+                    <text style={{ fontSize: '13px', color: t.textSub }}>
                         作者：{comic.author}
                     </text>
-                    <text style={{ fontSize: '13px', color: '#666' }}>
+                    <text style={{ fontSize: '13px', color: t.textSub }}>
                         图源：{comic.sourceTitle}
                     </text>
-                    <text style={{ fontSize: '13px', color: '#666' }}>
-                        状态：{comic.status === 'finish' ? '已完结' : '连载中'}
-                    </text>
-                    <text style={{ fontSize: '12px', color: '#999' }}>
+                    <view
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <view
+                            style={{
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '3px',
+                                backgroundColor:
+                                    comic.status === 'finish'
+                                        ? t.textMut
+                                        : t.accent,
+                                marginRight: '5px',
+                            }}
+                        />
+                        <text style={{ fontSize: '13px', color: t.textSub }}>
+                            {comic.status === 'finish' ? '已完结' : '连载中'}
+                        </text>
+                    </view>
+                    <text style={{ fontSize: '12px', color: t.textMut }}>
                         更新：{comic.updateTime}
                     </text>
                 </view>
@@ -273,14 +287,14 @@ export function DetailScreen({
             <view
                 style={{
                     padding: '16px',
-                    backgroundColor: '#fff',
+                    backgroundColor: t.surface,
                     marginTop: '1px',
                 }}
             >
                 <text
                     style={{
                         fontSize: '14px',
-                        color: '#444',
+                        color: t.textSub,
                         lineHeight: '20px',
                         textOverflow: 'ellipsis',
                     }}
@@ -295,11 +309,14 @@ export function DetailScreen({
                 style={{
                     fontSize: '15px',
                     fontWeight: '600',
-                    color: '#333',
+                    color: t.text,
                     padding: '12px',
+                    ...FONT_SERIF,
+                    letterSpacing: '1px',
                 }}
             >
-                章节列表（{chapters.length}）
+                章节列表
+                <text style={{ color: t.accent }}>（{chapters.length}）</text>
             </text>
             <List
                 listId={`detail-${comicId}-${reverse ? 'r' : 'n'}`}
@@ -318,21 +335,23 @@ export function DetailScreen({
                     const isDownloaded = store.isDownloaded(comic.id, ch.index);
                     return (
                         <list-item item-key={`${ch.index}`} key={ch.index}>
+                            {/* 卷标式章节卡：已读 = 强调色书脊 + 淡印面 */}
                             <view
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'column',
+                                    flexDirection: 'row',
                                     backgroundColor: ch.read
-                                        ? '#E3F2FD'
-                                        : '#fff',
-                                    borderRadius: '4px',
+                                        ? t.accentSoft
+                                        : t.surface,
+                                    borderRadius: RADIUS.sm,
                                     paddingTop: '12px',
                                     paddingBottom: '12px',
                                     alignItems: 'center',
                                     borderWidth: '1px',
                                     borderColor: ch.read
-                                        ? theme.theme.primary
-                                        : '#eee',
+                                        ? t.accent
+                                        : t.hairline,
+                                    overflow: 'hidden',
                                 }}
                                 bindtap={() =>
                                     nav.push({
@@ -343,12 +362,25 @@ export function DetailScreen({
                                     })
                                 }
                             >
+                                <view
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: '3px',
+                                        backgroundColor: ch.read
+                                            ? t.accent
+                                            : 'transparent',
+                                    }}
+                                />
                                 <text
                                     style={{
+                                        flexGrow: 1,
                                         fontSize: '13px',
-                                        color: ch.read
-                                            ? theme.theme.primary
-                                            : '#333',
+                                        color: ch.read ? t.accent : t.text,
+                                        textAlign: 'center',
+                                        paddingLeft: '3px',
                                     }}
                                 >
                                     {ch.title}
@@ -356,9 +388,11 @@ export function DetailScreen({
                                 {isDownloaded ? (
                                     <text
                                         style={{
+                                            position: 'absolute',
+                                            right: '5px',
+                                            bottom: '3px',
                                             fontSize: '10px',
-                                            color: '#43A047',
-                                            marginTop: '2px',
+                                            color: t.success,
                                         }}
                                     >
                                         ✓
@@ -382,13 +416,18 @@ export function DetailScreen({
                         width: '48px',
                         height: '48px',
                         borderRadius: '24px',
-                        backgroundColor: theme.theme.primary,
+                        backgroundColor: t.accent,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.35)',
+                        boxShadow:
+                            theme.mode === 'ink'
+                                ? '0 6px 16px rgba(0,0,0,0.5)'
+                                : '0 6px 16px rgba(60,40,20,0.28)',
                     }}
                 >
-                    <text style={{ color: '#fff', fontSize: '20px' }}>▶</text>
+                    <text style={{ color: t.onAccent, fontSize: '20px' }}>
+                        ▶
+                    </text>
                 </view>
             </view>
             <view
@@ -400,40 +439,27 @@ export function DetailScreen({
                     width: '56px',
                     height: '56px',
                     borderRadius: '28px',
-                    backgroundColor: theme.theme.accent,
+                    backgroundColor: fav ? t.accent : t.surfaceRaised,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.35)',
+                    boxShadow:
+                        theme.mode === 'ink'
+                            ? '0 6px 16px rgba(0,0,0,0.5)'
+                            : '0 6px 16px rgba(60,40,20,0.28)',
                 }}
             >
-                <text style={{ color: '#fff', fontSize: '24px' }}>
+                <text
+                    style={{
+                        color: fav ? t.onAccent : t.accent,
+                        fontSize: '24px',
+                    }}
+                >
                     {fav ? '❤' : '♡'}
                 </text>
             </view>
 
             {/* Snackbar */}
-            {snack ? (
-                <view
-                    style={{
-                        alignItems: 'stretch',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'absolute',
-                        bottom: '100px',
-                        alignSelf: 'center',
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        paddingLeft: '20px',
-                        paddingRight: '20px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        borderRadius: '4px',
-                    }}
-                >
-                    <text style={{ color: '#fff', fontSize: '14px' }}>
-                        {snack}
-                    </text>
-                </view>
-            ) : null}
+            {snack ? <Snackbar theme={theme} message={snack} /> : null}
 
             {/* Intro dialog */}
             {showIntro ? (
@@ -446,7 +472,7 @@ export function DetailScreen({
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        backgroundColor: t.overlay,
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '40px',
@@ -455,8 +481,8 @@ export function DetailScreen({
                 >
                     <view
                         style={{
-                            backgroundColor: '#fff',
-                            borderRadius: '6px',
+                            backgroundColor: t.surfaceRaised,
+                            borderRadius: RADIUS.lg,
                             padding: '20px',
                             maxWidth: '320px',
                             width: '100%',
@@ -467,6 +493,9 @@ export function DetailScreen({
                             style={{
                                 fontSize: '17px',
                                 fontWeight: '600',
+                                color: t.text,
+                                ...FONT_SERIF,
+                                letterSpacing: '0.5px',
                                 marginBottom: '10px',
                             }}
                         >
@@ -475,7 +504,7 @@ export function DetailScreen({
                         <text
                             style={{
                                 fontSize: '14px',
-                                color: '#444',
+                                color: t.textSub,
                                 lineHeight: '22px',
                             }}
                         >
@@ -484,6 +513,6 @@ export function DetailScreen({
                     </view>
                 </view>
             ) : null}
-        </view>
+        </Screen>
     );
 }

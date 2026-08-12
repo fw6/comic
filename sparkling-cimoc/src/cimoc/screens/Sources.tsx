@@ -1,13 +1,16 @@
 import { Checkbox, List } from '@lynx-js/lynx-ui';
+import { Screen } from '../components/Screen.js';
 import { ToolbarAction, TopBar } from '../components/TopBar.js';
 import type { Source } from '../data/models.js';
 import { sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function SourcesScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     // 图源开关与 Search 页共享，持久化在原生存储
     const enabled = store.sources;
 
@@ -18,16 +21,7 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
     };
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title="图源"
@@ -35,14 +29,17 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                 actions={
                     <>
                         <ToolbarAction
+                            theme={theme}
                             label="搜索"
                             onTap={() => nav.push({ name: 'search' })}
                         />
                         <ToolbarAction
+                            theme={theme}
                             label="全选"
                             onTap={() => setAll(true)}
                         />
                         <ToolbarAction
+                            theme={theme}
                             label="反选"
                             onTap={() => {
                                 const next: Record<string, boolean> = {};
@@ -52,6 +49,7 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                             }}
                         />
                         <ToolbarAction
+                            theme={theme}
                             label="清空"
                             onTap={() => setAll(false)}
                         />
@@ -74,10 +72,13 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                                 display: 'flex',
                                 flexDirection: 'row',
                                 alignItems: 'center',
-                                backgroundColor: '#fff',
-                                borderRadius: '6px',
+                                backgroundColor: t.surface,
+                                borderRadius: RADIUS.md,
                                 padding: '14px',
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+                                boxShadow:
+                                    theme.mode === 'ink'
+                                        ? '0 2px 8px rgba(0,0,0,0.35)'
+                                        : '0 1px 3px rgba(60,40,20,0.12)',
                             }}
                             bindtap={() =>
                                 nav.push({
@@ -109,7 +110,9 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                                 <text
                                     style={{
                                         fontSize: '16px',
-                                        color: '#212121',
+                                        color: t.text,
+                                        ...FONT_SERIF,
+                                        letterSpacing: '0.3px',
                                     }}
                                 >
                                     {source.title}
@@ -119,6 +122,6 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                     </list-item>
                 ))}
             </List>
-        </view>
+        </Screen>
     );
 }

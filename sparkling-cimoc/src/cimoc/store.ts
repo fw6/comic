@@ -25,7 +25,13 @@ import {
     sourceList,
     updateComicProgress,
 } from './data/service.js';
-import { type AppTheme, THEMES, type ThemeName } from './theme/index.js';
+import {
+    ACCENTS,
+    appTheme,
+    type AppTheme,
+    type ThemeMode,
+    type ThemeName,
+} from './theme/index.js';
 
 export interface ReaderSettings {
     defaultMode: 'page' | 'stream';
@@ -48,7 +54,6 @@ export interface ReaderSettings {
     autoCheckUpdate: boolean;
     startupScreen: LibraryTab;
     theme: ThemeName;
-    nightAlpha: number;
     downloadThreads: number;
     autocomplete: boolean;
 }
@@ -73,15 +78,15 @@ export const DEFAULT_READER: ReaderSettings = {
     coverWifiOnly: false,
     autoCheckUpdate: true,
     startupScreen: 'favorite',
-    theme: 'blue',
-    nightAlpha: 150,
+    theme: 'vermilion',
     downloadThreads: 3,
     autocomplete: true,
 };
 
 // --- atoms ---
 export const settingsAtom = atom<ReaderSettings>(DEFAULT_READER);
-export const nightAtom = atom(false);
+/** 墨色 / 纸面 模式（运行时切换，不持久化，等同旧版夜间开关） */
+export const modeAtom = atom<ThemeMode>('ink');
 export const favoritesAtom = atom<string[]>([]);
 export const historyAtom = atom<string[]>([]);
 /** 图源开关：sourceId -> enabled（默认取注册表静态配置，可被原生存储覆盖） */
@@ -95,14 +100,10 @@ export const progressAtom = atom<Record<string, ReadingProgress>>({});
 /** Downloads queue: comicId -> list of chapter indexes. */
 export const downloadsAtom = atom<Record<string, number[]>>({});
 
-/** Derived theme object combining the selected theme, night flag and alpha. */
+/** Derived theme object: mode + accent + resolved semantic tokens. */
 export const themeAtom = atom<AppTheme>((get) => {
     const settings = get(settingsAtom);
-    return {
-        theme: THEMES[settings.theme],
-        night: get(nightAtom),
-        nightAlpha: settings.nightAlpha,
-    };
+    return appTheme(get(modeAtom), ACCENTS[settings.theme]);
 });
 
 // --- derived helpers ---
@@ -141,7 +142,7 @@ export interface AppStore {
     updateSettings: (patch: Partial<ReaderSettings>) => void;
     theme: AppTheme;
     setThemeName: (name: ThemeName) => void;
-    setNight: (night: boolean) => void;
+    setMode: (mode: ThemeMode) => void;
     favorites: string[];
     toggleFavorite: (comicId: string) => void;
     isFavorite: (comicId: string) => boolean;
@@ -165,7 +166,7 @@ export interface AppStore {
 /** Convenience hook exposing the same API used across screens. */
 export function useAppStore(): AppStore {
     const [settings, setSettings] = useAtom(settingsAtom);
-    const setNight = useSetAtom(nightAtom);
+    const setMode = useSetAtom(modeAtom);
     const [favorites, setFavorites] = useAtom(favoritesAtom);
     const [history, setHistory] = useAtom(historyAtom);
     const [tags, setTags] = useAtom(tagsAtom);
@@ -187,7 +188,7 @@ export function useAppStore(): AppStore {
             setSettings(next);
             void persistSettings(next as unknown as Record<string, unknown>);
         },
-        setNight,
+        setMode,
         favorites,
         toggleFavorite: (comicId) => {
             const next = favorites.includes(comicId)

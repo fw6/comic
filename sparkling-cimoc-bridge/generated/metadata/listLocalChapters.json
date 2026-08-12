@@ -1,0 +1,44 @@
+{
+  "name": "listLocalChapters",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "ListLocalChaptersRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "ListLocalChaptersResponse"
+  },
+  "interfaces": {
+    "ListLocalChaptersRequest": {
+      "name": "ListLocalChaptersRequest",
+      "fields": [
+        {
+          "name": "comicId",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "ListLocalChaptersResponse": {
+      "name": "ListLocalChaptersResponse",
+      "fields": [
+        {
+          "name": "chaptersJson",
+          "optional": false,
+          "description": "JSON 字符串编码的 Array<{chapterIndex, pageCount, dir}>",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.904Z"
+}

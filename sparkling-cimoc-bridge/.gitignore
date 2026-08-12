@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build outputs (tsc emit into package root when `npm run build` runs)
+index.js
+index.d.ts
+*.tsbuildinfo
+
+# Android (gradle build outputs from `sparkling-cimoc-bridge/android`)
+android/build/
+android/.gradle/
+android/local.properties
+android/.cxx/
+android/captures/
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json

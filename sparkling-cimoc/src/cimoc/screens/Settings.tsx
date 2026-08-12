@@ -1,87 +1,45 @@
 import { useState } from '@lynx-js/react';
+import { Row } from '../components/Row.js';
+import { Screen } from '../components/Screen.js';
+import { SectionHeader } from '../components/SectionHeader.js';
+import { Snackbar } from '../components/Snackbar.js';
 import { TopBar } from '../components/TopBar.js';
 import type { LibraryTab } from '../data/models.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { THEME_ORDER, THEMES, type ThemeName } from '../theme/index.js';
-
-function SectionHeader({ title, color }: { title: string; color: string }) {
-    return (
-        <view
-            style={{
-                backgroundColor: 'rgba(0,0,0,0.05)',
-                paddingTop: '8px',
-                paddingBottom: '8px',
-                paddingLeft: '16px',
-                paddingRight: '16px',
-            }}
-        >
-            <text style={{ color, fontSize: '14px', fontWeight: '600' }}>
-                {title}
-            </text>
-        </view>
-    );
-}
-
-function Row({
-    title,
-    value,
-    onTap,
-}: {
-    title: string;
-    value?: string;
-    onTap?: () => void;
-}) {
-    return (
-        <view
-            bindtap={onTap}
-            style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#fff',
-                paddingTop: '14px',
-                paddingBottom: '14px',
-                paddingLeft: '16px',
-                paddingRight: '16px',
-                borderBottomWidth: '1px',
-                borderBottomColor: '#f0f0f0',
-            }}
-        >
-            <text style={{ flexGrow: 1, fontSize: '15px', color: '#212121' }}>
-                {title}
-            </text>
-            {value ? (
-                <text style={{ fontSize: '14px', color: '#999' }}>{value}</text>
-            ) : null}
-            <text
-                style={{ color: '#bbb', fontSize: '18px', marginLeft: '8px' }}
-            >
-                ›
-            </text>
-        </view>
-    );
-}
+import {
+    ACCENTS,
+    FONT_SERIF,
+    MODE_LABELS,
+    RADIUS,
+    THEME_ORDER,
+    type ThemeName,
+} from '../theme/index.js';
 
 function ThemeRow() {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const choose = (name: ThemeName) => store.setThemeName(name);
     return (
         <view
             style={{
-                backgroundColor: '#fff',
+                backgroundColor: t.surface,
                 paddingTop: '12px',
                 paddingBottom: '12px',
                 paddingLeft: '16px',
                 paddingRight: '16px',
+                borderBottomWidth: '1px',
+                borderBottomColor: t.hairline,
             }}
         >
             <text
                 style={{
                     fontSize: '15px',
-                    color: '#212121',
+                    color: t.text,
                     marginBottom: '10px',
+                    ...FONT_SERIF,
+                    letterSpacing: '0.5px',
                 }}
             >
                 主题颜色
@@ -99,21 +57,26 @@ function ThemeRow() {
                         key={name}
                         bindtap={() => choose(name)}
                         style={{
-                            width: '44px',
-                            height: '44px',
-                            borderRadius: '22px',
-                            backgroundColor: THEMES[name].primary,
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '20px',
+                            backgroundColor: ACCENTS[name].accent,
                             alignItems: 'center',
                             justifyContent: 'center',
                             borderWidth: '2px',
                             borderColor:
-                                theme.theme.name === name
-                                    ? '#000'
+                                theme.accent.name === name
+                                    ? t.text
                                     : 'transparent',
                         }}
                     >
-                        {theme.theme.name === name ? (
-                            <text style={{ color: '#fff', fontSize: '18px' }}>
+                        {theme.accent.name === name ? (
+                            <text
+                                style={{
+                                    color: ACCENTS[name].onAccent,
+                                    fontSize: '16px',
+                                }}
+                            >
                                 ✓
                             </text>
                         ) : null}
@@ -127,6 +90,7 @@ function ThemeRow() {
 export function SettingsScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
     const { theme, settings, updateSettings } = store;
+    const t = theme.tokens;
     const [showStartup, setShowStartup] = useState(false);
     const [snack, setSnack] = useState('');
 
@@ -140,20 +104,12 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
     const showSnack = (msg: string) => setSnack(msg);
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f5f5f5',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar theme={theme} title="设置" onBack={() => nav.pop()} />
             <view>
-                <SectionHeader title="阅读设置" color={theme.theme.primary} />
+                <SectionHeader theme={theme} title="阅读设置" />
                 <Row
+                    theme={theme}
                     title="默认阅读模式"
                     value={
                         settings.defaultMode === 'page'
@@ -163,10 +119,12 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     onTap={() => nav.push({ name: 'readerConfig' })}
                 />
                 <Row
+                    theme={theme}
                     title="阅读配置"
                     onTap={() => nav.push({ name: 'readerConfig' })}
                 />
                 <Row
+                    theme={theme}
                     title="保持屏幕常亮"
                     value={settings.keepScreenBright ? '开' : '关'}
                     onTap={() =>
@@ -176,11 +134,13 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
                 <Row
+                    theme={theme}
                     title="隐藏导航栏"
                     value={settings.hideNav ? '开' : '关'}
                     onTap={() => updateSettings({ hideNav: !settings.hideNav })}
                 />
                 <Row
+                    theme={theme}
                     title="隐藏信息栏"
                     value={settings.hideInfo ? '开' : '关'}
                     onTap={() =>
@@ -188,6 +148,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
                 <Row
+                    theme={theme}
                     title="自动裁边"
                     value={settings.autoCropWhiteEdge ? '开' : '关'}
                     onTap={() =>
@@ -197,6 +158,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
                 <Row
+                    theme={theme}
                     title="白色背景"
                     value={settings.whiteBackground ? '开' : '关'}
                     onTap={() =>
@@ -206,6 +168,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
                 <Row
+                    theme={theme}
                     title="音量键翻页"
                     value={settings.volumeKeyTurn ? '开' : '关'}
                     onTap={() =>
@@ -215,8 +178,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
 
-                <SectionHeader title="下载设置" color={theme.theme.primary} />
+                <SectionHeader theme={theme} title="下载设置" />
                 <Row
+                    theme={theme}
                     title="多任务下载线程"
                     value={`${settings.downloadThreads}`}
                     onTap={() =>
@@ -228,10 +192,11 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                         })
                     }
                 />
-                <Row title="扫描已下载漫画" onTap={() => {}} />
+                <Row theme={theme} title="扫描已下载漫画" onTap={() => {}} />
 
-                <SectionHeader title="搜索设置" color={theme.theme.primary} />
+                <SectionHeader theme={theme} title="搜索设置" />
                 <Row
+                    theme={theme}
                     title="自动补全搜索词"
                     value={settings.autocomplete ? '开' : '关'}
                     onTap={() =>
@@ -239,8 +204,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
 
-                <SectionHeader title="应用设置" color={theme.theme.primary} />
+                <SectionHeader theme={theme} title="应用设置" />
                 <Row
+                    theme={theme}
                     title="仅连接 Wi-Fi"
                     value={settings.wifiOnly ? '开' : '关'}
                     onTap={() =>
@@ -248,6 +214,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     }
                 />
                 <Row
+                    theme={theme}
                     title="仅加载封面 Wi-Fi"
                     value={settings.coverWifiOnly ? '开' : '关'}
                     onTap={() =>
@@ -256,30 +223,32 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                         })
                     }
                 />
-                <ThemeRow />
                 <Row
-                    title="夜间模式透明度"
-                    value={`${settings.nightAlpha}`}
+                    theme={theme}
+                    title="界面模式"
+                    value={MODE_LABELS[theme.mode]}
                     onTap={() =>
-                        updateSettings({
-                            nightAlpha:
-                                settings.nightAlpha === 200
-                                    ? 100
-                                    : settings.nightAlpha + 25,
-                        })
+                        store.setMode(theme.mode === 'ink' ? 'paper' : 'ink')
                     }
                 />
+                <ThemeRow />
                 <Row
+                    theme={theme}
                     title="启动画面"
                     value={STARTUP_LABELS[settings.startupScreen]}
                     onTap={() => setShowStartup(true)}
                 />
                 <Row
+                    theme={theme}
                     title="存储位置"
                     value="默认"
                     onTap={() => showSnack('存储位置切换需重启应用')}
                 />
-                <Row title="清除缓存" onTap={() => showSnack('缓存已清除')} />
+                <Row
+                    theme={theme}
+                    title="清除缓存"
+                    onTap={() => showSnack('缓存已清除')}
+                />
             </view>
 
             {/* startup screen picker */}
@@ -294,16 +263,16 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        backgroundColor: t.overlay,
                         justifyContent: 'flex-end',
                     }}
                     bindtap={() => setShowStartup(false)}
                 >
                     <view
                         style={{
-                            backgroundColor: '#fff',
-                            borderTopLeftRadius: '12px',
-                            borderTopRightRadius: '12px',
+                            backgroundColor: t.surfaceRaised,
+                            borderTopLeftRadius: RADIUS.lg,
+                            borderTopRightRadius: RADIUS.lg,
                             padding: '16px',
                         }}
                         bindtap={() => {}}
@@ -312,6 +281,9 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                             style={{
                                 fontSize: '16px',
                                 fontWeight: '600',
+                                color: t.text,
+                                ...FONT_SERIF,
+                                letterSpacing: '0.5px',
                                 marginBottom: '10px',
                             }}
                         >
@@ -331,14 +303,14 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                                         paddingTop: '10px',
                                         paddingBottom: '10px',
                                         borderBottomWidth: '1px',
-                                        borderBottomColor: '#f0f0f0',
+                                        borderBottomColor: t.hairline,
                                     }}
                                 >
                                     <text
                                         style={{
                                             flexGrow: 1,
                                             fontSize: '14px',
-                                            color: '#333',
+                                            color: t.text,
                                         }}
                                     >
                                         {STARTUP_LABELS[k]}
@@ -346,7 +318,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                                     {settings.startupScreen === k ? (
                                         <text
                                             style={{
-                                                color: theme.theme.primary,
+                                                color: t.accent,
                                                 fontSize: '14px',
                                             }}
                                         >
@@ -361,28 +333,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
             ) : null}
 
             {/* snackbar */}
-            {snack ? (
-                <view
-                    style={{
-                        alignItems: 'stretch',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'absolute',
-                        bottom: '60px',
-                        alignSelf: 'center',
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        paddingLeft: '20px',
-                        paddingRight: '20px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        borderRadius: '4px',
-                    }}
-                >
-                    <text style={{ color: '#fff', fontSize: '14px' }}>
-                        {snack}
-                    </text>
-                </view>
-            ) : null}
-        </view>
+            {snack ? <Snackbar theme={theme} message={snack} /> : null}
+        </Screen>
     );
 }

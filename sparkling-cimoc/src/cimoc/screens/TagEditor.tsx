@@ -1,10 +1,13 @@
 import { Input } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
-import { TopBar } from '../components/TopBar.js';
+import { Chip } from '../components/Chip.js';
+import { Screen } from '../components/Screen.js';
+import { ToolbarAction, TopBar } from '../components/TopBar.js';
 import type { Comic } from '../data/models.js';
 import { loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 const PRESET_TAGS = [
     '热血',
@@ -26,6 +29,7 @@ export function TagEditorScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [comic, setComic] = useState<Comic | null>(null);
     const [tags, setTags] = useState<string[]>(() => store.getTags(comicId));
     const [input, setInput] = useState('');
@@ -56,37 +60,21 @@ export function TagEditorScreen({
     };
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f5f5f5',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title={`编辑标签 · ${comic?.title ?? ''}`}
                 onBack={() => nav.pop()}
                 actions={
-                    <view
-                        bindtap={() => {
+                    <ToolbarAction
+                        theme={theme}
+                        accent
+                        label="保存"
+                        onTap={() => {
                             store.setTags(comicId, tags);
                             nav.pop();
                         }}
-                        style={{
-                            paddingLeft: '12px',
-                            paddingRight: '12px',
-                            paddingTop: '8px',
-                            paddingBottom: '8px',
-                        }}
-                    >
-                        <text style={{ color: '#fff', fontSize: '15px' }}>
-                            保存
-                        </text>
-                    </view>
+                    />
                 }
             />
             <view style={{ padding: '16px' }}>
@@ -95,10 +83,10 @@ export function TagEditorScreen({
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
-                        backgroundColor: '#fff',
-                        borderRadius: '4px',
+                        backgroundColor: t.surface,
+                        borderRadius: RADIUS.md,
                         borderWidth: '1px',
-                        borderColor: '#ddd',
+                        borderColor: t.border,
                         paddingLeft: '12px',
                         paddingRight: '12px',
                     }}
@@ -111,6 +99,7 @@ export function TagEditorScreen({
                             flexGrow: 1,
                             height: '44px',
                             fontSize: '15px',
+                            color: t.text,
                         }}
                     />
                     <view
@@ -123,7 +112,7 @@ export function TagEditorScreen({
                     >
                         <text
                             style={{
-                                color: theme.theme.accent,
+                                color: t.accent,
                                 fontSize: '18px',
                             }}
                         >
@@ -136,8 +125,10 @@ export function TagEditorScreen({
                 <text
                     style={{
                         fontSize: '13px',
-                        color: '#999',
+                        color: t.textMut,
                         marginBottom: '8px',
+                        ...FONT_SERIF,
+                        letterSpacing: '1px',
                     }}
                 >
                     常用标签
@@ -150,42 +141,24 @@ export function TagEditorScreen({
                         flexWrap: 'wrap',
                     }}
                 >
-                    {PRESET_TAGS.map((t) => {
-                        const active = tags.includes(t);
+                    {PRESET_TAGS.map((tag) => {
+                        const active = tags.includes(tag);
                         return (
                             <view
-                                key={t}
-                                bindtap={() => toggle(t)}
-                                style={{
-                                    backgroundColor: active
-                                        ? theme.theme.primary
-                                        : '#fff',
-                                    borderRadius: '16px',
-                                    paddingLeft: '14px',
-                                    paddingRight: '14px',
-                                    paddingTop: '6px',
-                                    paddingBottom: '6px',
-                                    marginRight: '8px',
-                                    marginBottom: '8px',
-                                    borderWidth: '1px',
-                                    borderColor: active
-                                        ? theme.theme.primary
-                                        : '#ddd',
-                                }}
+                                key={tag}
+                                style={{ marginBottom: '8px' }}
                             >
-                                <text
-                                    style={{
-                                        fontSize: '14px',
-                                        color: active ? '#fff' : '#555',
-                                    }}
-                                >
-                                    {t}
-                                </text>
+                                <Chip
+                                    theme={theme}
+                                    label={tag}
+                                    active={active}
+                                    onTap={() => toggle(tag)}
+                                />
                             </view>
                         );
                     })}
                 </view>
             </view>
-        </view>
+        </Screen>
     );
 }

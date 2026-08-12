@@ -1,9 +1,12 @@
 import { List } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
+import { EmptyState } from '../components/EmptyState.js';
+import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import { categoriesForSource, sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF } from '../theme/index.js';
 
 export function CategoryScreen({
     nav,
@@ -14,6 +17,7 @@ export function CategoryScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const source = sourceList().find((s) => s.id === sourceId);
     // 分类列表按图源加载（MangaDex 的 tags 需要网络请求）
     const [categories, setCategories] = useState<string[]>([]);
@@ -35,35 +39,14 @@ export function CategoryScreen({
     }, [sourceId]);
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar
                 theme={theme}
                 title={source ? `${source.title} · 分类` : '分类'}
                 onBack={() => nav.pop()}
             />
             {loading ? (
-                <view
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        flexGrow: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <text style={{ fontSize: '15px', color: '#999' }}>
-                        加载中...
-                    </text>
-                </view>
+                <EmptyState theme={theme} text="加载中..." glyph="🗂" />
             ) : (
                 <List
                     listId={`category-${sourceId}`}
@@ -80,9 +63,9 @@ export function CategoryScreen({
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     padding: '16px',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: t.surface,
                                     borderBottomWidth: '1px',
-                                    borderBottomColor: '#f0f0f0',
+                                    borderBottomColor: t.hairline,
                                 }}
                                 bindtap={() =>
                                     nav.push({
@@ -97,12 +80,16 @@ export function CategoryScreen({
                                     style={{
                                         flexGrow: 1,
                                         fontSize: '16px',
-                                        color: '#212121',
+                                        color: t.text,
+                                        ...FONT_SERIF,
+                                        letterSpacing: '0.3px',
                                     }}
                                 >
                                     {c}
                                 </text>
-                                <text style={{ color: '#bbb', fontSize: '18px' }}>
+                                <text
+                                    style={{ color: t.textMut, fontSize: '18px' }}
+                                >
                                     ›
                                 </text>
                             </view>
@@ -110,6 +97,6 @@ export function CategoryScreen({
                     ))}
                 </List>
             )}
-        </view>
+        </Screen>
     );
 }

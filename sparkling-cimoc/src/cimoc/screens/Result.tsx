@@ -1,11 +1,14 @@
 import { List } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
 import { ComicCover } from '../components/ComicCard.js';
+import { EmptyState } from '../components/EmptyState.js';
+import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { Comic } from '../data/models.js';
 import { categoryComics, searchComics } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function ResultScreen({
     nav,
@@ -20,6 +23,7 @@ export function ResultScreen({
 }) {
     const store = useAppStore();
     const { theme } = store;
+    const t = theme.tokens;
     const [results, setResults] = useState<Comic[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -49,32 +53,10 @@ export function ResultScreen({
         : `"${keyword}" 的搜索结果`;
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <TopBar theme={theme} title={title} onBack={() => nav.pop()} />
             {loading ? (
-                <view
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'absolute',
-                        top: '45%',
-                        width: '100%',
-                        alignItems: 'center',
-                    }}
-                >
-                    <text style={{ fontSize: '15px', color: '#999' }}>
-                        加载中...
-                    </text>
-                </view>
+                <EmptyState theme={theme} text="加载中..." glyph="🔍" />
             ) : (
                 <List
                     listId={`result-${keyword}-${sources.join('-')}`}
@@ -91,9 +73,9 @@ export function ResultScreen({
                                     display: 'flex',
                                     flexDirection: 'row',
                                     padding: '12px',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: t.surface,
                                     borderBottomWidth: '1px',
-                                    borderBottomColor: '#eee',
+                                    borderBottomColor: t.hairline,
                                 }}
                                 bindtap={() =>
                                     nav.push({
@@ -102,7 +84,16 @@ export function ResultScreen({
                                     })
                                 }
                             >
-                                <view style={{ width: '60px', height: '80px' }}>
+                                <view
+                                    style={{
+                                        width: '60px',
+                                        height: '80px',
+                                        boxShadow:
+                                            theme.mode === 'ink'
+                                                ? '0 4px 12px rgba(0,0,0,0.4)'
+                                                : '0 2px 8px rgba(60,40,20,0.14)',
+                                    }}
+                                >
                                     <ComicCover
                                         color={comic.cover}
                                         title={comic.title}
@@ -126,8 +117,10 @@ export function ResultScreen({
                                     <text
                                         style={{
                                             fontSize: '16px',
-                                            color: '#212121',
+                                            color: t.text,
                                             fontWeight: '500',
+                                            ...FONT_SERIF,
+                                            letterSpacing: '0.3px',
                                         }}
                                     >
                                         {comic.title}
@@ -135,7 +128,7 @@ export function ResultScreen({
                                     <text
                                         style={{
                                             fontSize: '13px',
-                                            color: '#999',
+                                            color: t.textSub,
                                             marginTop: '4px',
                                         }}
                                     >
@@ -144,17 +137,37 @@ export function ResultScreen({
                                             ? ` · ${comic.author}`
                                             : ''}
                                     </text>
-                                    <text
+                                    <view
                                         style={{
-                                            fontSize: '12px',
-                                            color: '#bbb',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
                                             marginTop: '4px',
                                         }}
                                     >
-                                        {comic.status === 'finish'
-                                            ? '完结'
-                                            : '连载'}
-                                    </text>
+                                        <view
+                                            style={{
+                                                width: '5px',
+                                                height: '5px',
+                                                borderRadius: '3px',
+                                                backgroundColor:
+                                                    comic.status === 'finish'
+                                                        ? t.textMut
+                                                        : t.accent,
+                                                marginRight: '5px',
+                                            }}
+                                        />
+                                        <text
+                                            style={{
+                                                fontSize: '12px',
+                                                color: t.textMut,
+                                            }}
+                                        >
+                                            {comic.status === 'finish'
+                                                ? '完结'
+                                                : '连载'}
+                                        </text>
+                                    </view>
                                 </view>
                             </view>
                         </list-item>
@@ -162,21 +175,8 @@ export function ResultScreen({
                 </List>
             )}
             {!loading && results.length === 0 ? (
-                <view
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'absolute',
-                        top: '45%',
-                        width: '100%',
-                        alignItems: 'center',
-                    }}
-                >
-                    <text style={{ fontSize: '16px', color: '#999' }}>
-                        无结果
-                    </text>
-                </view>
+                <EmptyState theme={theme} text="无结果" glyph="🌫" />
             ) : null}
-        </view>
+        </Screen>
     );
 }

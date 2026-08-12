@@ -1,15 +1,19 @@
 {
   "compilerOptions": {
+    "target": "ES2022",
     "jsx": "react-jsx",
     "jsxImportSource": "@lynx-js/react",
 
-    "module": "node18",
-    "moduleResolution": "node16",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
 
     "baseUrl": ".",
     "paths": {
       "sparkling-navigation": [
         "node_modules/sparkling-navigation"
+      ],
+      "sparkling-cimoc-bridge": [
+        "node_modules/sparkling-cimoc-bridge"
       ]
     },
 

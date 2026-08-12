@@ -1,0 +1,51 @@
+{
+  "name": "getBytes",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/cimoc/cimoc.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "GetBytesRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "GetBytesResponse"
+  },
+  "interfaces": {
+    "GetBytesRequest": {
+      "name": "GetBytesRequest",
+      "fields": [
+        {
+          "name": "url",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "GetBytesResponse": {
+      "name": "GetBytesResponse",
+      "fields": [
+        {
+          "name": "status",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "number"
+          }
+        },
+        {
+          "name": "base64",
+          "optional": false,
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-12T09:10:10.883Z"
+}

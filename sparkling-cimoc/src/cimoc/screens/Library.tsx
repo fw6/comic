@@ -1,8 +1,11 @@
 import { List } from '@lynx-js/lynx-ui';
 import { useEffect, useMemo, useState } from '@lynx-js/react';
+import { Chip } from '../components/Chip.js';
 import { ComicCard } from '../components/ComicCard.js';
 import { ComicInfoDialog } from '../components/ComicInfoDialog.js';
+import { EmptyState } from '../components/EmptyState.js';
 import { Fab } from '../components/Fab.js';
+import { Screen } from '../components/Screen.js';
 import type { Comic, LibraryTab } from '../data/models.js';
 import {
     listDownloadedComics,
@@ -12,6 +15,7 @@ import {
 import { pickFolder } from '../native/bridge.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT_SERIF } from '../theme/index.js';
 
 const TABS: { key: LibraryTab; label: string }[] = [
     { key: 'history', label: '历史' },
@@ -146,19 +150,7 @@ function TabContent({
             }}
         >
             {loading ? (
-                <view
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        flexGrow: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <text style={{ fontSize: '15px', color: '#999' }}>
-                        加载中...
-                    </text>
-                </view>
+                <EmptyState theme={theme} text="加载中..." glyph="📖" />
             ) : (
                 <List
                     listId={`library-${tab}`}
@@ -172,6 +164,7 @@ function TabContent({
                     {display.map((comic) => (
                         <list-item item-key={comic.id} key={comic.id}>
                             <ComicCard
+                                theme={theme}
                                 comic={comic}
                                 onTap={() =>
                                     tab === 'download'
@@ -236,24 +229,17 @@ export function LibraryScreen({
     const chips = ['全部', '完结', '连载', ...favoriteTags];
 
     return (
-        <view
-            style={{
-                alignItems: 'stretch',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#fafafa',
-            }}
-        >
+        <Screen theme={theme}>
             <view
                 style={{
                     alignItems: 'stretch',
                     display: 'flex',
                     flexDirection: 'column',
-                    backgroundColor: theme.theme.primary,
+                    backgroundColor: theme.tokens.surface,
                     paddingLeft: '12px',
                     paddingRight: '12px',
+                    borderBottomWidth: '1px',
+                    borderBottomColor: theme.tokens.hairline,
                 }}
             >
                 <view
@@ -275,20 +261,39 @@ export function LibraryScreen({
                         }}
                         bindtap={onOpenDrawer}
                     >
-                        <text style={{ color: '#fff', fontSize: '22px' }}>
+                        <text style={{ color: theme.tokens.text, fontSize: '20px' }}>
                             ☰
                         </text>
                     </view>
-                    <text
+                    <view
                         style={{
-                            flexGrow: 1,
-                            color: '#fff',
-                            fontSize: '20px',
-                            fontWeight: '600',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginLeft: '2px',
                         }}
                     >
-                        漫画
-                    </text>
+                        <view
+                            style={{
+                                width: '3px',
+                                height: '16px',
+                                borderRadius: '2px',
+                                backgroundColor: theme.tokens.accent,
+                                marginRight: '8px',
+                            }}
+                        />
+                        <text
+                            style={{
+                                color: theme.tokens.text,
+                                fontSize: '20px',
+                                fontWeight: '600',
+                                ...FONT_SERIF,
+                                letterSpacing: '1px',
+                            }}
+                        >
+                            漫画
+                        </text>
+                    </view>
                 </view>
                 {/* TabLayout */}
                 <view
@@ -309,17 +314,20 @@ export function LibraryScreen({
                                 justifyContent: 'center',
                                 borderBottomWidth: '2px',
                                 borderBottomColor:
-                                    i === activeIdx ? '#fff' : 'transparent',
+                                    i === activeIdx
+                                        ? theme.tokens.accent
+                                        : 'transparent',
                             }}
                         >
                             <text
                                 style={{
                                     color:
                                         i === activeIdx
-                                            ? '#fff'
-                                            : 'rgba(255,255,255,0.75)',
+                                            ? theme.tokens.accent
+                                            : theme.tokens.textSub,
                                     fontSize: '15px',
                                     fontWeight: i === activeIdx ? '600' : '400',
+                                    letterSpacing: '2px',
                                 }}
                             >
                                 {t.label}
@@ -336,43 +344,26 @@ export function LibraryScreen({
                         display: 'flex',
                         flexDirection: 'row',
                         padding: '8px',
-                        backgroundColor: '#fff',
+                        backgroundColor: theme.tokens.surface,
                         borderBottomWidth: '1px',
-                        borderBottomColor: '#eee',
+                        borderBottomColor: theme.tokens.hairline,
                     }}
                 >
                     {chips.map((c) => {
                         const active = c === favFilter;
                         return (
-                            <view
+                            <Chip
                                 key={c}
-                                bindtap={() => setFavFilter(active ? '' : c)}
-                                style={{
-                                    backgroundColor: active
-                                        ? theme.theme.primary
-                                        : '#f0f0f0',
-                                    borderRadius: '12px',
-                                    paddingLeft: '10px',
-                                    paddingRight: '10px',
-                                    paddingTop: '3px',
-                                    paddingBottom: '3px',
-                                    marginRight: '8px',
-                                }}
-                            >
-                                <text
-                                    style={{
-                                        color: active ? '#fff' : '#555',
-                                        fontSize: '12px',
-                                    }}
-                                >
-                                    {c}
-                                </text>
-                            </view>
+                                theme={theme}
+                                label={c}
+                                active={active}
+                                onTap={() => setFavFilter(active ? '' : c)}
+                            />
                         );
                     })}
                 </view>
             ) : null}
             <TabContent tab={tab} nav={nav} favFilter={favFilter} />
-        </view>
+        </Screen>
     );
 }
