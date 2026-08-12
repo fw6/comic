@@ -1,0 +1,21 @@
+sparkling-cimoc/.npmrc
+  s_bfcc642f0920ba::t_96964dc5cd1359 1-5
+sparkling-cimoc/package-lock.json
+  ai_agent 691,1791,1798,1809,2938,4737,4792,5392
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "d7bfc96260f90e9680e93b1e18d485c1818819f7",
+  "prompts": {},
+  "sessions": {
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
