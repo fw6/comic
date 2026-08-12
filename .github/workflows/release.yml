@@ -19,7 +19,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # node 24 自带 npm 11；node 22 的 npm 10 在 CI 上 npm ci 会崩
+          # （"Exit handler never called"），本地已验证 npm 11 全新安装正常
+          node-version: 24
           cache: npm
           cache-dependency-path: sparkling-cimoc/package-lock.json
 
