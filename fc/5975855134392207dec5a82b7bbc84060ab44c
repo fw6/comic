@@ -1,0 +1,9 @@
+sparkling-cimoc-bridge/package-lock.json
+  ai_agent 24,35,47,57,71,81,95,111,124,141,154,161,171,178,195,205,218,233,246,253,263,273,286,296,309,319,333,343,350,363,384,395,419,426,432,451,464,477,491
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "fc5975855134392207dec5a82b7bbc84060ab44c",
+  "prompts": {}
+}
