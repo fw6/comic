@@ -3,14 +3,15 @@
 // LICENSE file in the root directory of this source tree.
 
 import Foundation
-import SwiftUI
 import Sparkling
+import SwiftUI
+import UIKit
 
 class SparklingLynxElement: SPKLynxElement {
     var lynxElementName: String
-    
+
     var lynxElementClassName: AnyClass
-    
+
     init(lynxElementName: String, lynxElementClassName: AnyClass) {
         self.lynxElementName = lynxElementName
         self.lynxElementClassName = lynxElementClassName
@@ -18,35 +19,59 @@ class SparklingLynxElement: SPKLynxElement {
 }
 
 struct SPKSwiftVC: UIViewControllerRepresentable {
-    @State private var state_frame: CGRect
-    
-    init(state_frame: CGRect = .zero) {
-        self.state_frame = state_frame
+    var frame: CGRect
+
+    init(frame: CGRect = .zero) {
+        self.frame = frame
     }
-    
-    func makeUIViewController(context: Context) -> some UIViewController {
-        let url = "hybrid://lynxview?bundle=.%2Fsecond.lynx.bundle&hide_status_bar=1&hide_nav_bar=1"
-        let context = SPKContext()
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let url = DebugDevURLSupport.mainScheme()
+        let spkContext = DebugDevURLSupport.makeContext()
+        // Cimoc 搜索输入框：lynx-ui 的 <Input> 映射到 "input" 原生元素
         let elements = SparklingLynxElement(lynxElementName: "input", lynxElementClassName: LynxInput.self)
-        context.customUIElements = [elements]
-        let vc = SPKRouter.create(withURL: url, context: context, frame: self.state_frame)
-        NSLog('[Cimoc-iOS] SPKRouter.create -> vc=%@', String(describing: vc))
-        NSLog('[Cimoc-iOS] bundle file exists=%@', String(describing: Bundle.main.path(forResource: "main", ofType: "lynx.bundle")))
+        spkContext.customUIElements = [elements]
+        let resolved = Self.resolvedFrame(frame)
+        let vc = SPKRouter.create(withURL: url, context: spkContext, frame: resolved)
         let naviVC = UINavigationController(rootViewController: vc)
+        naviVC.isNavigationBarHidden = true
+        context.coordinator.loadFailedDelegate = DevURLLoadFailedDelegate(
+            navigationController: naviVC,
+            frameProvider: { Self.resolvedFrame(self.frame) }
+        )
+        spkContext.containerLifecycleDelegate = context.coordinator.loadFailedDelegate
         return naviVC
     }
-    
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {
+        let resolved = Self.resolvedFrame(frame)
+        uiViewController.view.frame = CGRect(origin: .zero, size: resolved.size)
+        uiViewController.view.setNeedsLayout()
+        uiViewController.view.layoutIfNeeded()
+    }
+
+    private static func resolvedFrame(_ frame: CGRect) -> CGRect {
+        if frame.width > 0, frame.height > 0 {
+            return CGRect(origin: .zero, size: frame.size)
+        }
+        return CGRect(origin: .zero, size: UIScreen.main.bounds.size)
+    }
+
+    final class Coordinator {
+        var loadFailedDelegate: DevURLLoadFailedDelegate?
     }
 }
-
 
 struct DemoVC: View {
     var body: some View {
         GeometryReader { geometry in
-            SPKSwiftVC(state_frame: geometry.frame(in: .local))
+            SPKSwiftVC(frame: CGRect(origin: .zero, size: geometry.size))
         }
-        
+        .background(Color.black)
+        .ignoresSafeArea()
     }
 }

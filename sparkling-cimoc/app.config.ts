@@ -30,6 +30,12 @@ const lynxConfig = defineConfig({
 
 const config: AppConfig = {
   lynxConfig,
+  dev: {
+    server: {
+      port: 5969,
+    },
+  },
+  devtool: true,
   appName: 'sparkling-cimoc',
   platform: {
     android: {
@@ -41,7 +47,7 @@ const config: AppConfig = {
   },
   paths: {
     androidAssets: 'android/app/src/main/assets',
-    iosAssets: 'ios/SparklingGo/SparklingGo/Resources/Assets',
+    iosAssets: 'ios/LynxResources',
   },
   appIcon: './resource/app_icon.png',
   router: {

@@ -1,9 +1,10 @@
 platform :ios, '12.0'
 
-# Use private spec repo for SparklingMethod and Sparkling
 source 'https://cdn.cocoapods.org/'
 
 use_modular_headers!
+
+plugin 'cocoapods-lynx-library'
 
 install! 'cocoapods',
 :generate_multiple_pod_projects => true,
@@ -12,12 +13,34 @@ install! 'cocoapods',
 
 inhibit_all_warnings!
 
-SPARKLING_VERSION = '2.0.1'
+def ensure_embed_pods_frameworks_phase(project, target_name, pods_target_name)
+  frameworks_script = File.join(
+    __dir__,
+    'Pods',
+    'Target Support Files',
+    pods_target_name,
+    "#{pods_target_name}-frameworks.sh"
+  )
+  return unless File.exist?(frameworks_script)
+
+  target = project.targets.find { |candidate| candidate.name == target_name }
+  return unless target
+
+  phase_name = '[CP] Embed Pods Frameworks'
+  phase = target.shell_script_build_phases.find { |candidate| candidate.name == phase_name }
+  phase ||= target.new_shell_script_build_phase(phase_name)
+  phase.input_file_list_paths = [
+    "${PODS_ROOT}/Target Support Files/#{pods_target_name}/#{pods_target_name}-frameworks-${CONFIGURATION}-input-files.xcfilelist"
+  ]
+  phase.output_file_list_paths = [
+    "${PODS_ROOT}/Target Support Files/#{pods_target_name}/#{pods_target_name}-frameworks-${CONFIGURATION}-output-files.xcfilelist"
+  ]
+  phase.shell_script = "\"${PODS_ROOT}/Target Support Files/#{pods_target_name}/#{pods_target_name}-frameworks.sh\"\n"
+  phase.show_env_vars_in_log = '0'
+end
 
 def sparkling_methods
-  pod 'SparklingMethod', SPARKLING_VERSION, :subspecs => [
-  'Lynx', 'DIProvider', 'Debug'
-  ]
+  pod 'SparklingMethod', '2.1.0-rc.36', :subspecs => ['Lynx', 'DIProvider', 'Debug']
 end
 
 def sparkling_methods_dep
@@ -26,87 +49,73 @@ def sparkling_methods_dep
   # END SPARKLING AUTOLINK
 end
 
+def sparkling_devtool
+  pod 'Sparkling-DebugTool', '2.1.0-rc.36'
+  # BEGIN SPARKLING AUTOLINK
+  # No extra devtool modules
+  # END SPARKLING AUTOLINK
+  pod 'DebugRouter', '5.0.15'
+  pod 'DebugRouter/MessageTransceiverEnable', '5.0.15'
+end
+
 def sparkling_kit
-  pod 'Sparkling', SPARKLING_VERSION
+  use_lynx_library!
+
+  pod 'Sparkling', '2.1.0-rc.36'
+  pod 'SparklingMacro', '2.1.0-rc.36'
   sparkling_methods
   sparkling_methods_dep
 
-  pod 'Lynx', '3.6.0', :subspecs => [
+  pod 'Lynx', '3.9.0', :subspecs => [
     'Framework',
     'ReleaseResource'
   ]
 
-  pod 'PrimJS', '3.6.1', :subspecs => ['quickjs', 'napi']
+  pod 'PrimJS', '3.8.0-alpha.6', :subspecs => ['quickjs', 'napi']
 
-  pod 'LynxService', '3.6.0', :subspecs => [
-  'Image',
-  'Log',
-  'Http',
-  'Devtool'
+  pod 'LynxService', '3.9.0', :subspecs => [
+    'Image',
+    'Log',
+    'Http',
   ]
 
-#  pod 'BaseDevtool'
-  pod 'LynxDevtool', '3.6.0', :subspecs => [
-   'Framework',
-  ]
-
-  pod 'SnapKit'
-  pod 'Mantle', '~> 2.2.0'
+  pod 'SnapKit', '5.7.1'
+  pod 'Mantle', '2.2.0'
 
   pod 'SDWebImage','5.15.5'
   pod 'SDWebImageWebPCoder', '0.11.0'
-
 end
 
-use_frameworks!
+use_frameworks! :linkage => :static
+
+# SparklingGo is the production-style target: no devtool dependencies are
+# linked, so DebugRouter / LynxDevtool symbols cannot leak into a Release
+# build. Use SparklingGoInHouse for day-to-day development (it is what
+# `pnpm run:ios` builds).
 target 'SparklingGo' do
   sparkling_kit
+
+  target 'SparklingGoTests' do
+    inherit! :search_paths
+  end
+
+  target 'SparklingMethodTests' do
+    inherit! :search_paths
+  end
+
+  target 'SparklingGoUITests' do
+    inherit! :search_paths
+  end
 end
 
-target 'SparklingGoTests' do
+target 'SparklingGoInHouse' do
   sparkling_kit
-end
-
-target 'SparklingMethodTests' do
-  sparkling_kit
-end
-
-target 'SparklingGoUITests' do
-  sparkling_kit
+  sparkling_devtool
 end
 
 post_install do |installer|
-  # --- Cimoc patch: Sparkling SDK 2.0.1 Swift @section 注册无法在新 Swift 编译器下编译 ---
-  # 1) 移除两个 Swift 文件中的失败注册块（改用 C section 注册，见 SparklingServiceRegistration.m）
-  files_to_patch = [
-    'Pods/Sparkling/packages/sparkling-sdk/ios/Sparkling/Service/LynxService/SPKLynxService.swift',
-    'Pods/Sparkling/packages/sparkling-sdk/ios/Sparkling/Application/Container/Resource/SPKResourceLoaderImpl.swift',
-  ]
-  files_to_patch.each do |rel|
-    path = File.expand_path(rel, __dir__)
-    if File.exist?(path)
-      File.chmod(0o644, path) rescue nil
-      src = File.read(path)
-      patched = src.gsub(
-        /@_used[[:space:]]*\n@_section\("[^"]*"\)[[:space:]]*\nnonisolated\(unsafe\)[[:space:]]*\nprivate let spkRegister\w+: UnsafePointer<CChar>\? = UnsafeRawPointer\(\([^)]*\)\.utf8Start\)\.assumingMemoryBound\(to: CChar\.self\)[[:space:]]*\n/,
-        "\n// registration moved to C section (see SparklingServiceRegistration.m)\n"
-      )
-      File.write(path, patched) if patched != src
-    end
-  end
-
-  # 2) 把 C 注册文件加入 Sparkling pod target 的编译源
-  # （incremental_installation 下需 --clean-install 才会重新生成 project）
-  projects = []
-  projects << installer.pods_project if installer.respond_to?(:pods_project) && installer.pods_project
-  projects.concat(installer.generated_projects) if installer.respond_to?(:generated_projects)
-  projects.compact.uniq.each do |project|
-    target = project.targets.find { |t| t.name == 'Sparkling' }
-    if target
-      m_path = File.expand_path('SparklingServiceRegistration.m', __dir__)
-      ref = project.main_group.new_file(m_path)
-      target.source_build_phase.add_file_reference(ref)
-      puts '[Cimoc-patch] added SparklingServiceRegistration.m to Sparkling target'
-    end
-  end
+  project = Xcodeproj::Project.open(File.join(__dir__, 'SparklingGo.xcodeproj'))
+  ensure_embed_pods_frameworks_phase(project, 'SparklingGo', 'Pods-SparklingGo')
+  ensure_embed_pods_frameworks_phase(project, 'SparklingGoInHouse', 'Pods-SparklingGoInHouse')
+  project.save
 end
