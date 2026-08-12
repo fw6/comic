@@ -1,0 +1,431 @@
+sparkling-cimoc/package.json
+  s_bfcc642f0920ba::t_86dbfda762974b 17-18
+sparkling-cimoc-bridge/src/is-network-available/is-network-available.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-44
+sparkling-cimoc/src/cimoc/screens/Detail.tsx
+  s_15c8aad0c0c0f5::t_0e1cee0f311025 4-6,12,23,52-54,60-62,134,142,152,167-168,171,184,187-189,204-206,210-219,244-246,251,254,257-280,290,297,312,314-315,318-319,338,342,344-346,352-354,365-376,379,381-383,391-393,395,419,422-425,428-430,442,445-448,451-456,462,475,484-485,496-498,507,516
+sparkling-cimoc/android/app/build.gradle.kts
+  s_bfcc642f0920ba::t_665b62ffd8384a 107
+sparkling-cimoc-bridge/src/cimoc/cimoc.d.ts
+  s_bfcc642f0920ba::t_03a06436fa749f 3-7,16-17,86-87,106-107,115-116
+  s_bfcc642f0920ba::t_b7f0b604f1cc30 11-12,37,68,102,109,123
+  s_bfcc642f0920ba::t_4e3bffedca7fbf 1-2,8-10,13-15,18-36,38-67,69-85,88-101,103-105,108,110-114,117-122,124-151
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/listDownloadedChapters/CimocListDownloadedChaptersMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-41
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/getValue/CimocGetValueMethod.kt
+  s_bfcc642f0920ba::t_53115ba32b972d 1-34
+sparkling-cimoc-bridge/src/webdav-get-file/webdav-get-file.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-24
+sparkling-cimoc/tsconfig.json
+  s_bfcc642f0920ba::t_b02bfac9fe419e 14-16
+  s_bfcc642f0920ba::t_76184c995642b7 7-8
+  s_bfcc642f0920ba::t_8252fa717453a5 3
+sparkling-cimoc/src/cimoc/components/Chip.tsx
+  s_15c8aad0c0c0f5::t_f4954bd6f61ea0 1-41
+sparkling-cimoc-bridge/generated/metadata/deleteComicDownload.json
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-41,43
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 42
+sparkling-cimoc-bridge/src/list-downloaded-chapters/list-downloaded-chapters.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-58
+sparkling-cimoc-bridge/src/get-value/get-value.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-18
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/PickFolder/PickFolderMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/src/pick-folder/pick-folder.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-4,14-25
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 5-13
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/DownloadChapter/DownloadChapterMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/getBytes/CimocGetBytesMethod.kt
+  s_bfcc642f0920ba::t_53115ba32b972d 1-40
+sparkling-cimoc-bridge/src/webdav-put-file/webdav-put-file.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-110
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/removeValue/CimocRemoveValueMethod.kt
+  s_bfcc642f0920ba::t_53115ba32b972d 1-35
+sparkling-cimoc/src/cimoc/native/bridge.ts
+  s_bfcc642f0920ba::t_fa662e0a7ec687 23-33,35-39,70,80,83-85,89,94-96,99-101,104-106,115,122-124,129-131,134-136,142,153-155,165-167,177,191-194
+  s_bfcc642f0920ba::t_7893b949de05ad 2-4,6-22,34,40-43,47-49,51-56,71-75,90-91,103,116-117,125-126,141,143-148,156-162,178-179
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/getDownloadDir/CimocGetDownloadDirMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-28
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/RemoveValue/RemoveValueIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-55
+sparkling-cimoc-bridge/src/get-bytes/get-bytes.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-58
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/isnetworkavailable/AbsIsNetworkAvailableMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-33
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/SetValue/SetValueIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-57
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/GetDownloadDir/GetDownloadDirMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/GetText/GetTextMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/GetValue/GetValueMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/generated/metadata/getBytes.json
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-49,51
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 50
+sparkling-cimoc-bridge/generated/metadata/getDownloadDir.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 34
+  s_bfcc642f0920ba::t_b7f0b604f1cc30 8,15-16,18-19
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-7,9-14,20-33,35
+  s_bfcc642f0920ba::t_3d3be8c10e3215 17
+sparkling-cimoc-bridge/src/webdav-get-file/webdav-get-file.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-97
+sparkling-cimoc-bridge/src/scan-local-comics/scan-local-comics.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-44
+sparkling-cimoc/src/cimoc/screens/Library.tsx
+  s_15c8aad0c0c0f5::t_8848ac2758bfc9 3,6,8,18
+  s_15c8aad0c0c0f5::t_3a7e170971bbf0 232,238,241-242,264,268,270-273,276-296,317-319,326-327,330,347,349,355,357-361,367
+  s_15c8aad0c0c0f5::t_e036128bd39732 153,167
+sparkling-cimoc-bridge/ios/Sparkling-Cimoc.podspec
+  s_bfcc642f0920ba::t_1639fa1bce684f 1-10,12-32
+  s_bfcc642f0920ba::t_b3ed36bb3e5029 11
+sparkling-cimoc/src/cimoc/screens/Chapters.tsx
+  s_15c8aad0c0c0f5::t_83f300d53fbd5b 3-4,25,72,94,100,113,122,136,138,148-149
+sparkling-cimoc-bridge/src/scan-local-comics/scan-local-comics.d.ts
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 5-13,18-21
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-4,14-17,22-28
+sparkling-cimoc-bridge/src/get-bytes/get-bytes.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-19
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/pickFolder/CimocPickFolderMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-46
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/webdavPutFile/CimocWebdavPutFileMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-2,4-10,14-23,26-44,47,52
+sparkling-cimoc/src/cimoc/screens/Sources.tsx
+  s_15c8aad0c0c0f5::t_9268ddd3c00166 2,8,13,24,32,37,42,52,75-76,78-81,113-115,125
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/ListDownloadedChapters/ListDownloadedChaptersIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-27,29-31,33-55
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 28,32
+sparkling-cimoc-bridge/generated/metadata/listLocalChapters.json
+  s_bfcc642f0920ba::t_3d3be8c10e3215 32,34,36-37
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-31,33,35,38-42,44
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 43
+sparkling-cimoc/src/cimoc/screens/Backup.tsx
+  s_15c8aad0c0c0f5::t_5fcf16a8755057 3-4,9,22,104,107,110-118,129,143-144,153-155,168,180,192,218,252-253
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/webdavputfile/AbsWebdavPutFileMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-51
+sparkling-cimoc-bridge/package.json
+  s_bfcc642f0920ba::t_8fc61ad7778e6c 1-4,7,10-25
+  s_bfcc642f0920ba::t_c29aab7ec79c54 5-6
+  s_bfcc642f0920ba::t_37b72f60dd889c 8-9
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/WebdavPutFile/WebdavPutFileMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/DownloadChapter/DownloadChapterIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-61
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/IsNetworkAvailable/IsNetworkAvailableIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-53
+AGENTS.md
+  s_bfcc642f0920ba::t_d87ee0928995ea 5-9,11,13-15,19,21-26,28,30-41,55
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/SetValue/SetValueMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc/src/cimoc/screens/EventSettings.tsx
+  s_15c8aad0c0c0f5::t_e3ae06acf3f50b 2,6,49,73,83,85-86,107-108,113,116,125,135,147,171,178-180,189-191,218,227,235,247
+sparkling-cimoc-bridge/android/src/main/AndroidManifest.xml
+  s_bfcc642f0920ba::t_ea2bd209d466ab 1-2
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/deletecomicdownload/AbsDeleteComicDownloadMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-35
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingAutolink.kt
+  s_bfcc642f0920ba::t_665b62ffd8384a 23-46
+sparkling-cimoc/src/cimoc/screens/Main.tsx
+  s_15c8aad0c0c0f5::t_f1884f02f7670a 160,168-170,184-186,199,202-220,225,230-232,246,259,269,278
+  s_15c8aad0c0c0f5::t_b37fb714e60e42 9,27,38,47,71-75,78-79,90-93,108,112-113,120-142,144-152
+  s_15c8aad0c0c0f5::t_2c4c1db3e25aac 14
+sparkling-cimoc-bridge/src/get-download-dir/get-download-dir.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-4,14-25
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 5-13
+sparkling-cimoc-bridge/generated/metadata/webdavPutFile.json
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-81,83
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 82
+sparkling-cimoc/src/cimoc/App.tsx
+  s_15c8aad0c0c0f5::t_e127381c8f1e96 99
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/util/CimocNative.kt
+  s_bfcc642f0920ba::t_4fd2b748986575 1-3,5,7,10-19,21,25-31,34-39,42-56,58-63
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/DeleteComicDownload/DeleteComicDownloadMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/webdavGetFile/CimocWebdavGetFileMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-2,4-11,13-21,23-56,58,61
+sparkling-cimoc/ios/SparklingGo/SparklingGo/SparklingAutolink.swift
+  s_bfcc642f0920ba::t_665b62ffd8384a 12-13
+sparkling-cimoc/src/cimoc/components/Snackbar.tsx
+  s_15c8aad0c0c0f5::t_34a06870c6e529 1-61
+sparkling-cimoc/src/cimoc/components/EmptyState.tsx
+  s_15c8aad0c0c0f5::t_629931568dc6d6 1-39
+sparkling-cimoc-bridge/src/remove-value/remove-value.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-58
+sparkling-cimoc-bridge/generated/metadata/setValue.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 50
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-49,51
+sparkling-cimoc-bridge/src/get-text/get-text.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-59
+sparkling-cimoc-bridge/src/pick-folder/pick-folder.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-44
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/CimocEmptyModels.swift
+  s_bfcc642f0920ba::t_71a21f20bfe4e1 1-15
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/GetText/GetTextIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-12,14-59
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 13
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/deleteComicDownload/CimocDeleteComicDownloadMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-29
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/getdownloaddir/AbsGetDownloadDirMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-33
+sparkling-cimoc/src/cimoc/screens/Category.tsx
+  s_15c8aad0c0c0f5::t_fcf961165d0fba 3-4,9,20,42,49,66,68,83-85,90-92,100
+sparkling-cimoc/android/settings.gradle.kts
+  s_bfcc642f0920ba::t_665b62ffd8384a 42
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/GetValue/GetValueIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-55
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/isNetworkAvailable/CimocIsNetworkAvailableMethod.kt
+  s_bfcc642f0920ba::t_53115ba32b972d 1-30
+sparkling-cimoc/src/cimoc/screens/Result.tsx
+  s_15c8aad0c0c0f5::t_aac35bed210a73 4-5,11,26,56,59,76,78,87-96,120,122-123,131,140,142-144,148-170,178,180
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/PickFolder/PickFolderIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-53
+sparkling-cimoc-bridge/src/webdav-put-file/webdav-put-file.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-23
+sparkling-cimoc/src/cimoc/components/ComicCard.tsx
+  s_15c8aad0c0c0f5::t_9968f30f19dc50 2,8,13,24,60,65,67,69-74,82-92,97-106,109-115,125,127-128
+sparkling-cimoc/src/cimoc/screens/SourceDetail.tsx
+  s_15c8aad0c0c0f5::t_d1e88a901fa5dc 1,6,17,21,37-38,41-44,47-49,56-58,64,72,79,84,100,105,110
+sparkling-cimoc-bridge/generated/metadata/scanLocalComics.json
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-7,9-14,20-23,25,27,30-34,36
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 35
+  s_bfcc642f0920ba::t_3d3be8c10e3215 17,24,26,28-29
+  s_bfcc642f0920ba::t_b7f0b604f1cc30 8,15-16,18-19
+sparkling-cimoc-bridge/generated/metadata/removeValue.json
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-41,43
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 42
+sparkling-cimoc-bridge/src/list-downloaded-chapters/list-downloaded-chapters.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-9,14-21
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 10-13
+sparkling-cimoc-bridge/src/list-keys/list-keys.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-44
+sparkling-cimoc-bridge/tsconfig.json
+  s_bfcc642f0920ba::t_5133c885cb108e 1-11,15
+  s_bfcc642f0920ba::t_31044ebfbcaa4e 12-14
+sparkling-cimoc-bridge/generated/metadata/pickFolder.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 34
+  s_bfcc642f0920ba::t_b7f0b604f1cc30 8,15-16,18-19
+  s_bfcc642f0920ba::t_3d3be8c10e3215 17
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-7,9-14,20-33,35
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/listLocalChapters/CimocListLocalChaptersMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-2,4-11,14-23,25-26,29-35,38-42
+sparkling-cimoc/src/cimoc/__tests__/reading.test.tsx
+  s_bfcc642f0920ba::t_8c9778dcf3d149 37,39-50,52,55,58,62,65,68,71,74,76-124
+sparkling-cimoc/src/cimoc/screens/TagEditor.tsx
+  s_15c8aad0c0c0f5::t_0f8e061b659eed 3-5,10,32,63,69-73,77,86-87,89,102,115,128,130-131,144-145,148-149,151-156,162
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/gettext/AbsGetTextMethodIDL.kt
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 28-29
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-27,30-42
+sparkling-cimoc-bridge/generated/metadata/getValue.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 42
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-41,43
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/ListKeys/ListKeysIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-53
+sparkling-cimoc-bridge/android/proguard-rules.pro
+  s_bfcc642f0920ba::t_4201b828bcc586 1
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/ScanLocalComics/ScanLocalComicsMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/index.ts
+  s_bfcc642f0920ba::t_e992507a7c4ad5 112,116,120,124,133-136,161,165
+  s_bfcc642f0920ba::t_28c1537ceb2601 86-90
+  s_bfcc642f0920ba::t_aaa2cbac7af00e 13-63
+  s_bfcc642f0920ba::t_a377988e35255a 1-11,64-85,91-111,113-115,117-119,121-123,125-132,137-160,162-164,166-168
+  s_bfcc642f0920ba::t_b2e42f9a741a25 12
+sparkling-cimoc-bridge/src/is-network-available/is-network-available.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-4,14-25
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 5-13
+sparkling-cimoc-bridge/src/set-value/set-value.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-19
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/GetBytes/GetBytesIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-57
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/RemoveValue/RemoveValueMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/src/list-local-chapters/list-local-chapters.d.ts
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 10-13
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-9,14-21
+sparkling-cimoc/src/cimoc/screens/Settings.tsx
+  s_15c8aad0c0c0f5::t_a2ed0a9f0c45e3 2-5,10-17,22,27,32-33,39,41-42,60-63,68-69,73-79,93,107,110,112,122,127,137,143,151,161,171,181,183,195,197,199,207,209,217,227-229,231,234,236,242,247-251,266,273-275,284-286,306,313,321,336-337
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/getvalue/AbsGetValueMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-35
+sparkling-cimoc-bridge/src/get-download-dir/get-download-dir.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-44
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/ListKeys/ListKeysMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/ScanLocalComics/ScanLocalComicsIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-25,27-29,31-53
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 26,30
+sparkling-cimoc-bridge/generated/metadata/listKeys.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 37
+  s_bfcc642f0920ba::t_b7f0b604f1cc30 8,15-16,18-19
+  s_bfcc642f0920ba::t_3d3be8c10e3215 17
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-7,9-14,20-36,38
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/webdavgetfile/AbsWebdavGetFileMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-56
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/getText/CimocGetTextMethod.kt
+  s_bfcc642f0920ba::t_455098100eb4ac 1-41
+sparkling-cimoc-bridge/android/build.gradle.kts
+  s_bfcc642f0920ba::t_4c0b2f99e55d7c 1-44
+sparkling-cimoc-bridge/src/get-value/get-value.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-58
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/listKeys/CimocListKeysMethod.kt
+  s_bfcc642f0920ba::t_53115ba32b972d 1-28
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/setValue/CimocSetValueMethod.kt
+  s_bfcc642f0920ba::t_53115ba32b972d 1-36
+sparkling-cimoc-bridge/src/download-chapter/download-chapter.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-97
+sparkling-cimoc-bridge/generated/metadata/getText.json
+  s_bfcc642f0920ba::t_3d3be8c10e3215 29,31-32
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 59
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-28,30,33-58,60
+sparkling-cimoc-bridge/src/get-text/get-text.d.ts
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 7-10
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-6,11-23
+sparkling-cimoc-bridge/src/download-chapter/download-chapter.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-21
+sparkling-cimoc-bridge/src/list-local-chapters/list-local-chapters.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-58
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/IsNetworkAvailable/IsNetworkAvailableMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/src/remove-value/remove-value.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-18
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/WebdavGetFile/WebdavGetFileMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/getbytes/AbsGetBytesMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-39
+sparkling-cimoc/src/cimoc/screens/Search.tsx
+  s_15c8aad0c0c0f5::t_923e7a4ab66814 3-4,9,14,30,37,48-49,53,61-63,91-97,105-107,124-125,127,140,156,183,185,188,192,201,213,215-216,261
+  s_15c8aad0c0c0f5::t_4ae40e2813e217 237,239-255
+sparkling-cimoc-bridge/src/delete-comic-download/delete-comic-download.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-58
+sparkling-cimoc-bridge/generated/metadata/webdavGetFile.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 90
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-89,91
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/downloadChapter/CimocDownloadChapterMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-2,4-9,13-25,28-29,31,33-38,40-44,48-50,53
+sparkling-cimoc/src/cimoc/theme/index.ts
+  s_15c8aad0c0c0f5::t_22aa16cc26acfb 1-6,9,17,20-25,28-35,39-41,46-48,53-55,59-62,66-69,73-76,81,90-93,95-109,111-114,118-132,134-147,149-150,160-192
+  s_15c8aad0c0c0f5::t_c9edfbe499779b 133
+  s_15c8aad0c0c0f5::t_6c08ca7d85e396 152-155
+  s_15c8aad0c0c0f5::t_1c41ed30f2d5a4 110
+  s_15c8aad0c0c0f5::t_986ecda5587aa5 117
+sparkling-cimoc/src/cimoc/components/TopBar.tsx
+  s_15c8aad0c0c0f5::t_e5e892077742ad 99,105,113,121
+  s_15c8aad0c0c0f5::t_ad169707c901e1 2,13-15,17,26-27,29-30,35,39,42,45-49,52-75,102-103,108,110-111,119-120,122-126
+sparkling-cimoc/src/cimoc/components/Row.tsx
+  s_15c8aad0c0c0f5::t_4d51a491281740 1-67
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/scanlocalcomics/AbsScanLocalComicsMethodIDL.kt
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 20,29-31
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-19,21-28,32-33
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/ListLocalChapters/ListLocalChaptersIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-27,29-31,33-55
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 28,32
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/ListDownloadedChapters/ListDownloadedChaptersMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/listkeys/AbsListKeysMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-33
+sparkling-cimoc-bridge/generated/metadata/isNetworkAvailable.json
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-7,9-14,20-33,35
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 34
+  s_bfcc642f0920ba::t_3d3be8c10e3215 17
+  s_bfcc642f0920ba::t_b7f0b604f1cc30 8,15-16,18-19
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/removevalue/AbsRemoveValueMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-35
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/pickfolder/AbsPickFolderMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-33
+sparkling-cimoc/src/cimoc/components/SectionHeader.tsx
+  s_15c8aad0c0c0f5::t_2e1bda967ba7cb 1-37
+sparkling-cimoc/src/cimoc/screens/Task.tsx
+  s_15c8aad0c0c0f5::t_243ab159d8848a 4-5,15,21,48-50,55,67-69,72-81,106-108,116,139,141,152,160,170
+sparkling-cimoc/src/cimoc/screens/ReaderConfig.tsx
+  s_15c8aad0c0c0f5::t_e8e78e0387d027 2,6,9,14,19,27,33,36,44,53,55-57,68,72,79-81,112,118,124,130,147,154,159-166,181,183,190,195-202,208
+  s_15c8aad0c0c0f5::t_e1579cd4c852a8 84,86-87,95,100,102,105
+sparkling-cimoc-bridge/generated/metadata/downloadChapter.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 66
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-65,67
+sparkling-cimoc/src/cimoc/components/ComicInfoDialog.tsx
+  s_15c8aad0c0c0f5::t_99d3ef1e2e669b 5,28,62,65,81,91-92,102-104,126-127,135-140,147-148,155
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/listlocalchapters/AbsListLocalChaptersMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-19,21-30,34-35
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 20,31-33
+sparkling-cimoc-bridge/module.config.json
+  s_bfcc642f0920ba::t_72b23bd4cb360b 1-4,35
+  s_bfcc642f0920ba::t_39b5f0b76bc20b 5-34
+sparkling-cimoc-bridge/generated/metadata/listDownloadedChapters.json
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 43
+  s_bfcc642f0920ba::t_3d3be8c10e3215 32,34,36-37
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-31,33,35,38-42,44
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/WebdavPutFile/WebdavPutFileIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-65
+sparkling-cimoc-bridge/.gitignore
+  s_bfcc642f0920ba::t_b73336591ad1e5 1-22
+sparkling-cimoc-bridge/src/list-keys/list-keys.d.ts
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 5-13
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-4,14-25
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/listdownloadedchapters/AbsListDownloadedChaptersMethodIDL.kt
+  s_bfcc642f0920ba::t_8bb23c4c6a7568 20,31-33
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-19,21-30,34-35
+sparkling-cimoc-bridge/src/set-value/set-value.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-71
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/scanLocalComics/CimocScanLocalComicsMethod.kt
+  s_bfcc642f0920ba::t_5db0cec63f8c9a 1-41
+sparkling-cimoc/src/cimoc/components/Screen.tsx
+  s_15c8aad0c0c0f5::t_c56e6410b9a88a 1-30
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/DeleteComicDownload/DeleteComicDownloadIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-55
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/downloadchapter/AbsDownloadChapterMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-44
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/WebdavGetFile/WebdavGetFileIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-67
+sparkling-cimoc-bridge/src/delete-comic-download/delete-comic-download.d.ts
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-18
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/GetBytes/GetBytesMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc/src/cimoc/components/Fab.tsx
+  s_15c8aad0c0c0f5::t_2ef94d5d78ca49 1-2,4-6,16-17,21-23,33,36-43,46-48
+sparkling-cimoc/src/cimoc/screens/Reader.tsx
+  s_15c8aad0c0c0f5::t_7e85ac3465c528 21
+  s_15c8aad0c0c0f5::t_1432402d34337c 159,174
+  s_15c8aad0c0c0f5::t_f1739a86dfe199 122,127-129,137
+  s_15c8aad0c0c0f5::t_c536f66e65500f 261-262,270,279-284,329,342-343,354-359
+sparkling-cimoc/ios/Podfile
+  s_bfcc642f0920ba::t_665b62ffd8384a 49
+sparkling-cimoc/src/cimoc/screens/About.tsx
+  s_15c8aad0c0c0f5::t_98892ae6bcb1f4 1,5,7-8,20-21,24,28-30,39,41,57-58,61-64,67-69,76-78,86,95,107-109,111-133
+sparkling-cimoc/src/cimoc/store.ts
+  s_15c8aad0c0c0f5::t_53e4b9e81fa128 103,106
+  s_15c8aad0c0c0f5::t_760fd34ce599d6 169
+  s_15c8aad0c0c0f5::t_6961d406176ceb 28-34
+  s_15c8aad0c0c0f5::t_1d43174927d959 81,88-89
+  s_15c8aad0c0c0f5::t_d6225aaba337ef 191
+  s_15c8aad0c0c0f5::t_259e09d534a388 145
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/GetDownloadDir/GetDownloadDirIDL.swift
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-53
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/ListLocalChapters/ListLocalChaptersMethod.swift
+  s_bfcc642f0920ba::t_6c474104c93f96 1-28
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/setvalue/AbsSetValueMethodIDL.kt
+  s_bfcc642f0920ba::t_b2e42f9a741a25 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "e7b5e48c3eb1ec9543bcde96a1ec5f9d50c2d141",
+  "prompts": {},
+  "sessions": {
+    "s_15c8aad0c0c0f5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_12072c9a-bc42-4fc6-bc9c-86a0fb85d599",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
