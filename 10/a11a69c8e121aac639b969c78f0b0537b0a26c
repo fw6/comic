@@ -1,0 +1,49 @@
+sparkling-cimoc/android/gradle/libs.versions.toml
+  s_bfcc642f0920ba::t_9bac264e461383 12-13
+sparkling-cimoc/android/app/src/debug/java/com/example/sparkling/go/SparklingVariantHooksImpl.kt
+  s_bfcc642f0920ba::t_c38400cb9854cb 1-38
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingVariantHooks.kt
+  s_bfcc642f0920ba::t_c38400cb9854cb 1-19
+sparkling-cimoc/app.config.ts
+  s_bfcc642f0920ba::t_0d8c266732c2a9 33-38,50
+sparkling-cimoc/android/settings.gradle.kts
+  s_bfcc642f0920ba::t_3f1506aecb7a35 14-26,32,39-42
+sparkling-cimoc/android/app/src/release/java/com/example/sparkling/go/SparklingVariantHooksImpl.kt
+  s_bfcc642f0920ba::t_c38400cb9854cb 1-21
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingApplication.kt
+  s_bfcc642f0920ba::t_93aaed5721e8c9 7,15,23,29,68,70,104-108,111-132
+sparkling-cimoc/android/app/src/debug/java/com/example/sparkling/go/DebugDevUrlSupport.kt
+  s_bfcc642f0920ba::t_c38400cb9854cb 1-132
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingAutolink.kt
+  s_bfcc642f0920ba::t_cceddbe6dbf06b 3-8,11-23
+sparkling-cimoc/android/app/build.gradle.kts
+  s_bfcc642f0920ba::t_ca9cc0587bf43f 7-8,13-21,30-36,38-45,47-56,58-68,71-73,75-82,84-91,93-98,100,104,108
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SplashActivity.kt
+  s_bfcc642f0920ba::t_0bdb7bc6e8ed65 20,22-23
+sparkling-cimoc/ios/SparklingGo/SparklingGo/SparklingSwiftVC.swift
+  s_bfcc642f0920ba::t_32161e88db3f82 35,37
+sparkling-cimoc/ios/SparklingGo/SparklingGo/Assets.xcassets/AppIcon.appiconset/Contents.json
+  s_bfcc642f0920ba::t_f739a637930589 6-7
+sparkling-cimoc/package.json
+  s_bfcc642f0920ba::t_559c3f8936bf5f 15-17,23,29,31-32,39
+sparkling-cimoc/android/app/src/debug/AndroidManifest.xml
+  s_bfcc642f0920ba::t_c38400cb9854cb 1-4
+sparkling-cimoc/ios/Podfile
+  s_bfcc642f0920ba::t_a8fbb8537d7561 7-8,16-40,43,52-60,62-65,69,74,76-79,82-83,89-94,98-100,102-108,111,113,117-120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "10a11a69c8e121aac639b969c78f0b0537b0a26c",
+  "prompts": {},
+  "sessions": {
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
