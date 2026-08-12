@@ -1,0 +1,21 @@
+sparkling-cimoc/package-lock.json
+  ai_agent 11,147-155,526-920,999-1030,2196-2201,2435-2440,3010-3018,3105-3113,3160-3168,3832-3840,4073-4077,4095-4100,4238-4279,4733-4738,4752-4761,4779-4787,5379-5384,6023-6037,6055-6102,6968-7002,7078-7083,7135-7143,7294-7305,7363-7371,7669-7677,7685-7720,7855-7860,7927-7935,8020-8025,8072-8077
+sparkling-cimoc/package.json
+  s_bfcc642f0920ba::t_bc3670c967bf8e 15-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "27ae970dc9f1ae7bde0593238b9f0afd4bc34cdd",
+  "prompts": {},
+  "sessions": {
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
