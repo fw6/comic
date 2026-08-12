@@ -1,0 +1,19 @@
+.github/workflows/release.yml
+  s_bfcc642f0920ba::t_345e438b6796c4 22-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "da699edaba073b5240d2b4b85b011b2f48e56c3a",
+  "prompts": {},
+  "sessions": {
+    "s_bfcc642f0920ba": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83110527-ac3b-458f-b810-20c1fc06d543",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
