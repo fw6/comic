@@ -8,6 +8,8 @@ declare module '@lynx-js/types' {
     preferredTheme?: string;
     theme: string;
     isNotchScreen: boolean;
+    /** Sparkling 多页导航注入的 scheme 查询参数（navigate options.params）。 */
+    queryItems?: Record<string, string>;
   }
 
   interface IntrinsicElements extends Lynx.IntrinsicElements {

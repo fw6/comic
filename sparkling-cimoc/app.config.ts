@@ -8,7 +8,20 @@ const lynxConfig = defineConfig({
   source: {
     entry: {
       main: './src/pages/main/index.tsx',
-      second: './src/pages/second/index.tsx',
+      search: './src/pages/search/index.tsx',
+      result: './src/pages/result/index.tsx',
+      detail: './src/pages/detail/index.tsx',
+      reader: './src/pages/reader/index.tsx',
+      settings: './src/pages/settings/index.tsx',
+      about: './src/pages/about/index.tsx',
+      backup: './src/pages/backup/index.tsx',
+      chapters: './src/pages/chapters/index.tsx',
+      readerConfig: './src/pages/readerConfig/index.tsx',
+      sourceDetail: './src/pages/sourceDetail/index.tsx',
+      category: './src/pages/category/index.tsx',
+      tagEditor: './src/pages/tagEditor/index.tsx',
+      eventSettings: './src/pages/eventSettings/index.tsx',
+      task: './src/pages/task/index.tsx',
     },
   },
   output: {
@@ -54,8 +67,47 @@ const config: AppConfig = {
     main: {
       path: './lynxPages/main',
     },
-    second: {
-      path: './lynxPages/second',
+    search: {
+      path: './lynxPages/search',
+    },
+    result: {
+      path: './lynxPages/result',
+    },
+    detail: {
+      path: './lynxPages/detail',
+    },
+    reader: {
+      path: './lynxPages/reader',
+    },
+    settings: {
+      path: './lynxPages/settings',
+    },
+    about: {
+      path: './lynxPages/about',
+    },
+    backup: {
+      path: './lynxPages/backup',
+    },
+    chapters: {
+      path: './lynxPages/chapters',
+    },
+    readerConfig: {
+      path: './lynxPages/readerConfig',
+    },
+    sourceDetail: {
+      path: './lynxPages/sourceDetail',
+    },
+    category: {
+      path: './lynxPages/category',
+    },
+    tagEditor: {
+      path: './lynxPages/tagEditor',
+    },
+    eventSettings: {
+      path: './lynxPages/eventSettings',
+    },
+    task: {
+      path: './lynxPages/task',
     },
   },
   plugin: [

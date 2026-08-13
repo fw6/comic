@@ -10,6 +10,7 @@ import {
     loadDownloads,
     loadFavorites,
     loadHistory,
+    loadMode,
     loadProgress,
     loadSettings,
     loadSources,
@@ -17,6 +18,7 @@ import {
     persistDownloads,
     persistFavorites,
     persistHistory,
+    persistMode,
     persistProgress,
     persistSettings,
     persistSources,
@@ -112,30 +114,68 @@ export function useIsFavorite(comicId: string): boolean {
     return useAtomValue(favoritesAtom).includes(comicId);
 }
 
-/** 从原生存储恢复状态（收藏/历史/设置/标签/下载/进度/图源开关）。App 启动时调用一次。 */
+/** 持久化切片注册表：新增一个持久化值 = 在此加一条（load + 恢复到 atom）。hydrateAppState 由它推导。 */
+const PERSISTED_SLICES: Array<{
+    restore: (store: ReturnType<typeof getDefaultStore>) => Promise<void>;
+}> = [
+    {
+        restore: async (store) => {
+            const v = await loadFavorites();
+            if (v) store.set(favoritesAtom, v);
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadHistory();
+            if (v) store.set(historyAtom, v);
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadTags();
+            if (v) store.set(tagsAtom, v);
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadDownloads();
+            if (v) store.set(downloadsAtom, v);
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadProgress();
+            if (v) store.set(progressAtom, v);
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadSources();
+            if (v) store.set(sourcesAtom, v);
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadSettings();
+            if (v)
+                store.set(settingsAtom, (prev) => ({
+                    ...prev,
+                    ...(v as Partial<ReaderSettings>),
+                }));
+        },
+    },
+    {
+        restore: async (store) => {
+            const v = await loadMode();
+            if (v === 'ink' || v === 'paper') store.set(modeAtom, v);
+        },
+    },
+];
+
+/** 从原生存储恢复状态（收藏/历史/设置/标签/下载/进度/图源开关/主题模式）。每页挂载时调用。 */
 export async function hydrateAppState(): Promise<void> {
     const store = getDefaultStore();
-    const [favs, hist, st, tg, dl, prog, srcs] = await Promise.all([
-        loadFavorites(),
-        loadHistory(),
-        loadSettings(),
-        loadTags(),
-        loadDownloads(),
-        loadProgress(),
-        loadSources(),
-    ]);
-    if (favs) store.set(favoritesAtom, favs);
-    if (hist) store.set(historyAtom, hist);
-    if (tg) store.set(tagsAtom, tg);
-    if (dl) store.set(downloadsAtom, dl);
-    if (prog) store.set(progressAtom, prog);
-    if (srcs) store.set(sourcesAtom, srcs);
-    if (st) {
-        store.set(settingsAtom, (prev) => ({
-            ...prev,
-            ...(st as Partial<ReaderSettings>),
-        }));
-    }
+    await Promise.all(PERSISTED_SLICES.map((s) => s.restore(store)));
 }
 
 export interface AppStore {
@@ -167,7 +207,7 @@ export interface AppStore {
 /** Convenience hook exposing the same API used across screens. */
 export function useAppStore(): AppStore {
     const [settings, setSettings] = useAtom(settingsAtom);
-    const setMode = useSetAtom(modeAtom);
+    const setModeAtom = useSetAtom(modeAtom);
     const [favorites, setFavorites] = useAtom(favoritesAtom);
     const [history, setHistory] = useAtom(historyAtom);
     const [tags, setTags] = useAtom(tagsAtom);
@@ -189,7 +229,10 @@ export function useAppStore(): AppStore {
             setSettings(next);
             void persistSettings(next as unknown as Record<string, unknown>);
         },
-        setMode,
+        setMode: (mode: ThemeMode) => {
+            setModeAtom(mode);
+            void persistMode(mode);
+        },
         favorites,
         toggleFavorite: (comicId) => {
             const next = favorites.includes(comicId)

@@ -11,6 +11,21 @@ object SparklingAutolink {
     val modules =
         listOf(
             SparklingAutolinkModule(
+                name = "sparkling-cimoc-bridge",
+                androidPackage = "com.tiktok.sparkling.methods.cimoc",
+                className = "CimocMethod",
+                methodClassNames =
+                    listOf(
+                        "com.tiktok.sparkling.methods.cimoc.getText.CimocGetTextMethod",
+                        "com.tiktok.sparkling.methods.cimoc.downloadChapter.CimocDownloadChapterMethod",
+                        "com.tiktok.sparkling.methods.cimoc.listDownloadedChapters.CimocListDownloadedChaptersMethod",
+                        "com.tiktok.sparkling.methods.cimoc.scanLocalComics.CimocScanLocalComicsMethod",
+                        "com.tiktok.sparkling.methods.cimoc.pickFolder.CimocPickFolderMethod",
+                        "com.tiktok.sparkling.methods.cimoc.webdavPutFile.CimocWebdavPutFileMethod",
+                        "com.tiktok.sparkling.methods.cimoc.webdavGetFile.CimocWebdavGetFileMethod",
+                    ),
+            ),
+            SparklingAutolinkModule(
                 name = "sparkling-navigation",
                 androidPackage = "com.tiktok.sparkling.method.router",
                 className = "RouterMethod",
@@ -21,28 +36,14 @@ object SparklingAutolink {
                     ),
             ),
             SparklingAutolinkModule(
-                name = "sparkling-cimoc-bridge",
-                androidPackage = "com.tiktok.sparkling.methods.cimoc",
-                className = "CimocMethod",
+                name = "sparkling-storage",
+                androidPackage = "com.tiktok.sparkling.method.storage",
+                className = "StorageMethod",
                 methodClassNames =
                     listOf(
-                        "com.tiktok.sparkling.methods.cimoc.getText.CimocGetTextMethod",
-                        "com.tiktok.sparkling.methods.cimoc.getBytes.CimocGetBytesMethod",
-                        "com.tiktok.sparkling.methods.cimoc.isNetworkAvailable.CimocIsNetworkAvailableMethod",
-                        "com.tiktok.sparkling.methods.cimoc.setValue.CimocSetValueMethod",
-                        "com.tiktok.sparkling.methods.cimoc.getValue.CimocGetValueMethod",
-                        "com.tiktok.sparkling.methods.cimoc.removeValue.CimocRemoveValueMethod",
-                        "com.tiktok.sparkling.methods.cimoc.listKeys.CimocListKeysMethod",
-                        "com.tiktok.sparkling.methods.cimoc.downloadChapter.CimocDownloadChapterMethod",
-                        "com.tiktok.sparkling.methods.cimoc.listDownloadedChapters.CimocListDownloadedChaptersMethod",
-                        "com.tiktok.sparkling.methods.cimoc.deleteComicDownload.CimocDeleteComicDownloadMethod",
-                        "com.tiktok.sparkling.methods.cimoc.getDownloadDir.CimocGetDownloadDirMethod",
-                        "com.tiktok.sparkling.methods.cimoc.scanLocalComics.CimocScanLocalComicsMethod",
-                        "com.tiktok.sparkling.methods.cimoc.listLocalChapters.CimocListLocalChaptersMethod",
-                        "com.tiktok.sparkling.methods.cimoc.pickFolder.CimocPickFolderMethod",
-                        "com.tiktok.sparkling.methods.cimoc.webdavPutFile.CimocWebdavPutFileMethod",
-                        "com.tiktok.sparkling.methods.cimoc.webdavGetFile.CimocWebdavGetFileMethod",
-                        "com.tiktok.sparkling.methods.cimoc.setBackState.CimocSetBackStateMethod",
+                        "com.tiktok.sparkling.method.storage.getItem.StorageGetItemMethod",
+                        "com.tiktok.sparkling.method.storage.setItem.StorageSetItemMethod",
+                        "com.tiktok.sparkling.method.storage.removeItem.StorageRemoveItemMethod",
                     ),
             ),
         )

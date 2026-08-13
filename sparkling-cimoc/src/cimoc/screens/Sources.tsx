@@ -84,7 +84,6 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                                 nav.push({
                                     name: 'category',
                                     sourceId: source.id,
-                                    category: '',
                                 })
                             }
                             bindlongpress={() =>

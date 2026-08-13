@@ -22,51 +22,6 @@ export interface GetTextResponse {
 }
 declare function getText(params: GetTextRequest, callback: (result: GetTextResponse) => void): void;
 
-export interface GetBytesRequest {
-  url: string;
-}
-export interface GetBytesResponse {
-  status: number;
-  base64: string;
-}
-declare function getBytes(params: GetBytesRequest, callback: (result: GetBytesResponse) => void): void;
-
-export interface IsNetworkAvailableResponse {
-  available: boolean;
-}
-declare function isNetworkAvailable(params: EmptyParams, callback: (result: IsNetworkAvailableResponse) => void): void;
-
-// ===== Storage =====
-export interface StorageSetRequest {
-  key: string;
-  value: string;
-}
-export interface StorageSetResponse {
-  success: boolean;
-}
-declare function setValue(params: StorageSetRequest, callback: (result: StorageSetResponse) => void): void;
-
-export interface StorageGetRequest {
-  key: string;
-}
-export interface StorageGetResponse {
-  value: string;
-}
-declare function getValue(params: StorageGetRequest, callback: (result: StorageGetResponse) => void): void;
-
-export interface StorageRemoveRequest {
-  key: string;
-}
-export interface StorageRemoveResponse {
-  success: boolean;
-}
-declare function removeValue(params: StorageRemoveRequest, callback: (result: StorageRemoveResponse) => void): void;
-
-export interface StorageListResponse {
-  keys: string[];
-}
-declare function listKeys(params: EmptyParams, callback: (result: StorageListResponse) => void): void;
-
 // ===== Download =====
 export interface DownloadChapterRequest {
   url: string;
@@ -88,34 +43,12 @@ export interface ListDownloadedResponse {
 }
 declare function listDownloadedChapters(params: ListDownloadedRequest, callback: (result: ListDownloadedResponse) => void): void;
 
-export interface DeleteComicDownloadRequest {
-  comicId: string;
-}
-export interface DeleteComicDownloadResponse {
-  success: boolean;
-}
-declare function deleteComicDownload(params: DeleteComicDownloadRequest, callback: (result: DeleteComicDownloadResponse) => void): void;
-
-export interface GetDownloadDirResponse {
-  dir: string;
-}
-declare function getDownloadDir(params: EmptyParams, callback: (result: GetDownloadDirResponse) => void): void;
-
 // ===== Local =====
 export interface ScanLocalComicsResponse {
   /** JSON 字符串编码的 Array<{comicId, chapterCount}> */
   comicsJson: string;
 }
 declare function scanLocalComics(params: EmptyParams, callback: (result: ScanLocalComicsResponse) => void): void;
-
-export interface ListLocalChaptersRequest {
-  comicId: string;
-}
-export interface ListLocalChaptersResponse {
-  /** JSON 字符串编码的 Array<{chapterIndex, pageCount, dir}> */
-  chaptersJson: string;
-}
-declare function listLocalChapters(params: ListLocalChaptersRequest, callback: (result: ListLocalChaptersResponse) => void): void;
 
 export interface PickFolderResponse {
   success: boolean;

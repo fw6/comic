@@ -1,11 +1,11 @@
 import { root } from '@lynx-js/react';
 import { nav } from '../../cimoc/nav/index.js';
-import { MainScreen } from '../../cimoc/screens/Main.js';
+import { BackupScreen } from '../../cimoc/screens/Backup.js';
 import { PageRoot } from '../_PageRoot.js';
 
 root.render(
     <PageRoot>
-        <MainScreen nav={nav} />
+        <BackupScreen nav={nav} />
     </PageRoot>,
 );
 

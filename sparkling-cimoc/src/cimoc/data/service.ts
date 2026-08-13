@@ -220,6 +220,7 @@ const PERSIST_KEYS = {
     settings: 'settings',
     progress: 'progress',
     sources: 'sources',
+    mode: 'mode',
 } as const;
 
 export async function persistState(key: string, value: unknown): Promise<void> {
@@ -309,6 +310,14 @@ export async function persistSources(
 }
 export async function loadSources(): Promise<Record<string, boolean> | null> {
     return loadPersisted<Record<string, boolean>>(PERSIST_KEYS.sources);
+}
+
+/** 墨色/纸面主题模式（跨页共享，覆盖启动默认值）。 */
+export async function persistMode(mode: string): Promise<void> {
+    await persistState(PERSIST_KEYS.mode, mode);
+}
+export async function loadMode(): Promise<string | null> {
+    return loadPersisted<string>(PERSIST_KEYS.mode);
 }
 
 /** 仅更新内存中的漫画缓存（详情/信息弹窗展示最新续读位置）；进度持久化由 store 负责 */

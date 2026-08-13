@@ -10,12 +10,13 @@
   },
   "type": "module",
   "dependencies": {
+    "@lynx-js/lynx-ui": "^3.135.4",
     "@lynx-js/react": "^0.116.2",
     "jotai": "^2.20.2",
-    "sparkling-navigation": "~2.1.0-rc.12",
-    "@lynx-js/lynx-ui": "^3.135.4",
+    "sparkling-cimoc-bridge": "file:../sparkling-cimoc-bridge",
     "sparkling-method": "~2.1.0-rc.12",
-    "sparkling-cimoc-bridge": "file:../sparkling-cimoc-bridge"
+    "sparkling-navigation": "~2.1.0-rc.12",
+    "sparkling-storage": "~2.1.0-rc.36"
   },
   "devDependencies": {
     "@lynx-js/qrcode-rsbuild-plugin": "^0.4.4",
@@ -28,9 +29,9 @@
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "sparkling-app-cli": "~2.1.0-rc.12",
+    "sparkling-types": "~2.1.0-rc.12",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "sparkling-types": "~2.1.0-rc.12"
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": "^22 || ^24"
@@ -41,7 +42,7 @@
     "build": "sparkling-app-cli build --copy",
     "autolink": "sparkling-app-cli autolink",
     "test": "vitest run --passWithNoTests",
-    "run:android": "sparkling-app-cli run:android",
+    "run:android": "sparkling-app-cli run:android --copy",
     "run:ios": "sparkling-app-cli run:ios --copy"
   }
 }

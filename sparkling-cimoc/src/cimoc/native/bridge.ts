@@ -1,46 +1,26 @@
 /**
- * 原生桥封装：将 Sparkling 方法包（sparkling-cimoc-bridge）的 callback 风格 API 转换为 Promise。
+ * 原生桥封装：将 Sparkling 方法包（sparkling-cimoc-bridge / sparkling-storage）的 callback 风格 API 转换为 Promise。
  * 方法包基于 pipe 协议：回调收到 {code, msg, data}，code === 1 表示成功，data 为结果模型字段。
  * 导出签名与旧 NativeModule 桥保持一致，service.ts / screens 无需改动。
  */
 import {
-    deleteComicDownload as bridgeDeleteComicDownload,
     downloadChapter as bridgeDownloadChapter,
-    getBytes as bridgeGetBytes,
-    getDownloadDir as bridgeGetDownloadDir,
     getText as bridgeGetText,
-    getValue as bridgeGetValue,
-    isNetworkAvailable as bridgeIsNetworkAvailable,
     listDownloadedChapters as bridgeListDownloadedChapters,
-    listKeys as bridgeListKeys,
-    listLocalChapters as bridgeListLocalChapters,
-    onNativeBack as bridgeOnNativeBack,
     pickFolder as bridgePickFolder,
-    removeValue as bridgeRemoveValue,
     scanLocalComics as bridgeScanLocalComics,
-    setBackState as bridgeSetBackState,
-    setValue as bridgeSetValue,
     webdavGetFile as bridgeWebdavGetFile,
     webdavPutFile as bridgeWebdavPutFile,
-    type DeleteComicDownloadResponse,
     type DownloadChapterResponse,
-    type GetBytesResponse,
-    type GetDownloadDirResponse,
     type GetTextResponse,
-    type GetValueResponse,
-    type IsNetworkAvailableResponse,
     type ListDownloadedChaptersResponse,
-    type ListKeysResponse,
-    type ListLocalChaptersResponse,
     type PickFolderResponse,
     type PipeResult,
-    type RemoveValueResponse,
     type ScanLocalComicsResponse,
-    type SetBackStateResponse,
-    type SetValueResponse,
     type WebdavGetFileResponse,
     type WebdavPutFileResponse,
 } from 'sparkling-cimoc-bridge';
+import { getItem, setItem } from 'sparkling-storage';
 
 function toPromise<T>(
     call: (cb: (result: PipeResult<T>) => void) => void,
@@ -77,36 +57,29 @@ export const netGetText = (
         ),
     );
 
-export const netGetBytes = (
-    url: string,
-): Promise<{ status: number; base64: string }> =>
-    toPromise<GetBytesResponse>((cb) => bridgeGetBytes({ url }, cb));
-
-export const isNetworkAvailable = (): Promise<boolean> =>
-    toPromise<IsNetworkAvailableResponse>((cb) =>
-        bridgeIsNetworkAvailable(cb),
-    ).then((r) => r.available);
-
-// --- Storage ---
+// --- Storage（官方 sparkling-storage，值为 JSON 字符串） ---
 export const storeSet = (key: string, value: string): Promise<boolean> =>
-    toPromise<SetValueResponse>((cb) => bridgeSetValue({ key, value }, cb)).then(
-        (r) => r.success,
-    );
+    new Promise<boolean>((resolve, reject) => {
+        setItem({ key, data: value }, (r) => {
+            if (r.code === 1) resolve(true);
+            else
+                reject(
+                    new Error(r.msg || `storage.setItem failed (code ${r.code})`),
+                );
+        });
+    });
 
 export const storeGet = (key: string): Promise<string> =>
-    toPromise<GetValueResponse>((cb) => bridgeGetValue({ key }, cb)).then(
-        (r) => r.value,
-    );
-
-export const storeRemove = (key: string): Promise<boolean> =>
-    toPromise<RemoveValueResponse>((cb) =>
-        bridgeRemoveValue({ key }, cb),
-    ).then((r) => r.success);
-
-export const listKeys = (): Promise<string[]> =>
-    toPromise<ListKeysResponse>((cb) => bridgeListKeys(cb)).then(
-        (r) => r.keys,
-    );
+    new Promise<string>((resolve, reject) => {
+        getItem({ key }, (r) => {
+            if (r.code === 1)
+                resolve((r.data?.data as string | undefined) ?? '');
+            else
+                reject(
+                    new Error(r.msg || `storage.getItem failed (code ${r.code})`),
+                );
+        });
+    });
 
 // --- Download ---
 export const downloadImage = (
@@ -128,16 +101,6 @@ export const listDownloaded = (
         (r) => JSON.parse(r.chaptersJson) as Record<string, string[]>,
     );
 
-export const deleteComicDownload = (comicId: string): Promise<boolean> =>
-    toPromise<DeleteComicDownloadResponse>((cb) =>
-        bridgeDeleteComicDownload({ comicId }, cb),
-    ).then((r) => r.success);
-
-export const getDownloadDir = (): Promise<string> =>
-    toPromise<GetDownloadDirResponse>((cb) => bridgeGetDownloadDir(cb)).then(
-        (r) => r.dir,
-    );
-
 // --- Local ---
 export const scanLocalComics = (): Promise<
     Array<{ comicId: string; chapterCount: number }>
@@ -147,20 +110,6 @@ export const scanLocalComics = (): Promise<
             JSON.parse(r.comicsJson) as Array<{
                 comicId: string;
                 chapterCount: number;
-            }>,
-    );
-
-export const listLocalChapters = (
-    comicId: string,
-): Promise<Array<{ chapterIndex: number; pageCount: number; dir: string }>> =>
-    toPromise<ListLocalChaptersResponse>((cb) =>
-        bridgeListLocalChapters({ comicId }, cb),
-    ).then(
-        (r) =>
-            JSON.parse(r.chaptersJson) as Array<{
-                chapterIndex: number;
-                pageCount: number;
-                dir: string;
             }>,
     );
 
@@ -195,14 +144,3 @@ export const webdavGet = (
     toPromise<WebdavGetFileResponse>((cb) =>
         bridgeWebdavGetFile({ base, user, password, fileName }, cb),
     );
-
-// --- Back ---
-/** 上报 JS 导航栈是否可返回（宿主据此决定系统返回弹栈还是退出）。 */
-export const setBackState = (canGoBack: boolean): Promise<boolean> =>
-    toPromise<SetBackStateResponse>((cb) =>
-        bridgeSetBackState({ canGoBack }, cb),
-    ).then((r) => r.success);
-
-/** 监听宿主系统返回事件（Android 拦截手势/实体键后推送）；返回退订函数。 */
-export const onNativeBack = (cb: () => void): (() => void) =>
-    bridgeOnNativeBack(cb);

@@ -11,58 +11,28 @@ import pipe from 'sparkling-method';
 import type { PipeResponse } from 'sparkling-method';
 
 import type { GetTextRequest, GetTextResponse } from './src/get-text/get-text.d';
-import type { GetBytesRequest, GetBytesResponse } from './src/get-bytes/get-bytes.d';
-import type { IsNetworkAvailableRequest, IsNetworkAvailableResponse } from './src/is-network-available/is-network-available.d';
-import type { SetValueRequest, SetValueResponse } from './src/set-value/set-value.d';
-import type { GetValueRequest, GetValueResponse } from './src/get-value/get-value.d';
-import type { RemoveValueRequest, RemoveValueResponse } from './src/remove-value/remove-value.d';
-import type { ListKeysRequest, ListKeysResponse } from './src/list-keys/list-keys.d';
 import type { DownloadChapterRequest, DownloadChapterResponse } from './src/download-chapter/download-chapter.d';
 import type { ListDownloadedChaptersRequest, ListDownloadedChaptersResponse } from './src/list-downloaded-chapters/list-downloaded-chapters.d';
-import type { DeleteComicDownloadRequest, DeleteComicDownloadResponse } from './src/delete-comic-download/delete-comic-download.d';
-import type { GetDownloadDirRequest, GetDownloadDirResponse } from './src/get-download-dir/get-download-dir.d';
 import type { ScanLocalComicsRequest, ScanLocalComicsResponse } from './src/scan-local-comics/scan-local-comics.d';
-import type { ListLocalChaptersRequest, ListLocalChaptersResponse } from './src/list-local-chapters/list-local-chapters.d';
 import type { PickFolderRequest, PickFolderResponse } from './src/pick-folder/pick-folder.d';
 import type { WebdavPutFileRequest, WebdavPutFileResponse } from './src/webdav-put-file/webdav-put-file.d';
 import type { WebdavGetFileRequest, WebdavGetFileResponse } from './src/webdav-get-file/webdav-get-file.d';
-import type { SetBackStateRequest, SetBackStateResponse } from './src/set-back-state/set-back-state.d';
 
 export type {
   GetTextRequest,
   GetTextResponse,
-  GetBytesRequest,
-  GetBytesResponse,
-  IsNetworkAvailableRequest,
-  IsNetworkAvailableResponse,
-  SetValueRequest,
-  SetValueResponse,
-  GetValueRequest,
-  GetValueResponse,
-  RemoveValueRequest,
-  RemoveValueResponse,
-  ListKeysRequest,
-  ListKeysResponse,
   DownloadChapterRequest,
   DownloadChapterResponse,
   ListDownloadedChaptersRequest,
   ListDownloadedChaptersResponse,
-  DeleteComicDownloadRequest,
-  DeleteComicDownloadResponse,
-  GetDownloadDirRequest,
-  GetDownloadDirResponse,
   ScanLocalComicsRequest,
   ScanLocalComicsResponse,
-  ListLocalChaptersRequest,
-  ListLocalChaptersResponse,
   PickFolderRequest,
   PickFolderResponse,
   WebdavPutFileRequest,
   WebdavPutFileResponse,
   WebdavGetFileRequest,
   WebdavGetFileResponse,
-  SetBackStateRequest,
-  SetBackStateResponse,
 };
 
 export type PipeResult<T> = {
@@ -103,30 +73,6 @@ export function getText(params: GetTextRequest, callback: Callback<GetTextRespon
   const p = requireParams('getText', params, callback);
   if (p) callMethod('cimoc.getText', p, callback);
 }
-export function getBytes(params: GetBytesRequest, callback: Callback<GetBytesResponse>): void {
-  const p = requireParams('getBytes', params, callback);
-  if (p) callMethod('cimoc.getBytes', p, callback);
-}
-export function isNetworkAvailable(callback: Callback<IsNetworkAvailableResponse>): void {
-  callMethod('cimoc.isNetworkAvailable', {}, callback);
-}
-
-// --- Storage ---
-export function setValue(params: SetValueRequest, callback: Callback<SetValueResponse>): void {
-  const p = requireParams('setValue', params, callback);
-  if (p) callMethod('cimoc.setValue', p, callback);
-}
-export function getValue(params: GetValueRequest, callback: Callback<GetValueResponse>): void {
-  const p = requireParams('getValue', params, callback);
-  if (p) callMethod('cimoc.getValue', p, callback);
-}
-export function removeValue(params: RemoveValueRequest, callback: Callback<RemoveValueResponse>): void {
-  const p = requireParams('removeValue', params, callback);
-  if (p) callMethod('cimoc.removeValue', p, callback);
-}
-export function listKeys(callback: Callback<ListKeysResponse>): void {
-  callMethod('cimoc.listKeys', {}, callback);
-}
 
 // --- Download ---
 export function downloadChapter(params: DownloadChapterRequest, callback: Callback<DownloadChapterResponse>): void {
@@ -140,21 +86,10 @@ export function listDownloadedChapters(
   const p = requireParams('listDownloadedChapters', params, callback);
   if (p) callMethod('cimoc.listDownloadedChapters', p, callback);
 }
-export function deleteComicDownload(params: DeleteComicDownloadRequest, callback: Callback<DeleteComicDownloadResponse>): void {
-  const p = requireParams('deleteComicDownload', params, callback);
-  if (p) callMethod('cimoc.deleteComicDownload', p, callback);
-}
-export function getDownloadDir(callback: Callback<GetDownloadDirResponse>): void {
-  callMethod('cimoc.getDownloadDir', {}, callback);
-}
 
 // --- Local ---
 export function scanLocalComics(callback: Callback<ScanLocalComicsResponse>): void {
   callMethod('cimoc.scanLocalComics', {}, callback);
-}
-export function listLocalChapters(params: ListLocalChaptersRequest, callback: Callback<ListLocalChaptersResponse>): void {
-  const p = requireParams('listLocalChapters', params, callback);
-  if (p) callMethod('cimoc.listLocalChapters', p, callback);
 }
 export function pickFolder(callback: Callback<PickFolderResponse>): void {
   callMethod('cimoc.pickFolder', {}, callback);
@@ -168,17 +103,4 @@ export function webdavPutFile(params: WebdavPutFileRequest, callback: Callback<W
 export function webdavGetFile(params: WebdavGetFileRequest, callback: Callback<WebdavGetFileResponse>): void {
   const p = requireParams('webdavGetFile', params, callback);
   if (p) callMethod('cimoc.webdavGetFile', p, callback);
-}
-
-// --- Back ---
-/** 上报 JS 导航栈可返回状态给原生宿主（系统返回手势弹栈还是退出）。 */
-export function setBackState(params: SetBackStateRequest, callback: Callback<SetBackStateResponse>): void {
-  const p = requireParams('setBackState', params, callback);
-  if (p) callMethod('cimoc.setBackState', p, callback);
-}
-
-/** 宿主系统返回事件（Android 拦截手势/实体键后推送）；返回退订函数。 */
-export function onNativeBack(cb: () => void): () => void {
-  const listener = pipe.on('cimocBack', cb);
-  return () => pipe.off('cimocBack', listener);
 }

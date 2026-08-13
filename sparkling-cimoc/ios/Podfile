@@ -45,8 +45,9 @@ end
 
 def sparkling_methods_dep
   # BEGIN SPARKLING AUTOLINK
-  pod 'Sparkling-Router', :path => '../node_modules/sparkling-navigation/ios'
   pod 'Sparkling-Cimoc', :path => '../node_modules/sparkling-cimoc-bridge/ios'
+  pod 'Sparkling-Router', :path => '../node_modules/sparkling-navigation/ios'
+  pod 'Sparkling-Storage', :path => '../node_modules/sparkling-storage/ios'
   # END SPARKLING AUTOLINK
 end
 

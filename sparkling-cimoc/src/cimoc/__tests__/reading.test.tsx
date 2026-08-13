@@ -75,34 +75,18 @@ function handlePipeCall(
             }
             return fail(`unknown url ${url}`);
         }
-        case 'cimoc.getBytes':
-            return ok({ status: 200, base64: '' });
-        case 'cimoc.isNetworkAvailable':
-            return ok({ available: true });
-        case 'cimoc.setValue': {
-            storage.set(String(params.key), String(params.value ?? ''));
-            return ok({ success: true });
+        case 'storage.setItem': {
+            storage.set(String(params.key), String(params.data ?? ''));
+            return ok({});
         }
-        case 'cimoc.getValue':
-            return ok({ value: storage.get(String(params.key)) ?? '' });
-        case 'cimoc.removeValue': {
-            storage.delete(String(params.key));
-            return ok({ success: true });
-        }
-        case 'cimoc.listKeys':
-            return ok({ keys: [...storage.keys()] });
+        case 'storage.getItem':
+            return ok({ data: storage.get(String(params.key)) ?? '' });
         case 'cimoc.downloadChapter':
             return ok({ success: true });
         case 'cimoc.listDownloadedChapters':
             return ok({ chaptersJson: '{}' });
-        case 'cimoc.deleteComicDownload':
-            return ok({ success: true });
-        case 'cimoc.getDownloadDir':
-            return ok({ dir: '/downloads' });
         case 'cimoc.scanLocalComics':
             return ok({ comicsJson: '[]' });
-        case 'cimoc.listLocalChapters':
-            return ok({ chaptersJson: '[]' });
         case 'cimoc.pickFolder':
             return ok({ success: true });
         case 'cimoc.webdavPutFile':
