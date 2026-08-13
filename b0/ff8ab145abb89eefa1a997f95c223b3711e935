@@ -1,0 +1,22 @@
+sparkling-cimoc/src/cimoc/screens/Main.tsx
+  s_15c8aad0c0c0f5::t_0cac585934e327 203-205,208,217-218,225-232,244
+  s_15c8aad0c0c0f5::t_bf011959b1e285 14
+  s_15c8aad0c0c0f5::t_e229fd09394a5d 271,273-296
+  s_15c8aad0c0c0f5::t_e7a462ec510d7b 67,109,114,116,122-127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "b0ff8ab145abb89eefa1a997f95c223b3711e935",
+  "prompts": {},
+  "sessions": {
+    "s_15c8aad0c0c0f5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_12072c9a-bc42-4fc6-bc9c-86a0fb85d599",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
