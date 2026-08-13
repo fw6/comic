@@ -1,0 +1,41 @@
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/back/CimocBackInterceptor.kt
+  s_15c8aad0c0c0f5::t_a5c4ad07c7dcf8 45,49
+  s_15c8aad0c0c0f5::t_d6c1e74c6169f5 1-44,46-48,50-105
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/SetBackState/SetBackStateIDL.swift
+  s_15c8aad0c0c0f5::t_bb85bfa3c05b5c 1-56
+sparkling-cimoc/src/cimoc/App.tsx
+  s_15c8aad0c0c0f5::t_842edd716dbec7 95-104
+  s_15c8aad0c0c0f5::t_69e70fe458b70d 4
+sparkling-cimoc-bridge/index.ts
+  s_15c8aad0c0c0f5::t_59c8596a64a645 172-184
+  s_15c8aad0c0c0f5::t_47caecb3b21275 29,64-65
+sparkling-cimoc/android/app/src/main/AndroidManifest.xml
+  s_15c8aad0c0c0f5::t_dd8fafd5f934d6 13
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/setBackState/CimocSetBackStateMethod.kt
+  s_15c8aad0c0c0f5::t_30490af2d8f4db 1-23
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/setbackstate/AbsSetBackStateMethodIDL.kt
+  s_15c8aad0c0c0f5::t_22f38d0de73024 1-35
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingAutolink.kt
+  s_15c8aad0c0c0f5::t_1377b52353e780 45
+sparkling-cimoc-bridge/src/set-back-state/set-back-state.d.ts
+  s_15c8aad0c0c0f5::t_5f3bf4e333c457 1-23
+sparkling-cimoc/src/cimoc/native/bridge.ts
+  s_15c8aad0c0c0f5::t_8c7cafedfc2938 198-208
+  s_15c8aad0c0c0f5::t_f16abcce21fc3c 17,21,39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "df3fca1614478be292bfd1b7c66cf8363902da7b",
+  "prompts": {},
+  "sessions": {
+    "s_15c8aad0c0c0f5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_12072c9a-bc42-4fc6-bc9c-86a0fb85d599",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
