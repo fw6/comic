@@ -1,0 +1,23 @@
+sparkling-cimoc/src/cimoc/store.ts
+  s_15c8aad0c0c0f5::t_d8b59b380eff03 62-63
+sparkling-cimoc/src/cimoc/screens/Reader.tsx
+  s_15c8aad0c0c0f5::t_28b8125b85f071 11,41-68,70-80,96,104-109,118,133-134,149-168,175-238,242-246,270-273,310-315,337-342,344,346,349-403,406-408,411-418,420-439,508-510,528-538,540-565,607,617
+  s_15c8aad0c0c0f5::t_f668a84d7dae0a 69
+  s_15c8aad0c0c0f5::t_c13ead5fbb4561 275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "183813200cfe4d8ef4ac7aa3047f1fba4f0060c7",
+  "prompts": {},
+  "sessions": {
+    "s_15c8aad0c0c0f5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_12072c9a-bc42-4fc6-bc9c-86a0fb85d599",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
