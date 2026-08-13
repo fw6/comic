@@ -14,9 +14,11 @@ import {
     listDownloadedChapters as bridgeListDownloadedChapters,
     listKeys as bridgeListKeys,
     listLocalChapters as bridgeListLocalChapters,
+    onNativeBack as bridgeOnNativeBack,
     pickFolder as bridgePickFolder,
     removeValue as bridgeRemoveValue,
     scanLocalComics as bridgeScanLocalComics,
+    setBackState as bridgeSetBackState,
     setValue as bridgeSetValue,
     webdavGetFile as bridgeWebdavGetFile,
     webdavPutFile as bridgeWebdavPutFile,
@@ -34,6 +36,7 @@ import {
     type PipeResult,
     type RemoveValueResponse,
     type ScanLocalComicsResponse,
+    type SetBackStateResponse,
     type SetValueResponse,
     type WebdavGetFileResponse,
     type WebdavPutFileResponse,
@@ -192,3 +195,14 @@ export const webdavGet = (
     toPromise<WebdavGetFileResponse>((cb) =>
         bridgeWebdavGetFile({ base, user, password, fileName }, cb),
     );
+
+// --- Back ---
+/** 上报 JS 导航栈是否可返回（宿主据此决定系统返回弹栈还是退出）。 */
+export const setBackState = (canGoBack: boolean): Promise<boolean> =>
+    toPromise<SetBackStateResponse>((cb) =>
+        bridgeSetBackState({ canGoBack }, cb),
+    ).then((r) => r.success);
+
+/** 监听宿主系统返回事件（Android 拦截手势/实体键后推送）；返回退订函数。 */
+export const onNativeBack = (cb: () => void): (() => void) =>
+    bridgeOnNativeBack(cb);

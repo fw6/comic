@@ -1,6 +1,7 @@
 import { useEffect } from '@lynx-js/react';
 import { useEdgeBackGesture } from './components/edgeBackGesture.js';
 import { type Screen, useNavigation } from './nav/index.js';
+import { onNativeBack, setBackState } from './native/bridge.js';
 import { AboutScreen } from './screens/About.js';
 import { BackupScreen } from './screens/Backup.js';
 import { CategoryScreen } from './screens/Category.js';
@@ -89,6 +90,17 @@ export function App() {
         () => nav.pop(),
         screen.name !== 'main' && screen.name !== 'reader',
     );
+
+    useEffect(() => {
+        // 宿主系统返回（Android 手势/实体键）→ JS 弹栈；根页由宿主连按退出
+        const off = onNativeBack(() => nav.pop());
+        return off;
+    }, []);
+
+    useEffect(() => {
+        // 上报 JS 导航栈是否可返回，宿主据此决定弹栈还是退出
+        void setBackState(screen.name !== 'main');
+    }, [screen]);
 
     useEffect(() => {
         // 启动时从原生存储恢复收藏/历史/设置/标签/下载

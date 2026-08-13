@@ -42,6 +42,7 @@ object SparklingAutolink {
                         "com.tiktok.sparkling.methods.cimoc.pickFolder.CimocPickFolderMethod",
                         "com.tiktok.sparkling.methods.cimoc.webdavPutFile.CimocWebdavPutFileMethod",
                         "com.tiktok.sparkling.methods.cimoc.webdavGetFile.CimocWebdavGetFileMethod",
+                        "com.tiktok.sparkling.methods.cimoc.setBackState.CimocSetBackStateMethod",
                     ),
             ),
         )

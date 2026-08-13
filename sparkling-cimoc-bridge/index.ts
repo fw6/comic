@@ -26,6 +26,7 @@ import type { ListLocalChaptersRequest, ListLocalChaptersResponse } from './src/
 import type { PickFolderRequest, PickFolderResponse } from './src/pick-folder/pick-folder.d';
 import type { WebdavPutFileRequest, WebdavPutFileResponse } from './src/webdav-put-file/webdav-put-file.d';
 import type { WebdavGetFileRequest, WebdavGetFileResponse } from './src/webdav-get-file/webdav-get-file.d';
+import type { SetBackStateRequest, SetBackStateResponse } from './src/set-back-state/set-back-state.d';
 
 export type {
   GetTextRequest,
@@ -60,6 +61,8 @@ export type {
   WebdavPutFileResponse,
   WebdavGetFileRequest,
   WebdavGetFileResponse,
+  SetBackStateRequest,
+  SetBackStateResponse,
 };
 
 export type PipeResult<T> = {
@@ -165,4 +168,17 @@ export function webdavPutFile(params: WebdavPutFileRequest, callback: Callback<W
 export function webdavGetFile(params: WebdavGetFileRequest, callback: Callback<WebdavGetFileResponse>): void {
   const p = requireParams('webdavGetFile', params, callback);
   if (p) callMethod('cimoc.webdavGetFile', p, callback);
+}
+
+// --- Back ---
+/** 上报 JS 导航栈可返回状态给原生宿主（系统返回手势弹栈还是退出）。 */
+export function setBackState(params: SetBackStateRequest, callback: Callback<SetBackStateResponse>): void {
+  const p = requireParams('setBackState', params, callback);
+  if (p) callMethod('cimoc.setBackState', p, callback);
+}
+
+/** 宿主系统返回事件（Android 拦截手势/实体键后推送）；返回退订函数。 */
+export function onNativeBack(cb: () => void): () => void {
+  const listener = pipe.on('cimocBack', cb);
+  return () => pipe.off('cimocBack', listener);
 }
