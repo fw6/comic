@@ -1,4 +1,5 @@
 import { useEffect } from '@lynx-js/react';
+import { useEdgeBackGesture } from './components/edgeBackGesture.js';
 import { type Screen, useNavigation } from './nav/index.js';
 import { AboutScreen } from './screens/About.js';
 import { BackupScreen } from './screens/Backup.js';
@@ -83,6 +84,12 @@ export function App() {
     const { theme } = store;
     const screen = nav.screen;
 
+    // 左缘右滑返回：main（根页）与 reader（阅读器自己处理，避免与翻页冲突）除外
+    const edgeBack = useEdgeBackGesture(
+        () => nav.pop(),
+        screen.name !== 'main' && screen.name !== 'reader',
+    );
+
     useEffect(() => {
         // 启动时从原生存储恢复收藏/历史/设置/标签/下载
         void hydrateAppState();
@@ -98,6 +105,10 @@ export function App() {
                 height: '100%',
                 backgroundColor: theme.tokens.bg,
             }}
+            bindtouchstart={edgeBack.bindtouchstart}
+            bindtouchmove={edgeBack.bindtouchmove}
+            bindtouchend={edgeBack.bindtouchend}
+            bindtouchcancel={edgeBack.bindtouchcancel}
         >
             <ScreenView screen={screen} nav={nav} />
         </view>

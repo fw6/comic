@@ -9,6 +9,7 @@ import {
     screenWidth,
 } from '@lynx-js/lynx-ui';
 import { useEffect, useState } from '@lynx-js/react';
+import { useEdgeBackGesture } from '../components/edgeBackGesture.js';
 import type { Chapter, Comic } from '../data/models.js';
 import {
     downloadChapter,
@@ -136,6 +137,13 @@ export function ReaderScreen({
     const isDark = !store.settings.whiteBackground;
     const readerBg = store.settings.whiteBackground ? '#FFFFFF' : theme.tokens.readerBg;
 
+    // 左缘右滑返回：卷纸模式（横向无交互）始终可用；
+    // 翻页模式仅在第 0 页（左滑无上一页可翻）时接管，其余页交给 Swiper 翻页。
+    const edgeBack = useEdgeBackGesture(
+        () => nav.pop(),
+        mode === 'stream' || (mode === 'page' && curPage === 0),
+    );
+
     const toggleHud = () => setShowHud(!showHud);
     // 章节号不一定是连续数组下标（真实图源为话数，排序新旧不一），
     // 用最小/最大话数作为翻章边界，且与排序无关。
@@ -159,6 +167,10 @@ export function ReaderScreen({
                 backgroundColor: readerBg,
             }}
             bindtap={toggleHud}
+            bindtouchstart={edgeBack.bindtouchstart}
+            bindtouchmove={edgeBack.bindtouchmove}
+            bindtouchend={edgeBack.bindtouchend}
+            bindtouchcancel={edgeBack.bindtouchcancel}
         >
             {/* Content */}
             {loading ? (
