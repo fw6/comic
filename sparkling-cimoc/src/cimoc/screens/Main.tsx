@@ -11,7 +11,7 @@ import type { Comic } from '../data/models.js';
 import { loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF } from '../theme/index.js';
+import { FONT_SERIF, RADIUS } from '../theme/index.js';
 import { LibraryScreen } from './Library.js';
 import { SourcesScreen } from './Sources.js';
 
@@ -64,7 +64,7 @@ function DrawerHeader() {
     return (
         <view
             style={{
-                alignItems: 'stretch',
+                alignItems: 'center',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '250px',
@@ -106,18 +106,25 @@ function DrawerHeader() {
                     <text
                         style={{
                             color: t.text,
-                            fontSize: '16px',
+                            fontSize: '15px',
                             marginTop: '10px',
                             fontWeight: '500',
                             ...FONT_SERIF,
                             letterSpacing: '0.5px',
+                            textAlign: 'center',
                         }}
+                        text-maxline={'1'}
                     >
                         {recent.title}
                     </text>
                 </>
             ) : (
-                <view style={{ flexDirection: 'column' }}>
+                <view
+                    style={{
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
                     <text
                         style={{
                             color: t.text,
@@ -193,9 +200,12 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    height: '48px',
+                    height: '56px',
+                    marginLeft: '16px',
+                    marginRight: '16px',
                     paddingLeft: '16px',
                     paddingRight: '16px',
+                    borderRadius: RADIUS.md,
                     backgroundColor: active ? t.accentSoft : 'transparent',
                 }}
             >
@@ -204,15 +214,22 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                         style={{
                             position: 'absolute',
                             left: 0,
-                            top: '10px',
-                            bottom: '10px',
+                            top: '12px',
+                            bottom: '12px',
                             width: '3px',
                             borderRadius: '2px',
                             backgroundColor: t.accent,
                         }}
                     />
                 ) : null}
-                <text style={{ fontSize: '18px', width: '32px', opacity: 0.9 }}>
+                <text
+                    style={{
+                        fontSize: '18px',
+                        width: '32px',
+                        textAlign: 'center',
+                        opacity: 0.9,
+                    }}
+                >
                     {item.key === 'mode'
                         ? theme.mode === 'ink'
                             ? '☾'
@@ -224,7 +241,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                         fontSize: '15px',
                         color: active ? t.accent : t.text,
                         fontWeight: active ? '600' : '400',
-                        marginLeft: '8px',
+                        marginLeft: '12px',
                     }}
                 >
                     {item.kind === 'action' && item.key === 'mode'
@@ -251,29 +268,32 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 side="left"
                 screenWidth={screenWidth}
             >
-                {/* 关闭时 backdrop 不可挂载：opacity:0 的遮罩仍会拦截全部点击 */}
+                {/* 关闭即卸载：opacity:0 的遮罩与残留 surface 层都会拦截全部点击 */}
                 {open ? <SheetBackdrop /> : null}
-                <SheetContent
-                    style={{
-                        width: '280px',
-                        backgroundColor: t.surfaceRaised,
-                        height: '100%',
-                    }}
-                >
-                    <DrawerHeader />
-                    <view>
-                        {CONTENT_ITEMS.map(renderItem)}
-                        <view
-                            style={{
-                                height: '1px',
-                                backgroundColor: t.hairline,
-                                marginTop: '8px',
-                                marginBottom: '8px',
-                            }}
-                        />
-                        {SYSTEM_ITEMS.map(renderItem)}
-                    </view>
-                </SheetContent>
+                {open ? (
+                    <SheetContent
+                        // 视觉样式挂 surface 层；抽屉宽度必须放 innerStyle，
+                        // 否则覆盖掉 wrapper 的 150vw 定位，'fit' 无法按实测宽度解析
+                        style={{ backgroundColor: t.surfaceRaised }}
+                        innerStyle={{ width: '280px', height: '100%' }}
+                    >
+                        <DrawerHeader />
+                        <view style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+                            {CONTENT_ITEMS.map(renderItem)}
+                            <view
+                                style={{
+                                    height: '1px',
+                                    backgroundColor: t.hairline,
+                                    marginTop: '12px',
+                                    marginBottom: '12px',
+                                    marginLeft: '16px',
+                                    marginRight: '16px',
+                                }}
+                            />
+                            {SYSTEM_ITEMS.map(renderItem)}
+                        </view>
+                    </SheetContent>
+                ) : null}
             </SheetRoot>
         </Screen>
     );
