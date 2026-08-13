@@ -1,0 +1,26 @@
+sparkling-cimoc/src/cimoc/screens/Reader.tsx
+  s_15c8aad0c0c0f5::t_22594772aaeeff 140-146
+  s_15c8aad0c0c0f5::t_0420de955c52a4 170-173
+  s_15c8aad0c0c0f5::t_edba314555449b 12
+sparkling-cimoc/src/cimoc/App.tsx
+  s_15c8aad0c0c0f5::t_a346b9c63bdda6 2
+  s_15c8aad0c0c0f5::t_763ffab59aa6d3 87-92,108-111
+sparkling-cimoc/src/cimoc/components/edgeBackGesture.ts
+  s_15c8aad0c0c0f5::t_a5ff6c1e2042ec 1-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "a4f79ae7a39a9e50207dd9385f63763655d29014",
+  "prompts": {},
+  "sessions": {
+    "s_15c8aad0c0c0f5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_12072c9a-bc42-4fc6-bc9c-86a0fb85d599",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
