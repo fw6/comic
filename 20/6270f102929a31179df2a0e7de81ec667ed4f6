@@ -1,0 +1,97 @@
+sparkling-cimoc/src/pages/tagEditor/index.tsx
+  s_245056721be45e::t_6be220920c49f7 2,6,10
+  s_245056721be45e::t_746f2c7867a772 1,3-5,7-9,11-16
+sparkling-cimoc/src/cimoc/store.ts
+  s_245056721be45e::t_811182804482c3 117-174,178
+  s_245056721be45e::t_5e103b190f1a57 175
+  s_245056721be45e::t_f4183ff4eb06a6 13,21
+  s_245056721be45e::t_15055cd0fd5ba8 210
+  s_245056721be45e::t_ac9ff65e556a1e 232-235
+sparkling-cimoc/android/settings.gradle.kts
+  s_245056721be45e::t_73bb6670e62e61 42-43
+sparkling-cimoc/src/cimoc/__tests__/reading.test.tsx
+  s_245056721be45e::t_5f780a9c1f9f88 78-80,82-83
+sparkling-cimoc/src/pages/result/index.tsx
+  s_245056721be45e::t_870704d89fb932 1,3-5,7-9,11-16
+  s_245056721be45e::t_884c6fe470a5b5 2,6,10
+sparkling-cimoc/src/pages/reader/index.tsx
+  s_245056721be45e::t_ea76e97497b93d 1,3-5,7-11,15-21
+  s_245056721be45e::t_9bf2dbc22fe547 2,6,12-14
+sparkling-cimoc/src/cimoc/native/bridge.ts
+  s_245056721be45e::t_52b22826a608fe 2,23,60,62-70,73-82
+sparkling-cimoc/src/pages/about/index.tsx
+  s_245056721be45e::t_445323be19200b 1-4,6-10,13
+sparkling-cimoc/ios/SparklingGo/SparklingGo/SparklingAutolink.swift
+  s_245056721be45e::t_73bb6670e62e61 12,14
+docs/adr/0001-keep-aggregated-app-store.md
+  s_245056721be45e::t_652a0b20bad8a2 1-32
+sparkling-cimoc/src/pages/backup/index.tsx
+  s_245056721be45e::t_84ee43fce6a7f4 1-14
+sparkling-cimoc/src/pages/detail/index.tsx
+  s_245056721be45e::t_0f2bc38a38a203 2,6,10
+  s_245056721be45e::t_61a1bb8e6580fb 1,3-5,7-9,11-16
+sparkling-cimoc/src/pages/readerConfig/index.tsx
+  s_245056721be45e::t_8f7ed107d59610 1-14
+sparkling-cimoc/src/pages/eventSettings/index.tsx
+  s_245056721be45e::t_6f82d208824de3 1,3-5,7-9,11-16
+  s_245056721be45e::t_db66c23b3fe59d 2,6,10
+sparkling-cimoc/src/cimoc/nav/index.ts
+  s_245056721be45e::t_3f7b82fdeee0b8 36-40
+  s_245056721be45e::t_a17d2894471783 1,3-9,12-17,31,47-87,129-150
+  s_245056721be45e::t_45979b9b0eff31 88-128
+sparkling-cimoc/src/pages/task/index.tsx
+  s_245056721be45e::t_2f3899ffc0a753 1,3-5,7-9,11-16
+  s_245056721be45e::t_4796b25a841b2e 2,6,10
+sparkling-cimoc/src/cimoc/data/service.ts
+  s_245056721be45e::t_ec1d4f8eefc65e 223
+  s_245056721be45e::t_3cfe2a503d4551 315-322
+sparkling-cimoc/package.json
+  s_245056721be45e::t_92dd395f4cd4a9 13,16,18-19,32,34
+  s_245056721be45e::t_1b0febdf13763a 45
+sparkling-cimoc-bridge/module.config.json
+  s_245056721be45e::t_4053847ecf14fc 6
+sparkling-cimoc/src/typing.d.ts
+  s_245056721be45e::t_28467c487209d4 11-12
+sparkling-cimoc/src/pages/settings/index.tsx
+  s_245056721be45e::t_8c32c953fbf146 1-14
+sparkling-cimoc/src/pages/main/index.tsx
+  s_245056721be45e::t_b3871f45a33517 1-4,6-10,13
+sparkling-cimoc/src/pages/chapters/index.tsx
+  s_245056721be45e::t_4a1b8ec81de611 1,3-5,7-9,11-16
+  s_245056721be45e::t_43092afff57d78 2,6,10
+sparkling-cimoc/android/app/build.gradle.kts
+  s_245056721be45e::t_73bb6670e62e61 107-108
+sparkling-cimoc/src/pages/_PageRoot.tsx
+  s_245056721be45e::t_d6778d8f95b7d0 1-2,4-10,12-13,16-17,23
+sparkling-cimoc/ios/Podfile
+  s_245056721be45e::t_73bb6670e62e61 49-50
+sparkling-cimoc/src/pages/sourceDetail/index.tsx
+  s_245056721be45e::t_fac870d3366731 2,6,10
+  s_245056721be45e::t_2320e4ea385ef7 1,3-5,7-9,11-16
+sparkling-cimoc/src/pages/category/index.tsx
+  s_245056721be45e::t_cdc675c1454eeb 1,3-5,7-9,11-16
+  s_245056721be45e::t_f1d69d86179811 2,6,10
+sparkling-cimoc/app.config.ts
+  s_245056721be45e::t_c8f7e9eefd24e4 70-110
+  s_245056721be45e::t_813e801cb7039e 11-24
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingAutolink.kt
+  s_245056721be45e::t_73bb6670e62e61 26-46
+sparkling-cimoc/src/pages/search/index.tsx
+  s_245056721be45e::t_5c8fa5c7b418aa 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.40-trip",
+  "base_commit_sha": "206270f102929a31179df2a0e7de81ec667ed4f6",
+  "prompts": {},
+  "sessions": {
+    "s_245056721be45e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_c4ee3b7e-b0a6-4d8c-a030-abdba6521774",
+        "model": "claude-DeepSeek-V4-Pro-discount[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
