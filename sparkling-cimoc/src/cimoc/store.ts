@@ -59,7 +59,8 @@ export interface ReaderSettings {
 }
 
 export const DEFAULT_READER: ReaderSettings = {
-    defaultMode: 'page',
+    // 上下滑动阅读（卷纸模式）为默认阅读方式，支持无限滚动续话
+    defaultMode: 'stream',
     keepScreenBright: false,
     showTopBar: true,
     hideInfo: false,

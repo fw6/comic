@@ -8,7 +8,7 @@ import {
     screenHeight,
     screenWidth,
 } from '@lynx-js/lynx-ui';
-import { useEffect, useState } from '@lynx-js/react';
+import { useEffect, useMemo, useState } from '@lynx-js/react';
 import { useEdgeBackGesture } from '../components/edgeBackGesture.js';
 import type { Chapter, Comic } from '../data/models.js';
 import {
@@ -38,6 +38,46 @@ function PageImage({ src }: { src: string }) {
     );
 }
 
+/**
+ * 卷纸模式单图：宽度 100%。bindload 拿到图片自然尺寸后按宽高比撑满，
+ * 测量前用 600px 兜底（aspectFit 不裁切）。
+ */
+function StreamImage({
+    src,
+    aspect,
+    onMeasure,
+}: {
+    src: string;
+    aspect?: number; // 高/宽
+    onMeasure: (src: string, w: number, h: number) => void;
+}) {
+    return (
+        <view
+            style={{
+                width: '100%',
+                height:
+                    aspect !== undefined
+                        ? `${Math.round(screenWidth * aspect)}px`
+                        : '600px',
+                backgroundColor: '#101014',
+            }}
+        >
+            <image
+                src={src}
+                mode="aspectFit"
+                style={{ width: '100%', height: '100%' }}
+                bindload={(e) => onMeasure(src, e.detail.width, e.detail.height)}
+            />
+        </view>
+    );
+}
+
+/** 卷纸流中已加载的一话 */
+interface FeedEntry {
+    chapter: number;
+    images: string[];
+}
+
 export function ReaderScreen({
     nav,
     comicId,
@@ -53,13 +93,19 @@ export function ReaderScreen({
     const { theme } = store;
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
-    const [images, setImages] = useState<string[]>([]);
+    const [images, setImages] = useState<string[]>([]); // 翻页模式：当前话图片
     const [loading, setLoading] = useState(true);
     const [showHud, setShowHud] = useState(true);
     const [curChapter, setCurChapter] = useState(chapterIndex);
     const [curPage, setCurPage] = useState(0);
     const [clock, setClock] = useState(currentClock());
     const [downloading, setDownloading] = useState(false);
+
+    // 卷纸模式：连续加载的章节流（无限滚动）
+    const [feed, setFeed] = useState<FeedEntry[]>([]);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [feedEnded, setFeedEnded] = useState(false);
+    const [aspects, setAspects] = useState<Record<string, number>>({});
 
     useEffect(() => {
         let cancelled = false;
@@ -69,6 +115,7 @@ export function ReaderScreen({
             if (!cancelled) {
                 setComic(c);
                 setChapters(chs);
+                if (chs.length === 0) setLoading(false); // 无章节可读，结束加载态
             }
         };
         void load();
@@ -83,7 +130,8 @@ export function ReaderScreen({
     }, [comic, curChapter]);
 
     useEffect(() => {
-        // 加载当前章节图片（真实网络或已下载本地）
+        // 翻页模式：加载当前章节图片
+        if (mode !== 'page') return;
         let cancelled = false;
         setLoading(true);
         const load = async () => {
@@ -98,17 +146,104 @@ export function ReaderScreen({
         return () => {
             cancelled = true;
         };
-    }, [comicId, curChapter]);
+    }, [comicId, curChapter, mode]);
+
+    useEffect(() => {
+        // 卷纸模式：章节就绪后把首话灌入流（切话时 feed 清空会重新触发）
+        if (mode !== 'stream' || feed.length > 0) return;
+        if (chapters.length === 0) return;
+        let cancelled = false;
+        setLoading(true);
+        const load = async () => {
+            const imgs = await loadChapterImages(comicId, curChapter);
+            if (!cancelled) {
+                setFeed([{ chapter: curChapter, images: imgs }]);
+                setLoading(false);
+            }
+        };
+        void load();
+        return () => {
+            cancelled = true;
+        };
+    }, [mode, comicId, curChapter, chapters.length, feed.length]);
 
     useEffect(() => {
         const id = setInterval(() => setClock(currentClock()), 30_000);
         return () => clearInterval(id);
     }, []);
 
+    // 按话数排序，用作翻页边界与无限滚动的下一话解析（话数可能不连续）
+    const sorted = useMemo(
+        () => [...chapters].sort((a, b) => a.index - b.index),
+        [chapters],
+    );
+
+    const chapterTitleOf = (idx: number) =>
+        chapters.find((c) => c.index === idx)?.title ?? `第 ${idx} 话`;
+
+    const nextIndexAfter = (idx: number): number | undefined => {
+        const p = sorted.findIndex((c) => c.index === idx);
+        return p >= 0 && p < sorted.length - 1
+            ? sorted[p + 1].index
+            : undefined;
+    };
+    const prevIndexBefore = (idx: number): number | undefined => {
+        const p = sorted.findIndex((c) => c.index === idx);
+        return p > 0 ? sorted[p - 1].index : undefined;
+    };
+
+    /** 卷纸模式：滑到底自动加载下一话（无限滚动） */
+    const loadMore = async () => {
+        if (mode !== 'stream' || loadingMore || feedEnded) return;
+        const last = feed[feed.length - 1];
+        if (!last) return;
+        const next = nextIndexAfter(last.chapter);
+        if (next === undefined) {
+            setFeedEnded(true);
+            return;
+        }
+        setLoadingMore(true);
+        try {
+            const imgs = await loadChapterImages(comicId, next);
+            if (imgs.length === 0) {
+                setFeedEnded(true);
+                return;
+            }
+            setFeed((prev) => [...prev, { chapter: next, images: imgs }]);
+            setCurChapter(next); // 进度/历史跟进到最新读到的话
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    /** 切话：卷纸模式重置流到指定话；翻页模式走图片加载 effect */
+    const switchChapter = (idx: number) => {
+        if (idx === curChapter) return;
+        if (mode === 'stream') {
+            setFeed([]);
+            setFeedEnded(false);
+            setAspects({});
+        }
+        setCurChapter(idx);
+    };
+
+    const goPrevChapter = () => {
+        const p = prevIndexBefore(curChapter);
+        if (p !== undefined) switchChapter(p);
+    };
+    const goNextChapter = () => {
+        const n = nextIndexAfter(curChapter);
+        if (n !== undefined) switchChapter(n);
+    };
+
     const doDownload = async () => {
         if (downloading) return;
         setDownloading(true);
-        const ok = await downloadChapter(comicId, curChapter, images);
+        const srcs =
+            mode === 'stream'
+                ? (feed.find((f) => f.chapter === curChapter)?.images ?? [])
+                : images;
+        const ok = await downloadChapter(comicId, curChapter, srcs);
         if (ok) store.addDownload(comicId, [curChapter]);
         setDownloading(false);
     };
@@ -132,10 +267,12 @@ export function ReaderScreen({
         );
     }
 
-    const chapter = chapters.find((c) => c.index === curChapter);
-    const chapterTitle = chapter?.title ?? `第 ${curChapter} 话`;
-    const isDark = !store.settings.whiteBackground;
-    const readerBg = store.settings.whiteBackground ? '#FFFFFF' : theme.tokens.readerBg;
+    const chapterTitle = chapterTitleOf(curChapter);
+    const readerBg = store.settings.whiteBackground
+        ? '#FFFFFF'
+        : theme.tokens.readerBg;
+
+    const toggleHud = () => setShowHud(!showHud);
 
     // 左缘右滑返回：卷纸模式（横向无交互）始终可用；
     // 翻页模式仅在第 0 页（左滑无上一页可翻）时接管，其余页交给 Swiper 翻页。
@@ -143,19 +280,6 @@ export function ReaderScreen({
         () => nav.pop(),
         mode === 'stream' || (mode === 'page' && curPage === 0),
     );
-
-    const toggleHud = () => setShowHud(!showHud);
-    // 章节号不一定是连续数组下标（真实图源为话数，排序新旧不一），
-    // 用最小/最大话数作为翻章边界，且与排序无关。
-    const epNos = chapters.map((c) => c.index);
-    const minEp = epNos.length > 0 ? Math.min(...epNos) : 0;
-    const maxEp = epNos.length > 0 ? Math.max(...epNos) : 0;
-    const prevChapter = () => {
-        if (curChapter > minEp) setCurChapter(curChapter - 1);
-    };
-    const nextChapter = () => {
-        if (curChapter < maxEp) setCurChapter(curChapter + 1);
-    };
 
     return (
         <view
@@ -183,7 +307,12 @@ export function ReaderScreen({
                         justifyContent: 'center',
                     }}
                 >
-                    <text style={{ color: theme.tokens.textMut, fontSize: '15px' }}>
+                    <text
+                        style={{
+                            color: theme.tokens.textMut,
+                            fontSize: '15px',
+                        }}
+                    >
                         图片加载中...
                     </text>
                 </view>
@@ -205,27 +334,109 @@ export function ReaderScreen({
                     )}
                 </Swiper>
             ) : (
-                <view
+                /* 卷纸模式：上下滑动阅读，滑到底自动续下一话 */
+                <scroll-view
+                    scroll-orientation="vertical"
+                    lower-threshold={240}
+                    scroll-bar-enable={false}
+                    bindscrolltolower={loadMore}
                     style={{
-                        alignItems: 'stretch',
-                        display: 'flex',
-                        flexDirection: 'column',
+                        flexGrow: 1,
                         width: '100%',
-                        height: '100%',
+                        backgroundColor: readerBg,
                     }}
                 >
-                    {images.map((src, i) => (
-                        <view
-                            key={i}
-                            style={{
-                                width: '100%',
-                                height: '600px',
-                            }}
-                        >
-                            <PageImage src={src} />
+                    {feed.map((entry, fi) => (
+                        <view key={entry.chapter}>
+                            {fi > 0 ? (
+                                <view
+                                    style={{
+                                        alignItems: 'center',
+                                        paddingTop: '20px',
+                                        paddingBottom: '20px',
+                                    }}
+                                >
+                                    <view
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingLeft: '12px',
+                                            paddingRight: '12px',
+                                            paddingTop: '4px',
+                                            paddingBottom: '4px',
+                                            borderRadius: RADIUS.pill,
+                                            backgroundColor:
+                                                theme.tokens.accentSoft,
+                                        }}
+                                    >
+                                        <text
+                                            style={{
+                                                fontSize: '12px',
+                                                color: theme.tokens.accent,
+                                                ...FONT_SERIF,
+                                                letterSpacing: '1px',
+                                            }}
+                                        >
+                                            {chapterTitleOf(entry.chapter)}
+                                        </text>
+                                    </view>
+                                </view>
+                            ) : null}
+                            {entry.images.map((src) => (
+                                <StreamImage
+                                    key={src}
+                                    src={src}
+                                    aspect={aspects[src]}
+                                    onMeasure={(s, w, h) => {
+                                        if (w > 0 && h > 0) {
+                                            setAspects((prev) =>
+                                                prev[s] === h / w
+                                                    ? prev
+                                                    : { ...prev, [s]: h / w },
+                                            );
+                                        }
+                                    }}
+                                />
+                            ))}
                         </view>
                     ))}
-                </view>
+                    {loadingMore ? (
+                        <view
+                            style={{
+                                alignItems: 'center',
+                                paddingTop: '16px',
+                                paddingBottom: '16px',
+                            }}
+                        >
+                            <text
+                                style={{
+                                    color: theme.tokens.textMut,
+                                    fontSize: '13px',
+                                }}
+                            >
+                                加载下一话…
+                            </text>
+                        </view>
+                    ) : null}
+                    {feedEnded ? (
+                        <view
+                            style={{
+                                alignItems: 'center',
+                                paddingTop: '16px',
+                                paddingBottom: '32px',
+                            }}
+                        >
+                            <text
+                                style={{
+                                    color: theme.tokens.textMut,
+                                    fontSize: '13px',
+                                }}
+                            >
+                                已读完最后一话
+                            </text>
+                        </view>
+                    ) : null}
+                </scroll-view>
             )}
 
             {/* HUD */}
@@ -294,7 +505,9 @@ export function ReaderScreen({
                                     fontSize: '12px',
                                 }}
                             >
-                                {curPage + 1}/{images.length}
+                                {mode === 'page'
+                                    ? `${curPage + 1}/${images.length}`
+                                    : `第 ${curChapter} 话`}
                             </text>
                         </view>
                         <view
@@ -312,39 +525,44 @@ export function ReaderScreen({
                             </text>
                         </view>
                     </view>
-                    {/* bottom seek bar */}
-                    <view
-                        style={{
-                            position: 'absolute',
-                            top: '44px',
-                            left: 0,
-                            right: 0,
-                            paddingLeft: '16px',
-                            paddingRight: '16px',
-                        }}
-                    >
-                        <SliderRoot
-                            value={
-                                images.length > 1
-                                    ? curPage / (images.length - 1)
-                                    : 0
-                            }
-                            step={1 / Math.max(1, images.length - 1)}
-                            onValueChange={(v) =>
-                                setCurPage(Math.round(v * (images.length - 1)))
-                            }
-                            style={{ width: '100%', height: '32px' }}
+                    {/* 翻页模式进度条 */}
+                    {mode === 'page' ? (
+                        <view
+                            style={{
+                                position: 'absolute',
+                                top: '44px',
+                                left: 0,
+                                right: 0,
+                                paddingLeft: '16px',
+                                paddingRight: '16px',
+                            }}
                         >
-                            <SliderTrack>
-                                <SliderIndicator
-                                    style={{
-                                        backgroundColor: theme.tokens.accent,
-                                    }}
-                                />
-                            </SliderTrack>
-                            <SliderThumb />
-                        </SliderRoot>
-                    </view>
+                            <SliderRoot
+                                value={
+                                    images.length > 1
+                                        ? curPage / (images.length - 1)
+                                        : 0
+                                }
+                                step={1 / Math.max(1, images.length - 1)}
+                                onValueChange={(v) =>
+                                    setCurPage(
+                                        Math.round(v * (images.length - 1)),
+                                    )
+                                }
+                                style={{ width: '100%', height: '32px' }}
+                            >
+                                <SliderTrack>
+                                    <SliderIndicator
+                                        style={{
+                                            backgroundColor:
+                                                theme.tokens.accent,
+                                        }}
+                                    />
+                                </SliderTrack>
+                                <SliderThumb />
+                            </SliderRoot>
+                        </view>
+                    ) : null}
                     {/* download this chapter */}
                     <view
                         style={{
@@ -386,7 +604,7 @@ export function ReaderScreen({
                             bottom: 0,
                             width: '33%',
                         }}
-                        bindtap={prevChapter}
+                        bindtap={goPrevChapter}
                     />
                     <view
                         style={{
@@ -396,7 +614,7 @@ export function ReaderScreen({
                             bottom: 0,
                             width: '33%',
                         }}
-                        bindtap={nextChapter}
+                        bindtap={goNextChapter}
                     />
                 </>
             ) : null}
