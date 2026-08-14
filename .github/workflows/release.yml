@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           # node 24 自带 npm 11；node 22 的 npm 10 在 CI 上 npm ci 会崩
           # （"Exit handler never called"），本地已验证 npm 11 全新安装正常
@@ -40,13 +40,13 @@ jobs:
         run: npm test
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android SDK components
         run: |
@@ -74,14 +74,14 @@ jobs:
         run: npm run build
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build debug APK
         working-directory: sparkling-cimoc/android
         run: ./gradlew assembleDebug
 
       - name: Upload APKs as workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cimoc-apk
           path: sparkling-cimoc/android/app/build/outputs/apk/debug/app-*-debug.apk
