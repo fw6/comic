@@ -33,7 +33,7 @@ function PageImage({ src }: { src: string }) {
         <image
             src={src}
             mode="aspectFit"
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: screenWidth, height: screenHeight }}
         />
     );
 }
@@ -56,6 +56,8 @@ function StreamImage({
     return (
         <view
             style={{
+                display: 'flex',
+                flexDirection: 'column',
                 width: '100%',
                 height:
                     aspect !== undefined
