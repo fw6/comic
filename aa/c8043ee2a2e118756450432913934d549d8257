@@ -1,0 +1,21 @@
+sparkling-cimoc-bridge/rust/build.sh
+  s_0a95bb3a5f100f::t_c7258617dddf84 2-3,8,23-56
+.github/workflows/release.yml
+  s_0a95bb3a5f100f::t_988a72597ef26f 54-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "aac8043ee2a2e118756450432913934d549d8257",
+  "prompts": {},
+  "sessions": {
+    "s_0a95bb3a5f100f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_58c95383-63ad-4121-9e9c-74ff817b6428",
+        "model": "claude-DeepSeek-V4-Pro-discount[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
