@@ -1,0 +1,66 @@
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/RustVersion/RustCore.swift
+  s_0a95bb3a5f100f::t_5b2ac0fa5d72a8 16-40
+sparkling-cimoc-bridge/rust/src/native/webdav.rs
+  s_0a95bb3a5f100f::t_22fc767ecfbc86 1-79
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/ScanLocalComics/ScanLocalComicsMethod.swift
+  s_0a95bb3a5f100f::t_37559cbe4f752a 1,5-15,23,35-39
+sparkling-cimoc-bridge/rust/src/lib.rs
+  s_0a95bb3a5f100f::t_5a61c5804465f2 64
+  s_0a95bb3a5f100f::t_3caddd8c177ff2 3-4,7
+  s_0a95bb3a5f100f::t_4e68759a98d59f 27-56
+  s_0a95bb3a5f100f::t_85e61b63a513a8 118-227
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/scanLocalComics/CimocScanLocalComicsMethod.kt
+  s_0a95bb3a5f100f::t_70ce0119658892 1,9,23-24,27
+sparkling-cimoc-bridge/rust/src/native/files.rs
+  s_0a95bb3a5f100f::t_339ffc8f6fda1f 1-147
+sparkling-cimoc-bridge/rust/src/crawler/http.rs
+  s_0a95bb3a5f100f::t_5fab1d6fefe0ff 11
+  s_0a95bb3a5f100f::t_5d63851de46439 42-54
+  s_0a95bb3a5f100f::t_6c6b073cbcac92 10
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/ListDownloadedChapters/ListDownloadedChaptersMethod.swift
+  s_0a95bb3a5f100f::t_3f09b72cab9967 1,5-26,30,34,46-48,50-54
+sparkling-cimoc-bridge/rust/smoke-android.sh
+  s_0a95bb3a5f100f::t_8cb5000324bdc2 35,39
+  s_0a95bb3a5f100f::t_cf58e8362bb00a 56
+  s_0a95bb3a5f100f::t_386b3f69c96794 81-96
+sparkling-cimoc-bridge/rust/src/native/mod.rs
+  s_0a95bb3a5f100f::t_9cc14684e5ee9f 1-5
+sparkling-cimoc-bridge/rust/Cargo.toml
+  s_0a95bb3a5f100f::t_3dc7791b0ca01a 17
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/rust/RustCore.kt
+  s_0a95bb3a5f100f::t_a54915aba79d07 17-26,33-46
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/downloadChapter/CimocDownloadChapterMethod.kt
+  s_0a95bb3a5f100f::t_37b9f161789f9b 1,9,23,25-37
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/util/CimocNative.kt
+  s_0a95bb3a5f100f::t_afd19633acea0f 1-2
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/DownloadChapter/DownloadChapterMethod.swift
+  s_0a95bb3a5f100f::t_34979e0b4681d7 1,5-32,36,40,52-54,56-67
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/webdavPutFile/CimocWebdavPutFileMethod.kt
+  s_0a95bb3a5f100f::t_7da0c5c8d7e508 1,8-9,18-25
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/WebdavGetFile/WebdavGetFileMethod.swift
+  s_0a95bb3a5f100f::t_16efd2c2644c71 26
+  s_0a95bb3a5f100f::t_94d752f8326f66 73
+  s_0a95bb3a5f100f::t_e722dac660fa22 1,5-25,27-38,42,46,58-72,74,76
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/listDownloadedChapters/CimocListDownloadedChaptersMethod.kt
+  s_0a95bb3a5f100f::t_80b767b970e174 1,9,23-24,27
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/webdavGetFile/CimocWebdavGetFileMethod.kt
+  s_0a95bb3a5f100f::t_05e0a311912039 1,8-9,18-27
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/WebdavPutFile/WebdavPutFileMethod.swift
+  s_0a95bb3a5f100f::t_5e46c3074ca0b4 1,5-36,40,44,56-71,73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "80d1e1298b1a00de06d12ca346977524606fd2d0",
+  "prompts": {},
+  "sessions": {
+    "s_0a95bb3a5f100f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_58c95383-63ad-4121-9e9c-74ff817b6428",
+        "model": "claude-DeepSeek-V4-Pro-discount[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
