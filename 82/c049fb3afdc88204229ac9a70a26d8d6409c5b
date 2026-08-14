@@ -1,0 +1,100 @@
+sparkling-cimoc-bridge/generated/metadata/getText.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 3,6,30,60
+sparkling-cimoc-bridge/src/rust-version/rust-version.ts
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 1-44
+sparkling-cimoc-bridge/generated/metadata/downloadChapter.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 66
+sparkling-cimoc-bridge/module.config.json
+  s_0a95bb3a5f100f::t_cc785db7de1937 14-15
+sparkling-cimoc-bridge/rust/src/lib.rs
+  s_0a95bb3a5f100f::t_caf15ffc81a6b2 32
+  s_0a95bb3a5f100f::t_1f6b2d49a5dd8f 8,14,58,63
+  s_0a95bb3a5f100f::t_39cd584f4a46aa 20-31,33-51
+  s_0a95bb3a5f100f::t_8e2b47ddd3dc6d 1-7,9-13,15-19,52-57,59-62,64-65
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/RustVersion/RustVersionIDL.swift
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 1-53
+sparkling-cimoc-bridge/rust/smoke-android.sh
+  s_0a95bb3a5f100f::t_7a21e3faece3a4 1-65
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingAutolink.kt
+  s_0a95bb3a5f100f::t_5e5480079be53b 26
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/rustversion/AbsRustVersionMethodIDL.kt
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 1-33
+sparkling-cimoc-bridge/android/build.gradle.kts
+  s_0a95bb3a5f100f::t_ad8aab6b748d9b 44
+sparkling-cimoc-bridge/generated/metadata/listDownloadedChapters.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 43
+sparkling-cimoc-bridge/generated/metadata/scanLocalComics.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 35
+sparkling-cimoc-bridge/rust/.cargo/config.toml
+  s_0a95bb3a5f100f::t_7f1a5edd69fc13 2-5,8-11,14-15
+  s_0a95bb3a5f100f::t_2875d116b17742 1,6-7
+  s_0a95bb3a5f100f::t_92778feebd2a64 12-13
+sparkling-cimoc-bridge/generated/metadata/webdavGetFile.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 90
+sparkling-cimoc-bridge/src/scan-local-comics/scan-local-comics.d.ts
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 10
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/rust/RustCore.kt
+  s_0a95bb3a5f100f::t_42f974adf07e7e 1,4-7,9-10,12,18
+  s_0a95bb3a5f100f::t_dc39506773debe 2-3,8,11,13-17
+sparkling-cimoc/src/cimoc/native/bridge.ts
+  s_0a95bb3a5f100f::t_509651fd1645bf 14
+  s_0a95bb3a5f100f::t_b5562e9fef0703 149-154
+  s_0a95bb3a5f100f::t_c118b44ce0ca33 23
+sparkling-cimoc-bridge/generated/metadata/pickFolder.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 3,6-7,27
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/RustVersion/RustCore.swift
+  s_0a95bb3a5f100f::t_1393485ac90be0 1-10
+sparkling-cimoc-bridge/rust/build.sh
+  s_0a95bb3a5f100f::t_9de32f0b58dec4 22
+  s_0a95bb3a5f100f::t_48a8372deb68d5 2
+  s_0a95bb3a5f100f::t_b7af652672dd1a 33,36,38-43,47,51-52
+  s_0a95bb3a5f100f::t_42fd44d4c879ca 1,3,6-21,23-32,34-35,37,44-46,48-50
+  s_0a95bb3a5f100f::t_4fa3cf442b0a6a 4-5
+sparkling-cimoc-bridge/.gitignore
+  s_0a95bb3a5f100f::t_6674d68f62dc3f 16-23
+sparkling-cimoc-bridge/src/rust-version/rust-version.d.ts
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 1-25
+sparkling-cimoc-bridge/generated/metadata/rustVersion.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 1-35
+sparkling-cimoc/package.json
+  s_0a95bb3a5f100f::t_099547f9857102 42,46,48
+sparkling-cimoc-bridge/ios/Sparkling-Cimoc.podspec
+  s_0a95bb3a5f100f::t_ef454d34d6df34 20,22-23,32
+  s_0a95bb3a5f100f::t_b85b701d6e4f0b 21,33
+sparkling-cimoc-bridge/generated/metadata/webdavPutFile.json
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 82
+sparkling-cimoc-bridge/index.ts
+  s_0a95bb3a5f100f::t_6f5a6d8ce98ce6 37-38
+  s_0a95bb3a5f100f::t_b7b2003878341c 20
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 110
+  s_0a95bb3a5f100f::t_4b97d4ea3d5693 111-114
+sparkling-cimoc-bridge/src/cimoc/cimoc.d.ts
+  s_0a95bb3a5f100f::t_f7b43f3413bced 85-90
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/rustVersion/CimocRustVersionMethod.kt
+  s_0a95bb3a5f100f::t_2c8f0285acbcd0 1-22
+sparkling-cimoc-bridge/package.json
+  s_0a95bb3a5f100f::t_b1e112f248b17e 12
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/RustVersion/RustVersionMethod.swift
+  s_0a95bb3a5f100f::t_6a183188b5593f 1-39
+sparkling-cimoc-bridge/rust/Cargo.toml
+  s_0a95bb3a5f100f::t_0d4b9cb4c51f6d 12-14
+  s_0a95bb3a5f100f::t_6eba64021caebc 1-11
+sparkling-cimoc-bridge/src/list-downloaded-chapters/list-downloaded-chapters.d.ts
+  s_0a95bb3a5f100f::t_4e733a0a05a2ef 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "82c049fb3afdc88204229ac9a70a26d8d6409c5b",
+  "prompts": {},
+  "sessions": {
+    "s_0a95bb3a5f100f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_58c95383-63ad-4121-9e9c-74ff817b6428",
+        "model": "claude-DeepSeek-V4-Pro-discount[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
