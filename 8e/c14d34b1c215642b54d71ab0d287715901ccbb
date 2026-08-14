@@ -1,0 +1,34 @@
+desktop/src-tauri/src/lib.rs
+  s_d10e9eec3f98c5::t_d78bcf640daca8 4
+  s_d10e9eec3f98c5::t_bbd14d5df86b15 3,6-7,10,12-15,19,26-30,34-39,43,50-54,58-61,65-68,76-78,84-90,129-134,137
+desktop/crates/cimoc-core/src/cache.rs
+  s_d10e9eec3f98c5::t_eebdd525ffa453 18,37,44-45
+  s_d10e9eec3f98c5::t_ba8173b073ff1b 26
+  s_d10e9eec3f98c5::t_4e11e8f36c48e2 1-6,8-13,15-16,20-23,28-31,33-36,38-43,47-49,51-55,57-59,61-69,73-83
+desktop/Cargo.toml
+  s_d10e9eec3f98c5::t_9a6b3fa087d337 1-3
+desktop/crates/cimoc-core/src/lib.rs
+  s_d10e9eec3f98c5::t_cf63d94f7d6652 1,3-5,7,11,17-18,22-29,33-34,38-45,49-50,54-55
+desktop/src-tauri/Cargo.toml
+  s_d10e9eec3f98c5::t_b0bbba819af07f 27
+desktop/crates/cimoc-core/Cargo.toml
+  s_d10e9eec3f98c5::t_b708ce9fc76550 8,17
+desktop/crates/cimoc-core/src/crawler/http.rs
+  s_d10e9eec3f98c5::t_8aef62a872a728 44-51,60-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "8ec14d34b1c215642b54d71ab0d287715901ccbb",
+  "prompts": {},
+  "sessions": {
+    "s_d10e9eec3f98c5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_4119ca26-9f82-4058-b4a8-afc5fce88af0",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
