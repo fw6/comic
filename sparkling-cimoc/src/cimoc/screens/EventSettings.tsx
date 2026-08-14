@@ -3,7 +3,7 @@ import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 // Cimoc 的可配置阅读事件
 const EVENTS = [
@@ -79,7 +79,7 @@ export function EventSettingsScreen({
             <view style={{ padding: '16px' }}>
                 <text
                     style={{
-                        fontSize: '14px',
+                        fontSize: FONT.body,
                         color: t.textMut,
                         marginBottom: '12px',
                         ...FONT_SERIF,
@@ -113,7 +113,7 @@ export function EventSettingsScreen({
                                 borderColor: t.hairline,
                             }}
                         >
-                            <text style={{ fontSize: '12px', color: t.textMut }}>
+                            <text style={{ fontSize: FONT.small, color: t.textMut }}>
                                 {z.label}
                             </text>
                             <text
@@ -121,7 +121,7 @@ export function EventSettingsScreen({
                                     setEditing({ map: 'click', zone: z.key })
                                 }
                                 style={{
-                                    fontSize: '14px',
+                                    fontSize: FONT.body,
                                     color: t.accent,
                                     marginTop: '6px',
                                     textAlign: 'center',
@@ -131,7 +131,7 @@ export function EventSettingsScreen({
                             </text>
                             <text
                                 style={{
-                                    fontSize: '10px',
+                                    fontSize: FONT.caption,
                                     color: t.textMut,
                                     marginTop: '4px',
                                 }}
@@ -143,7 +143,7 @@ export function EventSettingsScreen({
                                     setEditing({ map: 'long', zone: z.key })
                                 }
                                 style={{
-                                    fontSize: '11px',
+                                    fontSize: FONT.captionSm,
                                     color: t.textSub,
                                     marginTop: '2px',
                                     textDecorationLine: 'underline',
@@ -184,7 +184,7 @@ export function EventSettingsScreen({
                     >
                         <text
                             style={{
-                                fontSize: '16px',
+                                fontSize: FONT.titleSm,
                                 fontWeight: '600',
                                 color: t.text,
                                 ...FONT_SERIF,
@@ -223,7 +223,7 @@ export function EventSettingsScreen({
                                 <text
                                     style={{
                                         flexGrow: 1,
-                                        fontSize: '14px',
+                                        fontSize: FONT.body,
                                         color: t.text,
                                     }}
                                 >
@@ -233,7 +233,7 @@ export function EventSettingsScreen({
                                     <text
                                         style={{
                                             color: t.accent,
-                                            fontSize: '14px',
+                                            fontSize: FONT.body,
                                         }}
                                     >
                                         ✓

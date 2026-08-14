@@ -1,5 +1,5 @@
 import type { Comic } from '../data/models.js';
-import { FONT_SERIF, RADIUS, type AppTheme } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF, RADIUS, type AppTheme } from '../theme/index.js';
 
 export function ComicCover({
     color,
@@ -37,7 +37,7 @@ export function ComicCover({
                 <text
                     style={{
                         color: 'rgba(255,255,255,0.9)',
-                        fontSize: '16px',
+                        fontSize: FONT.titleSm,
                         fontWeight: '600',
                         textAlign: 'center',
                         paddingLeft: '6px',
@@ -68,9 +68,7 @@ export function ComicCard({
 }) {
     const t = theme.tokens;
     const coverShadow =
-        theme.mode === 'ink'
-            ? '0 4px 12px rgba(0,0,0,0.45)'
-            : '0 2px 8px rgba(60,40,20,0.16)';
+        shadow(theme.mode, 'cover');
     const badgeLive = badge === '连载';
     return (
         <view
@@ -109,7 +107,7 @@ export function ComicCard({
                         <text
                             style={{
                                 color: badgeLive ? t.onAccent : t.textSub,
-                                fontSize: '10px',
+                                fontSize: FONT.caption,
                                 lineHeight: '14px',
                             }}
                         >
@@ -121,7 +119,7 @@ export function ComicCard({
             <text
                 style={{
                     marginTop: '6px',
-                    fontSize: '13px',
+                    fontSize: FONT.bodySm,
                     color: t.text,
                     lineHeight: '18px',
                     ...FONT_SERIF,

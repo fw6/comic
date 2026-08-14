@@ -5,7 +5,7 @@ import type { Source } from '../data/models.js';
 import { sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function SourcesScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
@@ -76,9 +76,7 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                                 borderRadius: RADIUS.md,
                                 padding: '14px',
                                 boxShadow:
-                                    theme.mode === 'ink'
-                                        ? '0 2px 8px rgba(0,0,0,0.35)'
-                                        : '0 1px 3px rgba(60,40,20,0.12)',
+                                    shadow(theme.mode, 'chip'),
                             }}
                             bindtap={() =>
                                 nav.push({
@@ -108,7 +106,7 @@ export function SourcesScreen({ nav }: { nav: NavApi }) {
                             >
                                 <text
                                     style={{
-                                        fontSize: '16px',
+                                        fontSize: FONT.titleSm,
                                         color: t.text,
                                         ...FONT_SERIF,
                                         letterSpacing: '0.3px',

@@ -2,7 +2,7 @@ import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 function Row({ theme, title, value }: { theme: ReturnType<typeof useAppStore>['theme']; title: string; value?: string }) {
     const t = theme.tokens;
@@ -21,11 +21,11 @@ function Row({ theme, title, value }: { theme: ReturnType<typeof useAppStore>['t
                 backgroundColor: t.surface,
             }}
         >
-            <text style={{ flexGrow: 1, fontSize: '15px', color: t.text }}>
+            <text style={{ flexGrow: 1, fontSize: FONT.bodyLg, color: t.text }}>
                 {title}
             </text>
             {value ? (
-                <text style={{ fontSize: '14px', color: t.textSub }}>
+                <text style={{ fontSize: FONT.body, color: t.textSub }}>
                     {value}
                 </text>
             ) : null}
@@ -59,18 +59,16 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                         alignItems: 'center',
                         justifyContent: 'center',
                         boxShadow:
-                            theme.mode === 'ink'
-                                ? '0 6px 16px rgba(0,0,0,0.45)'
-                                : '0 6px 16px rgba(60,40,20,0.2)',
+                            shadow(theme.mode, 'panel'),
                     }}
                 >
-                    <text style={{ color: t.onAccent, fontSize: '36px' }}>
+                    <text style={{ color: t.onAccent, fontSize: FONT.glyphXl }}>
                         📖
                     </text>
                 </view>
                 <text
                     style={{
-                        fontSize: '22px',
+                        fontSize: FONT.icon,
                         fontWeight: '600',
                         marginTop: '16px',
                         color: t.text,
@@ -82,7 +80,7 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                 </text>
                 <text
                     style={{
-                        fontSize: '14px',
+                        fontSize: FONT.body,
                         color: t.textMut,
                         marginTop: '4px',
                     }}
@@ -91,7 +89,7 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
                 </text>
                 <text
                     style={{
-                        fontSize: '13px',
+                        fontSize: FONT.bodySm,
                         color: t.textSub,
                         marginTop: '20px',
                         textAlign: 'center',
@@ -121,7 +119,7 @@ export function AboutScreen({ nav }: { nav: NavApi }) {
             >
                 <text
                     style={{
-                        fontSize: '11px',
+                        fontSize: FONT.captionSm,
                         color: t.textMut,
                         letterSpacing: '1px',
                         opacity: 0.65,

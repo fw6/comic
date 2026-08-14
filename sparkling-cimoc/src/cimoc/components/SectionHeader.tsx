@@ -1,4 +1,4 @@
-import { FONT_SERIF, type AppTheme } from '../theme/index.js';
+import { FONT, FONT_SERIF, type AppTheme } from '../theme/index.js';
 
 /**
  * 设置分组标题条：凹陷面 + 强调色文字。
@@ -24,7 +24,7 @@ export function SectionHeader({
             <text
                 style={{
                     color: t.accent,
-                    fontSize: '13px',
+                    fontSize: FONT.bodySm,
                     fontWeight: '600',
                     ...FONT_SERIF,
                     letterSpacing: '1px',

@@ -3,7 +3,7 @@ import { Screen } from '../components/Screen.js';
 import { TopBar } from '../components/TopBar.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF } from '../theme/index.js';
+import { FONT, FONT_SERIF } from '../theme/index.js';
 
 function ToggleRow({
     theme,
@@ -33,7 +33,7 @@ function ToggleRow({
                 borderBottomColor: t.hairline,
             }}
         >
-            <text style={{ flexGrow: 1, fontSize: '15px', color: t.text }}>
+            <text style={{ flexGrow: 1, fontSize: FONT.bodyLg, color: t.text }}>
                 {title}
             </text>
             <view
@@ -98,7 +98,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                         <text
                             style={{
                                 color: tab === m ? t.accent : t.textSub,
-                                fontSize: '15px',
+                                fontSize: FONT.bodyLg,
                                 fontWeight: tab === m ? '600' : '400',
                             }}
                         >
@@ -150,7 +150,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                         <text
                             style={{
                                 flexGrow: 1,
-                                fontSize: '15px',
+                                fontSize: FONT.bodyLg,
                                 color: t.text,
                             }}
                         >
@@ -158,7 +158,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                         </text>
                         <text
                             style={{
-                                fontSize: '14px',
+                                fontSize: FONT.body,
                                 color: t.textSub,
                                 ...FONT_SERIF,
                                 letterSpacing: '0.3px',
@@ -186,7 +186,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                         <text
                             style={{
                                 flexGrow: 1,
-                                fontSize: '15px',
+                                fontSize: FONT.bodyLg,
                                 color: t.text,
                             }}
                         >
@@ -194,7 +194,7 @@ export function ReaderConfigScreen({ nav }: { nav: NavApi }) {
                         </text>
                         <text
                             style={{
-                                fontSize: '14px',
+                                fontSize: FONT.body,
                                 color: t.textSub,
                                 ...FONT_SERIF,
                                 letterSpacing: '0.3px',

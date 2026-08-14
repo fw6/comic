@@ -9,6 +9,7 @@ import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
 import {
     ACCENTS,
+    FONT,
     FONT_SERIF,
     MODE_LABELS,
     RADIUS,
@@ -35,7 +36,7 @@ function ThemeRow() {
         >
             <text
                 style={{
-                    fontSize: '15px',
+                    fontSize: FONT.bodyLg,
                     color: t.text,
                     marginBottom: '10px',
                     ...FONT_SERIF,
@@ -57,9 +58,9 @@ function ThemeRow() {
                         key={name}
                         bindtap={() => choose(name)}
                         style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '20px',
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '22px',
                             backgroundColor: ACCENTS[name].accent,
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -74,7 +75,7 @@ function ThemeRow() {
                             <text
                                 style={{
                                     color: ACCENTS[name].onAccent,
-                                    fontSize: '16px',
+                                    fontSize: FONT.titleSm,
                                 }}
                             >
                                 ✓
@@ -192,7 +193,11 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                         })
                     }
                 />
-                <Row theme={theme} title="扫描已下载漫画" onTap={() => {}} />
+                <Row
+                    theme={theme}
+                    title="扫描已下载漫画"
+                    onTap={() => showSnack('该功能尚未实现')}
+                />
 
                 <SectionHeader theme={theme} title="搜索设置" />
                 <Row
@@ -247,7 +252,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                 <Row
                     theme={theme}
                     title="清除缓存"
-                    onTap={() => showSnack('缓存已清除')}
+                    onTap={() => showSnack('该功能尚未实现')}
                 />
             </view>
 
@@ -279,7 +284,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                     >
                         <text
                             style={{
-                                fontSize: '16px',
+                                fontSize: FONT.titleSm,
                                 fontWeight: '600',
                                 color: t.text,
                                 ...FONT_SERIF,
@@ -309,7 +314,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                                     <text
                                         style={{
                                             flexGrow: 1,
-                                            fontSize: '14px',
+                                            fontSize: FONT.body,
                                             color: t.text,
                                         }}
                                     >
@@ -319,7 +324,7 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
                                         <text
                                             style={{
                                                 color: t.accent,
-                                                fontSize: '14px',
+                                                fontSize: FONT.body,
                                             }}
                                         >
                                             ✓
@@ -333,7 +338,13 @@ export function SettingsScreen({ nav }: { nav: NavApi }) {
             ) : null}
 
             {/* snackbar */}
-            {snack ? <Snackbar theme={theme} message={snack} /> : null}
+            {snack ? (
+                <Snackbar
+                    theme={theme}
+                    message={snack}
+                    onHide={() => setSnack('')}
+                />
+            ) : null}
         </Screen>
     );
 }

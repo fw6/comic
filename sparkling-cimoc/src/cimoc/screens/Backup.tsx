@@ -6,7 +6,7 @@ import { TopBar } from '../components/TopBar.js';
 import { webdavGet, webdavPut } from '../native/bridge.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 type BackupType = 'favorites' | 'tags' | 'settings';
 
@@ -110,7 +110,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
             <text
                 style={{
                     flexGrow: 1,
-                    fontSize: '15px',
+                    fontSize: FONT.bodyLg,
                     color: t.text,
                     ...FONT_SERIF,
                     letterSpacing: '0.3px',
@@ -147,7 +147,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
             >
                 <text
                     style={{
-                        fontSize: '15px',
+                        fontSize: FONT.bodyLg,
                         fontWeight: '600',
                         marginBottom: '12px',
                         color: t.text,
@@ -164,7 +164,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                     style={{
                         width: '100%',
                         height: '44px',
-                        fontSize: '14px',
+                        fontSize: FONT.body,
                         color: t.text,
                         marginBottom: '8px',
                     }}
@@ -176,7 +176,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                     style={{
                         width: '100%',
                         height: '44px',
-                        fontSize: '14px',
+                        fontSize: FONT.body,
                         color: t.text,
                         marginBottom: '8px',
                     }}
@@ -188,7 +188,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                     style={{
                         width: '100%',
                         height: '44px',
-                        fontSize: '14px',
+                        fontSize: FONT.body,
                         color: t.text,
                         marginBottom: '12px',
                     }}
@@ -214,7 +214,7 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                 </view>
                 <text
                     style={{
-                        fontSize: '12px',
+                        fontSize: FONT.small,
                         color: t.textMut,
                         marginTop: '8px',
                     }}
@@ -249,7 +249,13 @@ export function BackupScreen({ nav }: { nav: NavApi }) {
                 </view>
             </view>
 
-            {msg ? <Snackbar theme={theme} message={msg} /> : null}
+            {msg ? (
+                <Snackbar
+                    theme={theme}
+                    message={msg}
+                    onHide={() => setMsg('')}
+                />
+            ) : null}
         </Screen>
     );
 }

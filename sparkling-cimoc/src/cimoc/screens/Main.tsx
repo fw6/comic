@@ -11,7 +11,7 @@ import type { Comic } from '../data/models.js';
 import { loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 import { LibraryScreen } from './Library.js';
 import { SourcesScreen } from './Sources.js';
 
@@ -88,9 +88,7 @@ function DrawerHeader() {
                             borderRadius: '4px',
                             overflow: 'hidden',
                             boxShadow:
-                                theme.mode === 'ink'
-                                    ? '0 4px 12px rgba(0,0,0,0.45)'
-                                    : '0 2px 8px rgba(60,40,20,0.16)',
+                                shadow(theme.mode, 'cover'),
                         }}
                     >
                         <ComicCover
@@ -106,7 +104,7 @@ function DrawerHeader() {
                     <text
                         style={{
                             color: t.text,
-                            fontSize: '15px',
+                            fontSize: FONT.bodyLg,
                             marginTop: '10px',
                             fontWeight: '500',
                             ...FONT_SERIF,
@@ -128,7 +126,7 @@ function DrawerHeader() {
                     <text
                         style={{
                             color: t.text,
-                            fontSize: '22px',
+                            fontSize: FONT.icon,
                             fontWeight: '600',
                             ...FONT_SERIF,
                             letterSpacing: '3px',
@@ -139,7 +137,7 @@ function DrawerHeader() {
                     <text
                         style={{
                             color: t.textSub,
-                            fontSize: '12px',
+                            fontSize: FONT.small,
                             marginTop: '4px',
                             letterSpacing: '4px',
                         }}
@@ -224,7 +222,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 ) : null}
                 <text
                     style={{
-                        fontSize: '18px',
+                        fontSize: FONT.titleLg,
                         width: '32px',
                         textAlign: 'center',
                         opacity: 0.9,
@@ -238,7 +236,7 @@ export function MainScreen({ nav }: { nav: NavApi }) {
                 </text>
                 <text
                     style={{
-                        fontSize: '15px',
+                        fontSize: FONT.bodyLg,
                         color: active ? t.accent : t.text,
                         fontWeight: active ? '600' : '400',
                         marginLeft: '12px',

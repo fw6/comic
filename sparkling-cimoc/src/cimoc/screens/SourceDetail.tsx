@@ -3,7 +3,7 @@ import { TopBar } from '../components/TopBar.js';
 import { sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function SourceDetailScreen({
     nav,
@@ -39,18 +39,16 @@ export function SourceDetailScreen({
                         alignItems: 'center',
                         justifyContent: 'center',
                         boxShadow:
-                            theme.mode === 'ink'
-                                ? '0 6px 16px rgba(0,0,0,0.45)'
-                                : '0 6px 16px rgba(60,40,20,0.2)',
+                            shadow(theme.mode, 'panel'),
                     }}
                 >
-                    <text style={{ color: t.onAccent, fontSize: '30px' }}>
+                    <text style={{ color: t.onAccent, fontSize: FONT.glyphLg }}>
                         🗂
                     </text>
                 </view>
                 <text
                     style={{
-                        fontSize: '22px',
+                        fontSize: FONT.icon,
                         fontWeight: '600',
                         marginTop: '12px',
                         color: t.text,
@@ -75,13 +73,13 @@ export function SourceDetailScreen({
                     <text
                         style={{
                             width: '90px',
-                            fontSize: '15px',
+                            fontSize: FONT.bodyLg,
                             color: t.textMut,
                         }}
                     >
                         图源编号
                     </text>
-                    <text style={{ fontSize: '15px', color: t.text }}>
+                    <text style={{ fontSize: FONT.bodyLg, color: t.text }}>
                         {sourceId}
                     </text>
                 </view>
@@ -96,13 +94,13 @@ export function SourceDetailScreen({
                     <text
                         style={{
                             width: '90px',
-                            fontSize: '15px',
+                            fontSize: FONT.bodyLg,
                             color: t.textMut,
                         }}
                     >
                         收藏数量
                     </text>
-                    <text style={{ fontSize: '15px', color: t.text }}>
+                    <text style={{ fontSize: FONT.bodyLg, color: t.text }}>
                         {source?.favoriteCount ?? 0}
                     </text>
                 </view>

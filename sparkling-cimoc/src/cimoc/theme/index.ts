@@ -111,6 +111,9 @@ export interface ThemeTokens {
     success: string; // 已下载 / 完成
     danger: string; // 破坏性 / 角标
     overlay: string; // 遮罩
+    onOverlay: string; // 遮罩上的文字/图标
+    inverse: string; // 反色面（Snackbar/反色胶囊底色）
+    onInverse: string; // 反色面上的文字
     readerBg: string; // 阅读器画布
 }
 
@@ -127,6 +130,9 @@ const INK: Omit<ThemeTokens, 'accent' | 'accentSoft' | 'onAccent'> = {
     success: '#66BB6A',
     danger: '#E53935',
     overlay: 'rgba(0,0,0,0.62)',
+    onOverlay: '#FFFFFF',
+    inverse: 'rgba(240,236,225,0.95)',
+    onInverse: 'rgba(20,20,26,0.92)',
     readerBg: '#0C0C11',
 };
 
@@ -143,6 +149,9 @@ const PAPER: Omit<ThemeTokens, 'accent' | 'accentSoft' | 'onAccent'> = {
     success: '#2E9E5B',
     danger: '#D6362C',
     overlay: 'rgba(28,22,16,0.5)',
+    onOverlay: '#FFFFFF',
+    inverse: 'rgba(28,22,16,0.92)',
+    onInverse: '#F5F1E8',
     readerBg: '#FFFFFF',
 };
 
@@ -190,3 +199,48 @@ export const SPACE = {
     lg: '16px',
     xl: '20px',
 } as const;
+
+/** 字号刻度：语义化命名，所有屏幕统一引用，避免硬编码 px */
+export const FONT = {
+    caption: '10px',
+    captionSm: '11px',
+    small: '12px',
+    bodySm: '13px',
+    body: '14px',
+    bodyLg: '15px',
+    titleSm: '16px',
+    title: '17px',
+    titleLg: '18px',
+    headline: '19px',
+    headlineLg: '20px',
+    icon: '22px',
+    iconLg: '24px',
+    iconXl: '26px',
+    glyph: '28px',
+    glyphLg: '30px',
+    glyphXl: '36px',
+} as const;
+
+/** 分层投影：按模式（墨=黑阴影 / 纸=暖棕阴影）+ 层级命名 */
+export function shadow(
+    mode: ThemeMode,
+    level: 'fab' | 'panel' | 'cover' | 'coverSm' | 'chip' | 'menu',
+): string {
+    const ink = {
+        fab: '0 6px 16px rgba(0,0,0,0.5)',
+        panel: '0 6px 16px rgba(0,0,0,0.45)',
+        cover: '0 4px 12px rgba(0,0,0,0.45)',
+        coverSm: '0 4px 12px rgba(0,0,0,0.4)',
+        chip: '0 2px 8px rgba(0,0,0,0.35)',
+        menu: '0 6px 20px rgba(0,0,0,0.35)',
+    };
+    const paper = {
+        fab: '0 6px 16px rgba(60,40,20,0.28)',
+        panel: '0 6px 16px rgba(60,40,20,0.2)',
+        cover: '0 2px 8px rgba(60,40,20,0.16)',
+        coverSm: '0 2px 8px rgba(60,40,20,0.14)',
+        chip: '0 1px 3px rgba(60,40,20,0.12)',
+        menu: '0 6px 20px rgba(60,40,20,0.28)',
+    };
+    return mode === 'ink' ? ink[level] : paper[level];
+}

@@ -1,17 +1,12 @@
 // Copyright (c) 2025 TikTok Pte. Ltd.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+
+/// <reference types="sparkling-types" />
+
 import type { BaseEvent, StandardProps } from '@lynx-js/types';
 
 declare module '@lynx-js/types' {
-  interface GlobalProps {
-    preferredTheme?: string;
-    theme: string;
-    isNotchScreen: boolean;
-    /** Sparkling 多页导航注入的 scheme 查询参数（navigate options.params）。 */
-    queryItems?: Record<string, string>;
-  }
-
   interface IntrinsicElements extends Lynx.IntrinsicElements {
     input: InputProps;
   }

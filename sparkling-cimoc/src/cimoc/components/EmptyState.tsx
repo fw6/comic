@@ -1,4 +1,4 @@
-import type { AppTheme } from '../theme/index.js';
+import { FONT, type AppTheme } from '../theme/index.js';
 
 /**
  * 居中占位态：加载中 / 空态。带装饰性网点纹理，避免单调灰字。
@@ -29,11 +29,11 @@ export function EmptyState({
             }}
         >
             {glyph ? (
-                <text style={{ fontSize: '28px', marginBottom: '10px', opacity: 0.6 }}>
+                <text style={{ fontSize: FONT.glyph, marginBottom: '10px', opacity: 0.6 }}>
                     {glyph}
                 </text>
             ) : null}
-            <text style={{ fontSize: '15px', color: t.textMut }}>{text}</text>
+            <text style={{ fontSize: FONT.bodyLg, color: t.textMut }}>{text}</text>
         </view>
     );
 }

@@ -9,7 +9,7 @@ import type { Chapter, Comic } from '../data/models.js';
 import { loadChapters, loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS, shadow } from '../theme/index.js';
 
 export function DetailScreen({
     nav,
@@ -21,6 +21,7 @@ export function DetailScreen({
     const store = useAppStore();
     const { theme } = store;
     const t = theme.tokens;
+    const safeTop = lynx.__globalProps.statusBarHeight;
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [loading, setLoading] = useState(true);
@@ -50,7 +51,7 @@ export function DetailScreen({
     if (loading) {
         return (
             <Screen theme={theme}>
-                <EmptyState theme={theme} text="加载中..." glyph="📖" />
+                <EmptyState theme={theme} text="加载中…" glyph="📖" />
             </Screen>
         );
     }
@@ -117,7 +118,7 @@ export function DetailScreen({
         {
             label: '分享漫画',
             onTap: () => {
-                showSnack('已复制分享链接');
+                showSnack('分享功能尚未实现');
                 setShowMenu(false);
             },
         },
@@ -162,13 +163,13 @@ export function DetailScreen({
                 <view
                     style={{
                         position: 'absolute',
-                        top: '88px',
+                        top: `${safeTop + 64}px`,
                         right: '8px',
                         backgroundColor: t.surfaceRaised,
                         borderRadius: RADIUS.sm,
                         zIndex: 10,
                         minWidth: '140px',
-                        boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
+                        boxShadow: shadow(theme.mode, 'menu'),
                     }}
                 >
                     {menuItems.map((item) => (
@@ -185,7 +186,7 @@ export function DetailScreen({
                             }}
                         >
                             <text
-                                style={{ fontSize: '14px', color: t.text }}
+                                style={{ fontSize: FONT.body, color: t.text }}
                             >
                                 {item.label}
                             </text>
@@ -212,9 +213,7 @@ export function DetailScreen({
                         width: '90px',
                         height: '120px',
                         boxShadow:
-                            theme.mode === 'ink'
-                                ? '0 4px 12px rgba(0,0,0,0.45)'
-                                : '0 2px 8px rgba(60,40,20,0.16)',
+                            shadow(theme.mode, 'cover'),
                     }}
                 >
                     <ComicCover
@@ -239,7 +238,7 @@ export function DetailScreen({
                 >
                     <text
                         style={{
-                            fontSize: '20px',
+                            fontSize: FONT.headlineLg,
                             fontWeight: '600',
                             color: t.text,
                             ...FONT_SERIF,
@@ -248,10 +247,10 @@ export function DetailScreen({
                     >
                         {comic.title}
                     </text>
-                    <text style={{ fontSize: '13px', color: t.textSub }}>
+                    <text style={{ fontSize: FONT.bodySm, color: t.textSub }}>
                         作者：{comic.author}
                     </text>
-                    <text style={{ fontSize: '13px', color: t.textSub }}>
+                    <text style={{ fontSize: FONT.bodySm, color: t.textSub }}>
                         图源：{comic.sourceTitle}
                     </text>
                     <view
@@ -273,11 +272,11 @@ export function DetailScreen({
                                 marginRight: '5px',
                             }}
                         />
-                        <text style={{ fontSize: '13px', color: t.textSub }}>
+                        <text style={{ fontSize: FONT.bodySm, color: t.textSub }}>
                             {comic.status === 'finish' ? '已完结' : '连载中'}
                         </text>
                     </view>
-                    <text style={{ fontSize: '12px', color: t.textMut }}>
+                    <text style={{ fontSize: FONT.small, color: t.textMut }}>
                         更新：{comic.updateTime}
                     </text>
                 </view>
@@ -293,7 +292,7 @@ export function DetailScreen({
             >
                 <text
                     style={{
-                        fontSize: '14px',
+                        fontSize: FONT.body,
                         color: t.textSub,
                         lineHeight: '20px',
                         textOverflow: 'ellipsis',
@@ -307,7 +306,7 @@ export function DetailScreen({
             {/* Chapters */}
             <text
                 style={{
-                    fontSize: '15px',
+                    fontSize: FONT.bodyLg,
                     fontWeight: '600',
                     color: t.text,
                     padding: '12px',
@@ -377,7 +376,7 @@ export function DetailScreen({
                                 <text
                                     style={{
                                         flexGrow: 1,
-                                        fontSize: '13px',
+                                        fontSize: FONT.bodySm,
                                         color: ch.read ? t.accent : t.text,
                                         textAlign: 'center',
                                         paddingLeft: '3px',
@@ -391,7 +390,7 @@ export function DetailScreen({
                                             position: 'absolute',
                                             right: '5px',
                                             bottom: '3px',
-                                            fontSize: '10px',
+                                            fontSize: FONT.caption,
                                             color: t.success,
                                         }}
                                     >
@@ -410,6 +409,7 @@ export function DetailScreen({
             >
                 <view
                     bindtap={startReading}
+                    accessibility-label="开始阅读"
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -420,18 +420,17 @@ export function DetailScreen({
                         alignItems: 'center',
                         justifyContent: 'center',
                         boxShadow:
-                            theme.mode === 'ink'
-                                ? '0 6px 16px rgba(0,0,0,0.5)'
-                                : '0 6px 16px rgba(60,40,20,0.28)',
+                            shadow(theme.mode, 'fab'),
                     }}
                 >
-                    <text style={{ color: t.onAccent, fontSize: '20px' }}>
+                    <text style={{ color: t.onAccent, fontSize: FONT.headlineLg }}>
                         ▶
                     </text>
                 </view>
             </view>
             <view
                 bindtap={() => store.toggleFavorite(comicId)}
+                accessibility-label={fav ? '取消收藏' : '收藏'}
                 style={{
                     position: 'absolute',
                     right: '16px',
@@ -443,15 +442,13 @@ export function DetailScreen({
                     alignItems: 'center',
                     justifyContent: 'center',
                     boxShadow:
-                        theme.mode === 'ink'
-                            ? '0 6px 16px rgba(0,0,0,0.5)'
-                            : '0 6px 16px rgba(60,40,20,0.28)',
+                        shadow(theme.mode, 'fab'),
                 }}
             >
                 <text
                     style={{
                         color: fav ? t.onAccent : t.accent,
-                        fontSize: '24px',
+                        fontSize: FONT.iconLg,
                     }}
                 >
                     {fav ? '❤' : '♡'}
@@ -459,7 +456,13 @@ export function DetailScreen({
             </view>
 
             {/* Snackbar */}
-            {snack ? <Snackbar theme={theme} message={snack} /> : null}
+            {snack ? (
+                <Snackbar
+                    theme={theme}
+                    message={snack}
+                    onHide={() => setSnack('')}
+                />
+            ) : null}
 
             {/* Intro dialog */}
             {showIntro ? (
@@ -491,7 +494,7 @@ export function DetailScreen({
                     >
                         <text
                             style={{
-                                fontSize: '17px',
+                                fontSize: FONT.title,
                                 fontWeight: '600',
                                 color: t.text,
                                 ...FONT_SERIF,
@@ -503,7 +506,7 @@ export function DetailScreen({
                         </text>
                         <text
                             style={{
-                                fontSize: '14px',
+                                fontSize: FONT.body,
                                 color: t.textSub,
                                 lineHeight: '22px',
                             }}

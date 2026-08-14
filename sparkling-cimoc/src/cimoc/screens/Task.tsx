@@ -12,7 +12,7 @@ import {
 } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF } from '../theme/index.js';
 
 // Cimoc TaskActivity：已下载漫画的章节列表，用于离线阅读入口。
 export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
@@ -46,7 +46,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
     if (loading || !comic) {
         return (
             <Screen theme={theme}>
-                <EmptyState theme={theme} text="加载中..." glyph="📖" />
+                <EmptyState theme={theme} text="加载中…" glyph="📖" />
             </Screen>
         );
     }
@@ -74,9 +74,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                         width: '56px',
                         height: '74px',
                         boxShadow:
-                            theme.mode === 'ink'
-                                ? '0 4px 12px rgba(0,0,0,0.4)'
-                                : '0 2px 8px rgba(60,40,20,0.14)',
+                            shadow(theme.mode, 'coverSm'),
                     }}
                 >
                     <ComicCover
@@ -101,7 +99,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                 >
                     <text
                         style={{
-                            fontSize: '17px',
+                            fontSize: FONT.title,
                             fontWeight: '600',
                             color: t.text,
                             ...FONT_SERIF,
@@ -112,7 +110,7 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                     </text>
                     <text
                         style={{
-                            fontSize: '13px',
+                            fontSize: FONT.bodySm,
                             color: t.textSub,
                             marginTop: '4px',
                         }}
@@ -149,14 +147,14 @@ export function TaskScreen({ nav, comicId }: { nav: NavApi; comicId: string }) {
                                 })
                             }
                         >
-                            <text style={{ fontSize: '12px', color: t.success }}>
+                            <text style={{ fontSize: FONT.small, color: t.success }}>
                                 ✓
                             </text>
                             <text
                                 style={{
                                     flexGrow: 1,
                                     marginLeft: '10px',
-                                    fontSize: '15px',
+                                    fontSize: FONT.bodyLg,
                                     color: t.text,
                                 }}
                             >

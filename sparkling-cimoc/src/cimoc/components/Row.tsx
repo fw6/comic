@@ -1,5 +1,5 @@
 import type { ReactNode } from '@lynx-js/react';
-import { type AppTheme } from '../theme/index.js';
+import { FONT, type AppTheme } from '../theme/index.js';
 
 /**
  * 列表行：标题 + 可选值 + › 或自定义右侧内容。
@@ -40,7 +40,7 @@ export function Row({
             <text
                 style={{
                     flexGrow: 1,
-                    fontSize: '15px',
+                    fontSize: FONT.bodyLg,
                     color: danger ? t.danger : t.text,
                 }}
             >
@@ -50,13 +50,13 @@ export function Row({
                 <>
                     {value ? (
                         <text
-                            style={{ fontSize: '14px', color: t.textSub }}
+                            style={{ fontSize: FONT.body, color: t.textSub }}
                         >
                             {value}
                         </text>
                     ) : null}
                     <text
-                        style={{ color: t.textMut, fontSize: '18px', marginLeft: '8px' }}
+                        style={{ color: t.textMut, fontSize: FONT.titleLg, marginLeft: '8px' }}
                     >
                         ›
                     </text>

@@ -6,7 +6,7 @@ import { TopBar } from '../components/TopBar.js';
 import { categoriesForSource, sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF } from '../theme/index.js';
+import { FONT, FONT_SERIF } from '../theme/index.js';
 
 export function CategoryScreen({
     nav,
@@ -46,7 +46,7 @@ export function CategoryScreen({
                 onBack={() => nav.pop()}
             />
             {loading ? (
-                <EmptyState theme={theme} text="加载中..." glyph="🗂" />
+                <EmptyState theme={theme} text="加载中…" glyph="🗂" />
             ) : (
                 <List
                     listId={`category-${sourceId}`}
@@ -79,7 +79,7 @@ export function CategoryScreen({
                                 <text
                                     style={{
                                         flexGrow: 1,
-                                        fontSize: '16px',
+                                        fontSize: FONT.titleSm,
                                         color: t.text,
                                         ...FONT_SERIF,
                                         letterSpacing: '0.3px',
@@ -88,7 +88,7 @@ export function CategoryScreen({
                                     {c}
                                 </text>
                                 <text
-                                    style={{ color: t.textMut, fontSize: '18px' }}
+                                    style={{ color: t.textMut, fontSize: FONT.titleLg }}
                                 >
                                     ›
                                 </text>

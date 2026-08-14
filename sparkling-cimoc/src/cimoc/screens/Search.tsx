@@ -6,7 +6,7 @@ import { ToolbarAction, TopBar } from '../components/TopBar.js';
 import { sourceList } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function SearchScreen({ nav }: { nav: NavApi }) {
     const store = useAppStore();
@@ -55,7 +55,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                     >
                         <text
                             style={{
-                                fontSize: '14px',
+                                fontSize: FONT.body,
                                 fontWeight: '600',
                                 marginBottom: '8px',
                                 color: t.text,
@@ -101,7 +101,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                                     >
                                         <text
                                             style={{
-                                                fontSize: '12px',
+                                                fontSize: FONT.small,
                                                 color: active
                                                     ? t.onAccent
                                                     : t.textSub,
@@ -136,7 +136,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         style={{
                             flexGrow: 1,
                             height: '48px',
-                            fontSize: '16px',
+                            fontSize: FONT.titleSm,
                             color: t.text,
                         }}
                     />
@@ -154,7 +154,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         <text
                             style={{
                                 color: t.accent,
-                                fontSize: '22px',
+                                fontSize: FONT.icon,
                             }}
                         >
                             🔍
@@ -189,7 +189,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                         }}
                     >
                         {strict ? (
-                            <text style={{ color: t.onAccent, fontSize: '12px' }}>
+                            <text style={{ color: t.onAccent, fontSize: FONT.small }}>
                                 ✓
                             </text>
                         ) : null}
@@ -197,7 +197,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                     <text
                         style={{
                             marginLeft: '10px',
-                            fontSize: '15px',
+                            fontSize: FONT.bodyLg,
                             color: t.text,
                         }}
                     >
@@ -209,7 +209,7 @@ export function SearchScreen({ nav }: { nav: NavApi }) {
                 <view style={{ marginTop: '24px' }}>
                     <text
                         style={{
-                            fontSize: '14px',
+                            fontSize: FONT.body,
                             color: t.textMut,
                             marginBottom: '8px',
                             ...FONT_SERIF,

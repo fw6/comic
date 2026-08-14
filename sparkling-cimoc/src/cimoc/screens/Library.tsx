@@ -15,7 +15,7 @@ import {
 import { pickFolder } from '../native/bridge.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF } from '../theme/index.js';
+import { FONT, FONT_SERIF } from '../theme/index.js';
 
 const TABS: { key: LibraryTab; label: string }[] = [
     { key: 'history', label: '历史' },
@@ -150,7 +150,7 @@ function TabContent({
             }}
         >
             {loading ? (
-                <EmptyState theme={theme} text="加载中..." glyph="📖" />
+                <EmptyState theme={theme} text="加载中…" glyph="📖" />
             ) : (
                 <List
                     listId={`library-${tab}`}
@@ -261,7 +261,7 @@ export function LibraryScreen({
                         }}
                         bindtap={onOpenDrawer}
                     >
-                        <text style={{ color: theme.tokens.text, fontSize: '20px' }}>
+                        <text style={{ color: theme.tokens.text, fontSize: FONT.headlineLg }}>
                             ☰
                         </text>
                     </view>
@@ -285,7 +285,7 @@ export function LibraryScreen({
                         <text
                             style={{
                                 color: theme.tokens.text,
-                                fontSize: '20px',
+                                fontSize: FONT.headlineLg,
                                 fontWeight: '600',
                                 ...FONT_SERIF,
                                 letterSpacing: '1px',
@@ -325,7 +325,7 @@ export function LibraryScreen({
                                         i === activeIdx
                                             ? theme.tokens.accent
                                             : theme.tokens.textSub,
-                                    fontSize: '15px',
+                                    fontSize: FONT.bodyLg,
                                     fontWeight: i === activeIdx ? '600' : '400',
                                     letterSpacing: '2px',
                                 }}

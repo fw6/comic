@@ -2,7 +2,7 @@ import { useEffect, useState } from '@lynx-js/react';
 import type { Comic } from '../data/models.js';
 import { loadChapters } from '../data/service.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 function formatReadTime(ts: number): string {
     const d = new Date(ts);
@@ -59,10 +59,10 @@ export function ComicInfoDialog({
                 paddingBottom: '6px',
             }}
         >
-            <text style={{ width: '100px', fontSize: '14px', color: t.textMut }}>
+            <text style={{ width: '100px', fontSize: FONT.body, color: t.textMut }}>
                 {label}
             </text>
-            <text style={{ flexGrow: 1, fontSize: '14px', color: t.text }}>
+            <text style={{ flexGrow: 1, fontSize: FONT.body, color: t.text }}>
                 {value}
             </text>
         </view>
@@ -97,7 +97,7 @@ export function ComicInfoDialog({
             >
                 <text
                     style={{
-                        fontSize: '18px',
+                        fontSize: FONT.titleLg,
                         fontWeight: '600',
                         color: t.text,
                         ...FONT_SERIF,
@@ -135,7 +135,7 @@ export function ComicInfoDialog({
                         <text
                             style={{
                                 color: t.onAccent,
-                                fontSize: '14px',
+                                fontSize: FONT.body,
                             }}
                         >
                             {actionLabel}
@@ -152,7 +152,7 @@ export function ComicInfoDialog({
                             paddingBottom: '8px',
                         }}
                     >
-                        <text style={{ color: t.text, fontSize: '14px' }}>
+                        <text style={{ color: t.text, fontSize: FONT.body }}>
                             取消
                         </text>
                     </view>

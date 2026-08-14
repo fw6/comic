@@ -8,7 +8,7 @@ import type { Comic } from '../data/models.js';
 import { categoryComics, searchComics } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { shadow, FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 export function ResultScreen({
     nav,
@@ -56,7 +56,7 @@ export function ResultScreen({
         <Screen theme={theme}>
             <TopBar theme={theme} title={title} onBack={() => nav.pop()} />
             {loading ? (
-                <EmptyState theme={theme} text="加载中..." glyph="🔍" />
+                <EmptyState theme={theme} text="加载中…" glyph="🔍" />
             ) : (
                 <List
                     listId={`result-${keyword}-${sources.join('-')}`}
@@ -89,9 +89,7 @@ export function ResultScreen({
                                         width: '60px',
                                         height: '80px',
                                         boxShadow:
-                                            theme.mode === 'ink'
-                                                ? '0 4px 12px rgba(0,0,0,0.4)'
-                                                : '0 2px 8px rgba(60,40,20,0.14)',
+                                            shadow(theme.mode, 'coverSm'),
                                     }}
                                 >
                                     <ComicCover
@@ -116,7 +114,7 @@ export function ResultScreen({
                                 >
                                     <text
                                         style={{
-                                            fontSize: '16px',
+                                            fontSize: FONT.titleSm,
                                             color: t.text,
                                             fontWeight: '500',
                                             ...FONT_SERIF,
@@ -127,7 +125,7 @@ export function ResultScreen({
                                     </text>
                                     <text
                                         style={{
-                                            fontSize: '13px',
+                                            fontSize: FONT.bodySm,
                                             color: t.textSub,
                                             marginTop: '4px',
                                         }}
@@ -159,7 +157,7 @@ export function ResultScreen({
                                         />
                                         <text
                                             style={{
-                                                fontSize: '12px',
+                                                fontSize: FONT.small,
                                                 color: t.textMut,
                                             }}
                                         >

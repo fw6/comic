@@ -1,4 +1,4 @@
-import { RADIUS, type AppTheme } from '../theme/index.js';
+import { FONT, RADIUS, type AppTheme } from '../theme/index.js';
 
 /**
  * 筛选 / 标签胶囊：激活态为强调色。
@@ -21,17 +21,18 @@ export function Chip({
             style={{
                 backgroundColor: active ? t.accent : t.surfaceSunken,
                 borderRadius: RADIUS.pill,
-                paddingLeft: '12px',
-                paddingRight: '12px',
-                paddingTop: '5px',
-                paddingBottom: '5px',
+                minHeight: '44px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: '14px',
+                paddingRight: '14px',
                 marginRight: '8px',
             }}
         >
             <text
                 style={{
                     color: active ? t.onAccent : t.textSub,
-                    fontSize: '12px',
+                    fontSize: FONT.small,
                 }}
             >
                 {label}

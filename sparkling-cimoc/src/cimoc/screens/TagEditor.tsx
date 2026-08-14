@@ -7,7 +7,7 @@ import type { Comic } from '../data/models.js';
 import { loadComic } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 const PRESET_TAGS = [
     '热血',
@@ -98,7 +98,7 @@ export function TagEditorScreen({
                         style={{
                             flexGrow: 1,
                             height: '44px',
-                            fontSize: '15px',
+                            fontSize: FONT.bodyLg,
                             color: t.text,
                         }}
                     />
@@ -113,7 +113,7 @@ export function TagEditorScreen({
                         <text
                             style={{
                                 color: t.accent,
-                                fontSize: '18px',
+                                fontSize: FONT.titleLg,
                             }}
                         >
                             ＋
@@ -124,7 +124,7 @@ export function TagEditorScreen({
             <view style={{ paddingLeft: '16px', paddingRight: '16px' }}>
                 <text
                     style={{
-                        fontSize: '13px',
+                        fontSize: FONT.bodySm,
                         color: t.textMut,
                         marginBottom: '8px',
                         ...FONT_SERIF,

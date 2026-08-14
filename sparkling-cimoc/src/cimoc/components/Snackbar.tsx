@@ -1,5 +1,5 @@
 import { useEffect, useState } from '@lynx-js/react';
-import { RADIUS, type AppTheme } from '../theme/index.js';
+import { FONT, RADIUS, type AppTheme } from '../theme/index.js';
 
 /**
  * 底部轻提示：墨色胶囊 + 淡入。父组件控制显隐（超时清空）。
@@ -7,15 +7,22 @@ import { RADIUS, type AppTheme } from '../theme/index.js';
 export function Snackbar({
     theme,
     message,
+    onHide,
 }: {
     theme: AppTheme;
     message: string;
+    /** 展示结束（自动隐藏）回调，父组件清空消息 */
+    onHide: () => void;
 }) {
     const t = theme.tokens;
     const [opacity, setOpacity] = useState(0);
     useEffect(() => {
         const raf = requestAnimationFrame(() => setOpacity(1));
-        return () => cancelAnimationFrame(raf);
+        const timer = setTimeout(() => onHide(), 2500);
+        return () => {
+            cancelAnimationFrame(raf);
+            clearTimeout(timer);
+        };
     }, []);
     return (
         <view
@@ -29,10 +36,7 @@ export function Snackbar({
         >
             <view
                 style={{
-                    backgroundColor:
-                        theme.mode === 'ink'
-                            ? 'rgba(240,236,225,0.95)'
-                            : 'rgba(28,22,16,0.92)',
+                    backgroundColor: t.inverse,
                     borderRadius: RADIUS.sm,
                     paddingLeft: '16px',
                     paddingRight: '16px',
@@ -46,11 +50,8 @@ export function Snackbar({
             >
                 <text
                     style={{
-                        color:
-                            theme.mode === 'ink'
-                                ? 'rgba(20,20,26,0.92)'
-                                : '#F5F1E8',
-                        fontSize: '13px',
+                        color: t.onInverse,
+                        fontSize: FONT.bodySm,
                     }}
                 >
                     {message}

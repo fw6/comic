@@ -1,4 +1,5 @@
 import {
+    List,
     SliderIndicator,
     SliderRoot,
     SliderThumb,
@@ -8,7 +9,7 @@ import {
     screenHeight,
     screenWidth,
 } from '@lynx-js/lynx-ui';
-import { useEffect, useMemo, useState } from '@lynx-js/react';
+import { useEffect, useMemo, useRef, useState } from '@lynx-js/react';
 import type { Chapter, Comic } from '../data/models.js';
 import {
     downloadChapter,
@@ -18,7 +19,7 @@ import {
 } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
-import { FONT_SERIF, RADIUS } from '../theme/index.js';
+import { FONT, FONT_SERIF, RADIUS } from '../theme/index.js';
 
 function currentClock(): string {
     const d = new Date();
@@ -44,10 +45,12 @@ function PageImage({ src }: { src: string }) {
 function StreamImage({
     src,
     aspect,
+    background,
     onMeasure,
 }: {
     src: string;
     aspect?: number; // 高/宽
+    background: string;
     onMeasure: (src: string, w: number, h: number) => void;
 }) {
     return (
@@ -58,7 +61,7 @@ function StreamImage({
                     aspect !== undefined
                         ? `${Math.round(screenWidth * aspect)}px`
                         : '600px',
-                backgroundColor: '#101014',
+                backgroundColor: background,
             }}
         >
             <image
@@ -105,6 +108,10 @@ export function ReaderScreen({
     const [loadingMore, setLoadingMore] = useState(false);
     const [feedEnded, setFeedEnded] = useState(false);
     const [aspects, setAspects] = useState<Record<string, number>>({});
+
+    // 首次隐藏 HUD 时给一次操作提示（左右切话 / 中间显示菜单）
+    const [showHint, setShowHint] = useState(false);
+    const hintedRef = useRef(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -176,6 +183,32 @@ export function ReaderScreen({
         () => [...chapters].sort((a, b) => a.index - b.index),
         [chapters],
     );
+
+    // 卷纸模式：把 feed 展平为 <list> 的行（章节分隔 + 图片），交给 list 虚拟化 + 回收
+    const rows = useMemo(() => {
+        const out: Array<
+            | { kind: 'separator'; key: string; chapter: number }
+            | { kind: 'image'; key: string; chapter: number; src: string }
+        > = [];
+        feed.forEach((entry, fi) => {
+            if (fi > 0) {
+                out.push({
+                    kind: 'separator',
+                    key: `sep-${entry.chapter}`,
+                    chapter: entry.chapter,
+                });
+            }
+            for (const src of entry.images) {
+                out.push({
+                    kind: 'image',
+                    key: src,
+                    chapter: entry.chapter,
+                    src,
+                });
+            }
+        });
+        return out;
+    }, [feed]);
 
     const chapterTitleOf = (idx: number) =>
         chapters.find((c) => c.index === idx)?.title ?? `第 ${idx} 话`;
@@ -259,8 +292,8 @@ export function ReaderScreen({
                     justifyContent: 'center',
                 }}
             >
-                <text style={{ color: theme.tokens.textSub, fontSize: '15px' }}>
-                    加载中...
+                <text style={{ color: theme.tokens.textSub, fontSize: FONT.bodyLg }}>
+                    加载中…
                 </text>
             </view>
         );
@@ -270,8 +303,17 @@ export function ReaderScreen({
     const readerBg = store.settings.whiteBackground
         ? '#FFFFFF'
         : theme.tokens.readerBg;
+    const hudTop = lynx.__globalProps.statusBarHeight;
+    const hudHeight = hudTop + 44;
 
-    const toggleHud = () => setShowHud(!showHud);
+    const toggleHud = () => {
+        if (showHud && !hintedRef.current) {
+            hintedRef.current = true;
+            setShowHint(true);
+            setTimeout(() => setShowHint(false), 2500);
+        }
+        setShowHud(!showHud);
+    };
 
     return (
         <view
@@ -298,10 +340,10 @@ export function ReaderScreen({
                     <text
                         style={{
                             color: theme.tokens.textMut,
-                            fontSize: '15px',
+                            fontSize: FONT.bodyLg,
                         }}
                     >
-                        图片加载中...
+                        图片加载中…
                     </text>
                 </view>
             ) : mode === 'page' ? (
@@ -315,28 +357,44 @@ export function ReaderScreen({
                     onChange={(current) => setCurPage(current)}
                     style={{ width: screenWidth, height: screenHeight }}
                 >
-                    {({ item }) => (
+                    {({ item, index }) => (
                         <SwiperItem>
-                            <PageImage src={item} />
+                            {Math.abs(index - curPage) <= 1 ? (
+                                <PageImage src={item} />
+                            ) : (
+                                <view
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        backgroundColor: readerBg,
+                                    }}
+                                />
+                            )}
                         </SwiperItem>
                     )}
                 </Swiper>
             ) : (
-                /* 卷纸模式：上下滑动阅读，滑到底自动续下一话 */
-                <scroll-view
-                    scroll-orientation="vertical"
-                    lower-threshold={240}
-                    scroll-bar-enable={false}
-                    bindscrolltolower={loadMore}
+                /* 卷纸模式：上下滑动阅读，滑到底自动续下一话。用 lynx-ui <List> 虚拟化 + 回收，仅渲染视口附近的图片 */
+                <List
+                    listId="reader-feed"
+                    listType="single"
+                    spanCount={1}
+                    scrollOrientation="vertical"
+                    lowerThresholdItemCount={3}
+                    onScrollToLower={loadMore}
                     style={{
                         flexGrow: 1,
                         width: '100%',
                         backgroundColor: readerBg,
                     }}
                 >
-                    {feed.map((entry, fi) => (
-                        <view key={entry.chapter}>
-                            {fi > 0 ? (
+                    {rows.map((row) =>
+                        row.kind === 'separator' ? (
+                            <list-item
+                                key={row.key}
+                                item-key={row.key}
+                                estimated-main-axis-size-px={66}
+                            >
                                 <view
                                     style={{
                                         alignItems: 'center',
@@ -359,22 +417,33 @@ export function ReaderScreen({
                                     >
                                         <text
                                             style={{
-                                                fontSize: '12px',
+                                                fontSize: FONT.small,
                                                 color: theme.tokens.accent,
                                                 ...FONT_SERIF,
                                                 letterSpacing: '1px',
                                             }}
                                         >
-                                            {chapterTitleOf(entry.chapter)}
+                                            {chapterTitleOf(row.chapter)}
                                         </text>
                                     </view>
                                 </view>
-                            ) : null}
-                            {entry.images.map((src) => (
+                            </list-item>
+                        ) : (
+                            <list-item
+                                key={row.key}
+                                item-key={row.key}
+                                estimated-main-axis-size-px={
+                                    aspects[row.src] !== undefined
+                                        ? Math.round(
+                                              screenWidth * aspects[row.src],
+                                          )
+                                        : 600
+                                }
+                            >
                                 <StreamImage
-                                    key={src}
-                                    src={src}
-                                    aspect={aspects[src]}
+                                    src={row.src}
+                                    aspect={aspects[row.src]}
+                                    background={readerBg}
                                     onMeasure={(s, w, h) => {
                                         if (w > 0 && h > 0) {
                                             setAspects((prev) =>
@@ -385,46 +454,50 @@ export function ReaderScreen({
                                         }
                                     }}
                                 />
-                            ))}
-                        </view>
-                    ))}
+                            </list-item>
+                        )
+                    )}
                     {loadingMore ? (
-                        <view
-                            style={{
-                                alignItems: 'center',
-                                paddingTop: '16px',
-                                paddingBottom: '16px',
-                            }}
-                        >
-                            <text
+                        <list-item item-key="__loading__" key="__loading__">
+                            <view
                                 style={{
-                                    color: theme.tokens.textMut,
-                                    fontSize: '13px',
+                                    alignItems: 'center',
+                                    paddingTop: '16px',
+                                    paddingBottom: '16px',
                                 }}
                             >
-                                加载下一话…
-                            </text>
-                        </view>
+                                <text
+                                    style={{
+                                        color: theme.tokens.textMut,
+                                        fontSize: FONT.bodySm,
+                                    }}
+                                >
+                                    加载下一话…
+                                </text>
+                            </view>
+                        </list-item>
                     ) : null}
                     {feedEnded ? (
-                        <view
-                            style={{
-                                alignItems: 'center',
-                                paddingTop: '16px',
-                                paddingBottom: '32px',
-                            }}
-                        >
-                            <text
+                        <list-item item-key="__ended__" key="__ended__">
+                            <view
                                 style={{
-                                    color: theme.tokens.textMut,
-                                    fontSize: '13px',
+                                    alignItems: 'center',
+                                    paddingTop: '16px',
+                                    paddingBottom: '32px',
                                 }}
                             >
-                                已读完最后一话
-                            </text>
-                        </view>
+                                <text
+                                    style={{
+                                        color: theme.tokens.textMut,
+                                        fontSize: FONT.bodySm,
+                                    }}
+                                >
+                                    已读完最后一话
+                                </text>
+                            </view>
+                        </list-item>
                     ) : null}
-                </scroll-view>
+                </List>
             )}
 
             {/* HUD */}
@@ -437,9 +510,9 @@ export function ReaderScreen({
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
-                            backgroundColor: 'rgba(0,0,0,0.5)',
-                            height: '64px',
-                            paddingTop: '20px',
+                            backgroundColor: theme.tokens.overlay,
+                            height: `${hudHeight}px`,
+                            paddingTop: `${hudTop}px`,
                             paddingLeft: '12px',
                             paddingRight: '12px',
                         }}
@@ -453,20 +526,26 @@ export function ReaderScreen({
                                 height: '44px',
                                 justifyContent: 'center',
                             }}
+                            accessibility-label="返回"
                             bindtap={(e) => {
                                 e.stopPropagation?.();
                                 nav.pop();
                             }}
                         >
-                            <text style={{ color: '#fff', fontSize: '28px' }}>
+                            <text
+                                style={{
+                                    color: theme.tokens.onOverlay,
+                                    fontSize: FONT.glyph,
+                                }}
+                            >
                                 ‹
                             </text>
                         </view>
                         <text
                             style={{
                                 flexGrow: 1,
-                                color: '#fff',
-                                fontSize: '16px',
+                                color: theme.tokens.onOverlay,
+                                fontSize: FONT.titleSm,
                                 marginLeft: '8px',
                                 textOverflow: 'ellipsis',
                                 ...FONT_SERIF,
@@ -490,7 +569,7 @@ export function ReaderScreen({
                             <text
                                 style={{
                                     color: theme.tokens.onAccent,
-                                    fontSize: '12px',
+                                    fontSize: FONT.small,
                                 }}
                             >
                                 {mode === 'page'
@@ -508,7 +587,12 @@ export function ReaderScreen({
                                 paddingBottom: '2px',
                             }}
                         >
-                            <text style={{ color: '#fff', fontSize: '12px' }}>
+                            <text
+                                style={{
+                                    color: theme.tokens.onOverlay,
+                                    fontSize: FONT.small,
+                                }}
+                            >
                                 {clock}
                             </text>
                         </view>
@@ -518,9 +602,9 @@ export function ReaderScreen({
                         <view
                             style={{
                                 position: 'absolute',
-                                top: '44px',
+                                top: `${hudHeight}px`,
                                 left: 0,
-                                right: 0,
+                                right: '88px',
                                 paddingLeft: '16px',
                                 paddingRight: '16px',
                             }}
@@ -555,14 +639,16 @@ export function ReaderScreen({
                     <view
                         style={{
                             position: 'absolute',
-                            top: '44px',
+                            top: `${hudHeight}px`,
                             right: '16px',
                             backgroundColor: theme.tokens.accent,
                             borderRadius: RADIUS.sm,
+                            minWidth: '44px',
+                            minHeight: '44px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             paddingLeft: '10px',
                             paddingRight: '10px',
-                            paddingTop: '6px',
-                            paddingBottom: '6px',
                         }}
                         bindtap={(e) => {
                             e.stopPropagation?.();
@@ -572,10 +658,10 @@ export function ReaderScreen({
                         <text
                             style={{
                                 color: theme.tokens.onAccent,
-                                fontSize: '12px',
+                                fontSize: FONT.small,
                             }}
                         >
-                            {downloading ? '下载中...' : '下载本章'}
+                            {downloading ? '下载中…' : '下载本章'}
                         </text>
                     </view>
                 </view>
@@ -592,6 +678,7 @@ export function ReaderScreen({
                             bottom: 0,
                             width: '33%',
                         }}
+                        accessibility-label="上一话"
                         bindtap={goPrevChapter}
                     />
                     <view
@@ -602,9 +689,42 @@ export function ReaderScreen({
                             bottom: 0,
                             width: '33%',
                         }}
+                        accessibility-label="下一话"
                         bindtap={goNextChapter}
                     />
                 </>
+            ) : null}
+            {/* 首次隐藏 HUD 的操作提示 */}
+            {showHint && !showHud ? (
+                <view
+                    style={{
+                        position: 'absolute',
+                        bottom: '96px',
+                        left: 0,
+                        right: 0,
+                        alignItems: 'center',
+                    }}
+                >
+                    <view
+                        style={{
+                            backgroundColor: theme.tokens.overlay,
+                            borderRadius: RADIUS.pill,
+                            paddingLeft: '14px',
+                            paddingRight: '14px',
+                            paddingTop: '8px',
+                            paddingBottom: '8px',
+                        }}
+                    >
+                        <text
+                            style={{
+                                color: theme.tokens.onOverlay,
+                                fontSize: FONT.bodySm,
+                            }}
+                        >
+                            轻点中间显示菜单 · 左右切话
+                        </text>
+                    </view>
+                </view>
             ) : null}
         </view>
     );

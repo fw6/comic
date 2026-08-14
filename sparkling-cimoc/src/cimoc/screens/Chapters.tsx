@@ -12,6 +12,7 @@ import {
 } from '../data/service.js';
 import type { NavApi } from '../nav/index.js';
 import { useAppStore } from '../store.js';
+import { FONT } from '../theme/index.js';
 
 export function ChaptersScreen({
     nav,
@@ -109,7 +110,7 @@ export function ChaptersScreen({
                                     style={{
                                         flexGrow: 1,
                                         marginLeft: '12px',
-                                        fontSize: '15px',
+                                        fontSize: FONT.bodyLg,
                                         color: t.text,
                                     }}
                                 >
@@ -118,7 +119,7 @@ export function ChaptersScreen({
                                 {isDownloaded ? (
                                     <text
                                         style={{
-                                            fontSize: '12px',
+                                            fontSize: FONT.small,
                                             color: t.success,
                                         }}
                                     >
@@ -142,10 +143,16 @@ export function ChaptersScreen({
                     disabled={selectedCount === 0 || downloading}
                     onClick={() => void startDownload()}
                 >
-                    {downloading ? '下载中...' : `开始下载（${selectedCount}）`}
+                    {downloading ? '下载中…' : `开始下载（${selectedCount}）`}
                 </Button>
             </view>
-            {msg ? <Snackbar theme={theme} message={msg} /> : null}
+            {msg ? (
+                <Snackbar
+                    theme={theme}
+                    message={msg}
+                    onHide={() => setMsg('')}
+                />
+            ) : null}
         </Screen>
     );
 }

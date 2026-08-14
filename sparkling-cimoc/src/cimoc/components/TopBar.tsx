@@ -1,5 +1,5 @@
 import type { ReactNode } from '@lynx-js/react';
-import { FONT_SERIF, type AppTheme } from '../theme/index.js';
+import { FONT, FONT_SERIF, type AppTheme } from '../theme/index.js';
 
 interface TopBarProps {
     theme: AppTheme;
@@ -15,14 +15,15 @@ interface TopBarProps {
  */
 export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
     const t = theme.tokens;
+    const safeTop = lynx.__globalProps.statusBarHeight;
     return (
         <view
             style={{
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
-                height: '88px',
-                paddingTop: '24px',
+                height: `${safeTop + 64}px`,
+                paddingTop: `${safeTop}px`,
                 backgroundColor: t.surface,
                 paddingLeft: '8px',
                 paddingRight: '12px',
@@ -31,12 +32,12 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
             }}
         >
             {onMenu ? (
-                <view style={iconBtn} bindtap={onMenu}>
-                    <text style={{ color: t.text, fontSize: '20px' }}>☰</text>
+                <view style={iconBtn} accessibility-label="菜单" bindtap={onMenu}>
+                    <text style={{ color: t.text, fontSize: FONT.headlineLg }}>☰</text>
                 </view>
             ) : onBack ? (
-                <view style={iconBtn} bindtap={onBack}>
-                    <text style={{ color: t.text, fontSize: '26px' }}>‹</text>
+                <view style={iconBtn} accessibility-label="返回" bindtap={onBack}>
+                    <text style={{ color: t.text, fontSize: FONT.iconXl }}>‹</text>
                 </view>
             ) : null}
             <view
@@ -62,7 +63,7 @@ export function TopBar({ theme, title, onBack, onMenu, actions }: TopBarProps) {
                     style={{
                         flexGrow: 1,
                         color: t.text,
-                        fontSize: '19px',
+                        fontSize: FONT.headline,
                         fontWeight: '600',
                         ...FONT_SERIF,
                         letterSpacing: '1px',
@@ -101,6 +102,7 @@ export function ToolbarAction({
     onTap,
     color,
     accent = false,
+    accessibilityLabel,
 }: {
     theme: AppTheme;
     label: string;
@@ -109,17 +111,20 @@ export function ToolbarAction({
     color?: string;
     /** 强调色文字（主要动作） */
     accent?: boolean;
+    /** 读屏名称，缺省用可见文字 */
+    accessibilityLabel?: string;
 }) {
     const t = theme.tokens;
     return (
         <view
             style={{ ...iconBtn, paddingLeft: '4px', paddingRight: '4px' }}
+            accessibility-label={accessibilityLabel ?? label}
             bindtap={onTap}
         >
             <text
                 style={{
                     color: accent ? t.accent : (color ?? t.textSub),
-                    fontSize: '15px',
+                    fontSize: FONT.bodyLg,
                 }}
             >
                 {label}

@@ -45,7 +45,7 @@ const config: AppConfig = {
   lynxConfig,
   dev: {
     server: {
-      port: 5969,
+      port: 5387,
     },
   },
   devtool: true,
