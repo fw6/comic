@@ -1,0 +1,79 @@
+desktop/.vscode/extensions.json
+  s_d10e9eec3f98c5::t_11811d27b02686 1-3
+desktop/tsconfig.json
+  s_d10e9eec3f98c5::t_11811d27b02686 1-25
+desktop/tsconfig.node.json
+  s_d10e9eec3f98c5::t_11811d27b02686 1-10
+desktop/index.html
+  s_d10e9eec3f98c5::t_11811d27b02686 1-14
+desktop/src/screens/Detail.tsx
+  s_d10e9eec3f98c5::t_df4e1030a923c2 1-55
+desktop/src/App.tsx
+  s_d10e9eec3f98c5::t_e49e892d2b2126 1-15
+  s_d10e9eec3f98c5::t_11811d27b02686 16
+desktop/src/vite-env.d.ts
+  s_d10e9eec3f98c5::t_11811d27b02686 1
+desktop/src-tauri/.gitignore
+  s_d10e9eec3f98c5::t_11811d27b02686 1-7
+desktop/src/screens/Sources.tsx
+  s_d10e9eec3f98c5::t_cb6014d703a92d 1-99
+desktop/src/api.ts
+  s_d10e9eec3f98c5::t_2ad1e58368a8eb 1-42
+desktop/vite.config.ts
+  s_d10e9eec3f98c5::t_11811d27b02686 1-32
+desktop/README.md
+  s_d10e9eec3f98c5::t_11811d27b02686 1-7
+desktop/public/tauri.svg
+  s_d10e9eec3f98c5::t_11811d27b02686 1-6
+desktop/.gitignore
+  s_d10e9eec3f98c5::t_11811d27b02686 1-24
+desktop/src/index.css
+  s_d10e9eec3f98c5::t_756cfb7e0aac59 1-3
+desktop/src/main.tsx
+  s_d10e9eec3f98c5::t_6fb8bae0d75c67 4,7-9
+  s_d10e9eec3f98c5::t_11811d27b02686 1-3,5-6,10
+desktop/src-tauri/tauri.conf.json
+  s_d10e9eec3f98c5::t_68e15c09a602d2 13,22
+  s_d10e9eec3f98c5::t_3bc338a6e46dbd 3,16-18
+  s_d10e9eec3f98c5::t_11811d27b02686 1-2,4-12,14-15,19-21,23-36
+desktop/src-tauri/src/main.rs
+  s_d10e9eec3f98c5::t_11811d27b02686 1-6
+desktop/src-tauri/src/lib.rs
+  s_d10e9eec3f98c5::t_b90f492ccba581 7,18,23,34,39,44
+  s_d10e9eec3f98c5::t_843b920e47550a 2-6,8-17,19-22,24-33,35-38,40-43,45-46,48-112,125-126,131-140
+  s_d10e9eec3f98c5::t_2ba88e33da410b 117-123
+  s_d10e9eec3f98c5::t_8081d3eabd8104 127-130
+  s_d10e9eec3f98c5::t_11811d27b02686 1,47,113-116,124,141-143
+desktop/src/screens/Reader.tsx
+  s_d10e9eec3f98c5::t_adda12abe6a7ee 1-52
+desktop/package.json
+  s_d10e9eec3f98c5::t_b20a2216128366 13-14,17,20,25
+  s_d10e9eec3f98c5::t_11811d27b02686 1-12,15-16,18-19,21-24,26-27
+desktop/public/vite.svg
+  s_d10e9eec3f98c5::t_11811d27b02686 1
+desktop/src-tauri/capabilities/default.json
+  s_d10e9eec3f98c5::t_11811d27b02686 1-7,10-11
+  s_d10e9eec3f98c5::t_e3ad1e60f0e38e 8-9
+desktop/src-tauri/build.rs
+  s_d10e9eec3f98c5::t_11811d27b02686 1-3
+desktop/src-tauri/Cargo.toml
+  s_d10e9eec3f98c5::t_11811d27b02686 1-22,24-25,29
+  s_d10e9eec3f98c5::t_ba7246c72e7c68 23
+  s_d10e9eec3f98c5::t_f5262066b8dff0 26-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "842b7193eb6870f85be8ee5ad53597cc76fb074e",
+  "prompts": {},
+  "sessions": {
+    "s_d10e9eec3f98c5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_4119ca26-9f82-4058-b4a8-afc5fce88af0",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
