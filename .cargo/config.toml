@@ -1,0 +1,10 @@
+# 本仓库专用：crates-io 走国内镜像（rsproxy.cn），覆盖全局 Artifactory 配置。
+# 官方 static.crates.io 在本网络被 403 拦截，Artifactory 不稳定。
+[source.crates-io]
+replace-with = "rsproxy-sparse"
+
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+
+[registries.crates-io]
+protocol = "sparse"
