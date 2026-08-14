@@ -11,6 +11,7 @@ import {
     scanLocalComics as bridgeScanLocalComics,
     webdavGetFile as bridgeWebdavGetFile,
     webdavPutFile as bridgeWebdavPutFile,
+    rustVersion as bridgeRustVersion,
     type DownloadChapterResponse,
     type GetTextResponse,
     type ListDownloadedChaptersResponse,
@@ -19,6 +20,7 @@ import {
     type ScanLocalComicsResponse,
     type WebdavGetFileResponse,
     type WebdavPutFileResponse,
+    type RustVersionResponse,
 } from 'sparkling-cimoc-bridge';
 import { getItem, setItem } from 'sparkling-storage';
 
@@ -143,4 +145,10 @@ export const webdavGet = (
 }> =>
     toPromise<WebdavGetFileResponse>((cb) =>
         bridgeWebdavGetFile({ base, user, password, fileName }, cb),
+    );
+
+// --- Rust 核心 ---
+export const rustVersion = (): Promise<string> =>
+    toPromise<RustVersionResponse>((cb) => bridgeRustVersion(cb)).then(
+        (r) => r.version,
     );

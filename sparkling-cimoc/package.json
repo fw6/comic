@@ -39,10 +39,13 @@
   "private": false,
   "scripts": {
     "dev": "sparkling-app-cli dev",
+    "prebuild": "npm --prefix ../sparkling-cimoc-bridge run build",
     "build": "sparkling-app-cli build --copy",
     "autolink": "sparkling-app-cli autolink",
     "test": "vitest run --passWithNoTests",
+    "prerun:android": "npm --prefix ../sparkling-cimoc-bridge run build",
     "run:android": "sparkling-app-cli run:android --copy",
+    "prerun:ios": "npm --prefix ../sparkling-cimoc-bridge run build",
     "run:ios": "sparkling-app-cli run:ios --copy"
   }
 }

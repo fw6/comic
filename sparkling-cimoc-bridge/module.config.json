@@ -11,7 +11,8 @@
     "scanLocalComics": {},
     "pickFolder": {},
     "webdavPutFile": {},
-    "webdavGetFile": {}
+    "webdavGetFile": {},
+    "rustVersion": {}
   },
   "android": {
     "packageName": "com.tiktok.sparkling.methods.cimoc",

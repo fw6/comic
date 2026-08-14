@@ -17,6 +17,7 @@ import type { ScanLocalComicsRequest, ScanLocalComicsResponse } from './src/scan
 import type { PickFolderRequest, PickFolderResponse } from './src/pick-folder/pick-folder.d';
 import type { WebdavPutFileRequest, WebdavPutFileResponse } from './src/webdav-put-file/webdav-put-file.d';
 import type { WebdavGetFileRequest, WebdavGetFileResponse } from './src/webdav-get-file/webdav-get-file.d';
+import type { RustVersionRequest, RustVersionResponse } from './src/rust-version/rust-version.d';
 
 export type {
   GetTextRequest,
@@ -33,6 +34,8 @@ export type {
   WebdavPutFileResponse,
   WebdavGetFileRequest,
   WebdavGetFileResponse,
+  RustVersionRequest,
+  RustVersionResponse,
 };
 
 export type PipeResult<T> = {
@@ -103,4 +106,9 @@ export function webdavPutFile(params: WebdavPutFileRequest, callback: Callback<W
 export function webdavGetFile(params: WebdavGetFileRequest, callback: Callback<WebdavGetFileResponse>): void {
   const p = requireParams('webdavGetFile', params, callback);
   if (p) callMethod('cimoc.webdavGetFile', p, callback);
+}
+
+// --- Rust 核心 ---
+export function rustVersion(callback: Callback<RustVersionResponse>): void {
+  callMethod('cimoc.rustVersion', {}, callback);
 }

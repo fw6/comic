@@ -1,8 +1,9 @@
 {
   "name": "getText",
+  "description": "getText method",
   "moduleName": "cimoc",
   "packageName": "com.tiktok.sparkling.methods.cimoc",
-  "source": "src/cimoc/cimoc.d.ts",
+  "source": "src/get-text/get-text.d.ts",
   "request": {
     "kind": "reference",
     "name": "GetTextRequest"
@@ -26,7 +27,7 @@
         {
           "name": "headers",
           "optional": true,
-          "description": "JSON 字符串编码的请求头 Map<string,string>（如 {\"User-Agent\":\"...\"}）",
+          "description": "JSON 字符串编码的请求头 Map&lt;string,string&gt;（如 {&quot;User-Agent&quot;:&quot;...&quot;}）",
           "type": {
             "kind": "primitive",
             "name": "string"
@@ -56,5 +57,5 @@
       ]
     }
   },
-  "generatedAt": "2026-08-12T09:10:10.873Z"
+  "generatedAt": "2026-08-14T02:36:47.182Z"
 }

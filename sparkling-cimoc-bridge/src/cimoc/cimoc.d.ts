@@ -82,3 +82,9 @@ export interface WebDavGetResponse {
   error?: string;
 }
 declare function webdavGetFile(params: WebDavGetRequest, callback: (result: WebDavGetResponse) => void): void;
+
+// ===== Rust 核心 =====
+export interface RustVersionResponse {
+  version: string;
+}
+declare function rustVersion(params: EmptyParams, callback: (result: RustVersionResponse) => void): void;

@@ -9,7 +9,7 @@
   "types": "index.ts",
   "scripts": {
     "codegen": "sparkling-method-cli codegen",
-    "build": "tsc -p tsconfig.json"
+    "build": "bash rust/build.sh && tsc -p tsconfig.json"
   },
   "dependencies": {
     "sparkling-method": "~2.1.0-rc.36"

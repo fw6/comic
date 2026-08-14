@@ -8,7 +8,7 @@ export interface ListDownloadedChaptersRequest {
 
 export interface ListDownloadedChaptersResponse {
   /**
-   * JSON 字符串编码的 Map&lt;chapterIndex, string[]&gt;
+   * JSON 字符串编码的 Map&amp;lt;chapterIndex, string[]&amp;gt;
    */
   chaptersJson: string;
 }

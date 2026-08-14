@@ -17,6 +17,10 @@ Pod::Spec.new do |s|
   s.source         = { git: 'https://github.com/tiktok/sparkling.git', tag: s.version.to_s, path: 'packages/methods/sparkling-cimoc-bridge/ios' }
   s.static_framework = true
 
+  # Rust 核心（cimoc-core）：uniffi 生成的 Swift 绑定 + 静态库 XCFramework。
+  # FFI 头文件作为 public header 编入本模块（inline），生成的 Swift 直接使用 RustBuffer 等 C 类型。
+  s.vendored_frameworks = 'CimocCore.xcframework'
+
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'SWIFT_COMPILATION_MODE' => 'wholemodule'
@@ -25,6 +29,8 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |core|
     core.source_files = [
       'Sources/Core/Methods/**/*.{h,m,swift}',
+      'Generated/cimoc_core.swift',
+      'Generated/cimoc_coreFFI.h',
     ]
   end
 
