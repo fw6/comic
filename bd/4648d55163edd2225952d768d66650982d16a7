@@ -1,0 +1,109 @@
+sparkling-cimoc-bridge/rust/src/crawler/mod.rs
+  s_0a95bb3a5f100f::t_a144782e73a23a 1-23
+sparkling-cimoc/src/cimoc/data/sources.ts
+  s_0a95bb3a5f100f::t_5e51bbf6a2aa86 19-25,46-50,115-116
+  s_0a95bb3a5f100f::t_f9ec9ec84f5db9 2-4,7,28-41,45,51-55,63,70-71,80,83-85,91-93,99-103,107-108,114,118-120,122
+sparkling-cimoc-bridge/src/crawl/crawl.d.ts
+  s_0a95bb3a5f100f::t_2117c585bc0630 5,20,28
+  s_0a95bb3a5f100f::t_5e51bbf6a2aa86 6-17,21-24,32-35
+sparkling-cimoc-bridge/rust/smoke-android.sh
+  s_0a95bb3a5f100f::t_a4bb51295f0f93 35,39
+  s_0a95bb3a5f100f::t_df2a0131275bc3 66-80
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/cimoc/crawl/AbsCrawlMethodIDL.kt
+  s_0a95bb3a5f100f::t_b677004ced1460 1,19-21,24-26,28-32,36-39
+sparkling-cimoc-bridge/generated/metadata/downloadChapter.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 3,6,67
+sparkling-cimoc/src/cimoc/__tests__/reading.test.tsx
+  s_0a95bb3a5f100f::t_6f179842ac6bb1 37-106,108-168,170
+  s_0a95bb3a5f100f::t_ea79ed59d5b609 23,25-26
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/rust/RustCore.kt
+  s_0a95bb3a5f100f::t_e9336750bd80e9 15-16,20-22
+sparkling-cimoc-bridge/generated/metadata/rustVersion.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 3,6-7,27
+sparkling-cimoc-bridge/rust/src/lib.rs
+  s_0a95bb3a5f100f::t_fab29b4875930f 57-61,63-67,70-71,74-75,78-85
+  s_0a95bb3a5f100f::t_eeec28b9704c84 31
+  s_0a95bb3a5f100f::t_55d7ad1a27fed0 62
+  s_0a95bb3a5f100f::t_980356cb15bb41 68-69,72-73,76-77
+  s_0a95bb3a5f100f::t_93ba01a4ffdaa5 3-5,19-22
+sparkling-cimoc-bridge/ios/Source/Core/Cimoc/Crawl/CrawlIDL.swift
+  s_0a95bb3a5f100f::t_b677004ced1460 10-14,22-24,30-32,36,42-43,45,49,53,57
+sparkling-cimoc-bridge/src/crawl/crawl.ts
+  s_0a95bb3a5f100f::t_b677004ced1460 2,5,8-10,12,15,25-26,29-51,61,66-69,72
+sparkling-cimoc-bridge/rust/src/crawler/http.rs
+  s_0a95bb3a5f100f::t_ba76c16f0ea32f 1-13,15-44
+  s_0a95bb3a5f100f::t_1d2ecf486a8e03 14
+sparkling-cimoc-bridge/generated/metadata/crawl.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 40,54,63
+  s_0a95bb3a5f100f::t_b677004ced1460 2-3,6,9,13,16-17,20,22,29-31,36,38,43,45-50,52
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/Crawl/CrawlMethod.swift
+  s_0a95bb3a5f100f::t_010e24221aeb53 1,5-32,34,38,42,46,50-52,55-61
+  s_0a95bb3a5f100f::t_2279aea6e7fec2 54
+sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingAutolink.kt
+  s_0a95bb3a5f100f::t_d0e4075742e9c2 27
+sparkling-cimoc-bridge/ios/Sources/Core/Methods/RustVersion/RustCore.swift
+  s_0a95bb3a5f100f::t_e7341359ad23dd 11-12
+  s_0a95bb3a5f100f::t_d62075e7f4ddee 2,10,13-14
+sparkling-cimoc-bridge/generated/metadata/webdavGetFile.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 3,6,9,13,16-17,53-54,91
+sparkling-cimoc-bridge/rust/tests/crawler_test.rs
+  s_0a95bb3a5f100f::t_de28e20da13bd7 1-131
+sparkling-cimoc-bridge/android/src/main/java/com/tiktok/sparkling/methods/cimoc/crawl/CimocCrawlMethod.kt
+  s_0a95bb3a5f100f::t_19f60f8ed95770 1-3,9-10,12,14-15,20-25
+sparkling-cimoc-bridge/rust/src/crawler/mangadex.rs
+  s_0a95bb3a5f100f::t_80205de7d0dcc6 8
+  s_0a95bb3a5f100f::t_905f27e69884bb 249-265
+  s_0a95bb3a5f100f::t_568aaee2e21fa8 1-7,9-18,21-57,60-63,65-74,77-92,95-99,102-135,137-157,160-166,168-170,172-186,188-189,194-209,211-216,218-248,266-303,305-327,329-343,345-350,352-354,356-365,367-379,381-383
+  s_0a95bb3a5f100f::t_08d4a68aae5304 19-20
+  s_0a95bb3a5f100f::t_c575a96272bd1b 171,210,217,304,328
+  s_0a95bb3a5f100f::t_3e2dbb445fbe80 366
+  s_0a95bb3a5f100f::t_ede07116a70845 344
+sparkling-cimoc-bridge/generated/metadata/webdavPutFile.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 3,6,9,13,16-17,61-62,83
+sparkling-cimoc-bridge/generated/metadata/scanLocalComics.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 3,6-7,19,28
+sparkling-cimoc-bridge/generated/metadata/pickFolder.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 27
+sparkling-cimoc-bridge/rust/src/crawler/models.rs
+  s_0a95bb3a5f100f::t_44e126f1789328 1-41
+sparkling-cimoc-bridge/rust/smoke-ios.sh
+  s_0a95bb3a5f100f::t_c02852d7169338 37
+  s_0a95bb3a5f100f::t_6222a6ef5af82e 63-66,68-69,73-74,76-77
+  s_0a95bb3a5f100f::t_109d5a0362b55b 1-4,6-11,13-18,20-23,25-36,38-41,43-45,47-50,53-54,67,71-72,75,79-80
+  s_0a95bb3a5f100f::t_174a55740d7a70 52,56-61,70,78,81
+sparkling-cimoc-bridge/index.ts
+  s_0a95bb3a5f100f::t_a7c8125173afed 37-38
+  s_0a95bb3a5f100f::t_9740f697d0d53d 109-111
+  s_0a95bb3a5f100f::t_b677004ced1460 108
+sparkling-cimoc-bridge/module.config.json
+  s_0a95bb3a5f100f::t_c35f11b42c0cad 14-15
+sparkling-cimoc-bridge/generated/metadata/listDownloadedChapters.json
+  s_0a95bb3a5f100f::t_8ef40a4a9d2403 3,6,9,13,16-17,29-30,35,44
+sparkling-cimoc-bridge/rust/Cargo.toml
+  s_0a95bb3a5f100f::t_17a15eda49942d 12-16
+sparkling-cimoc-bridge/rust/src/crawler/webtoons.rs
+  s_0a95bb3a5f100f::t_e4bb35ab0edeef 1-9,11-35,38,41-73,76-94,98-101,105-110,114-118,121-122,125-127,129-134,136-138,140-207,209-211,213,216-220,223-227,231-291,296-301,304-345,350-361,364-370,372-376,378-383,386-399,401-417
+  s_0a95bb3a5f100f::t_1ed62a0eccab3f 400
+  s_0a95bb3a5f100f::t_c575a96272bd1b 104,139,230,377
+  s_0a95bb3a5f100f::t_506c2c62979e93 39-40
+  s_0a95bb3a5f100f::t_45176d7f631473 10
+sparkling-cimoc/src/cimoc/native/bridge.ts
+  s_0a95bb3a5f100f::t_2c40cc86313547 14,23
+  s_0a95bb3a5f100f::t_503c0a0b68c5f9 143-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "bd4648d55163edd2225952d768d66650982d16a7",
+  "prompts": {},
+  "sessions": {
+    "s_0a95bb3a5f100f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_58c95383-63ad-4121-9e9c-74ff817b6428",
+        "model": "claude-DeepSeek-V4-Pro-discount[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
