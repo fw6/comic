@@ -1,47 +1,71 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::borrow::Cow;
+use std::sync::OnceLock;
+use tauri::Manager;
+
+/// 图片代理缓存目录（setup 时解析 app cache dir 填充，scheme 回调里拿不到 AppHandle）。
+static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
 
 /// 爬虫引擎统一入口（转发 Rust core，返回 JSON 字符串）。
+/// 阻塞式 reqwest 放入 spawn_blocking：同步命令在主线程执行，直接调用会卡死 UI。
 #[tauri::command]
-fn crawl(op: String, source: String, payload: String) -> String {
-    cimoc_core::crawl(op, source, payload)
+async fn crawl(op: String, source: String, payload: String) -> String {
+    tauri::async_runtime::spawn_blocking(move || cimoc_core::crawl(&op, &source, &payload))
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn webdav_put(
+async fn webdav_put(
     base: String,
     user: String,
     password: String,
     file_name: String,
     content: String,
 ) -> String {
-    cimoc_core::webdav_put(base, user, password, file_name, content)
+    tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::webdav_put(&base, &user, &password, &file_name, &content)
+    })
+    .await
+    .unwrap_or_default()
 }
 
 #[tauri::command]
-fn webdav_get(base: String, user: String, password: String, file_name: String) -> String {
-    cimoc_core::webdav_get(base, user, password, file_name)
+async fn webdav_get(base: String, user: String, password: String, file_name: String) -> String {
+    tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::webdav_get(&base, &user, &password, &file_name)
+    })
+    .await
+    .unwrap_or_default()
 }
 
 #[tauri::command]
-fn download_image(
+async fn download_image(
     url: String,
     dir: String,
     comic_id: String,
     chapter_index: i64,
     page_index: i64,
 ) -> String {
-    cimoc_core::download_image(url, dir, comic_id, chapter_index, page_index)
+    tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::download_image(&url, &dir, &comic_id, chapter_index, page_index)
+    })
+    .await
+    .unwrap_or_default()
 }
 
 #[tauri::command]
-fn list_downloaded(dir: String, comic_id: String) -> String {
-    cimoc_core::list_downloaded(dir, comic_id)
+async fn list_downloaded(dir: String, comic_id: String) -> String {
+    tauri::async_runtime::spawn_blocking(move || cimoc_core::list_downloaded(&dir, &comic_id))
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn scan_local(dir: String) -> String {
-    cimoc_core::scan_local(dir)
+async fn scan_local(dir: String) -> String {
+    tauri::async_runtime::spawn_blocking(move || cimoc_core::scan_local(&dir))
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
@@ -49,41 +73,21 @@ fn cimoc_version() -> String {
     cimoc_core::cimoc_version()
 }
 
-/// 热链保护图片代理（research #4 结论的骨架实现）：
-/// 前端把 pstatic.net 等域的图片 src 重写为 `cimoc-img://localhost/img?url=..&ref=..`，
-/// 这里用 reqwest 带 Referer 拉取字节流回传，绕过 webview 无法注入 Referer 的限制。
-/// 骨架阶段不做磁盘缓存/LRU（那属于 task「Rust core 迁移」）。
+/// 热链保护图片代理（research #4 结论）：前端把 pstatic.net 等域的图片 src 重写为
+/// `cimoc-img://localhost/img?url=..&ref=..`，这里转发给 cimoc-core 的缓存取图
+/// （LRU + 磁盘缓存 + 复用共享 reqwest 客户端，Referer 由 cimoc_core 侧补）。
 fn fetch_proxied_image(uri: &str) -> tauri::http::Response<Cow<'static, [u8]>> {
     let (url, referer) = parse_img_query(uri);
     if url.is_empty() {
         return error_response(400);
     }
-    let client = match reqwest::blocking::Client::builder()
-        .user_agent("Mozilla/5.0 (Cimoc/0.1)")
-        .build()
-    {
-        Ok(c) => c,
-        Err(_) => return error_response(500),
-    };
-    match client.get(&url).header(reqwest::header::REFERER, referer).send() {
-        Ok(resp) => {
-            let status = resp.status().as_u16();
-            let content_type = resp
-                .headers()
-                .get(reqwest::header::CONTENT_TYPE)
-                .and_then(|v| v.to_str().ok())
-                .unwrap_or("application/octet-stream")
-                .to_string();
-            let bytes = match resp.bytes() {
-                Ok(b) => b.to_vec(),
-                Err(_) => return error_response(502),
-            };
-            tauri::http::Response::builder()
-                .status(status)
-                .header("Content-Type", content_type)
-                .body(Cow::Owned(bytes))
-                .unwrap_or_else(|_| error_response(500))
-        }
+    let cache_dir = IMG_CACHE_DIR.get().map(String::as_str).unwrap_or_default();
+    match cimoc_core::cache::fetch_image(&url, &referer, cache_dir) {
+        Ok((bytes, content_type)) => tauri::http::Response::builder()
+            .status(200)
+            .header("Content-Type", content_type)
+            .body(Cow::Owned(bytes))
+            .unwrap_or_else(|_| error_response(500)),
         Err(_) => error_response(502),
     }
 }
@@ -122,9 +126,15 @@ pub fn run() {
     }
     builder
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            if let Ok(dir) = app.path().app_cache_dir() {
+                let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
+            }
+            Ok(())
+        })
         .register_asynchronous_uri_scheme_protocol("cimoc-img", |_ctx, request, responder| {
             let uri = request.uri().to_string();
-            // WKURLSchemeHandler 回调在主线程：阻塞式 reqwest 必须挪到后台线程，否则卡死 webview。
+            // WKURLSchemeHandler 回调在主线程：阻塞取图挪到后台线程，否则卡死 webview。
             tauri::async_runtime::spawn_blocking(move || {
                 responder.respond(fetch_proxied_image(&uri));
             });

@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+node_modules
+dist
+dist-ssr
+*.local
+
+# workspace 构建产物（成员目录的 /target 规则不覆盖 workspace 根）
+target

@@ -1,0 +1,3 @@
+[workspace]
+members = ["src-tauri", "crates/cimoc-core"]
+resolver = "2"
