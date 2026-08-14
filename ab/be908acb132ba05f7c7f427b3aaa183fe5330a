@@ -1,0 +1,21 @@
+sparkling-cimoc/src/cimoc/screens/Reader.tsx
+  s_0a95bb3a5f100f::t_f5c3131e9699b7 502
+  s_0a95bb3a5f100f::t_eefeaf75147ae9 2
+  s_0a95bb3a5f100f::t_92f1952215b2f3 379-380
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "abbe908acb132ba05f7c7f427b3aaa183fe5330a",
+  "prompts": {},
+  "sessions": {
+    "s_0a95bb3a5f100f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_58c95383-63ad-4121-9e9c-74ff817b6428",
+        "model": "claude-DeepSeek-V4-Pro-discount[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
