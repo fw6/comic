@@ -5,14 +5,14 @@
   "platforms": ["android", "ios"],
   "description": "Cimoc native bridge methods: HTTP fetch, comic download, local scan, WebDAV backup",
   "methods": {
-    "getText": {},
     "downloadChapter": {},
     "listDownloadedChapters": {},
     "scanLocalComics": {},
     "pickFolder": {},
     "webdavPutFile": {},
     "webdavGetFile": {},
-    "rustVersion": {}
+    "rustVersion": {},
+    "crawl": {}
   },
   "android": {
     "packageName": "com.tiktok.sparkling.methods.cimoc",

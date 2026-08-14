@@ -1,8 +1,9 @@
 {
   "name": "downloadChapter",
+  "description": "downloadChapter method",
   "moduleName": "cimoc",
   "packageName": "com.tiktok.sparkling.methods.cimoc",
-  "source": "src/cimoc/cimoc.d.ts",
+  "source": "src/download-chapter/download-chapter.d.ts",
   "request": {
     "kind": "reference",
     "name": "DownloadChapterRequest"
@@ -63,5 +64,5 @@
       ]
     }
   },
-  "generatedAt": "2026-08-14T02:36:47.201Z"
+  "generatedAt": "2026-08-14T07:53:34.283Z"
 }

@@ -1,19 +1,20 @@
 {
   "name": "webdavPutFile",
+  "description": "webdavPutFile method",
   "moduleName": "cimoc",
   "packageName": "com.tiktok.sparkling.methods.cimoc",
-  "source": "src/cimoc/cimoc.d.ts",
+  "source": "src/webdav-put-file/webdav-put-file.d.ts",
   "request": {
     "kind": "reference",
-    "name": "WebDavPutRequest"
+    "name": "WebdavPutFileRequest"
   },
   "response": {
     "kind": "reference",
-    "name": "WebDavPutResponse"
+    "name": "WebdavPutFileResponse"
   },
   "interfaces": {
-    "WebDavPutRequest": {
-      "name": "WebDavPutRequest",
+    "WebdavPutFileRequest": {
+      "name": "WebdavPutFileRequest",
       "fields": [
         {
           "name": "base",
@@ -57,8 +58,8 @@
         }
       ]
     },
-    "WebDavPutResponse": {
-      "name": "WebDavPutResponse",
+    "WebdavPutFileResponse": {
+      "name": "WebdavPutFileResponse",
       "fields": [
         {
           "name": "success",
@@ -79,5 +80,5 @@
       ]
     }
   },
-  "generatedAt": "2026-08-14T02:36:47.210Z"
+  "generatedAt": "2026-08-14T07:53:34.291Z"
 }

@@ -10,7 +10,6 @@
 import pipe from 'sparkling-method';
 import type { PipeResponse } from 'sparkling-method';
 
-import type { GetTextRequest, GetTextResponse } from './src/get-text/get-text.d';
 import type { DownloadChapterRequest, DownloadChapterResponse } from './src/download-chapter/download-chapter.d';
 import type { ListDownloadedChaptersRequest, ListDownloadedChaptersResponse } from './src/list-downloaded-chapters/list-downloaded-chapters.d';
 import type { ScanLocalComicsRequest, ScanLocalComicsResponse } from './src/scan-local-comics/scan-local-comics.d';
@@ -18,10 +17,9 @@ import type { PickFolderRequest, PickFolderResponse } from './src/pick-folder/pi
 import type { WebdavPutFileRequest, WebdavPutFileResponse } from './src/webdav-put-file/webdav-put-file.d';
 import type { WebdavGetFileRequest, WebdavGetFileResponse } from './src/webdav-get-file/webdav-get-file.d';
 import type { RustVersionRequest, RustVersionResponse } from './src/rust-version/rust-version.d';
+import type { CrawlRequest, CrawlResponse } from './src/crawl/crawl.d';
 
 export type {
-  GetTextRequest,
-  GetTextResponse,
   DownloadChapterRequest,
   DownloadChapterResponse,
   ListDownloadedChaptersRequest,
@@ -36,6 +34,8 @@ export type {
   WebdavGetFileResponse,
   RustVersionRequest,
   RustVersionResponse,
+  CrawlRequest,
+  CrawlResponse,
 };
 
 export type PipeResult<T> = {
@@ -69,12 +69,6 @@ function requireParams<T extends object, U>(
     return null;
   }
   return params;
-}
-
-// --- Network ---
-export function getText(params: GetTextRequest, callback: Callback<GetTextResponse>): void {
-  const p = requireParams('getText', params, callback);
-  if (p) callMethod('cimoc.getText', p, callback);
 }
 
 // --- Download ---
@@ -111,4 +105,8 @@ export function webdavGetFile(params: WebdavGetFileRequest, callback: Callback<W
 // --- Rust 核心 ---
 export function rustVersion(callback: Callback<RustVersionResponse>): void {
   callMethod('cimoc.rustVersion', {}, callback);
+}
+export function crawl(params: CrawlRequest, callback: Callback<CrawlResponse>): void {
+  const p = requireParams('crawl', params, callback);
+  if (p) callMethod('cimoc.crawl', p, callback);
 }

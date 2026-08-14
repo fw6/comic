@@ -1,19 +1,20 @@
 {
   "name": "listDownloadedChapters",
+  "description": "listDownloadedChapters method",
   "moduleName": "cimoc",
   "packageName": "com.tiktok.sparkling.methods.cimoc",
-  "source": "src/cimoc/cimoc.d.ts",
+  "source": "src/list-downloaded-chapters/list-downloaded-chapters.d.ts",
   "request": {
     "kind": "reference",
-    "name": "ListDownloadedRequest"
+    "name": "ListDownloadedChaptersRequest"
   },
   "response": {
     "kind": "reference",
-    "name": "ListDownloadedResponse"
+    "name": "ListDownloadedChaptersResponse"
   },
   "interfaces": {
-    "ListDownloadedRequest": {
-      "name": "ListDownloadedRequest",
+    "ListDownloadedChaptersRequest": {
+      "name": "ListDownloadedChaptersRequest",
       "fields": [
         {
           "name": "comicId",
@@ -25,13 +26,13 @@
         }
       ]
     },
-    "ListDownloadedResponse": {
-      "name": "ListDownloadedResponse",
+    "ListDownloadedChaptersResponse": {
+      "name": "ListDownloadedChaptersResponse",
       "fields": [
         {
           "name": "chaptersJson",
           "optional": false,
-          "description": "JSON 字符串编码的 Map<chapterIndex, string[]>",
+          "description": "JSON 字符串编码的 Map&amp;amp;lt;chapterIndex, string[]&amp;amp;gt;",
           "type": {
             "kind": "primitive",
             "name": "string"
@@ -40,5 +41,5 @@
       ]
     }
   },
-  "generatedAt": "2026-08-14T02:36:47.204Z"
+  "generatedAt": "2026-08-14T07:53:34.273Z"
 }

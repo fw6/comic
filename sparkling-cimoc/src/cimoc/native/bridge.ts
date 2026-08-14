@@ -5,15 +5,14 @@
  */
 import {
     downloadChapter as bridgeDownloadChapter,
-    getText as bridgeGetText,
     listDownloadedChapters as bridgeListDownloadedChapters,
     pickFolder as bridgePickFolder,
     scanLocalComics as bridgeScanLocalComics,
     webdavGetFile as bridgeWebdavGetFile,
     webdavPutFile as bridgeWebdavPutFile,
     rustVersion as bridgeRustVersion,
+    crawl as bridgeCrawl,
     type DownloadChapterResponse,
-    type GetTextResponse,
     type ListDownloadedChaptersResponse,
     type PickFolderResponse,
     type PipeResult,
@@ -21,6 +20,7 @@ import {
     type WebdavGetFileResponse,
     type WebdavPutFileResponse,
     type RustVersionResponse,
+    type CrawlResponse,
 } from 'sparkling-cimoc-bridge';
 import { getItem, setItem } from 'sparkling-storage';
 
@@ -46,18 +46,6 @@ function toPromise<T>(
         }
     });
 }
-
-// --- Network ---
-export const netGetText = (
-    url: string,
-    headers?: Record<string, string>,
-): Promise<{ status: number; body: string }> =>
-    toPromise<GetTextResponse>((cb) =>
-        bridgeGetText(
-            { url, headers: headers ? JSON.stringify(headers) : undefined },
-            cb,
-        ),
-    );
 
 // --- Storage（官方 sparkling-storage，值为 JSON 字符串） ---
 export const storeSet = (key: string, value: string): Promise<boolean> =>
@@ -152,3 +140,13 @@ export const rustVersion = (): Promise<string> =>
     toPromise<RustVersionResponse>((cb) => bridgeRustVersion(cb)).then(
         (r) => r.version,
     );
+
+// --- 爬虫引擎（Rust） ---
+export const crawl = (
+    op: string,
+    sourceId: string,
+    payload: string,
+): Promise<string> =>
+    toPromise<CrawlResponse>((cb) =>
+        bridgeCrawl({ op, sourceId, payload }, cb),
+    ).then((r) => r.json);

@@ -12,7 +12,12 @@ object RustCore {
 
     private external fun nativeAdd(a: Int, b: Int): Int
 
+    private external fun nativeCrawl(op: String, sourceId: String, payload: String): String
+
     fun version(): String = nativeVersion()
 
     fun add(a: Int, b: Int): Int = nativeAdd(a, b)
+
+    fun crawl(op: String, sourceId: String, payload: String): String =
+        nativeCrawl(op, sourceId, payload)
 }

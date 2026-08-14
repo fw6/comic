@@ -7,10 +7,11 @@ import SparklingMethod
 
 // Auto-generated temporary model types
 // Parameter model
-@objc(SPKGetTextMethodParamModel)
-public class SPKGetTextMethodParamModel: SPKMethodModel {
-    @objc public var url: String
-    @objc public var headers: String?
+@objc(SPKCrawlMethodParamModel)
+public class SPKCrawlMethodParamModel: SPKMethodModel {
+    @objc public var op: String
+    @objc public var sourceId: String
+    @objc public var payload: String
 
     @objc public override class func requiredKeyPaths() -> Set<String>? {
         return nil
@@ -18,42 +19,41 @@ public class SPKGetTextMethodParamModel: SPKMethodModel {
 
     @objc public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable: Any] {
         return [
-            "url": "url",
-            "headers": "headers"
+            "op": "op",
+            "sourceId": "sourceId",
+            "payload": "payload"
         ]
     }
 }
 
 // Result model
-@objc(SPKGetTextMethodResultModel)
-public class SPKGetTextMethodResultModel: SPKMethodModel {
-    @objc public var status: Double
-    @objc public var body: String
+@objc(SPKCrawlMethodResultModel)
+public class SPKCrawlMethodResultModel: SPKMethodModel {
+    @objc public var json: String
 
     @objc public override class func jsonKeyPathsByPropertyKey() -> [AnyHashable: Any] {
         return [
-            "status": "status",
-            "body": "body"
+            "json": "json"
         ]
     }
 }
 
 // Main method class
-@objc(SPKGetTextMethod)
-public class SPKGetTextMethod: PipeMethod {
+@objc(SPKCrawlMethod)
+public class SPKCrawlMethod: PipeMethod {
     @objc public override var paramsModelClass: AnyClass {
-        return SPKGetTextMethodParamModel.self
+        return SPKCrawlMethodParamModel.self
     }
 
     @objc public override var resultModelClass: AnyClass {
-        return SPKGetTextMethodResultModel.self
+        return SPKCrawlMethodResultModel.self
     }
 
     public override var methodName: String {
-        return "cimoc.getText"
+        return "cimoc.crawl"
     }
 
     public override class func methodName() -> String {
-        return "cimoc.getText"
+        return "cimoc.crawl"
     }
 }

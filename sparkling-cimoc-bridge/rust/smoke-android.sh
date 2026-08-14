@@ -32,11 +32,11 @@ if "TEMP smoke test" in s:
     raise SystemExit(0)
 s = s.replace(
     "import { SourcesScreen } from './Sources.js';",
-    "import { SourcesScreen } from './Sources.js';\nimport { rustVersion } from '../native/bridge.js';",
+    "import { SourcesScreen } from './Sources.js';\nimport { crawl, rustVersion } from '../native/bridge.js';",
 )
 s = s.replace(
     "    const [content, setContent] = useState<'library' | 'sources'>('library');",
-    "    const [content, setContent] = useState<'library' | 'sources'>('library');\n\n    // TEMP smoke test\n    useEffect(() => {\n        rustVersion().then((v) => console.log('[rustVersion]', v)).catch((e) => console.error('[rustVersion] error', e));\n    }, []);",
+    "    const [content, setContent] = useState<'library' | 'sources'>('library');\n\n    // TEMP smoke test\n    useEffect(() => {\n        rustVersion().then((v) => console.log('[rustVersion]', v)).catch((e) => console.error('[rustVersion] error', e));\n        crawl('categories', 'webtoons', '{}').then((j) => console.log('[crawl-webtoons]', j)).catch((e) => console.error('[crawl-webtoons] error', e));\n        crawl('search', 'mangadex', JSON.stringify({ keyword: 'eleceed' })).then((j) => console.log('[crawl-mangadex]', j)).catch((e) => console.error('[crawl-mangadex] error', e));\n    }, []);",
     1,
 )
 open(p, "w").write(s)
@@ -62,4 +62,19 @@ else
   echo "FAIL: 未在 logcat 中看到 cimoc-core-rust"
   adb logcat -d | grep -iE "rustVersion|linker|UnsatisfiedLink|jnidispatch" | tail -20 || true
   exit 1
+fi
+
+if adb logcat -d | grep "crawl-webtoons" | grep -q "动作"; then
+  echo "PASS: crawl(categories, webtoons) -> 返回分类列表"
+else
+  echo "FAIL: 未在 logcat 中看到 crawl-webtoons 分类列表"
+  adb logcat -d | grep -iE "crawl-webtoons|UnsatisfiedLink|Exception" | tail -20 || true
+  exit 1
+fi
+
+# mangadex 真实网络抓取为加分项（模拟器可能无网络），非致命
+if adb logcat -d | grep "crawl-mangadex" | grep -qE 'mangadex-|\[\]'; then
+  echo "INFO: crawl(search, mangadex) 已返回"
+else
+  echo "INFO: 未观测到 crawl-mangadex 结果（可能无网络，跳过）"
 fi

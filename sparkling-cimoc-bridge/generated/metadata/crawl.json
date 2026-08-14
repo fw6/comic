@@ -1,0 +1,64 @@
+{
+  "name": "crawl",
+  "description": "crawl method",
+  "moduleName": "cimoc",
+  "packageName": "com.tiktok.sparkling.methods.cimoc",
+  "source": "src/crawl/crawl.d.ts",
+  "request": {
+    "kind": "reference",
+    "name": "CrawlRequest"
+  },
+  "response": {
+    "kind": "reference",
+    "name": "CrawlResponse"
+  },
+  "interfaces": {
+    "CrawlRequest": {
+      "name": "CrawlRequest",
+      "fields": [
+        {
+          "name": "op",
+          "optional": false,
+          "description": "操作：categories | search | category | detail | images | cache_dump | cache_hydrate",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "sourceId",
+          "optional": false,
+          "description": "图源 id：mangadex | webtoons",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "payload",
+          "optional": false,
+          "description": "JSON 字符串编码的参数对象（各 op 字段不同，见 crawler&#x2F;mod.rs 协议）",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "CrawlResponse": {
+      "name": "CrawlResponse",
+      "fields": [
+        {
+          "name": "json",
+          "optional": false,
+          "description": "JSON 字符串编码的结果（列表 &#x2F; 对象 &#x2F; 数组），失败返回空 JSON",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-08-14T07:53:34.285Z"
+}

@@ -1,19 +1,20 @@
 {
   "name": "webdavGetFile",
+  "description": "webdavGetFile method",
   "moduleName": "cimoc",
   "packageName": "com.tiktok.sparkling.methods.cimoc",
-  "source": "src/cimoc/cimoc.d.ts",
+  "source": "src/webdav-get-file/webdav-get-file.d.ts",
   "request": {
     "kind": "reference",
-    "name": "WebDavGetRequest"
+    "name": "WebdavGetFileRequest"
   },
   "response": {
     "kind": "reference",
-    "name": "WebDavGetResponse"
+    "name": "WebdavGetFileResponse"
   },
   "interfaces": {
-    "WebDavGetRequest": {
-      "name": "WebDavGetRequest",
+    "WebdavGetFileRequest": {
+      "name": "WebdavGetFileRequest",
       "fields": [
         {
           "name": "base",
@@ -49,8 +50,8 @@
         }
       ]
     },
-    "WebDavGetResponse": {
-      "name": "WebDavGetResponse",
+    "WebdavGetFileResponse": {
+      "name": "WebdavGetFileResponse",
       "fields": [
         {
           "name": "ok",
@@ -87,5 +88,5 @@
       ]
     }
   },
-  "generatedAt": "2026-08-14T02:36:47.211Z"
+  "generatedAt": "2026-08-14T07:53:34.290Z"
 }

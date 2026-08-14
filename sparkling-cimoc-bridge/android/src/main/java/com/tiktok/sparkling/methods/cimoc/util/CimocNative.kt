@@ -39,23 +39,6 @@ object CimocNative {
         return dir
     }
 
-    /** 解码 JSON 字符串编码的请求头 Map<string,string>；空串/非法 JSON 视为无额外头。 */
-    fun parseHeaders(json: String?): Map<String, String> {
-        if (json.isNullOrBlank()) return emptyMap()
-        return try {
-            val obj = org.json.JSONObject(json)
-            val result = HashMap<String, String>()
-            val keys = obj.keys()
-            while (keys.hasNext()) {
-                val k = keys.next()
-                result[k] = obj.optString(k)
-            }
-            result
-        } catch (e: Exception) {
-            emptyMap()
-        }
-    }
-
     /** 章节目录名：chapter_<index>。 */
     fun chapterDirName(index: Int): String = "chapter_$index"
 

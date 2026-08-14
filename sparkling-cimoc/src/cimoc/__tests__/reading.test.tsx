@@ -6,8 +6,6 @@
  * - hydrateAppState 恢复进度 / 系列 URL
  * - 重启后凭持久化的系列 URL 仍能打开真实漫画与章节图片
  */
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { render } from '@lynx-js/react/testing-library';
 import { getDefaultStore } from 'jotai';
 import { describe, expect, it, vi } from 'vitest';
@@ -22,20 +20,10 @@ import {
 import { historyAtom, progressAtom, useAppStore } from '../store.js';
 import type { AppStore } from '../store.js';
 
-const FIXTURES = join(
-    process.cwd(),
-    'src',
-    'cimoc',
-    'data',
-    '__tests__',
-    'fixtures',
-);
-function fixture(name: string): string {
-    return readFileSync(join(FIXTURES, name), 'utf8');
-}
-
-// --- 模拟 Sparkling 原生宿主：通过 spkPipe 分发方法（内存存储 + 按 URL 分发 fixture 的网络）---
+// --- 模拟 Sparkling 原生宿主：通过 spkPipe 分发方法（内存存储 + Rust 爬虫结果桩）---
 const storage = new Map<string, string>();
+// 模拟 Rust 侧 webtoons 系列 URL 缓存（search 写入 / cache_dump 导出 / cache_hydrate 回填）
+const rustWebtoonsCache = new Map<string, string>();
 
 /** 按方法名分发到与原生实现一致的结果模型字段。 */
 function handlePipeCall(
@@ -46,34 +34,140 @@ function handlePipeCall(
     const ok = (d: unknown) => ({ code: 1, msg: 'ok', data: d });
     const fail = (msg: string) => ({ code: 0, msg });
     switch (method) {
-        case 'cimoc.getText': {
-            const url = String(params.url ?? '');
-            if (url.includes('search?keyword=eleceed')) {
-                return ok({ status: 200, body: fixture('search-card.html') });
+        case 'cimoc.crawl': {
+            const op = String(params.op ?? '');
+            const sourceId = String(params.sourceId ?? '');
+            const payload = JSON.parse(String(params.payload ?? '{}')) as Record<
+                string,
+                unknown
+            >;
+            if (sourceId === 'webtoons') {
+                const comic = {
+                    id: 'webtoons-1571',
+                    source: 'webtoons',
+                    sourceTitle: 'Webtoons',
+                    title: 'Eleceed',
+                    author: '',
+                    intro: '',
+                    cover: 'https://webtoon-phinf.pstatic.net/1571.jpg',
+                    status: 'serial',
+                    updateTime: '',
+                    lastChapter: '',
+                    tags: [],
+                    lastReadChapter: 0,
+                    lastReadTime: 0,
+                };
+                switch (op) {
+                    case 'categories':
+                        return ok({
+                            json: JSON.stringify([
+                                '动作', '恋爱', '搞笑', '剧情', '奇幻', '恐怖', '科幻', '体育',
+                            ]),
+                        });
+                    case 'search':
+                    case 'category':
+                        rustWebtoonsCache.set(
+                            '1571',
+                            'https://www.webtoons.com/en/action/eleceed/list?title_no=1571',
+                        );
+                        return ok({ json: JSON.stringify([comic]) });
+                    case 'detail':
+                        return ok({
+                            json: JSON.stringify({
+                                comic,
+                                chapters: [398, 397, 396].map((i) => ({
+                                    index: i,
+                                    title: `Episode ${i}`,
+                                    pages: [],
+                                    downloaded: false,
+                                    read: false,
+                                })),
+                            }),
+                        });
+                    case 'images':
+                        return ok({
+                            json: JSON.stringify([
+                                'https://webtoon-phinf.pstatic.net/a.jpg',
+                                'https://webtoon-phinf.pstatic.net/b.jpg',
+                                'https://webtoon-phinf.pstatic.net/c.jpg',
+                            ]),
+                        });
+                    case 'cache_dump':
+                        return ok({
+                            json: JSON.stringify(Object.fromEntries(rustWebtoonsCache)),
+                        });
+                    case 'cache_hydrate':
+                        for (const [k, v] of Object.entries(payload)) {
+                            if (!rustWebtoonsCache.has(k)) {
+                                rustWebtoonsCache.set(k, String(v));
+                            }
+                        }
+                        return ok({ json: 'true' });
+                }
             }
-            if (url.includes('/list?title_no=1571')) {
-                return ok({ status: 200, body: fixture('detail.html') });
+            if (sourceId === 'mangadex') {
+                const eleceed = {
+                    id: 'mangadex-7e544761-7d3d-4fce-8137-719814d7d138',
+                    source: 'mangadex',
+                    sourceTitle: 'MangaDex',
+                    title: 'Eleceed',
+                    author: 'Son Jae-Ho',
+                    intro: 'kind-hearted',
+                    cover: 'https://uploads.mangadex.org/covers/7e544761-7d3d-4fce-8137-719814d7d138/x.256.jpg',
+                    status: 'serial',
+                    updateTime: '',
+                    lastChapter: '',
+                    tags: ['Action'],
+                    lastReadChapter: 0,
+                    lastReadTime: 0,
+                };
+                switch (op) {
+                    case 'categories':
+                        return ok({ json: JSON.stringify(['Action', 'Romance', 'Fantasy']) });
+                    case 'search':
+                        return ok({
+                            json: JSON.stringify([
+                                eleceed,
+                                {
+                                    id: 'mangadex-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+                                    source: 'mangadex',
+                                    sourceTitle: 'MangaDex',
+                                    title: 'Eleceed Another',
+                                    author: '',
+                                    intro: '',
+                                    cover: '',
+                                    status: 'finish',
+                                    updateTime: '',
+                                    lastChapter: '',
+                                    tags: [],
+                                    lastReadChapter: 0,
+                                    lastReadTime: 0,
+                                },
+                            ]),
+                        });
+                    case 'category':
+                        return ok({ json: JSON.stringify([eleceed]) });
+                    case 'detail':
+                        return ok({
+                            json: JSON.stringify({
+                                comic: eleceed,
+                                chapters: [
+                                    { index: 1, title: 'Welcome', pages: [], downloaded: false, read: false },
+                                    { index: 2, title: '第 2 话', pages: [], downloaded: false, read: false },
+                                    { index: 3, title: 'Rival', pages: [], downloaded: false, read: false },
+                                ],
+                            }),
+                        });
+                    case 'images':
+                        return ok({
+                            json: JSON.stringify([
+                                'https://cmdxd98sb0x3yprd.mangadex.network/data/hash/f1-x.png',
+                                'https://cmdxd98sb0x3yprd.mangadex.network/data/hash/f2-x.png',
+                            ]),
+                        });
+                }
             }
-            if (url.includes('viewer?title_no=1571')) {
-                return ok({ status: 200, body: fixture('viewer.html') });
-            }
-            // MangaDex API（多源分派测试）
-            if (url.includes('/manga/tag')) {
-                return ok({ status: 200, body: fixture('mangadex-tags.json') });
-            }
-            if (url.includes('/at-home/server/')) {
-                return ok({ status: 200, body: fixture('mangadex-at-home.json') });
-            }
-            if (url.includes('/manga/7e544761-7d3d-4fce-8137-719814d7d138/feed')) {
-                return ok({ status: 200, body: fixture('mangadex-feed.json') });
-            }
-            if (url.includes('/manga/7e544761-7d3d-4fce-8137-719814d7d138')) {
-                return ok({ status: 200, body: fixture('mangadex-detail.json') });
-            }
-            if (url.includes('/manga?title=eleceed')) {
-                return ok({ status: 200, body: fixture('mangadex-search.json') });
-            }
-            return fail(`unknown url ${url}`);
+            return fail(`unknown crawl ${sourceId}/${op}`);
         }
         case 'storage.setItem': {
             storage.set(String(params.key), String(params.data ?? ''));
