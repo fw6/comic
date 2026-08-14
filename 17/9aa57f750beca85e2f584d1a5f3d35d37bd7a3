@@ -1,0 +1,21 @@
+docs/agents/issue-tracker.md
+  s_d10e9eec3f98c5::t_50f07e24d7befd 1-23
+.cargo/config.toml
+  s_d10e9eec3f98c5::t_2b5ccaa7f71efa 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "179aa57f750beca85e2f584d1a5f3d35d37bd7a3",
+  "prompts": {},
+  "sessions": {
+    "s_d10e9eec3f98c5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_4119ca26-9f82-4058-b4a8-afc5fce88af0",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
