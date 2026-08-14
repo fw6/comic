@@ -39,12 +39,6 @@ jobs:
         working-directory: sparkling-cimoc
         run: npm test
 
-      # sparkling-app-cli build --copy：产物 dist/main.lynx.bundle，
-      # 并拷贝到原生 assets；gradle 默认从 ../../dist 打包该 bundle。
-      - name: Build Lynx bundle
-        working-directory: sparkling-cimoc
-        run: npm run build
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -57,7 +51,27 @@ jobs:
       - name: Install Android SDK components
         run: |
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
+          sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "ndk;29.0.14206865"
+
+      # Rust 核心：app 的 npm run build 会经 prebuild 触发 rust/build.sh。
+      # Linux 上 build.sh 只构建 Android .so（iOS 走 macOS 本地构建）。
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android, armv7-linux-androideabi
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Set ANDROID_NDK_HOME
+        run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/29.0.14206865" >> "$GITHUB_ENV"
+
+      # sparkling-app-cli build --copy：产物 dist/main.lynx.bundle，
+      # 并拷贝到原生 assets；gradle 默认从 ../../dist 打包该 bundle。
+      # prebuild 钩子会先跑桥包的 rust/build.sh，产出 libcimoc_core.so。
+      - name: Build Lynx bundle (and Rust core)
+        working-directory: sparkling-cimoc
+        run: npm run build
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
