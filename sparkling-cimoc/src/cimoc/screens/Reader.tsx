@@ -1,5 +1,5 @@
 import {
-    List,
+    FeedList,
     SliderIndicator,
     SliderRoot,
     SliderThumb,
@@ -376,8 +376,8 @@ export function ReaderScreen({
                     )}
                 </Swiper>
             ) : (
-                /* 卷纸模式：上下滑动阅读，滑到底自动续下一话。用 lynx-ui <List> 虚拟化 + 回收，仅渲染视口附近的图片 */
-                <List
+                /* 卷纸模式：上下滑动阅读，滑到底自动续下一话。用 lynx-ui <FeedList> 虚拟化 + 回收，仅渲染视口附近的图片 */
+                <FeedList
                     listId="reader-feed"
                     listType="single"
                     spanCount={1}
@@ -499,7 +499,7 @@ export function ReaderScreen({
                             </view>
                         </list-item>
                     ) : null}
-                </List>
+                </FeedList>
             )}
 
             {/* HUD */}
