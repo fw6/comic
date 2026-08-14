@@ -40,6 +40,5 @@ dependencies {
     } else {
         api("com.tiktok.sparkling:sparkling-method:$sparklingVersion")
     }
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // Rust 核心（libcimoc_core.so）经手写 JNI 绑定加载（见 rust/ 核心 + RustCore.kt），无需 JNA。
 }

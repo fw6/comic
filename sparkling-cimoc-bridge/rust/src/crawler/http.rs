@@ -7,7 +7,8 @@ use std::time::Duration;
 
 static CLIENT: OnceLock<Client> = OnceLock::new();
 
-fn client() -> &'static Client {
+/// 共享阻塞 Client（webdav/download/crawler 复用）。
+pub fn client() -> &'static Client {
     CLIENT.get_or_init(|| {
         Client::builder()
             .connect_timeout(Duration::from_secs(15))
@@ -36,6 +37,19 @@ pub fn get_text(url: &str, headers: &[(&str, &str)]) -> Result<String, String> {
 pub fn get_json(url: &str, headers: &[(&str, &str)]) -> Result<serde_json::Value, String> {
     let body = get_text(url, headers)?;
     serde_json::from_str(&body).map_err(|e| e.to_string())
+}
+
+/// GET 抓取二进制（下载图片等）；非 2xx 返回 Err。
+pub fn get_bytes(url: &str, headers: &[(&str, &str)]) -> Result<Vec<u8>, String> {
+    let mut req = client().get(url);
+    for (k, v) in headers {
+        req = req.header(*k, *v);
+    }
+    let resp = req.send().map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("HTTP {}", resp.status().as_u16()));
+    }
+    resp.bytes().map(|b| b.to_vec()).map_err(|e| e.to_string())
 }
 
 /// encodeURIComponent 的等价替代（空间用 %20，与 JS 一致）。

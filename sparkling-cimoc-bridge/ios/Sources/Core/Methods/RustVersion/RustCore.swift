@@ -13,4 +13,29 @@ enum RustCore {
         uniffiEnsureCimocCoreInitialized()
         return crawl(op: op, source: sourceId, payload: payload)
     }
+
+    static func invokeWebdavPut(base: String, user: String, password: String, fileName: String, content: String) -> String {
+        uniffiEnsureCimocCoreInitialized()
+        return webdavPut(base: base, user: user, password: password, fileName: fileName, content: content)
+    }
+
+    static func invokeWebdavGet(base: String, user: String, password: String, fileName: String) -> String {
+        uniffiEnsureCimocCoreInitialized()
+        return webdavGet(base: base, user: user, password: password, fileName: fileName)
+    }
+
+    static func invokeDownloadImage(url: String, dir: String, comicId: String, chapterIndex: Int64, pageIndex: Int64) -> String {
+        uniffiEnsureCimocCoreInitialized()
+        return downloadImage(url: url, dir: dir, comicId: comicId, chapterIndex: chapterIndex, pageIndex: pageIndex)
+    }
+
+    static func invokeListDownloaded(dir: String, comicId: String) -> String {
+        uniffiEnsureCimocCoreInitialized()
+        return listDownloaded(dir: dir, comicId: comicId)
+    }
+
+    static func invokeScanLocal(dir: String) -> String {
+        uniffiEnsureCimocCoreInitialized()
+        return scanLocal(dir: dir)
+    }
 }

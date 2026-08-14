@@ -32,11 +32,11 @@ if "TEMP smoke test" in s:
     raise SystemExit(0)
 s = s.replace(
     "import { SourcesScreen } from './Sources.js';",
-    "import { SourcesScreen } from './Sources.js';\nimport { crawl, rustVersion } from '../native/bridge.js';",
+    "import { SourcesScreen } from './Sources.js';\nimport { crawl, listDownloaded, rustVersion, scanLocalComics } from '../native/bridge.js';",
 )
 s = s.replace(
     "    const [content, setContent] = useState<'library' | 'sources'>('library');",
-    "    const [content, setContent] = useState<'library' | 'sources'>('library');\n\n    // TEMP smoke test\n    useEffect(() => {\n        rustVersion().then((v) => console.log('[rustVersion]', v)).catch((e) => console.error('[rustVersion] error', e));\n        crawl('categories', 'webtoons', '{}').then((j) => console.log('[crawl-webtoons]', j)).catch((e) => console.error('[crawl-webtoons] error', e));\n        crawl('search', 'mangadex', JSON.stringify({ keyword: 'eleceed' })).then((j) => console.log('[crawl-mangadex]', j)).catch((e) => console.error('[crawl-mangadex] error', e));\n    }, []);",
+    "    const [content, setContent] = useState<'library' | 'sources'>('library');\n\n    // TEMP smoke test\n    useEffect(() => {\n        rustVersion().then((v) => console.log('[rustVersion]', v)).catch((e) => console.error('[rustVersion] error', e));\n        crawl('categories', 'webtoons', '{}').then((j) => console.log('[crawl-webtoons]', j)).catch((e) => console.error('[crawl-webtoons] error', e));\n        crawl('search', 'mangadex', JSON.stringify({ keyword: 'eleceed' })).then((j) => console.log('[crawl-mangadex]', j)).catch((e) => console.error('[crawl-mangadex] error', e));\n        scanLocalComics().then((r) => console.log('[scanLocal]', JSON.stringify(r))).catch((e) => console.error('[scanLocal] error', e));\n        listDownloaded('smoke').then((r) => console.log('[listDownloaded]', JSON.stringify(r))).catch((e) => console.error('[listDownloaded] error', e));\n    }, []);",
     1,
 )
 open(p, "w").write(s)
@@ -53,7 +53,7 @@ adb uninstall "$PKG" >/dev/null 2>&1 || true
 adb install -r "$APK" >/dev/null
 adb logcat -c
 adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
-sleep 8
+sleep 15
 
 # 4) 校验
 if adb logcat -d | grep -q "cimoc-core-rust"; then
@@ -77,4 +77,20 @@ if adb logcat -d | grep "crawl-mangadex" | grep -qE 'mangadex-|\[\]'; then
   echo "INFO: crawl(search, mangadex) 已返回"
 else
   echo "INFO: 未观测到 crawl-mangadex 结果（可能无网络，跳过）"
+fi
+
+# 本地目录方法：验证 Rust 文件 IO + JNI 链路（无需网络）
+if adb logcat -d | grep -q "scanLocal"; then
+  echo "PASS: scanLocalComics -> Rust 文件 IO 链路"
+else
+  echo "FAIL: 未在 logcat 中看到 scanLocal"
+  adb logcat -d | grep -iE "scanLocal|UnsatisfiedLink|Exception" | tail -20 || true
+  exit 1
+fi
+if adb logcat -d | grep -q "listDownloaded"; then
+  echo "PASS: listDownloadedChapters -> Rust 文件 IO 链路"
+else
+  echo "FAIL: 未在 logcat 中看到 listDownloaded"
+  adb logcat -d | grep -iE "listDownloaded|UnsatisfiedLink|Exception" | tail -20 || true
+  exit 1
 fi
