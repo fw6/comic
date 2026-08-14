@@ -1,0 +1,416 @@
+desktop/target/debug/.fingerprint/string_cache_codegen-b21f08a0d63412db/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/scraper-684022cdb8c2a0ad/lib-scraper.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/compression-codecs-fc00063164ab2eca/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/async-compression-e993a79eedefebb9/lib-async_compression.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/cssparser-499ceb9e8c0757a2/lib-cssparser
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/idna-5f697286eef49a11/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/miniz_oxide-10c6bd3c2851b085/lib-miniz_oxide.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_urlencoded-34994190c7820371/lib-serde_urlencoded
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/simd-adler32-732e8d0a8ed1e773/lib-simd_adler32.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-rustls-38670cf5add7d307/lib-hyper_rustls.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/bitflags-1212c49174e53c96/lib-bitflags
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_normalizer-c92995dd3a49b88f/lib-icu_normalizer.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-e71e5065004695d1/lib-web_atoms.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerovec-d1a56fd6435d61bb/lib-zerovec.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/potential_utf-be1853cefbd4b5f4/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/potential_utf-be1853cefbd4b5f4/lib-potential_utf.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-rustls-2d287cb428418edf/lib-tokio_rustls
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tower-http-9246379b0a907e99/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-61015e3a8ce4a9c4/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/compression_codecs-fc00063164ab2eca.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-13
+desktop/target/debug/deps/futures_util-67fd93033b23d806.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-173
+desktop/target/debug/.fingerprint/compression-codecs-fc00063164ab2eca/lib-compression_codecs
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/build/web_atoms-14a9302069a0dfd1/root-output
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/markup5ever-8b305cc7123e73fb.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1,3,5-10
+desktop/target/debug/deps/phf-a9c464fc16e2cf79.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-9
+desktop/target/debug/.fingerprint/async-compression-e993a79eedefebb9/lib-async_compression
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-util-794b1d245e91f387/lib-hyper_util.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/tokio_util-19742e5b872a4854.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-30
+desktop/target/debug/deps/web_atoms-e71e5065004695d1.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-9
+desktop/target/debug/.fingerprint/yoke-25bdf5ddf91cb8d0/lib-yoke.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/compression-codecs-fc00063164ab2eca/lib-compression_codecs.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/phf-a9c464fc16e2cf79/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_core-3ad9e6baedde507b/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-rustls-38670cf5add7d307/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-e6bf75e14699b85d/lib-tokio
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/cimoc-core-9c1c8ad491391d56/output-lib-cimoc_core
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-5
+desktop/target/debug/build/web_atoms-14a9302069a0dfd1/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/zerovec-d1a56fd6435d61bb.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-28
+desktop/target/debug/.fingerprint/hyper-26e62f0c426f1622/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/html5ever-f3343febef2ea043/lib-html5ever.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/miniz_oxide-10c6bd3c2851b085/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-util-19742e5b872a4854/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/bitflags-1212c49174e53c96/lib-bitflags.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tower-http-9246379b0a907e99/lib-tower_http
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerotrie-336775707549f2b2/lib-zerotrie.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_locale_core-5d165e393f27cf24/lib-icu_locale_core
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde-5f4cdb6522e5554a/lib-serde
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tinystr-1b02cbd0a7ebb18d/lib-tinystr.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/url-d8a2860a1349d3f2/lib-url.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/html5ever-f3343febef2ea043/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/cssparser-499ceb9e8c0757a2/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/scraper-684022cdb8c2a0ad.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-18
+desktop/target/debug/deps/serde_urlencoded-34994190c7820371.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-11
+desktop/target/debug/.fingerprint/web_atoms-61015e3a8ce4a9c4/build-script-build-script-build
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/derive_more-660f11827c1f5aa0/lib-derive_more
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/phf_macros-901500d8d08f650c/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/string_cache_codegen-b21f08a0d63412db/lib-string_cache_codegen
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/string_cache_codegen-b21f08a0d63412db/lib-string_cache_codegen.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-util-19742e5b872a4854/lib-tokio_util
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/scraper-684022cdb8c2a0ad/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/build/web_atoms-14a9302069a0dfd1/out/named_entities.rs
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-11844
+desktop/target/debug/deps/hyper_rustls-38670cf5add7d307.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-9
+desktop/target/debug/.fingerprint/icu_locale_core-5d165e393f27cf24/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/src-tauri/src/lib.rs
+  s_d10e9eec3f98c5::t_bbd14d5df86b15 3,6-7,10,12-15,19,26-30,34-39,43,50-54,58-61,65-68,76-78,84-90,129-134,137
+  s_d10e9eec3f98c5::t_d78bcf640daca8 4
+desktop/target/debug/.fingerprint/icu_collections-7dc812c556e558f2/lib-icu_collections
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/markup5ever-8b305cc7123e73fb/lib-markup5ever
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tower-8b9c4cfa30a23ad7/lib-tower
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/bitflags-1212c49174e53c96.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-11
+desktop/target/debug/deps/phf_macros-901500d8d08f650c.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-5
+desktop/target/debug/deps/icu_provider-c492a7c9310e07b5.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-17
+desktop/target/debug/.fingerprint/flate2-460c8b30608e2a3b/lib-flate2
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-e6bf75e14699b85d/lib-tokio.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/phf_macros-901500d8d08f650c/lib-phf_macros
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerovec-d1a56fd6435d61bb/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/serde_core-3ad9e6baedde507b.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-25
+desktop/target/debug/deps/tokio-e6bf75e14699b85d.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-222
+desktop/target/debug/deps/tokio_rustls-2d287cb428418edf.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-9
+desktop/target/debug/deps/url-d8a2860a1349d3f2.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1,3,5-11
+desktop/target/debug/.fingerprint/phf-a9c464fc16e2cf79/lib-phf
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/idna-5f697286eef49a11/lib-idna
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-14a9302069a0dfd1/run-build-script-build-script-build.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/selectors-e5ba3790eb1cd285.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-22
+desktop/target/debug/.fingerprint/flate2-460c8b30608e2a3b/lib-flate2.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/async-compression-e993a79eedefebb9/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/markup5ever-8b305cc7123e73fb/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/potential_utf-be1853cefbd4b5f4.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-7
+desktop/target/debug/deps/miniz_oxide-10c6bd3c2851b085.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-16
+desktop/target/debug/.fingerprint/icu_collections-7dc812c556e558f2/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/tower-8b9c4cfa30a23ad7.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-48
+desktop/target/debug/.fingerprint/idna-5f697286eef49a11/lib-idna.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/futures-util-67fd93033b23d806/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_provider-c492a7c9310e07b5/lib-icu_provider.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tower-8b9c4cfa30a23ad7/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/derive_more-660f11827c1f5aa0/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/simd-adler32-732e8d0a8ed1e773/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/yoke-25bdf5ddf91cb8d0.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1,3,5-13
+desktop/target/debug/deps/zerofrom-974b7746994844e4.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-7
+desktop/target/debug/.fingerprint/futures-util-67fd93033b23d806/lib-futures_util.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/crates/cimoc-core/src/lib.rs
+  s_d10e9eec3f98c5::t_cf63d94f7d6652 1,3-5,7,11,17-18,22-29,33-34,38-45,49-50,54-55
+desktop/target/debug/.fingerprint/yoke-25bdf5ddf91cb8d0/lib-yoke
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/phf-a9c464fc16e2cf79/lib-phf.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_urlencoded-34994190c7820371/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_urlencoded-34994190c7820371/lib-serde_urlencoded.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/build/web_atoms-61015e3a8ce4a9c4/build_script_build-61015e3a8ce4a9c4.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-6
+desktop/Cargo.toml
+  s_d10e9eec3f98c5::t_9a6b3fa087d337 1-3
+desktop/target/debug/deps/async_compression-e993a79eedefebb9.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-31
+desktop/target/debug/deps/tinystr-1b02cbd0a7ebb18d.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-12
+desktop/target/debug/.fingerprint/serde_core-3ad9e6baedde507b/lib-serde_core.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_core-3ad9e6baedde507b/lib-serde_core
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/cssparser-499ceb9e8c0757a2/lib-cssparser.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_provider-c492a7c9310e07b5/lib-icu_provider
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_json-ddd4428d2afd03cd/lib-serde_json.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/icu_collections-7dc812c556e558f2.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-17
+desktop/target/debug/.fingerprint/markup5ever-8b305cc7123e73fb/lib-markup5ever.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/cimoc_core-9c1c8ad491391d56.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-14
+desktop/target/debug/.fingerprint/hyper-rustls-38670cf5add7d307/lib-hyper_rustls
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/reqwest-bd400411e50cc53d/lib-reqwest
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/cssparser-499ceb9e8c0757a2.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-15
+desktop/target/debug/deps/serde-5f4cdb6522e5554a.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-12
+desktop/target/debug/.fingerprint/zerovec-d1a56fd6435d61bb/lib-zerovec
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/futures-util-67fd93033b23d806/lib-futures_util
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-26e62f0c426f1622/lib-hyper
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_properties-90157b4e210e6e6e/lib-icu_properties
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/potential_utf-be1853cefbd4b5f4/lib-potential_utf
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_json-ddd4428d2afd03cd/lib-serde_json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/url-d8a2860a1349d3f2/lib-url
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/desktop_lib-fc65ebf795a89ad1.d
+  s_d10e9eec3f98c5::t_7f400b534a6057 1-13
+desktop/target/debug/.fingerprint/selectors-e5ba3790eb1cd285/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tower-http-9246379b0a907e99/lib-tower_http.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/miniz_oxide-10c6bd3c2851b085/lib-miniz_oxide
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/serde_json-ddd4428d2afd03cd.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-20
+desktop/target/debug/.fingerprint/reqwest-bd400411e50cc53d/lib-reqwest.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-util-19742e5b872a4854/lib-tokio_util.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tower-8b9c4cfa30a23ad7/lib-tower.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/string_cache_codegen-b21f08a0d63412db.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-7
+desktop/target/debug/.fingerprint/icu_provider-c492a7c9310e07b5/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-util-794b1d245e91f387/lib-hyper_util
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_collections-7dc812c556e558f2/lib-icu_collections.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/idna_adapter-0f3136cdaf543e72/lib-idna_adapter
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-e71e5065004695d1/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/reqwest-bd400411e50cc53d.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-31
+desktop/target/debug/deps/derive_more-660f11827c1f5aa0.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1,3,5-7
+desktop/target/debug/.fingerprint/reqwest-bd400411e50cc53d/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-e71e5065004695d1/lib-web_atoms
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/selectors-e5ba3790eb1cd285/lib-selectors
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde_json-ddd4428d2afd03cd/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/simd_adler32-732e8d0a8ed1e773.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-14
+desktop/target/debug/.fingerprint/derive_more-660f11827c1f5aa0/lib-derive_more.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-rustls-2d287cb428418edf/lib-tokio_rustls.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/icu_locale_core-5d165e393f27cf24.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-64
+desktop/target/debug/.fingerprint/scraper-684022cdb8c2a0ad/lib-scraper
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/icu_properties-90157b4e210e6e6e.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-17
+desktop/target/debug/deps/html5ever-f3343febef2ea043.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-19
+desktop/target/debug/.fingerprint/selectors-e5ba3790eb1cd285/lib-selectors.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tinystr-1b02cbd0a7ebb18d/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/simd-adler32-732e8d0a8ed1e773/lib-simd_adler32
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/idna_adapter-0f3136cdaf543e72/lib-idna_adapter.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/url-d8a2860a1349d3f2/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-14a9302069a0dfd1/run-build-script-build-script-build
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/yoke-25bdf5ddf91cb8d0/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerofrom-974b7746994844e4/lib-zerofrom.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerofrom-974b7746994844e4/lib-zerofrom
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_locale_core-5d165e393f27cf24/lib-icu_locale_core.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerotrie-336775707549f2b2/lib-zerotrie
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/build/web_atoms-14a9302069a0dfd1/out/generated.rs
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-4202
+desktop/target/debug/deps/hyper-26e62f0c426f1622.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-44
+desktop/target/debug/deps/icu_normalizer-c92995dd3a49b88f.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-8
+desktop/target/debug/.fingerprint/icu_normalizer-c92995dd3a49b88f/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/desktop-fc65ebf795a89ad1/invoked.timestamp
+  s_d10e9eec3f98c5::t_7f400b534a6057 1
+desktop/target/debug/.fingerprint/serde-5f4cdb6522e5554a/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_properties-90157b4e210e6e6e/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/flate2-460c8b30608e2a3b.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-23
+desktop/target/debug/deps/idna_adapter-0f3136cdaf543e72.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-5
+desktop/target/debug/.fingerprint/phf_macros-901500d8d08f650c/lib-phf_macros.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerofrom-974b7746994844e4/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/crates/cimoc-core/src/cache.rs
+  s_d10e9eec3f98c5::t_eebdd525ffa453 18,37,44-45
+  s_d10e9eec3f98c5::t_ba8173b073ff1b 26
+  s_d10e9eec3f98c5::t_4e11e8f36c48e2 1-6,8,10-13,15-16,19-23,27-36,38-43,47-48,51-55,57-58,61-64,66-70,73-83
+desktop/target/debug/.fingerprint/icu_properties-90157b4e210e6e6e/lib-icu_properties.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/src-tauri/Cargo.toml
+  s_d10e9eec3f98c5::t_b0bbba819af07f 27
+desktop/target/debug/.fingerprint/bitflags-1212c49174e53c96/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/cimoc-core-9c1c8ad491391d56/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-util-794b1d245e91f387/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/zerotrie-336775707549f2b2/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/crates/cimoc-core/src/crawler/http.rs
+  s_d10e9eec3f98c5::t_8aef62a872a728 44-51,60-68
+desktop/target/debug/deps/idna-5f697286eef49a11.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1,3,5-8
+desktop/target/debug/.fingerprint/idna_adapter-0f3136cdaf543e72/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-e6bf75e14699b85d/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/tokio-rustls-2d287cb428418edf/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/zerotrie-336775707549f2b2.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-19
+desktop/target/debug/.fingerprint/tinystr-1b02cbd0a7ebb18d/lib-tinystr
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/crates/cimoc-core/Cargo.toml
+  s_d10e9eec3f98c5::t_b708ce9fc76550 8,17
+desktop/target/debug/.fingerprint/html5ever-f3343febef2ea043/lib-html5ever
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/serde-5f4cdb6522e5554a/lib-serde.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/web_atoms-61015e3a8ce4a9c4/build-script-build-script-build.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/icu_normalizer-c92995dd3a49b88f/lib-icu_normalizer
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/deps/hyper_util-794b1d245e91f387.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-37
+desktop/target/debug/deps/tower_http-9246379b0a907e99.d
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1-32
+desktop/target/debug/.fingerprint/flate2-460c8b30608e2a3b/invoked.timestamp
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+desktop/target/debug/.fingerprint/hyper-26e62f0c426f1622/lib-hyper.json
+  s_d10e9eec3f98c5::t_4f587c84131a1a 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "4f13eb409b78f26867748e110e287e6adbeb84ca",
+  "prompts": {},
+  "sessions": {
+    "s_d10e9eec3f98c5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_4119ca26-9f82-4058-b4a8-afc5fce88af0",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
