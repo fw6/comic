@@ -26,8 +26,9 @@ export interface Chapter {
     read: boolean;
 }
 
-/** 本地扫描/下载目录里的漫画条目。 */
+/** 本地扫描/下载目录里的漫画条目（wayfinder #19：带 source，扁平导入为 "local"）。 */
 export interface LocalComic {
+    source: string;
     comicId: string;
     chapterCount: number;
 }
@@ -41,22 +42,23 @@ export function crawl<T>(op: string, source: string, payload: unknown): Promise<
 
 export const cimocVersion = () => invoke<string>("cimoc_version");
 
-/** 扫描下载目录/本地文件夹：`[{comicId, chapterCount}]`。 */
+/** 扫描下载目录/本地文件夹：`[{source, comicId, chapterCount}]`。 */
 export const scanLocal = (dir: string) =>
     invoke<string>("scan_local", { dir }).then(
         (json) => JSON.parse(json) as LocalComic[],
     );
 
-/** 某漫画已下载章节：`{chapterIndex: [文件路径]}`。 */
-export const listDownloaded = (dir: string, comicId: string) =>
-    invoke<string>("list_downloaded", { dir, comicId }).then(
+/** 某漫画已下载章节：`{chapterIndex: [文件路径]}`（source = "local" 走扁平布局）。 */
+export const listDownloaded = (dir: string, source: string, comicId: string) =>
+    invoke<string>("list_downloaded", { dir, source, comicId }).then(
         (json) => JSON.parse(json) as Record<string, string[]>,
     );
 
-/** 下载单页到下载目录，返回是否成功。referer 非空时带上（热链域如 pstatic.net 需要）。 */
+/** 下载单页到 `<dir>/<source>/<comicId>/chapter_<n>/…`，返回是否成功。referer 非空时带上（热链域如 pstatic.net 需要）。 */
 export const downloadImage = (
     url: string,
     dir: string,
+    source: string,
     comicId: string,
     chapterIndex: number,
     pageIndex: number,
@@ -65,6 +67,7 @@ export const downloadImage = (
     invoke<string>("download_image", {
         url,
         dir,
+        source,
         comicId,
         chapterIndex,
         pageIndex,
@@ -94,4 +97,9 @@ export function imgSrc(url: string): string {
         return `cimoc-img://localhost/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent("https://www.webtoons.com/")}`;
     }
     return url;
+}
+
+/** 本地文件路径 → cimoc-img:// 本地模式（wayfinder #19：Rust 读文件回字节，按扩展名给 content-type）。 */
+export function localSrc(path: string): string {
+    return `cimoc-img://localhost/file?path=${encodeURIComponent(path)}`;
 }

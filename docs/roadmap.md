@@ -16,10 +16,7 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 
 ## 离线阅读（已下载/本地漫画的阅读）
 
-- 现状：Library 下载/本地 tab 仅列表（comicId + 章节目录数），无法阅读。
-- 需要：本地源的阅读路径（cimoc-core 增加 local source，或 fs 权限渲染本地文件）；
-  下载目录带 source 命名空间（当前 `<dir>/<comicId>/...` 无法反查源，跨源同 id 会撞目录）。
-- 依赖：源运行时系统落地后，「本地源」可作普通源实现，自然复用阅读器。
+> 已实现（2026-08-15，[wayfinder 地图 #18](https://github.com/fw6/comic/issues/18)）：下载目录改为 `<dir>/<source>/<comicId>/…` 命名空间；Library「下载/本地」tab 点漫画就地展开章节 → 本地阅读器（`/local`，Reader local 模式，图片经 `cimoc-img://` file 模式渲染，全程无网络）；「本地」tab 兼容旧扁平导入（source 记 `"local"`）；进度与在线共用 (source, comicId) 键。
 
 ## 移动里程碑（桌面 v1 后，grilling #3/#6 定）
 

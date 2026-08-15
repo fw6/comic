@@ -18,8 +18,12 @@ import { applyTheme } from "./lib/theme";
 function TopBar() {
     const location = useLocation();
     const navigate = useNavigate();
-    // 阅读器全屏沉浸：不显示顶栏
-    if (location.pathname.startsWith("/reader")) return null;
+    // 阅读器全屏沉浸：不显示顶栏（含本地阅读模式 /local）
+    if (
+        location.pathname.startsWith("/reader") ||
+        location.pathname.startsWith("/local")
+    )
+        return null;
     const linkStyle = (active: boolean): CSSProperties => ({
         textDecoration: "none",
         color: active ? "var(--fg)" : "var(--muted)",
@@ -75,6 +79,10 @@ export default function App() {
                     <Route
                         path="/reader/:source/:comicId/:chapterIndex"
                         element={<Reader />}
+                    />
+                    <Route
+                        path="/local/:source/:comicId/:chapterIndex"
+                        element={<Reader local />}
                     />
                     <Route path="/library" element={<Library />} />
                     <Route path="/settings" element={<Settings />} />

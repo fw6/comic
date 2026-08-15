@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { crawl, imgSrc, downloadImage, type Chapter, type Comic } from "../api";
+import {
+    crawl,
+    imgSrc,
+    localSrc,
+    downloadImage,
+    listDownloaded,
+    type Chapter,
+    type Comic,
+} from "../api";
 import { filterExternalChapters } from "../lib/chapters";
 import { nearBottom, pageIndexAt, positionWithinChapter } from "../lib/scroll";
 import { getProgress, getSettings, setProgress, touchHistory } from "../lib/storage";
@@ -12,7 +20,7 @@ interface PageItem {
     url: string;
 }
 
-export default function Reader() {
+export default function Reader({ local = false }: { local?: boolean }) {
     const { source, comicId, chapterIndex } = useParams();
     const id = comicId ? decodeURIComponent(comicId) : "";
     const navigate = useNavigate();
@@ -53,10 +61,13 @@ export default function Reader() {
             loadingRef.current = true;
             setLoading(true);
             try {
-                const imgs = await crawl<string[]>("images", source!, {
-                    comicId: id,
-                    chapterIndex: chaptersRef.current[chapterIdx].index,
-                });
+                // 本地模式（wayfinder #19）：页面来自下载目录文件；在线走 crawl images
+                const imgs = local
+                    ? chaptersRef.current[chapterIdx].pages
+                    : await crawl<string[]>("images", source!, {
+                          comicId: id,
+                          chapterIndex: chaptersRef.current[chapterIdx].index,
+                      });
                 const next = [
                     ...pagesRef.current,
                     ...imgs.map((url) => ({ chapterIdx, url })),
@@ -72,7 +83,7 @@ export default function Reader() {
                 setLoading(false);
             }
         },
-        [source, id],
+        [source, id, local],
     );
 
     /** 记录某页的已测高度（heights 与 pages 平行）。 */
@@ -100,7 +111,15 @@ export default function Reader() {
                 .filter((p) => p.chapterIdx === idx)
                 .map((p) => p.url);
             for (let i = 0; i < urls.length; i++) {
-                await downloadImage(urls[i], settings.downloadDir, id, ch.index, i, referer);
+                await downloadImage(
+                    urls[i],
+                    settings.downloadDir,
+                    source!,
+                    id,
+                    ch.index,
+                    i,
+                    referer,
+                );
             }
         } catch (e) {
             console.error("download failed", e);
@@ -130,8 +149,9 @@ export default function Reader() {
             position,
             updatedAt: Date.now(),
         });
-        void touchHistory(c, chs[chapterIdx].index);
-    }, []);
+        // 本地阅读不写历史（#19：离线拿不到真实标题，历史 tab 保持链在线 reader）
+        if (!local) void touchHistory(c, chs[chapterIdx].index);
+    }, [local]);
 
     const onScroll = useCallback(() => {
         if (progressTimer.current !== null) clearTimeout(progressTimer.current);
@@ -155,6 +175,51 @@ export default function Reader() {
     useEffect(() => {
         let cancelled = false;
         (async () => {
+            if (local) {
+                // 本地模式：不联网，章节与页面来自下载目录（wayfinder #19）
+                const settings = await getSettings();
+                const dir = settings.downloadDir;
+                if (!dir) return;
+                const listed = await listDownloaded(dir, source!, id);
+                const chs: Chapter[] = Object.entries(listed)
+                    .map(([idx, paths]) => ({
+                        index: Number(idx),
+                        title: `第 ${Number(idx)} 话`,
+                        pages: paths,
+                        external: false,
+                        downloaded: true,
+                        read: false,
+                    }))
+                    .sort((a, b) => a.index - b.index);
+                const comic: Comic = {
+                    id,
+                    source: source!,
+                    sourceTitle: "本地",
+                    title: id,
+                    author: "",
+                    intro: "",
+                    cover: "",
+                    status: "serial",
+                    updateTime: "",
+                    lastChapter: "",
+                    tags: [],
+                    lastReadChapter: 0,
+                    lastReadTime: 0,
+                };
+                if (cancelled) return;
+                const target = Math.max(
+                    0,
+                    chs.findIndex((c) => c.index === Number(chapterIndex)),
+                );
+                comicRef.current = comic;
+                chaptersRef.current = chs;
+                setComic(comic);
+                setChapters(chs);
+                currentIdxRef.current = target;
+                loadingRef.current = false;
+                await appendChapter(target);
+                return;
+            }
             const d = await crawl<{ comic: Comic; chapters: Chapter[] }>("detail", source!, {
                 comicId: id,
             });
@@ -177,7 +242,7 @@ export default function Reader() {
             cancelled = true;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [source, id, chapterIndex]);
+    }, [source, id, chapterIndex, local]);
 
     // 首次进入且当前话全部页高已测出：按已存进度恢复（仅当记录章节与打开章节一致）
     useEffect(() => {
@@ -255,10 +320,16 @@ export default function Reader() {
                         zIndex: 10,
                     }}
                 >
-                    <Link to={`/comic/${source}/${encodeURIComponent(id)}`}>← 章节</Link>
-                    <button onClick={() => void downloadCurrentChapter()} disabled={downloading}>
-                        {downloading ? "下载中…" : "下载本话"}
-                    </button>
+                    {local ? (
+                        <Link to="/library">← 书架</Link>
+                    ) : (
+                        <Link to={`/comic/${source}/${encodeURIComponent(id)}`}>← 章节</Link>
+                    )}
+                    {!local && (
+                        <button onClick={() => void downloadCurrentChapter()} disabled={downloading}>
+                            {downloading ? "下载中…" : "下载本话"}
+                        </button>
+                    )}
                     <button onClick={toggleFullscreen} style={{ marginLeft: "auto" }}>
                         全屏
                     </button>
@@ -266,7 +337,9 @@ export default function Reader() {
             )}
             {chapters.length === 0 ? (
                 <div style={{ padding: 32, color: "#999" }}>
-                    该作品暂无可用章节（外链章节已过滤）
+                    {local
+                        ? "该作品没有已下载的章节"
+                        : "该作品暂无可用章节（外链章节已过滤）"}
                 </div>
             ) : (
                 <div
@@ -281,7 +354,7 @@ export default function Reader() {
                     {pages.map((p, i) => (
                         <img
                             key={i}
-                            src={imgSrc(p.url)}
+                            src={local ? localSrc(p.url) : imgSrc(p.url)}
                             alt={`page ${i + 1}`}
                             loading="lazy"
                             onLoad={(e) =>

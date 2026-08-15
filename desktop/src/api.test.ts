@@ -7,7 +7,15 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 
 import { invoke } from "@tauri-apps/api/core";
-import { crawl, imgSrc, cimocVersion, scanLocal, listDownloaded, downloadImage } from "./api";
+import {
+    crawl,
+    imgSrc,
+    localSrc,
+    cimocVersion,
+    scanLocal,
+    listDownloaded,
+    downloadImage,
+} from "./api";
 
 const mockedInvoke = vi.mocked(invoke);
 
@@ -69,36 +77,55 @@ describe("cimocVersion", () => {
     });
 });
 
+describe("localSrc（wayfinder #19：本地文件路径 → cimoc-img 本地模式）", () => {
+    it("把绝对路径重写为 cimoc-img://localhost/file?path=…", () => {
+        const p = "/Users/me/Downloads/cimoc/webtoons/c1/chapter_1/0.jpg";
+        expect(localSrc(p)).toBe(
+            `cimoc-img://localhost/file?path=${encodeURIComponent(p)}`,
+        );
+    });
+});
+
 describe("scanLocal / listDownloaded / downloadImage（本地下载命令包装）", () => {
-    it("scanLocal 解析返回的 JSON 数组", async () => {
+    it("scanLocal 解析返回的 JSON 数组（含 source）", async () => {
         mockedInvoke.mockResolvedValue(
-            JSON.stringify([{ comicId: "a", chapterCount: 3 }]),
+            JSON.stringify([{ source: "webtoons", comicId: "a", chapterCount: 3 }]),
         );
         await expect(scanLocal("/tmp/dl")).resolves.toEqual([
-            { comicId: "a", chapterCount: 3 },
+            { source: "webtoons", comicId: "a", chapterCount: 3 },
         ]);
         expect(mockedInvoke).toHaveBeenCalledWith("scan_local", { dir: "/tmp/dl" });
     });
 
-    it("listDownloaded 解析章节→文件映射", async () => {
+    it("listDownloaded 带 source 解析章节→文件映射", async () => {
         mockedInvoke.mockResolvedValue(JSON.stringify({ "1": ["/a/1/0.jpg"] }));
-        await expect(listDownloaded("/tmp/dl", "a")).resolves.toEqual({
+        await expect(listDownloaded("/tmp/dl", "webtoons", "a")).resolves.toEqual({
             "1": ["/a/1/0.jpg"],
         });
         expect(mockedInvoke).toHaveBeenCalledWith("list_downloaded", {
             dir: "/tmp/dl",
+            source: "webtoons",
             comicId: "a",
         });
     });
 
-    it("downloadImage 把 'true'/'false' 转为布尔，referer 一并透传", async () => {
+    it("downloadImage 带 source 命名空间，把 'true'/'false' 转为布尔", async () => {
         mockedInvoke.mockResolvedValue("true");
         await expect(
-            downloadImage("https://x/a.jpg", "/tmp/dl", "a", 1, 0, "https://www.webtoons.com/"),
+            downloadImage(
+                "https://x/a.jpg",
+                "/tmp/dl",
+                "webtoons",
+                "a",
+                1,
+                0,
+                "https://www.webtoons.com/",
+            ),
         ).resolves.toBe(true);
         expect(mockedInvoke).toHaveBeenCalledWith("download_image", {
             url: "https://x/a.jpg",
             dir: "/tmp/dl",
+            source: "webtoons",
             comicId: "a",
             chapterIndex: 1,
             pageIndex: 0,
@@ -106,7 +133,7 @@ describe("scanLocal / listDownloaded / downloadImage（本地下载命令包装�
         });
         mockedInvoke.mockResolvedValue("false");
         await expect(
-            downloadImage("https://x/a.jpg", "/tmp/dl", "a", 1, 0, ""),
+            downloadImage("https://x/a.jpg", "/tmp/dl", "webtoons", "a", 1, 0, ""),
         ).resolves.toBe(false);
     });
 });

@@ -102,23 +102,34 @@ async fn webdav_get(base: String, user: String, password: String, file_name: Str
 async fn download_image(
     url: String,
     dir: String,
+    source: String,
     comic_id: String,
     chapter_index: i64,
     page_index: i64,
     referer: String,
 ) -> String {
     tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::download_image(&url, &dir, &comic_id, chapter_index, page_index, &referer)
+        cimoc_core::download_image(
+            &url,
+            &dir,
+            &source,
+            &comic_id,
+            chapter_index,
+            page_index,
+            &referer,
+        )
     })
     .await
     .unwrap_or_default()
 }
 
 #[tauri::command]
-async fn list_downloaded(dir: String, comic_id: String) -> String {
-    tauri::async_runtime::spawn_blocking(move || cimoc_core::list_downloaded(&dir, &comic_id))
-        .await
-        .unwrap_or_default()
+async fn list_downloaded(dir: String, source: String, comic_id: String) -> String {
+    tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::list_downloaded(&dir, &source, &comic_id)
+    })
+    .await
+    .unwrap_or_default()
 }
 
 #[tauri::command]
@@ -133,11 +144,15 @@ fn cimoc_version() -> String {
     cimoc_core::cimoc_version()
 }
 
-/// 热链保护图片代理（research #4 结论）：前端把 pstatic.net 等域的图片 src 重写为
-/// `cimoc-img://localhost/img?url=..&ref=..`，这里转发给 cimoc-core 的缓存取图
-/// （LRU + 磁盘缓存 + 复用共享 reqwest 客户端，Referer 由 cimoc_core 侧补）。
+/// 热链保护图片代理 + 本地文件读取（research #4 / wayfinder #19）。
+/// 前端把 pstatic.net 等域的图片 src 重写为 `cimoc-img://localhost/img?url=..&ref=..`，
+/// 或把本地下载文件路径重写为 `cimoc-img://localhost/file?path=..`；这里转发给
+/// cimoc-core 的缓存取图（LRU + 磁盘缓存，Referer 由 cimoc_core 侧补）或直接读本地文件。
 fn fetch_proxied_image(uri: &str) -> tauri::http::Response<Cow<'static, [u8]>> {
-    let (url, referer) = parse_img_query(uri);
+    let (url, referer, path) = parse_img_query(uri);
+    if !path.is_empty() {
+        return local_file_response(&path);
+    }
     if url.is_empty() {
         return error_response(400);
     }
@@ -152,21 +167,49 @@ fn fetch_proxied_image(uri: &str) -> tauri::http::Response<Cow<'static, [u8]>> {
     }
 }
 
-fn parse_img_query(uri: &str) -> (String, String) {
+fn parse_img_query(uri: &str) -> (String, String, String) {
     let query = uri.split('?').nth(1).unwrap_or("");
     let mut url = String::new();
     let mut referer = String::new();
+    let mut path = String::new();
     for pair in query.split('&') {
         if let Some((k, v)) = pair.split_once('=') {
             let value = urlencoding::decode(v).unwrap_or_default().into_owned();
             match k {
                 "url" => url = value,
                 "ref" => referer = value,
+                "path" => path = value,
                 _ => {}
             }
         }
     }
-    (url, referer)
+    (url, referer, path)
+}
+
+fn local_file_response(path: &str) -> tauri::http::Response<Cow<'static, [u8]>> {
+    match std::fs::read(path) {
+        Ok(bytes) => tauri::http::Response::builder()
+            .status(200)
+            .header("Content-Type", content_type_for(path))
+            .body(Cow::Owned(bytes))
+            .unwrap_or_else(|_| error_response(500)),
+        Err(_) => error_response(404),
+    }
+}
+
+fn content_type_for(path: &str) -> &'static str {
+    let lower = path.to_ascii_lowercase();
+    if lower.ends_with(".png") {
+        "image/png"
+    } else if lower.ends_with(".webp") {
+        "image/webp"
+    } else if lower.ends_with(".gif") {
+        "image/gif"
+    } else if lower.ends_with(".jpeg") || lower.ends_with(".jpg") {
+        "image/jpeg"
+    } else {
+        "application/octet-stream"
+    }
 }
 
 fn error_response(status: u16) -> tauri::http::Response<Cow<'static, [u8]>> {
@@ -225,15 +268,34 @@ mod tests {
     #[test]
     fn parse_img_query_extracts_url_and_ref() {
         let uri = "cimoc-img://localhost/img?url=https%3A%2F%2Fs.pstatic.net%2Fa.webp&ref=https%3A%2F%2Fwww.webtoons.com%2F";
-        let (url, referer) = parse_img_query(uri);
+        let (url, referer, path) = parse_img_query(uri);
         assert_eq!(url, "https://s.pstatic.net/a.webp");
         assert_eq!(referer, "https://www.webtoons.com/");
+        assert_eq!(path, "");
+    }
+
+    #[test]
+    fn parse_img_query_extracts_local_path() {
+        let uri = "cimoc-img://localhost/file?path=%2FUsers%2Fme%2FDownloads%2Fcimoc%2Fwebtoons%2Fc1%2Fchapter_1%2F0.jpg";
+        let (url, referer, path) = parse_img_query(uri);
+        assert_eq!(url, "");
+        assert_eq!(referer, "");
+        assert_eq!(path, "/Users/me/Downloads/cimoc/webtoons/c1/chapter_1/0.jpg");
     }
 
     #[test]
     fn parse_img_query_missing_params_empty() {
-        let (url, referer) = parse_img_query("cimoc-img://localhost/img?x=1");
+        let (url, referer, path) = parse_img_query("cimoc-img://localhost/img?x=1");
         assert_eq!(url, "");
         assert_eq!(referer, "");
+        assert_eq!(path, "");
+    }
+
+    #[test]
+    fn content_type_by_extension() {
+        assert_eq!(content_type_for("/x/a.jpg"), "image/jpeg");
+        assert_eq!(content_type_for("/x/a.webp"), "image/webp");
+        assert_eq!(content_type_for("/x/a.png"), "image/png");
+        assert_eq!(content_type_for("/x/a"), "application/octet-stream");
     }
 }

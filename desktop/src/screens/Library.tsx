@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { open } from "@tauri-apps/plugin-dialog";
-import { imgSrc, scanLocal, type Comic, type LocalComic } from "../api";
+import {
+    imgSrc,
+    scanLocal,
+    listDownloaded,
+    type Comic,
+    type LocalComic,
+} from "../api";
 import {
     comicKey,
     getFavorites,
@@ -102,7 +108,7 @@ export default function Library() {
                 ) : downloads.length === 0 ? (
                     <Empty text="还没有下载的漫画" />
                 ) : (
-                    <DirList items={downloads} />
+                    <DirList dir={downloadDir} items={downloads} />
                 ))}
 
             {tab === "local" && (
@@ -124,7 +130,7 @@ export default function Library() {
                             }
                         />
                     ) : (
-                        <DirList items={local} />
+                        <DirList dir={lastScanDir!} items={local} />
                     )}
                 </div>
             )}
@@ -136,20 +142,71 @@ function Empty({ text }: { text: string }) {
     return <div style={{ color: "var(--muted)", padding: "24px 0" }}>{text}</div>;
 }
 
-function DirList({ items }: { items: LocalComic[] }) {
+/** 下载/本地漫画列表（wayfinder #19）：点漫画就地展开章节，点章节进本地阅读器。 */
+function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
+    const [expanded, setExpanded] = useState<string | null>(null);
+    const [chapters, setChapters] = useState<Record<string, string[]>>({});
+
+    async function toggle(key: string, item: LocalComic) {
+        if (expanded === key) {
+            setExpanded(null);
+            return;
+        }
+        setExpanded(key);
+        if (!chapters[key]) {
+            const listed = await listDownloaded(dir, item.source, item.comicId);
+            const flat: Record<string, string[]> = {};
+            for (const [idx, paths] of Object.entries(listed)) flat[idx] = paths;
+            setChapters((c) => ({ ...c, ...flat }));
+        }
+    }
+
     return (
         <ul style={{ padding: 0, listStyle: "none", margin: 0 }}>
-            {items.map((d) => (
-                <li
-                    key={d.comicId}
-                    style={{ padding: "8px 0", borderBottom: "1px solid var(--border)" }}
-                >
-                    <strong>{d.comicId}</strong>
-                    <span style={{ color: "var(--muted)", marginLeft: 8 }}>
-                        {d.chapterCount} 个章节目录
-                    </span>
-                </li>
-            ))}
+            {items.map((d) => {
+                const key = `${d.source}:${d.comicId}`;
+                const chs = chapters[key];
+                const isOpen = expanded === key;
+                return (
+                    <li
+                        key={key}
+                        style={{ padding: "8px 0", borderBottom: "1px solid var(--border)" }}
+                    >
+                        <button
+                            onClick={() => void toggle(key, d)}
+                            style={{
+                                width: "100%",
+                                textAlign: "left",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                padding: 0,
+                                fontSize: "inherit",
+                            }}
+                        >
+                            <strong>{d.comicId}</strong>
+                            <span style={{ color: "var(--muted)", marginLeft: 8 }}>
+                                {d.source !== "local" ? `${d.source} · ` : ""}
+                                {d.chapterCount} 话{isOpen ? " ▴" : " ▾"}
+                            </span>
+                        </button>
+                        {isOpen && chs && (
+                            <ul style={{ padding: "4px 0 0 12px", listStyle: "none", margin: 0 }}>
+                                {Object.entries(chs).map(([idx, paths]) => (
+                                    <li key={idx} style={{ padding: "2px 0" }}>
+                                        <Link
+                                            to={`/local/${d.source}/${encodeURIComponent(d.comicId)}/${idx}`}
+                                            style={{ textDecoration: "none", color: "inherit" }}
+                                        >
+                                            第 {idx} 话（{paths.length} 页）
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </li>
+                );
+            })}
         </ul>
     );
 }
