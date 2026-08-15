@@ -1,18 +1,77 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::borrow::Cow;
-use std::sync::OnceLock;
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
 use tauri::Manager;
 
 /// 图片代理缓存目录（setup 时解析 app cache dir 填充，scheme 回调里拿不到 AppHandle）。
 static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
 
+/// 源脚本运行时 registry：sourceId -> script（前端从 sources.json 同步进来；
+/// 未同步的源 crawl 返回空结果，见 cimoc-core 分发保护）。
+struct SourceRegistry(Mutex<HashMap<String, String>>);
+
 /// 爬虫引擎统一入口（转发 Rust core，返回 JSON 字符串）。
 /// 阻塞式 reqwest 放入 spawn_blocking：同步命令在主线程执行，直接调用会卡死 UI。
+/// 源脚本错误（#17 呈现）经 cimoc-core 错误 registry 记录，这里追加到 app 日志目录。
 #[tauri::command]
-async fn crawl(op: String, source: String, payload: String) -> String {
-    tauri::async_runtime::spawn_blocking(move || cimoc_core::crawl(&op, &source, &payload))
-        .await
-        .unwrap_or_default()
+async fn crawl(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, SourceRegistry>,
+    op: String,
+    source: String,
+    payload: String,
+) -> Result<String, String> {
+    let src = source.clone();
+    let script = state.0.lock().unwrap().get(&source).cloned().unwrap_or_default();
+    let out = tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::crawl(&op, &src, &payload, &script)
+    })
+    .await
+    .unwrap_or_default();
+    if let Some((msg, at)) = cimoc_core::crawler::script::last_error(&source) {
+        if let Ok(log_dir) = app.path().app_log_dir() {
+            let _ = std::fs::create_dir_all(&log_dir);
+            let line = format!("[{at}] {source}: {msg}\n");
+            let _ = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(log_dir.join("sources.log"))
+                .and_then(|f| {
+                    use std::io::Write;
+                    let mut w = std::io::BufWriter::new(f);
+                    w.write_all(line.as_bytes())
+                });
+        }
+    }
+    Ok(out)
+}
+
+/// 内置源脚本（debug 读磁盘实现 #17 开发回路，release 用 include_str! 打包）。
+#[tauri::command]
+fn bundled_sources() -> HashMap<String, String> {
+    let mut m = HashMap::new();
+    for (id, _) in cimoc_core::js::sources::bundled() {
+        if let Some(script) = cimoc_core::js::sources::load(id) {
+            m.insert(id.to_string(), script);
+        }
+    }
+    m
+}
+
+/// 前端启动/更新后把 sources.json 里的脚本同步进 registry。
+#[tauri::command]
+fn sync_sources(state: tauri::State<'_, SourceRegistry>, entries: HashMap<String, String>) {
+    *state.0.lock().unwrap() = entries;
+}
+
+/// 各源最近一次错误（Sources 错误行 / Settings 源区展示，wayfinder #17）。
+#[tauri::command]
+fn source_errors() -> HashMap<String, serde_json::Value> {
+    cimoc_core::crawler::script::all_errors()
+        .into_iter()
+        .map(|(source, (message, at))| (source, serde_json::json!({ "message": message, "at": at })))
+        .collect()
 }
 
 #[tauri::command]
@@ -126,6 +185,7 @@ pub fn run() {
         builder = builder.plugin(tauri_plugin_mcp_bridge::init());
     }
     builder
+        .manage(SourceRegistry(Mutex::new(HashMap::new())))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
@@ -144,6 +204,9 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             crawl,
+            bundled_sources,
+            sync_sources,
+            source_errors,
             webdav_put,
             webdav_get,
             download_image,

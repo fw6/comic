@@ -1,6 +1,6 @@
 import { load, type Store } from "@tauri-apps/plugin-store";
 import { downloadDir } from "@tauri-apps/api/path";
-import { crawl, type Comic } from "../api";
+import { crawl, bundledSources, syncSources, type Comic } from "../api";
 
 // S3 seam：进度/收藏/历史/设置持久化（grilling #6：每域一 JSON，tauri-plugin-store）。
 // 本模块只依赖插件 Store 的 get/set/delete 契约；测试 mock 插件后验证自有逻辑。
@@ -30,6 +30,7 @@ const FILES = {
     history: "history.json",
     progress: "progress.json",
     webtoonsCache: "webtoons-cache.json",
+    sources: "sources.json",
 } as const;
 
 const storeCache = new Map<string, Promise<Store>>();
@@ -142,6 +143,61 @@ export async function setSettings(partial: Partial<Settings>): Promise<void> {
     const store = await getStore(FILES.settings);
     const current = await store.get<Partial<Settings>>("settings");
     await store.set("settings", { ...current, ...partial });
+}
+
+// ---------- 已装源（wayfinder #16：sources.json 域，key = sourceId） ----------
+
+export interface SourceEntry {
+    sourceId: string;
+    name: string;
+    /** 递增整数版本（#16 Q7），与源仓库 index 对比决定更新。 */
+    version: number;
+    script: string;
+    updatedAt: number;
+}
+
+export async function getSources(): Promise<Record<string, SourceEntry>> {
+    const store = await getStore(FILES.sources);
+    return (await store.get<Record<string, SourceEntry>>("sources")) ?? {};
+}
+
+export async function setSources(entries: Record<string, SourceEntry>): Promise<void> {
+    const store = await getStore(FILES.sources);
+    await store.set("sources", entries);
+}
+
+const SOURCE_NAMES: Record<string, string> = {
+    webtoons: "Webtoons",
+    mangadex: "MangaDex",
+};
+
+/**
+ * 启动时同步源脚本：sources.json 缺失时用内置脚本初始化（#16 Q8：首启种子）；
+ * dev 模式每次覆盖（#17 开发回路：改脚本重启即生效）。随后把脚本同步进 Rust registry。
+ */
+export async function initSources(): Promise<void> {
+    const dev = import.meta.env.DEV;
+    const existing = await getSources();
+    const missing = Object.keys(existing).length === 0;
+    if (missing || dev) {
+        const bundled = await bundledSources();
+        const now = Date.now();
+        const next: Record<string, SourceEntry> = {};
+        for (const [id, script] of Object.entries(bundled)) {
+            next[id] = {
+                sourceId: id,
+                name: SOURCE_NAMES[id] ?? id,
+                version: 1,
+                script,
+                updatedAt: now,
+            };
+        }
+        await setSources(next);
+    }
+    const current = missing || dev ? await getSources() : existing;
+    const scripts: Record<string, string> = {};
+    for (const [id, entry] of Object.entries(current)) scripts[id] = entry.script;
+    await syncSources(scripts);
 }
 
 // ---------- Webtoons series URL 缓存（进程内静态 → 持久化，grilling #6 存储域） ----------

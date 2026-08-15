@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { crawl, imgSrc, cimocVersion, type Comic } from "../api";
+import { crawl, imgSrc, cimocVersion, sourceErrors, type Comic, type SourceError } from "../api";
 import { persistWebtoonsCache } from "../lib/storage";
 
 const SOURCES = [
@@ -14,6 +14,8 @@ export default function Sources() {
     const [comics, setComics] = useState<Comic[]>([]);
     const [loading, setLoading] = useState(false);
     const [version, setVersion] = useState("");
+    // 源脚本错误行（wayfinder #17：源坏了不再伪装成空列表）
+    const [sourceErr, setSourceErr] = useState<string | null>(null);
 
     useEffect(() => {
         cimocVersion()
@@ -23,6 +25,7 @@ export default function Sources() {
 
     async function search() {
         setLoading(true);
+        setSourceErr(null);
         try {
             const results = await crawl<Comic[]>("search", source, { keyword });
             setComics(results);
@@ -30,6 +33,8 @@ export default function Sources() {
         } catch (e) {
             console.error("search failed", e);
         } finally {
+            const errs = await sourceErrors().catch((): Record<string, SourceError> => ({}));
+            setSourceErr(errs[source]?.message.split("\n")[0] ?? null);
             setLoading(false);
         }
     }
@@ -62,6 +67,20 @@ export default function Sources() {
                     {loading ? "搜索中…" : "搜索"}
                 </button>
             </div>
+            {sourceErr && (
+                <div
+                    style={{
+                        margin: "8px 0",
+                        padding: "8px 12px",
+                        borderRadius: 8,
+                        background: "var(--danger-bg, #fde8e8)",
+                        color: "var(--danger, #c0392b)",
+                        fontSize: 13,
+                    }}
+                >
+                    加载失败：{sourceErr}（点「搜索」重试）
+                </div>
+            )}
             <div
                 style={{
                     display: "grid",

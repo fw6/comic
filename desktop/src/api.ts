@@ -71,6 +71,23 @@ export const downloadImage = (
         referer,
     }).then((v) => v === "true");
 
+/** 某源最近一次错误（wayfinder #17：Sources 错误行 / Settings 源区）。 */
+export interface SourceError {
+    message: string;
+    /** unix 毫秒 */
+    at: number;
+}
+
+/** 内置源脚本（debug 从磁盘读，release 内置打包）。 */
+export const bundledSources = (): Promise<Record<string, string>> => invoke("bundled_sources");
+
+/** 把 sources.json 的脚本同步进 Rust registry（启动/更新后调用）。 */
+export const syncSources = (entries: Record<string, string>) =>
+    invoke("sync_sources", { entries });
+
+/** 各源最近错误：{source: {message, at}}。 */
+export const sourceErrors = (): Promise<Record<string, SourceError>> => invoke("source_errors");
+
 /** 热链保护域（research #4 结论）：重写为 cimoc-img:// 代理，其余保持直连吃 webview 缓存。 */
 export function imgSrc(url: string): string {
     if (url.includes("pstatic.net")) {

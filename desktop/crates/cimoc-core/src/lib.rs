@@ -15,8 +15,9 @@ pub fn cimoc_version() -> String {
 }
 
 /// 爬虫引擎统一入口：返回 JSON 字符串（失败返回空 JSON）。
-pub fn crawl(op: &str, source: &str, payload: &str) -> String {
-    crawler::crawl(op, source, payload)
+/// `script`：该 source 的运行时源脚本（wayfinder #15 契约；缓存类 op 忽略）。
+pub fn crawl(op: &str, source: &str, payload: &str, script: &str) -> String {
+    crawler::crawl(op, source, payload, script)
 }
 
 /// WebDAV PUT 备份：返回 JSON `{"success","status"}`。

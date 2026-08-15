@@ -5,7 +5,7 @@ You are an expert in Rust, TypeScript/React, and Tauri v2 application developmen
 ## Repository Layout
 
 - `desktop/` — **当前主工程**：Cimoc 漫画阅读器桌面版（macOS/Windows/Linux），Tauri v2 + React（Vite web 前端）。前端在 `desktop/src/`，Rust 后端在 `desktop/src-tauri/`。
-- `desktop/crates/cimoc-core/` — **Rust 核心**：跨端共享的爬虫引擎（Webtoons/MangaDex）与 WebDAV/下载/本地文件 IO/图片缓存（`cache::fetch_image`）。`src-tauri` 经 tauri command 接线，核心本身无绑定层、不重写。
+- `desktop/crates/cimoc-core/` — **Rust 核心**：跨端共享的爬虫引擎与 WebDAV/下载/本地文件 IO/图片缓存（`cache::fetch_image`）。爬虫解析与 URL 构造自 2026-08-15 起为**运行时源脚本**（`src/js/sources/`，rquickjs 0.12.2 执行，契约 `buildUrl(op,payload,ctx)`/`parse(op,input,ctx)` → JSON 字符串，见 `src/js/mod.rs`）；Rust 侧保留网络/请求头/缓存（webtoons series URL、mangadex tags/章节 id）与命令层。`src-tauri` 经 tauri command 接线，核心本身无绑定层、不重写。
 - `docs/` — wayfinder 决策地图（GitHub Issues）、研究纪要（`docs/research/`）、issue 追踪约定（`docs/agents/issue-tracker.md`）。
 - `CONTEXT.md` — 领域术语表（无限滚动、外链章节过滤、进度自动记录等，grilling #6 定案）。
 - 旧 Lynx 工程（`sparkling-cimoc/`、根 `src/ android/ dist/`）已删除（big-bang，轨迹见 wayfinder 地图「从 Lynx 迁移到 Tauri」: https://github.com/fw6/comic/issues/2）。
@@ -14,7 +14,7 @@ You are an expert in Rust, TypeScript/React, and Tauri v2 application developmen
 
 - Tauri: [llms.txt](https://tauri.app/llms.txt)，**REQUIRED**。处理 Tauri 任务前必须阅读（文档入口）。
 - Tauri 插件: <https://tauri.app/plugin/>（store/dialog/opener/fs 等）。
-- Rust 核心：直接读 `desktop/crates/cimoc-core/src/` 源码（crawler/native/cache 三模块），API 为 `&str` → JSON 字符串。
+- Rust 核心：直接读 `desktop/crates/cimoc-core/src/` 源码（js/crawler/native/cache 模块），API 为 `&str` → JSON 字符串；源脚本契约与内置脚本见 `src/js/`。
 
 ## Commands
 

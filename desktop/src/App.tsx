@@ -12,7 +12,7 @@ import Detail from "./screens/Detail";
 import Reader from "./screens/Reader";
 import Library from "./screens/Library";
 import Settings from "./screens/Settings";
-import { getSettings, hydrateWebtoonsCache } from "./lib/storage";
+import { getSettings, hydrateWebtoonsCache, initSources } from "./lib/storage";
 import { applyTheme } from "./lib/theme";
 
 function TopBar() {
@@ -59,6 +59,8 @@ function TopBar() {
 export default function App() {
     useEffect(() => {
         void getSettings().then((s) => applyTheme(s.darkMode));
+        // 源脚本注册（#16/#17：首启种子 / dev 磁盘覆盖 → 同步 Rust registry）
+        void initSources();
         // Webtoons series URL 缓存持久化回灌（grilling #6 存储域）
         void hydrateWebtoonsCache();
     }, []);

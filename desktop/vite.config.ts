@@ -30,9 +30,10 @@ export default defineConfig(async () => ({
     },
   },
 
-  // 测试（#10 定案：vitest + jsdom；seam 测试走显式 import，不用 globals）
+  // 测试（#10 定案：vitest + jsdom；seam 测试走显式 import，不用 globals。
+  // 源脚本测试（#17 双轨的 JS 侧）：脚本在 cimoc-core/src/js/sources/，fixture 走 fs 读取）
   test: {
     environment: "jsdom",
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "crates/cimoc-core/src/js/**/*.test.js"],
   },
 }));
