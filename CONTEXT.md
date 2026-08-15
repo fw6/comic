@@ -16,7 +16,7 @@ Cimoc 漫画阅读器的领域术语表。桌面 v1（Tauri v2 + React）先落�
 - **进度（progress）**：读者的阅读位置，由应用自动记录（当前章节 + 话内位置），阅读时静默落盘，重进阅读器恢复。不提供手动保存。
 - **收藏（favorites）**：用户收藏的漫画列表。
 - **历史（history）**：最近阅读记录。
-- **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；下载行为在 Reader 内触发。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经 cimoc-img:// 本地模式渲染）。
-- **下载任务（download task）**：多任务下载队列的进度管理界面（v1 后置）。
+- **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；Reader「下载本话」把章节**入队**（wayfinder #20/#22），由 Rust 侧队列 worker 按章内顺序、全局 2 页并发下载，进度经 IPC Channel 推送（`download://progress`）。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经 cimoc-img:// 本地模式渲染）。
+- **下载任务（download task）**：多任务下载队列（wayfinder #20 已实现）：一话一个任务，taskId = `source/comicId/chapterIndex`；状态 queued/downloading/done/failed/cancelled；单页失败重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；TopBar「下载」页管理（进度条/取消/重试/清空已完成）。
 - **本地扫描（local scan）**：用户选择一个文件夹，导入其中已下载的漫画（Library「本地」入口）。
 - **WebDAV 备份（backup）**：收藏 / 历史 / 进度的 WebDAV 备份与恢复（v1 后置；也是日后旧手机数据互通的通道）。

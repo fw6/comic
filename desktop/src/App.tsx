@@ -12,6 +12,7 @@ import Detail from "./screens/Detail";
 import Reader from "./screens/Reader";
 import Library from "./screens/Library";
 import Settings from "./screens/Settings";
+import Downloads from "./screens/Downloads";
 import { getSettings, hydrateWebtoonsCache, initSources } from "./lib/storage";
 import { applyTheme } from "./lib/theme";
 
@@ -53,6 +54,9 @@ function TopBar() {
             <NavLink to="/library" style={({ isActive }) => linkStyle(isActive)}>
                 书架
             </NavLink>
+            <NavLink to="/downloads" style={({ isActive }) => linkStyle(isActive)}>
+                下载
+            </NavLink>
             <NavLink to="/settings" style={({ isActive }) => linkStyle(isActive)}>
                 设置
             </NavLink>
@@ -85,6 +89,7 @@ export default function App() {
                         element={<Reader local />}
                     />
                     <Route path="/library" element={<Library />} />
+                    <Route path="/downloads" element={<Downloads />} />
                     <Route path="/settings" element={<Settings />} />
                 </Routes>
             </main>

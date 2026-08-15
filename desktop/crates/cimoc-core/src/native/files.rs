@@ -44,6 +44,16 @@ fn comic_dir(dir: &str, source: &str, comic_id: &str) -> std::path::PathBuf {
     }
 }
 
+/// 该章节是否已在磁盘（下载队列去重：入队即 done，grilling #22 #4）。
+/// 章节目录存在且至少含一个文件才算已下载。
+pub fn chapter_downloaded(dir: &str, source: &str, comic_id: &str, chapter_index: i64) -> bool {
+    let chapter = comic_dir(dir, source, comic_id).join(chapter_dir_name(chapter_index));
+    match fs::read_dir(&chapter) {
+        Ok(mut it) => it.by_ref().any(|e| e.is_ok()),
+        Err(_) => false,
+    }
+}
+
 /// 下载单张图片到 `<dir>/<source>/<comicId>/chapter_<n>/<page>.<ext>`，返回 `"true"`/`"false"`。
 /// referer 非空时带上（热链域如 pstatic.net 需要，research #4）。
 pub fn download_image(

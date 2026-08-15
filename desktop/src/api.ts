@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, Channel } from "@tauri-apps/api/core";
 
 export interface Comic {
     id: string;
@@ -54,25 +54,74 @@ export const listDownloaded = (dir: string, source: string, comicId: string) =>
         (json) => JSON.parse(json) as Record<string, string[]>,
     );
 
-/** 下载单页到 `<dir>/<source>/<comicId>/chapter_<n>/…`，返回是否成功。referer 非空时带上（热链域如 pstatic.net 需要）。 */
-export const downloadImage = (
-    url: string,
-    dir: string,
-    source: string,
-    comicId: string,
-    chapterIndex: number,
-    pageIndex: number,
-    referer: string,
-) =>
-    invoke<string>("download_image", {
-        url,
-        dir,
-        source,
-        comicId,
-        chapterIndex,
-        pageIndex,
-        referer,
-    }).then((v) => v === "true");
+/** 某源最近一次错误（wayfinder #17：Sources 错误行 / Settings 源区）。 */
+
+// ---------- 下载任务队列（wayfinder #20/#22/#23） ----------
+
+export type DownloadStatus = "queued" | "downloading" | "done" | "failed" | "cancelled";
+
+/** 进度事件载荷（grilling #22 #6）：`{taskId, status, done, total, error?}`。 */
+export interface DownloadProgress {
+    taskId: string;
+    status: DownloadStatus;
+    done: number;
+    total: number;
+    error?: string;
+}
+
+/** 队列快照里的任务视图（进度 + 展示字段，Downloads 页任务行）。 */
+export interface DownloadTaskView extends DownloadProgress {
+    source: string;
+    comicId: string;
+    comicTitle: string;
+    chapterIndex: number;
+}
+
+/** 入队结果（grilling #22 #4/#5 去重语义）。 */
+export type EnqueueResult = "queued" | "alreadyDownloaded" | "alreadyQueued";
+
+export interface EnqueueOutcome {
+    result: EnqueueResult;
+    progress: DownloadProgress;
+}
+
+/** 订阅下载进度（Downloads 页挂载时调用；Channel 存 Rust State 供 worker 推送）。 */
+export const subscribeDownloads = (channel: Channel<DownloadProgress>) =>
+    invoke("subscribe_downloads", { channel });
+
+/** 退订（组件卸载时清理订阅，grilling #23 #6）。 */
+export const unsubscribeDownloads = () => invoke("unsubscribe_downloads");
+
+/** 队列快照（任务视图数组，含展示字段）。 */
+export const getDownloads = () =>
+    invoke<string>("get_downloads").then((json) => JSON.parse(json) as DownloadTaskView[]);
+
+/** 入队一话下载（已在磁盘 → alreadyDownloaded 不入队；重复入队 → alreadyQueued）。 */
+export const enqueueDownload = (params: {
+    source: string;
+    comicId: string;
+    comicTitle: string;
+    chapterIndex: number;
+    dir: string;
+    referer: string;
+    urls: string[];
+}): Promise<EnqueueOutcome> =>
+    invoke<string>("enqueue_download", params).then((json) => JSON.parse(json) as EnqueueOutcome);
+
+/** 取消任务（排队/下载中 → cancelled）。返回最新进度或 null。 */
+export const cancelDownload = (taskId: string): Promise<DownloadProgress | null> =>
+    invoke<string>("cancel_download", { taskId }).then((json) =>
+        json === "null" ? null : (JSON.parse(json) as DownloadProgress),
+    );
+
+/** 重试任务（failed/cancelled → 重新排队）。返回最新进度或 null。 */
+export const retryDownload = (taskId: string): Promise<DownloadProgress | null> =>
+    invoke<string>("retry_download", { taskId }).then((json) =>
+        json === "null" ? null : (JSON.parse(json) as DownloadProgress),
+    );
+
+/** 清空已完成（done/failed/cancelled），返回移除数量。 */
+export const clearDownloads = () => invoke<number>("clear_downloads");
 
 /** 某源最近一次错误（wayfinder #17：Sources 错误行 / Settings 源区）。 */
 export interface SourceError {

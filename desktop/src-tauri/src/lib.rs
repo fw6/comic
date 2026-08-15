@@ -1,8 +1,11 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+use cimoc_core::native::queue::{DownloadProgress, DownloadQueue, DownloadTask, TaskStatus};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
-use tauri::Manager;
+use std::time::Duration;
+use tauri::ipc::Channel;
+use tauri::{Emitter, Manager};
 
 /// 图片代理缓存目录（setup 时解析 app cache dir 填充，scheme 回调里拿不到 AppHandle）。
 static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
@@ -10,6 +13,228 @@ static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
 /// 源脚本运行时 registry：sourceId -> script（前端从 sources.json 同步进来；
 /// 未同步的源 crawl 返回空结果，见 cimoc-core 分发保护）。
 struct SourceRegistry(Mutex<HashMap<String, String>>);
+
+/// 下载队列状态（wayfinder #20/#22）：任务队列 + 前端订阅的进度 Channel。
+/// Channel 绑定发起 subscribe 的 webview，随主窗口常驻（research #21）；失效则 emit 回退。
+struct DownloadState {
+    queue: DownloadQueue,
+    channel: Option<Channel<DownloadProgress>>,
+}
+
+/// 进度推送事件名（grilling #22 #6 定案；Channel 失效时的 emit 回退）。
+const DOWNLOAD_EVENT: &str = "download://progress";
+
+/// 全局页下载并发（grilling #22 #2：全局 2 页并发、章内顺序）→ 起 2 个 worker。
+const DOWNLOAD_WORKERS: usize = 2;
+
+/// 单页失败重试次数（grilling #22 #3：单页失败自动重试 2 次，共 3 次尝试）。
+const PAGE_RETRIES: usize = 3;
+
+/// 进度推送：优先走 Channel（强类型/有序）；send 失败（webview 已销毁）则清掉并回退 emit。
+fn push_progress(app: &tauri::AppHandle, p: DownloadProgress) {
+    let channel = app
+        .state::<Mutex<DownloadState>>()
+        .lock()
+        .unwrap()
+        .channel
+        .clone();
+    if let Some(ch) = channel {
+        if ch.send(p.clone()).is_ok() {
+            return;
+        }
+        app.state::<Mutex<DownloadState>>()
+            .lock()
+            .unwrap()
+            .channel = None;
+    }
+    let _ = app.emit(DOWNLOAD_EVENT, p);
+}
+
+/// 下载一个任务（一话）：章内按页顺序下载，单页失败重试 2 次；
+/// 每页前检查取消（取消由 cancel 命令置状态，worker 据此中止）。
+async fn run_download_task(app: tauri::AppHandle, task: DownloadTask) {
+    let id = task.task_id.clone();
+    push_progress(&app, task.to_progress()); // downloading
+    for (i, url) in task.urls.iter().enumerate() {
+        if app
+            .state::<Mutex<DownloadState>>()
+            .lock()
+            .unwrap()
+            .queue
+            .is_cancelled(&id)
+        {
+            return; // 已取消：状态已置 cancelled，不再下载后续页
+        }
+        let mut ok = false;
+        for _ in 0..PAGE_RETRIES {
+            let (u, t) = (url.clone(), task.clone());
+            let out = tauri::async_runtime::spawn_blocking(move || {
+                cimoc_core::download_image(
+                    &u,
+                    &t.dir,
+                    &t.source,
+                    &t.comic_id,
+                    t.chapter_index,
+                    i as i64,
+                    &t.referer,
+                )
+            })
+            .await
+            .unwrap_or_default();
+            if out == "true" {
+                ok = true;
+                break;
+            }
+        }
+        if ok {
+            let p = app
+                .state::<Mutex<DownloadState>>()
+                .lock()
+                .unwrap()
+                .queue
+                .mark_page_done(&id);
+            if let Some(p) = p {
+                push_progress(&app, p);
+            }
+        } else {
+            let p = app
+                .state::<Mutex<DownloadState>>()
+                .lock()
+                .unwrap()
+                .queue
+                .mark_failed(&id, format!("第 {} 页下载失败", i + 1));
+            if let Some(p) = p {
+                push_progress(&app, p);
+            }
+            return;
+        }
+    }
+}
+
+/// 常驻 worker：FIFO 领取任务并下载（并发 = worker 数，符合「全局 2 页并发、章内顺序」）。
+async fn download_worker(app: tauri::AppHandle) {
+    loop {
+        let task = {
+            let state = app.state::<Mutex<DownloadState>>();
+            let mut s = state.lock().unwrap();
+            s.queue.next_queued()
+        };
+        let Some(task) = task else {
+            tokio::time::sleep(Duration::from_millis(200)).await;
+            continue;
+        };
+        run_download_task(app.clone(), task).await;
+    }
+}
+
+/// 前端订阅下载进度（Downloads 页挂载时调用；Channel 存 State 供 worker 长期持有）。
+#[tauri::command]
+fn subscribe_downloads(
+    state: tauri::State<'_, Mutex<DownloadState>>,
+    channel: Channel<DownloadProgress>,
+) {
+    state.lock().unwrap().channel = Some(channel);
+}
+
+/// 前端退订（Downloads 页卸载时清理，grilling #23 #6：组件生命周期清理）。
+#[tauri::command]
+fn unsubscribe_downloads(state: tauri::State<'_, Mutex<DownloadState>>) {
+    state.lock().unwrap().channel = None;
+}
+
+/// 队列快照（Downloads 页初始加载；任务视图含展示字段）。
+#[tauri::command]
+fn get_downloads(state: tauri::State<'_, Mutex<DownloadState>>) -> String {
+    let s = state.lock().unwrap();
+    serde_json::to_string(&s.queue.snapshot()).unwrap_or_else(|_| "[]".to_string())
+}
+
+/// 入队一话下载（grilling #22）：去重 = 已在磁盘标 done 不入队；taskId 已在队列 → AlreadyQueued。
+/// 返回 JSON `{"result": "queued"|"alreadyDownloaded"|"alreadyQueued", "progress": {...}}`。
+#[tauri::command]
+async fn enqueue_download(
+    app: tauri::AppHandle,
+    source: String,
+    comic_id: String,
+    comic_title: String,
+    chapter_index: i64,
+    dir: String,
+    referer: String,
+    urls: Vec<String>,
+) -> String {
+    let (s, c, d) = (source.clone(), comic_id.clone(), dir.clone());
+    let already = tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::chapter_downloaded(&d, &s, &c, chapter_index)
+    })
+    .await
+    .unwrap_or(false);
+    let task = DownloadTask {
+        task_id: cimoc_core::task_id(&source, &comic_id, chapter_index),
+        source,
+        comic_id,
+        comic_title,
+        chapter_index,
+        dir,
+        referer,
+        urls,
+        done: 0,
+        status: TaskStatus::Queued,
+        error: None,
+    };
+    let (result, progress) = {
+        let state = app.state::<Mutex<DownloadState>>();
+        let mut s = state.lock().unwrap();
+        s.queue.enqueue(task, already)
+    };
+    push_progress(&app, progress.clone());
+    serde_json::json!({ "result": result.as_str(), "progress": progress }).to_string()
+}
+
+/// 取消任务（排队/下载中 → cancelled）。返回任务进度 JSON 或 `null`。
+#[tauri::command]
+fn cancel_download(
+    app: tauri::AppHandle,
+    task_id: String,
+) -> String {
+    let p = app
+        .state::<Mutex<DownloadState>>()
+        .lock()
+        .unwrap()
+        .queue
+        .cancel(&task_id);
+    if let Some(p) = p {
+        push_progress(&app, p.clone());
+        serde_json::to_string(&p).unwrap_or_default()
+    } else {
+        "null".to_string()
+    }
+}
+
+/// 重试任务（failed/cancelled → 重新排队）。返回任务进度 JSON 或 `null`。
+#[tauri::command]
+fn retry_download(
+    app: tauri::AppHandle,
+    task_id: String,
+) -> String {
+    let p = app
+        .state::<Mutex<DownloadState>>()
+        .lock()
+        .unwrap()
+        .queue
+        .retry(&task_id);
+    if let Some(p) = p {
+        push_progress(&app, p.clone());
+        serde_json::to_string(&p).unwrap_or_default()
+    } else {
+        "null".to_string()
+    }
+}
+
+/// 清空已完成（done/failed/cancelled），返回移除数量。
+#[tauri::command]
+fn clear_downloads(state: tauri::State<'_, Mutex<DownloadState>>) -> usize {
+    state.lock().unwrap().queue.clear_finished()
+}
 
 /// 爬虫引擎统一入口（转发 Rust core，返回 JSON 字符串）。
 /// 阻塞式 reqwest 放入 spawn_blocking：同步命令在主线程执行，直接调用会卡死 UI。
@@ -93,31 +318,6 @@ async fn webdav_put(
 async fn webdav_get(base: String, user: String, password: String, file_name: String) -> String {
     tauri::async_runtime::spawn_blocking(move || {
         cimoc_core::webdav_get(&base, &user, &password, &file_name)
-    })
-    .await
-    .unwrap_or_default()
-}
-
-#[tauri::command]
-async fn download_image(
-    url: String,
-    dir: String,
-    source: String,
-    comic_id: String,
-    chapter_index: i64,
-    page_index: i64,
-    referer: String,
-) -> String {
-    tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::download_image(
-            &url,
-            &dir,
-            &source,
-            &comic_id,
-            chapter_index,
-            page_index,
-            &referer,
-        )
     })
     .await
     .unwrap_or_default()
@@ -229,12 +429,23 @@ pub fn run() {
     }
     builder
         .manage(SourceRegistry(Mutex::new(HashMap::new())))
+        .manage(Mutex::new(DownloadState {
+            queue: DownloadQueue::new(),
+            channel: None,
+        }))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             if let Ok(dir) = app.path().app_cache_dir() {
                 let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
+            }
+            // 下载队列 worker（research #21：setup 里 spawn 常驻；worker 数 = 全局页并发）
+            for _ in 0..DOWNLOAD_WORKERS {
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    download_worker(handle).await;
+                });
             }
             Ok(())
         })
@@ -252,10 +463,16 @@ pub fn run() {
             source_errors,
             webdav_put,
             webdav_get,
-            download_image,
             list_downloaded,
             scan_local,
-            cimoc_version
+            cimoc_version,
+            subscribe_downloads,
+            unsubscribe_downloads,
+            get_downloads,
+            enqueue_download,
+            cancel_download,
+            retry_download,
+            clear_downloads
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

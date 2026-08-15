@@ -60,6 +60,14 @@ pub fn scan_local(dir: &str) -> String {
     native::files::scan_local(dir)
 }
 
+/// 某章节是否已在磁盘（下载队列去重）。
+pub fn chapter_downloaded(dir: &str, source: &str, comic_id: &str, chapter_index: i64) -> bool {
+    native::files::chapter_downloaded(dir, source, comic_id, chapter_index)
+}
+
+// 下载任务队列（wayfinder #20/#22）：状态机在 core，worker/Channel 推送在 src-tauri。
+pub use native::queue::{task_id, DownloadQueue, DownloadTask, EnqueueResult, TaskStatus};
+
 #[cfg(test)]
 mod tests {
     use super::*;

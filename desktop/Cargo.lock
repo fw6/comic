@@ -854,6 +854,7 @@ dependencies = [
  "tauri-plugin-mcp-bridge",
  "tauri-plugin-opener",
  "tauri-plugin-store",
+ "tokio",
  "urlencoding",
 ]
 

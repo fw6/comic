@@ -5,7 +5,7 @@ import {
     crawl,
     imgSrc,
     localSrc,
-    downloadImage,
+    enqueueDownload,
     listDownloaded,
     type Chapter,
     type Comic,
@@ -32,7 +32,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const [loading, setLoading] = useState(false);
     const [fullscreen, setFullscreen] = useState(false);
     const [autoTrim, setAutoTrim] = useState(false);
-    const [downloading, setDownloading] = useState(false);
+    const [enqueueHint, setEnqueueHint] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const chaptersRef = useRef<Chapter[]>([]);
@@ -41,7 +41,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const heightsRef = useRef<number[]>([]);
     const currentIdxRef = useRef(0);
     const loadingRef = useRef(false);
-    const downloadingRef = useRef(false);
     const loadedChaptersRef = useRef<Set<number>>(new Set());
     const restoredRef = useRef(false);
     const progressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -95,38 +94,32 @@ export default function Reader({ local = false }: { local?: boolean }) {
         setHeights(h);
     }, []);
 
-    /** 下载当前话（Reader 内下载，grilling #6；热链域带 Referer）。 */
-    const downloadCurrentChapter = useCallback(async () => {
+    /** 入队当前话下载（wayfinder #20/#23：Reader「下载本话」改入队 + 轻提示，不再阻塞）。 */
+    const enqueueCurrentChapter = useCallback(async () => {
         const chs = chaptersRef.current;
         const idx = currentIdxRef.current;
         const ch = chs[idx];
-        if (!ch || downloadingRef.current) return;
+        if (!ch) return;
         const settings = await getSettings();
         if (!settings.downloadDir) return;
-        downloadingRef.current = true;
-        setDownloading(true);
-        try {
-            const referer = source === "webtoons" ? "https://www.webtoons.com/" : "";
-            const urls = pagesRef.current
-                .filter((p) => p.chapterIdx === idx)
-                .map((p) => p.url);
-            for (let i = 0; i < urls.length; i++) {
-                await downloadImage(
-                    urls[i],
-                    settings.downloadDir,
-                    source!,
-                    id,
-                    ch.index,
-                    i,
-                    referer,
-                );
-            }
-        } catch (e) {
-            console.error("download failed", e);
-        } finally {
-            downloadingRef.current = false;
-            setDownloading(false);
-        }
+        const referer = source === "webtoons" ? "https://www.webtoons.com/" : "";
+        const urls = pagesRef.current
+            .filter((p) => p.chapterIdx === idx)
+            .map((p) => p.url);
+        if (urls.length === 0) return;
+        const out = await enqueueDownload({
+            source: source!,
+            comicId: id,
+            comicTitle: comicRef.current?.title ?? id,
+            chapterIndex: ch.index,
+            dir: settings.downloadDir,
+            referer,
+            urls,
+        });
+        setEnqueueHint(
+            out.result === "alreadyDownloaded" ? "该章节已下载" : "已加入下载队列",
+        );
+        setTimeout(() => setEnqueueHint(null), 2000);
     }, [source, id]);
 
     /** 按视口中心计算（章节, 话内位置）并落盘进度 + 历史。 */
@@ -326,13 +319,30 @@ export default function Reader({ local = false }: { local?: boolean }) {
                         <Link to={`/comic/${source}/${encodeURIComponent(id)}`}>← 章节</Link>
                     )}
                     {!local && (
-                        <button onClick={() => void downloadCurrentChapter()} disabled={downloading}>
-                            {downloading ? "下载中…" : "下载本话"}
+                        <button onClick={() => void enqueueCurrentChapter()}>
+                            下载本话
                         </button>
                     )}
                     <button onClick={toggleFullscreen} style={{ marginLeft: "auto" }}>
                         全屏
                     </button>
+                    {enqueueHint && (
+                        <span
+                            style={{
+                                position: "fixed",
+                                top: 52,
+                                left: "50%",
+                                transform: "translateX(-50%)",
+                                background: "var(--card-bg)",
+                                border: "1px solid var(--border)",
+                                padding: "6px 14px",
+                                borderRadius: 6,
+                                zIndex: 20,
+                            }}
+                        >
+                            {enqueueHint}
+                        </span>
+                    )}
                 </div>
             )}
             {chapters.length === 0 ? (
