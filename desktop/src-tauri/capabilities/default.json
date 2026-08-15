@@ -12,6 +12,14 @@
     {
       "identifier": "updater:default",
       "platforms": ["windows", "linux"]
+    },
+    "fs:default",
+    "fs:allow-write-text-file",
+    "fs:allow-mkdir",
+    "fs:allow-read-dir",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "$APPDATA/**" }]
     }
   ]
 }

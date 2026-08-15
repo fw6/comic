@@ -1,9 +1,15 @@
 import { load, type Store } from "@tauri-apps/plugin-store";
 import { downloadDir } from "@tauri-apps/api/path";
 import { crawl, bundledSources, syncSources, type Comic } from "../api";
+import { getStore as getFsStore } from "./storage-fs";
 
 // S3 seam：进度/收藏/历史/设置持久化（grilling #6：每域一 JSON，tauri-plugin-store）。
-// 本模块只依赖插件 Store 的 get/set/delete 契约；测试 mock 插件后验证自有逻辑。
+// 本模块只依赖 Store 的 get/set/delete/entries/clear 契约；测试 mock 插件后验证自有逻辑。
+// 移动端（wayfinder #29/#30）：tauri-plugin-store 不支持移动端 → 按平台切换
+// 到 storage-fs.ts（fs 读写 appDataDir JSON，接口一致，上层零改动）。
+
+/** 移动平台检测（Tauri 桌面 webview UA 含 Android/iPhone/iPad/iPod）。 */
+const IS_MOBILE = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
 
 export interface ProgressRecord {
     chapterIndex: number;
@@ -37,7 +43,12 @@ const FILES = {
 
 const storeCache = new Map<string, Promise<Store>>();
 
-function getStore(file: (typeof FILES)[keyof typeof FILES]): Promise<Store> {
+function getStore(file: (typeof FILES)[keyof typeof FILES]) {
+    // 移动端走 fs 版（store 插件不支持）；桌面保持 store 版（现行为，grilling #29）
+    return IS_MOBILE ? getFsStore(file) : loadStore(file);
+}
+
+function loadStore(file: string): Promise<Store> {
     if (!storeCache.has(file)) {
         storeCache.set(file, load(file));
     }

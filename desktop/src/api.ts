@@ -140,17 +140,25 @@ export const syncSources = (entries: Record<string, string>) =>
 /** 各源最近错误：{source: {message, at}}。 */
 export const sourceErrors = (): Promise<Record<string, SourceError>> => invoke("source_errors");
 
+/** 移动平台检测（research #30：Android 无自定义协议 API，需 http://<scheme>.localhost/ workaround；iOS/macOS/Linux 保持 scheme://localhost）。 */
+const IS_ANDROID = /android/i.test(navigator.userAgent);
+
+/** 自定义 scheme 前缀（wayfinder #31：Android 走 wry workaround 形态，其余平台原生形态）。 */
+const IMG_SCHEME_PREFIX = IS_ANDROID
+    ? "http://cimoc-img.localhost"
+    : "cimoc-img://localhost";
+
 /** 热链保护域（research #4 结论）：重写为 cimoc-img:// 代理，其余保持直连吃 webview 缓存。 */
 export function imgSrc(url: string): string {
     if (url.includes("pstatic.net")) {
-        return `cimoc-img://localhost/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent("https://www.webtoons.com/")}`;
+        return `${IMG_SCHEME_PREFIX}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent("https://www.webtoons.com/")}`;
     }
     return url;
 }
 
 /** 本地文件路径 → cimoc-img:// 本地模式（wayfinder #19：Rust 读文件回字节，按扩展名给 content-type）。 */
 export function localSrc(path: string): string {
-    return `cimoc-img://localhost/file?path=${encodeURIComponent(path)}`;
+    return `${IMG_SCHEME_PREFIX}/file?path=${encodeURIComponent(path)}`;
 }
 
 // ---------- WebDAV 备份/恢复（wayfinder #24/#25：core 传输，前端组装内容） ----------

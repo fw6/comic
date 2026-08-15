@@ -47,6 +47,39 @@ describe("imgSrc（热链域 → cimoc-img:// 代理，其余直连）", () => {
     });
 });
 
+describe("Android scheme URL 形态（wayfinder #31：wry workaround http://<scheme>.localhost）", () => {
+    it("Android UA 下 imgSrc/localSrc 用 http://cimoc-img.localhost 前缀", async () => {
+        const originalUA = navigator.userAgent;
+        Object.defineProperty(navigator, "userAgent", {
+            value: "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
+            configurable: true,
+        });
+        try {
+            // api.ts 模块级 IS_ANDROID 在首次 import 时求值；这里用动态 import 拿新模块实例
+            vi.resetModules();
+            const api = await import("./api");
+            expect(
+                api.imgSrc("https://s.pstatic.net/dummy/cover.webp"),
+            ).toBe(
+                "http://cimoc-img.localhost/img?url=" +
+                    encodeURIComponent("https://s.pstatic.net/dummy/cover.webp") +
+                    "&ref=" +
+                    encodeURIComponent("https://www.webtoons.com/"),
+            );
+            expect(api.localSrc("/data/0.jpg")).toBe(
+                "http://cimoc-img.localhost/file?path=%2Fdata%2F0.jpg",
+            );
+        } finally {
+            Object.defineProperty(navigator, "userAgent", {
+                value: originalUA,
+                configurable: true,
+            });
+            vi.resetModules();
+            await import("./api"); // 恢复模块，供后续测试使用
+        }
+    });
+});
+
 describe("crawl（invoke 包装：payload 序列化 + JSON 解析）", () => {
     it("把 op/source/payload 以 JSON 字符串传给 crawl 命令并解析响应", async () => {
         mockedInvoke.mockResolvedValue(

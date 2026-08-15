@@ -29,3 +29,6 @@ dist-ssr
 
 # workspace 构建产物（成员目录的 /target 规则不覆盖 workspace 根）
 target
+
+# Tauri 移动工程（tauri android/ios init 生成，wayfinder #31：社区惯例入库忽略）
+src-tauri/gen

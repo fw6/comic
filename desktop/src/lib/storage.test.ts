@@ -38,6 +38,30 @@ vi.mock("@tauri-apps/api/path", () => ({
     downloadDir: async () => "/mock/Downloads",
 }));
 
+// storage-fs.ts（移动端存储层，wayfinder #31）：mock plugin-fs 四个函数，内存文件系统。
+const fsMocks = vi.hoisted(() => {
+    const files = new Map<string, string>();
+    return {
+        readTextFile: vi.fn(async (path: string) => {
+            const v = files.get(path);
+            if (v === undefined) throw new Error("file not found");
+            return v;
+        }),
+        writeTextFile: vi.fn(async (path: string, data: string) => {
+            files.set(path, data);
+        }),
+        mkdir: vi.fn(async () => {}),
+        files,
+    };
+});
+
+vi.mock("@tauri-apps/plugin-fs", () => ({
+    BaseDirectory: { AppData: 14 },
+    readTextFile: fsMocks.readTextFile,
+    writeTextFile: fsMocks.writeTextFile,
+    mkdir: fsMocks.mkdir,
+}));
+
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
@@ -59,6 +83,7 @@ import {
     importBackupData,
     BACKUP_VERSION,
 } from "./storage";
+import { getStore as getFsStore } from "./storage-fs";
 import type { Comic } from "../api";
 
 const comic = (id: string, source = "mangadex"): Comic => ({
@@ -240,6 +265,52 @@ describe("WebDAV 备份/恢复（wayfinder #24/#25）", () => {
             chapterIndex: 7,
         });
         await expect(getProgress("mangadex", "old")).resolves.toBeNull();
+    });
+});
+
+describe("storage-fs（移动端存储层，wayfinder #31）", () => {
+    beforeEach(() => {
+        fsMocks.files.clear();
+        fsMocks.readTextFile.mockClear();
+        fsMocks.writeTextFile.mockClear();
+        fsMocks.mkdir.mockClear();
+    });
+
+    it("set/get/has/entries：首启空对象，写入后读回", async () => {
+        const s = getFsStore("progress.json");
+        await expect(s.get("a")).resolves.toBeUndefined();
+        await s.set("k", { v: 1 });
+        await expect(s.get("k")).resolves.toEqual({ v: 1 });
+        await expect(s.has("k")).resolves.toBe(true);
+        await expect(s.entries()).resolves.toEqual([["k", { v: 1 }]]);
+        // 写盘调用：mkdir 幂等 + writeTextFile 落盘
+        expect(fsMocks.mkdir).toHaveBeenCalledWith(".", expect.objectContaining({ recursive: true }));
+        expect(fsMocks.writeTextFile).toHaveBeenCalledWith(
+            "progress.json",
+            JSON.stringify({ k: { v: 1 } }),
+            expect.anything(),
+        );
+    });
+
+    it("delete/clear 后 get 为空；delete 不存在的 key 返回 false", async () => {
+        const s = getFsStore("favorites.json");
+        await s.set("a", 1);
+        await expect(s.delete("missing")).resolves.toBe(false);
+        await expect(s.delete("a")).resolves.toBe(true);
+        await expect(s.has("a")).resolves.toBe(false);
+        await s.clear();
+        await expect(s.entries()).resolves.toEqual([]);
+    });
+
+    it("损坏的 JSON 回退空对象，不抛错", async () => {
+        fsMocks.files.set("broken.json", "{not json");
+        const s = getFsStore("broken.json");
+        await expect(s.entries()).resolves.toEqual([]);
+    });
+
+    it("save 是兼容占位（fs 已即时落盘）", async () => {
+        const s = getFsStore("settings.json");
+        await expect(s.save()).resolves.toBeUndefined();
     });
 });
 
