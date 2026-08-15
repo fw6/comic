@@ -1,0 +1,82 @@
+desktop/crates/cimoc-core/tests/source_script_test.rs
+  s_3706d3aa2aba8b::t_0dc161e875f140 19,24
+  s_3706d3aa2aba8b::t_9771e7d63c3d5d 1-3,5-8,13-18,20-21,23,25-27,30-50,52-53,55-65,67-78,80-81,86-113,115-121,123-124,126-127,129-130,133-134,136,140-154,156-202,204-209,211-220
+desktop/crates/cimoc-core/src/crawler/mangadex.rs
+  s_3706d3aa2aba8b::t_5a97664337cf03 1-4,12,14,16,20,32,54-55,61-69,72-73,75,78-83,86,102-113,118-129,131,134-140,142-151
+desktop/crates/cimoc-core/src/js/sources/webtoons.js
+  s_3706d3aa2aba8b::t_c3e9ecb77f2eae 1-368
+desktop/crates/cimoc-core/src/lib.rs
+  s_3706d3aa2aba8b::t_c607161e67ab27 18-20
+desktop/src/App.tsx
+  s_3706d3aa2aba8b::t_de7964684f911a 62-63
+  s_3706d3aa2aba8b::t_47862b7ce5c403 15
+desktop/src/screens/Sources.tsx
+  s_3706d3aa2aba8b::t_92f954facbcd32 17-18,28,37
+  s_3706d3aa2aba8b::t_a0d09a661f1662 3
+  s_3706d3aa2aba8b::t_e3f31125f245aa 36
+  s_3706d3aa2aba8b::t_ab3c56666ae24b 70-83
+desktop/crates/cimoc-core/src/js/sources/mangadex.test.js
+  s_3706d3aa2aba8b::t_ce855732440c62 1-5,7,12,14-18,23-92
+  s_3706d3aa2aba8b::t_e164c00f75e234 6,8-11,13,19-22
+docs/roadmap.md
+  s_3706d3aa2aba8b::t_6a5aa083af1292 8
+AGENTS.md
+  s_3706d3aa2aba8b::t_21f8e193a7d59c 8
+  s_3706d3aa2aba8b::t_d823dd557a67fa 17
+desktop/crates/cimoc-core/src/crawler/script.rs
+  s_3706d3aa2aba8b::t_f297a1969b7180 1-30,36-49,51-70,77-87,91,115-214
+  s_3706d3aa2aba8b::t_7556e32d2444bb 72-76
+  s_3706d3aa2aba8b::t_1f61b732f3fce4 88-90,92-114
+  s_3706d3aa2aba8b::t_0dc161e875f140 50,71
+  s_3706d3aa2aba8b::t_1cd2ac0d15285a 31-35
+  s_3706d3aa2aba8b::t_92a7cc135994d9 215-254
+desktop/crates/cimoc-core/tests/live_smoke.rs
+  s_3706d3aa2aba8b::t_f49af3c519917d 1-40
+desktop/crates/cimoc-core/src/crawler/mod.rs
+  s_3706d3aa2aba8b::t_1e40f21704a6c5 1,3,7-10,15,19-20,22-34
+desktop/crates/cimoc-core/src/crawler/webtoons.rs
+  s_3706d3aa2aba8b::t_abdd3a705dd070 1-3,9-10,28,32-34,37-41,45-57,60,62
+desktop/crates/cimoc-core/src/js/sources/mangadex.js
+  s_3706d3aa2aba8b::t_f54d5ac9dfadaf 1-225
+desktop/src/lib/storage.ts
+  s_3706d3aa2aba8b::t_47baf422664657 148-202
+  s_3706d3aa2aba8b::t_b49abf0611b35f 33
+  s_3706d3aa2aba8b::t_a4a41005e4b8c9 3
+desktop/src/api.ts
+  s_3706d3aa2aba8b::t_8e504346f82bb3 74-90
+desktop/vite.config.ts
+  s_3706d3aa2aba8b::t_1cc12f28817a0a 33-34,37
+desktop/crates/cimoc-core/src/js/sources/webtoons.test.js
+  s_3706d3aa2aba8b::t_124858744b7bc9 1-6,8,13,15-20,24-97
+  s_3706d3aa2aba8b::t_724bbabd89ee5d 7,9-12,14,21-23
+desktop/crates/cimoc-core/src/js/mod.rs
+  s_3706d3aa2aba8b::t_86cc7de35fe31f 3,5-10,22,96,119-120,122
+  s_3706d3aa2aba8b::t_ca599ef16d1c11 35-37,47,49-51
+  s_3706d3aa2aba8b::t_0dc161e875f140 82,92,97,108,115,121,128,136,144
+desktop/crates/cimoc-core/src/js/sources.rs
+  s_3706d3aa2aba8b::t_67ab85d7365bc4 1-34
+desktop/src/screens/Settings.tsx
+  s_3706d3aa2aba8b::t_646bfef6fb8785 5-29,33-39,43,46-54,73-140,145-146,179-220
+desktop/src-tauri/src/lib.rs
+  s_3706d3aa2aba8b::t_dcec13e11b213a 188
+  s_3706d3aa2aba8b::t_a7a286ec408f56 47
+  s_3706d3aa2aba8b::t_637bd1eaf8dfcd 207-209
+  s_3706d3aa2aba8b::t_c6bcee7427f7da 3-4,10-13,16,18-23,26-27,29-46,48-74
+  s_3706d3aa2aba8b::t_aa4a0a8fbacb3d 24-25,28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "73580d5299762eb4a3b0a47b33559bc37e509719",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
