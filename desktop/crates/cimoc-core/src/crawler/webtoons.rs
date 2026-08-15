@@ -343,6 +343,7 @@ pub fn parse_detail(html: &str, title_no: &str) -> Detail {
             index: ep_no as f64,
             title,
             pages: Vec::new(),
+            external: false,
             downloaded: false,
             read: false,
         });

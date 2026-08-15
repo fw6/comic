@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { crawl, imgSrc, cimocVersion, type Comic } from "../api";
+import { persistWebtoonsCache } from "../lib/storage";
 
 const SOURCES = [
     { id: "mangadex", title: "MangaDex" },
@@ -25,6 +26,7 @@ export default function Sources() {
         try {
             const results = await crawl<Comic[]>("search", source, { keyword });
             setComics(results);
+            if (source === "webtoons") void persistWebtoonsCache();
         } catch (e) {
             console.error("search failed", e);
         } finally {
@@ -34,7 +36,7 @@ export default function Sources() {
 
     return (
         <div style={{ padding: 16, fontFamily: "system-ui" }}>
-            <h2 style={{ margin: "0 0 8px" }}>Cimoc Desktop 骨架原型</h2>
+            <h2 style={{ margin: "0 0 8px" }}>搜索</h2>
             <div style={{ marginBottom: 8 }}>
                 {SOURCES.map((s) => (
                     <label key={s.id} style={{ marginRight: 16 }}>

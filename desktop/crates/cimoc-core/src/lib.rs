@@ -34,15 +34,16 @@ pub fn webdav_get(base: &str, user: &str, password: &str, file_name: &str) -> St
     native::webdav::webdav_get(base, user, password, file_name)
 }
 
-/// 下载单张图片到本地目录：返回 `"true"`/`"false"`。
+/// 下载单张图片到本地目录：返回 `"true"`/`"false"`。referer 非空时带上（热链域需要）。
 pub fn download_image(
     url: &str,
     dir: &str,
     comic_id: &str,
     chapter_index: i64,
     page_index: i64,
+    referer: &str,
 ) -> String {
-    native::files::download_image(url, dir, comic_id, chapter_index, page_index)
+    native::files::download_image(url, dir, comic_id, chapter_index, page_index, referer)
 }
 
 /// 已下载章节文件列表：返回 JSON `{chapterIndex: [paths]}`。

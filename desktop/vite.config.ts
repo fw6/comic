@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 // @ts-expect-error process is a nodejs global
@@ -28,5 +28,11 @@ export default defineConfig(async () => ({
       // 3. tell Vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
+  },
+
+  // 测试（#10 定案：vitest + jsdom；seam 测试走显式 import，不用 globals）
+  test: {
+    environment: "jsdom",
+    include: ["src/**/*.test.{ts,tsx}"],
   },
 }));

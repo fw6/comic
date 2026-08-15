@@ -1,0 +1,165 @@
+import { load, type Store } from "@tauri-apps/plugin-store";
+import { downloadDir } from "@tauri-apps/api/path";
+import { crawl, type Comic } from "../api";
+
+// S3 seam：进度/收藏/历史/设置持久化（grilling #6：每域一 JSON，tauri-plugin-store）。
+// 本模块只依赖插件 Store 的 get/set/delete 契约；测试 mock 插件后验证自有逻辑。
+
+export interface ProgressRecord {
+    chapterIndex: number;
+    /** 话内位置：0..1（卷纸流滚动比例） */
+    position: number;
+    updatedAt: number;
+}
+
+export interface HistoryRecord {
+    comic: Comic;
+    chapterIndex: number;
+    lastReadAt: number;
+}
+
+export interface Settings {
+    downloadDir: string | null;
+    darkMode: boolean;
+    autoTrim: boolean;
+}
+
+const FILES = {
+    settings: "settings.json",
+    favorites: "favorites.json",
+    history: "history.json",
+    progress: "progress.json",
+    webtoonsCache: "webtoons-cache.json",
+} as const;
+
+const storeCache = new Map<string, Promise<Store>>();
+
+function getStore(file: (typeof FILES)[keyof typeof FILES]): Promise<Store> {
+    if (!storeCache.has(file)) {
+        storeCache.set(file, load(file));
+    }
+    return storeCache.get(file)!;
+}
+
+/** 漫画跨域唯一键：(source, comicId)。 */
+export function comicKey(source: string, comicId: string): string {
+    return `${source}:${comicId}`;
+}
+
+// ---------- 进度（自动记录：章节 + 话内位置） ----------
+
+export async function getProgress(source: string, comicId: string): Promise<ProgressRecord | null> {
+    const store = await getStore(FILES.progress);
+    return (await store.get<ProgressRecord>(comicKey(source, comicId))) ?? null;
+}
+
+export async function setProgress(
+    source: string,
+    comicId: string,
+    record: ProgressRecord,
+): Promise<void> {
+    const store = await getStore(FILES.progress);
+    await store.set(comicKey(source, comicId), record);
+}
+
+// ---------- 历史（最近阅读，按 lastReadAt 倒序） ----------
+
+// lastReadAt 严格递增：同毫秒内多次 touch 也能稳定排序（避免 Date.now() 相等）。
+let lastTs = 0;
+function nextTimestamp(): number {
+    const now = Date.now();
+    lastTs = Math.max(now, lastTs + 1);
+    return lastTs;
+}
+
+export async function getHistory(): Promise<HistoryRecord[]> {
+    const store = await getStore(FILES.history);
+    const entries = await store.entries<HistoryRecord>();
+    return entries
+        .map(([, record]) => record)
+        .sort((a, b) => b.lastReadAt - a.lastReadAt);
+}
+
+export async function touchHistory(comic: Comic, chapterIndex: number): Promise<void> {
+    const store = await getStore(FILES.history);
+    await store.set(comicKey(comic.source, comic.id), {
+        comic,
+        chapterIndex,
+        lastReadAt: nextTimestamp(),
+    });
+}
+
+// ---------- 收藏（存 Comic 快照，Library 展示免回源） ----------
+
+export async function getFavorites(): Promise<Comic[]> {
+    const store = await getStore(FILES.favorites);
+    const entries = await store.entries<Comic>();
+    return entries.map(([, comic]) => comic);
+}
+
+export async function isFavorite(source: string, comicId: string): Promise<boolean> {
+    const store = await getStore(FILES.favorites);
+    return store.has(comicKey(source, comicId));
+}
+
+/** 切换收藏状态，返回切换后的状态。 */
+export async function toggleFavorite(comic: Comic): Promise<boolean> {
+    const store = await getStore(FILES.favorites);
+    const key = comicKey(comic.source, comic.id);
+    if (await store.has(key)) {
+        await store.delete(key);
+        return false;
+    }
+    await store.set(key, comic);
+    return true;
+}
+
+// ---------- 设置（最小集：下载目录/夜间模式/自动裁边） ----------
+
+const DEFAULT_SETTINGS: Settings = {
+    downloadDir: null,
+    darkMode: false,
+    autoTrim: false,
+};
+
+/** 下载目录默认值（grilling #6：~/Downloads/cimoc）。 */
+export async function defaultDownloadDir(): Promise<string> {
+    const base = await downloadDir();
+    return `${base}/cimoc`;
+}
+
+export async function getSettings(): Promise<Settings> {
+    const store = await getStore(FILES.settings);
+    const saved = await store.get<Partial<Settings>>("settings");
+    const merged = { ...DEFAULT_SETTINGS, ...saved };
+    return {
+        ...merged,
+        downloadDir: merged.downloadDir ?? (await defaultDownloadDir()),
+    };
+}
+
+export async function setSettings(partial: Partial<Settings>): Promise<void> {
+    const store = await getStore(FILES.settings);
+    const current = await store.get<Partial<Settings>>("settings");
+    await store.set("settings", { ...current, ...partial });
+}
+
+// ---------- Webtoons series URL 缓存（进程内静态 → 持久化，grilling #6 存储域） ----------
+
+/** 启动时把上次保存的 series URL 映射回灌进 Rust 进程内缓存。 */
+export async function hydrateWebtoonsCache(): Promise<void> {
+    const store = await getStore(FILES.webtoonsCache);
+    const data = await store.get<Record<string, string>>("cache");
+    if (data && Object.keys(data).length > 0) {
+        await crawl("cache_hydrate", "webtoons", data);
+    }
+}
+
+/** 搜索/详情后把进程内缓存落盘（仅 webtoons 有该缓存）。 */
+export async function persistWebtoonsCache(): Promise<void> {
+    const store = await getStore(FILES.webtoonsCache);
+    const dump = await crawl<Record<string, string>>("cache_dump", "webtoons", {});
+    if (Object.keys(dump).length > 0) {
+        await store.set("cache", dump);
+    }
+}

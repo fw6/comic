@@ -31,8 +31,20 @@ fn extension_from_url(url: &str) -> String {
 }
 
 /// 下载单张图片到 `<dir>/<comicId>/chapter_<n>/<page>.<ext>`，返回 `"true"`/`"false"`。
-pub fn download_image(url: &str, dir: &str, comic_id: &str, chapter_index: i64, page_index: i64) -> String {
-    let bytes = match http::get_bytes(url, &[("User-Agent", CHROME_UA)]) {
+/// referer 非空时带上（热链域如 pstatic.net 需要，research #4）。
+pub fn download_image(
+    url: &str,
+    dir: &str,
+    comic_id: &str,
+    chapter_index: i64,
+    page_index: i64,
+    referer: &str,
+) -> String {
+    let mut headers: Vec<(&str, &str)> = vec![("User-Agent", CHROME_UA)];
+    if !referer.is_empty() {
+        headers.push(("Referer", referer));
+    }
+    let bytes = match http::get_bytes(url, &headers) {
         Ok(b) => b,
         Err(_) => return "false".to_string(),
     };

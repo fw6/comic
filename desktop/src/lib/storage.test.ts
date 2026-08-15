@@ -1,0 +1,204 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
+// S3 seam：数据层（进度/历史/收藏/设置）。mock @tauri-apps/plugin-store，
+// 用内存 fake store 按 path 隔离，验证本模块的自有逻辑（键合成、排序、合并、去重）。
+
+const mocks = vi.hoisted(() => {
+    const dataByPath = new Map<string, Map<string, unknown>>();
+    // 动态查表：store 实例（storage.ts 的 storeCache 会跨用例缓存）始终指向当前 Map，
+    // reset 后旧实例也能看到清空后的状态。
+    const storeFor = (path: string) => {
+        if (!dataByPath.has(path)) dataByPath.set(path, new Map());
+        return dataByPath.get(path)!;
+    };
+    return {
+        load: async (path: string) => ({
+            get: async (k: string) => storeFor(path).get(k),
+            set: async (k: string, v: unknown) => {
+                storeFor(path).set(k, v);
+            },
+            has: async (k: string) => storeFor(path).has(k),
+            delete: async (k: string) => storeFor(path).delete(k),
+            entries: async <T>() =>
+                [...storeFor(path).entries()] as Array<[string, T]>,
+            save: async () => {},
+        }),
+        reset: () => {
+            for (const m of dataByPath.values()) m.clear();
+            dataByPath.clear();
+        },
+    };
+});
+
+vi.mock("@tauri-apps/plugin-store", () => ({ load: mocks.load }));
+vi.mock("@tauri-apps/api/path", () => ({
+    downloadDir: async () => "/mock/Downloads",
+}));
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
+import {
+    getProgress,
+    setProgress,
+    getHistory,
+    touchHistory,
+    getFavorites,
+    isFavorite,
+    toggleFavorite,
+    getSettings,
+    setSettings,
+    comicKey,
+    hydrateWebtoonsCache,
+    persistWebtoonsCache,
+} from "./storage";
+import type { Comic } from "../api";
+
+const comic = (id: string, source = "mangadex"): Comic => ({
+    id,
+    source,
+    sourceTitle: "MangaDex",
+    title: `作品 ${id}`,
+    author: "作者",
+    intro: "",
+    cover: "https://example.com/cover.jpg",
+    status: "ongoing",
+    updateTime: "",
+    lastChapter: "1",
+    tags: [],
+    lastReadChapter: 0,
+    lastReadTime: 0,
+});
+
+beforeEach(() => {
+    mocks.reset();
+});
+
+describe("comicKey", () => {
+    it("合成 (source, comicId) 跨域唯一键", () => {
+        expect(comicKey("webtoons", "abc")).toBe("webtoons:abc");
+    });
+});
+
+describe("进度 progress", () => {
+    it("setProgress 后 getProgress 可读回，键按 source:comicId 隔离", async () => {
+        await setProgress("mangadex", "c1", {
+            chapterIndex: 3,
+            position: 0.5,
+            updatedAt: 1000,
+        });
+        await expect(getProgress("mangadex", "c1")).resolves.toEqual({
+            chapterIndex: 3,
+            position: 0.5,
+            updatedAt: 1000,
+        });
+        await expect(getProgress("mangadex", "c2")).resolves.toBeNull();
+        await expect(getProgress("webtoons", "c1")).resolves.toBeNull();
+    });
+
+    it("重读覆盖旧进度", async () => {
+        await setProgress("mangadex", "c1", {
+            chapterIndex: 1,
+            position: 0.2,
+            updatedAt: 100,
+        });
+        await setProgress("mangadex", "c1", {
+            chapterIndex: 2,
+            position: 0.8,
+            updatedAt: 200,
+        });
+        await expect(getProgress("mangadex", "c1")).resolves.toMatchObject({
+            chapterIndex: 2,
+            position: 0.8,
+        });
+    });
+});
+
+describe("历史 history", () => {
+    it("touch 记录漫画+章节，按最近阅读倒序", async () => {
+        await touchHistory(comic("a"), 1);
+        await touchHistory(comic("b"), 2);
+        const list = await getHistory();
+        expect(list.map((r) => r.comic.id)).toEqual(["b", "a"]);
+    });
+
+    it("重读同一漫画移到最前并更新章节", async () => {
+        await touchHistory(comic("a"), 1);
+        await touchHistory(comic("b"), 2);
+        await touchHistory(comic("a"), 5);
+        const list = await getHistory();
+        expect(list.map((r) => r.comic.id)).toEqual(["a", "b"]);
+        expect(list[0].chapterIndex).toBe(5);
+    });
+});
+
+describe("收藏 favorites", () => {
+    it("toggle 添加再移除，返回切换后状态", async () => {
+        await expect(toggleFavorite(comic("a"))).resolves.toBe(true);
+        await expect(isFavorite("mangadex", "a")).resolves.toBe(true);
+        await expect(getFavorites()).resolves.toHaveLength(1);
+        await expect(toggleFavorite(comic("a"))).resolves.toBe(false);
+        await expect(isFavorite("mangadex", "a")).resolves.toBe(false);
+        await expect(getFavorites()).resolves.toHaveLength(0);
+    });
+
+    it("不同源同 id 互不冲突", async () => {
+        await toggleFavorite(comic("a", "mangadex"));
+        await toggleFavorite(comic("a", "webtoons"));
+        await expect(getFavorites()).resolves.toHaveLength(2);
+    });
+});
+
+describe("设置 settings", () => {
+    it("未设置时返回默认值（下载目录 = ~/Downloads/cimoc）", async () => {
+        await expect(getSettings()).resolves.toEqual({
+            downloadDir: "/mock/Downloads/cimoc",
+            darkMode: false,
+            autoTrim: false,
+        });
+    });
+
+    it("部分更新与已有设置合并，不互相覆盖", async () => {
+        await setSettings({ darkMode: true });
+        await setSettings({ autoTrim: true });
+        await expect(getSettings()).resolves.toEqual({
+            downloadDir: "/mock/Downloads/cimoc",
+            darkMode: true,
+            autoTrim: true,
+        });
+    });
+});
+
+describe("Webtoons series URL 缓存持久化", () => {
+    beforeEach(() => {
+        invokeMock.mockReset();
+    });
+
+    it("hydrate：把已存映射回灌 Rust 进程内缓存", async () => {
+        invokeMock.mockResolvedValue(JSON.stringify({}));
+        const store = await mocks.load("webtoons-cache.json");
+        await store.set("cache", { "1571": "https://www.webtoons.com/x/list?title_no=1571" });
+        await hydrateWebtoonsCache();
+        expect(invokeMock).toHaveBeenCalledWith("crawl", {
+            op: "cache_hydrate",
+            source: "webtoons",
+            payload: JSON.stringify({ "1571": "https://www.webtoons.com/x/list?title_no=1571" }),
+        });
+    });
+
+    it("hydrate：无已存数据时不做任何调用", async () => {
+        await hydrateWebtoonsCache();
+        expect(invokeMock).not.toHaveBeenCalled();
+    });
+
+    it("persist：把 cache_dump 结果写入存储", async () => {
+        invokeMock.mockResolvedValue(
+            JSON.stringify({ "1571": "https://www.webtoons.com/x/list?title_no=1571" }),
+        );
+        await persistWebtoonsCache();
+        const store = await mocks.load("webtoons-cache.json");
+        expect(await store.get("cache")).toEqual({
+            "1571": "https://www.webtoons.com/x/list?title_no=1571",
+        });
+    });
+});

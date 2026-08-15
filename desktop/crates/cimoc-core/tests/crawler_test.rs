@@ -51,6 +51,10 @@ fn mangadex_parsers() {
     );
     assert_eq!(detail.chapters[0].title, "Welcome");
     assert_eq!(detail.chapters[1].title, "第 2 话");
+    // 外链章节（externalUrl → MangaPlus）：第 2 话标记 external，其余正常
+    assert!(!detail.chapters[0].external);
+    assert!(detail.chapters[1].external);
+    assert!(!detail.chapters[2].external);
     assert_eq!(detail.comic.last_chapter, "Rival");
 
     // at-home 图片 URL

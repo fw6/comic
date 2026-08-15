@@ -46,9 +46,10 @@ async fn download_image(
     comic_id: String,
     chapter_index: i64,
     page_index: i64,
+    referer: String,
 ) -> String {
     tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::download_image(&url, &dir, &comic_id, chapter_index, page_index)
+        cimoc_core::download_image(&url, &dir, &comic_id, chapter_index, page_index, &referer)
     })
     .await
     .unwrap_or_default()
@@ -126,6 +127,8 @@ pub fn run() {
     }
     builder
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             if let Ok(dir) = app.path().app_cache_dir() {
                 let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
@@ -150,4 +153,24 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_img_query_extracts_url_and_ref() {
+        let uri = "cimoc-img://localhost/img?url=https%3A%2F%2Fs.pstatic.net%2Fa.webp&ref=https%3A%2F%2Fwww.webtoons.com%2F";
+        let (url, referer) = parse_img_query(uri);
+        assert_eq!(url, "https://s.pstatic.net/a.webp");
+        assert_eq!(referer, "https://www.webtoons.com/");
+    }
+
+    #[test]
+    fn parse_img_query_missing_params_empty() {
+        let (url, referer) = parse_img_query("cimoc-img://localhost/img?x=1");
+        assert_eq!(url, "");
+        assert_eq!(referer, "");
+    }
 }

@@ -81,3 +81,96 @@ fn cache_paths(cache_dir: &str, url: &str) -> (PathBuf, PathBuf) {
         dir.join(format!("{key}.meta")),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::sync::{Arc, Mutex};
+
+    fn temp_cache_dir(tag: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "cimoc-cache-test-{}-{}",
+            tag,
+            std::process::id()
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+        dir
+    }
+
+    /// 极简本地 HTTP 服务器：记录收到的原始请求头，返回固定图片体。
+    fn spawn_server(
+        body: &'static [u8],
+        content_type: &'static str,
+    ) -> (String, Arc<Mutex<Vec<String>>>) {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind test server");
+        let addr = listener.local_addr().unwrap();
+        let requests = Arc::new(Mutex::new(Vec::<String>::new()));
+        let reqs = Arc::clone(&requests);
+        std::thread::spawn(move || {
+            for stream in listener.incoming().take(10) {
+                let Ok(mut stream) = stream else { break };
+                let mut buf = [0u8; 4096];
+                let n = stream.read(&mut buf).unwrap_or(0);
+                reqs.lock()
+                    .unwrap()
+                    .push(String::from_utf8_lossy(&buf[..n]).to_string());
+                let head = format!(
+                    "HTTP/1.1 200 OK\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                    content_type,
+                    body.len()
+                );
+                let _ = stream.write_all(head.as_bytes());
+                let _ = stream.write_all(body);
+                let _ = stream.flush();
+            }
+        });
+        (format!("http://{addr}/img.webp"), requests)
+    }
+
+    #[test]
+    fn cold_fetch_goes_to_network_with_referer_and_persists() {
+        const BODY: &[u8] = b"fake-webp-bytes";
+        let (url, requests) = spawn_server(BODY, "image/webp");
+        let dir = temp_cache_dir("cold");
+        let (bytes, content_type) =
+            fetch_image(&url, "https://www.webtoons.com/", dir.to_str().unwrap()).unwrap();
+        assert_eq!(bytes, BODY);
+        assert_eq!(content_type, "image/webp");
+        // reqwest 可能以小写 header 名发送，断言大小写不敏感
+        let head = requests.lock().unwrap()[0].to_lowercase();
+        assert!(head.contains("referer: https://www.webtoons.com/"));
+        // 磁盘缓存：img + meta 两个文件落盘
+        assert_eq!(std::fs::read_dir(dir.join("imgs")).unwrap().count(), 2);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn repeat_fetch_served_from_lru_without_network() {
+        const BODY: &[u8] = b"lru-bytes";
+        let (url, requests) = spawn_server(BODY, "image/png");
+        let dir = temp_cache_dir("lru");
+        for _ in 0..2 {
+            let (bytes, _) = fetch_image(&url, "ref", dir.to_str().unwrap()).unwrap();
+            assert_eq!(bytes, BODY);
+        }
+        assert_eq!(requests.lock().unwrap().len(), 1);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn disk_hit_after_lru_clear_avoids_network() {
+        const BODY: &[u8] = b"disk-bytes";
+        let (url, requests) = spawn_server(BODY, "image/jpeg");
+        let dir = temp_cache_dir("disk");
+        fetch_image(&url, "ref", dir.to_str().unwrap()).unwrap();
+        // 清空进程内 LRU，验证回落到磁盘缓存而不走网络
+        LRU.lock().unwrap().map.clear();
+        LRU.lock().unwrap().order.clear();
+        let (bytes, _) = fetch_image(&url, "ref", dir.to_str().unwrap()).unwrap();
+        assert_eq!(bytes, BODY);
+        assert_eq!(requests.lock().unwrap().len(), 1);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+}

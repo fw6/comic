@@ -187,6 +187,12 @@ pub fn to_chapters(feed: &[Value]) -> Vec<Chapter> {
             index: num,
             title,
             pages: Vec::new(),
+            // MangaDex 外链章节（内容托管站外，如 MangaPlus）带 externalUrl 属性
+            external: ch
+                .get("attributes")
+                .and_then(|a| a.get("externalUrl"))
+                .and_then(|e| e.as_str())
+                .is_some(),
             downloaded: false,
             read: false,
         });

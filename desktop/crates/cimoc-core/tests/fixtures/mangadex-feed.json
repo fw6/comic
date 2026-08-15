@@ -10,7 +10,12 @@
     {
       "id": "aaaaaaaa-1111-2222-3333-444444444444",
       "type": "chapter",
-      "attributes": { "chapter": "2", "title": null, "translatedLanguage": "en" }
+      "attributes": {
+        "chapter": "2",
+        "title": null,
+        "translatedLanguage": "en",
+        "externalUrl": "https://mangaplus.shueisha.co.jp/viewer/100001"
+      }
     },
     {
       "id": "bbbbbbbb-1111-2222-3333-444444444444",

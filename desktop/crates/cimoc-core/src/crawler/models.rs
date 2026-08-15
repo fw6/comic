@@ -29,6 +29,8 @@ pub struct Chapter {
     pub index: f64,
     pub title: String,
     pub pages: Vec<String>,
+    /// 外链章节（如 MangaDex 上指向 MangaPlus 的章节）：列表与「下一话」一律过滤（grilling #6）
+    pub external: bool,
     pub downloaded: bool,
     pub read: bool,
 }
