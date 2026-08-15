@@ -1,4 +1,4 @@
-//! 源脚本执行层 —— 契约原型（wayfinder #15，评审定案后随迁移演化）。
+//! 源脚本执行层 —— 契约（wayfinder #15 定案，2026-08-15）。
 //!
 //! 契约：每个源脚本导出全局函数 `parse(op, input, ctx)`：
 //! - `op`：`categories | search | category | detail | images`（与 `crawler/mod.rs` 的 crawl op 对齐）
@@ -7,6 +7,9 @@
 //! - 返回：JSON 字符串（categories → `["…"]`；search/category → `[{Comic}]`；
 //!   detail → `{comic, chapters}`；images → `["url", …]`），与现 crawl 协议一致
 //! - 出错：脚本 `throw`，本层把错误消息与堆栈转为 `Err`
+//!
+//! 未决（归 #16 仓库格式票）：请求 URL 由谁构造（脚本只做解析 vs 脚本另导出
+//! `buildUrl(op, payload)`）；脚本 manifest/元数据。cache_dump/cache_hydrate 留 Rust 侧。
 //!
 //! 限制（research #13/#14 定案，含 #14 修订）：每次调用新建 Runtime（用完即弃，创建 <300µs）；
 //! 内存上限 32MB；墙钟超时 2s（interrupt handler）；栈默认 256KiB；脚本 ≤ 256KB（Rust 侧检查）。
