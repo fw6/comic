@@ -1,0 +1,40 @@
+desktop/crates/cimoc-core/src/js/demo_source.js
+  s_3706d3aa2aba8b::t_d7f749846f6cd1 96
+  s_3706d3aa2aba8b::t_537a9bef737adb 13-14
+  s_3706d3aa2aba8b::t_7b633a56253015 73
+  s_3706d3aa2aba8b::t_7d8433b070cf21 1-12,15-72,74-95,97-130
+desktop/crates/cimoc-core/src/lib.rs
+  s_3706d3aa2aba8b::t_04f37af3e4721e 9
+docs/research/source-script-security.md
+  s_3706d3aa2aba8b::t_786c5d67202fcb 192
+  s_3706d3aa2aba8b::t_002588372aa482 7-8
+  s_3706d3aa2aba8b::t_f724762453c564 159,174
+  s_3706d3aa2aba8b::t_f2865f6e23e7da 195
+desktop/crates/cimoc-core/Cargo.toml
+  s_3706d3aa2aba8b::t_7a534735ea3a04 18
+desktop/crates/cimoc-core/src/js/mod.rs
+  s_3706d3aa2aba8b::t_0f2e9107b6f594 41
+  s_3706d3aa2aba8b::t_3726a24aa22eb4 61
+  s_3706d3aa2aba8b::t_0f9d15d84cdbeb 11,16-18,20
+  s_3706d3aa2aba8b::t_612007bee95f9d 1-10,12-15,19,22-40,42-43,45-46,48-60,62-136
+  s_3706d3aa2aba8b::t_33610718705bb3 44,47
+  s_3706d3aa2aba8b::t_c1afedd0827d6f 21
+desktop/Cargo.lock
+  ai_agent 36-40,525,1593-1597,3336-3344,3457-3483
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "908d85ef48a81dd4dfd1bb7f11360e9e3b0a4aa3",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
