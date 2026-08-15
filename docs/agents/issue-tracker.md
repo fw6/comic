@@ -17,7 +17,9 @@ The wayfinder skill expresses its map on this tracker as follows.
 - **Frontier query**:
 
   ```
-  gh issue list --repo fw6/comic --label wayfinder:prototype,wayfinder:research,wayfinder:grilling,wayfinder:task --state open
+  gh issue list --repo fw6/comic --state open --search 'label:"wayfinder:prototype" OR label:"wayfinder:research" OR label:"wayfinder:grilling" OR label:"wayfinder:task"'
   ```
+
+  Note: do not use the `-l a,b,c` form — GitHub treats comma-separated label values as AND (an issue must carry every label), so that query silently matches nothing. `--search` with explicit `OR` qualifiers is the working form.
 
   The frontier is the subset of that list whose `Blocked by` refs are all closed.
