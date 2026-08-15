@@ -1,0 +1,39 @@
+desktop/src/lib/storage.test.ts
+  s_3706d3aa2aba8b::t_fdc37575a748ee 179-245
+  s_3706d3aa2aba8b::t_972bd09b2a5dab 24-26
+  s_3706d3aa2aba8b::t_0511070a281e8d 57-60
+CONTEXT.md
+  s_3706d3aa2aba8b::t_099d1cc57d0bcc 22
+desktop/src/api.test.ts
+  s_3706d3aa2aba8b::t_46153e5ce358fc 200-240
+  s_3706d3aa2aba8b::t_fad25f3515e916 23-24
+desktop/src/lib/storage.ts
+  s_3706d3aa2aba8b::t_1c7ef024df0bd2 25-26
+  s_3706d3aa2aba8b::t_9151a48534b417 224-283
+desktop/src/screens/Settings.tsx
+  s_3706d3aa2aba8b::t_47575879f1e12b 50-53
+  s_3706d3aa2aba8b::t_3ab12b1fbfaff8 56-59
+  s_3706d3aa2aba8b::t_18815bb5a2c1ef 2-10,17-20
+  s_3706d3aa2aba8b::t_770b00ca342522 158-223
+  s_3706d3aa2aba8b::t_80cda1d26df64f 263-302
+desktop/src/api.ts
+  s_3706d3aa2aba8b::t_cf7066c5f8790e 155-191
+docs/roadmap.md
+  s_3706d3aa2aba8b::t_39b30d804c8500 37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "78e3dc21d06c73d350ef60fa450a84ce340f140e",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
