@@ -1,0 +1,43 @@
+desktop/src-tauri/capabilities/default.json
+  s_3706d3aa2aba8b::t_638c3acde0481d 11-12
+desktop/src-tauri/tauri.conf.json
+  s_3706d3aa2aba8b::t_604d5180cd1ff8 28,36-43
+desktop/src/screens/Settings.tsx
+  s_3706d3aa2aba8b::t_dfb9d2b834ef02 261
+  s_3706d3aa2aba8b::t_40b6d406c2e9ad 232-260,262-289
+  s_3706d3aa2aba8b::t_2ad5c0d1e28c85 18-19
+  s_3706d3aa2aba8b::t_99b894b0267e33 56-61
+  s_3706d3aa2aba8b::t_9b5482855458ed 369-391
+docs/roadmap.md
+  s_3706d3aa2aba8b::t_1c26938c9c72e5 39
+desktop/src-tauri/Cargo.toml
+  s_3706d3aa2aba8b::t_ec30644df18bd0 30
+desktop/src-tauri/src/lib.rs
+  s_3706d3aa2aba8b::t_9678ba40c28d86 439
+CONTEXT.md
+  s_3706d3aa2aba8b::t_59b925ec457bb3 22
+desktop/package.json
+  s_3706d3aa2aba8b::t_189d7a71af226e 18,20
+desktop/Cargo.lock
+  ai_agent 57-64,832-842,877,1150-1159,2087-2116,2323-2328,2715-2726,2882-2887,2904-2917,3499,3505-3507,3512,3633-3644,3655-3681,3714-3722,3795-3817,4081-4096,4309,4342-4352,4376,4540,4597-4629,4640,4663,5509-5517,6061,6108-6117,6291-6300
+.github/workflows/release.yml
+  s_3706d3aa2aba8b::t_f9351aeab2d464 1-4,58
+desktop/package-lock.json
+  ai_agent 14,16,1665-1673,1683-1689
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "1b37e80a507f03c50377ff9dc7ac65a1aa3e6a39",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
