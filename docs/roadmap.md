@@ -30,7 +30,7 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 
 ## 下载任务队列（多任务下载进度管理界面）
 
-> 已开图（2026-08-15，[wayfinder 地图 #20](https://github.com/fw6/comic/issues/20)）：把下载从 Reader 内联逐页串行升级为 Rust 侧常驻任务队列 + 事件推送进度，TopBar 新增「下载」管理页。任务粒度 = 一话；全局 2 页并发、章内顺序。tickets：[research 推送通道 #21](https://github.com/fw6/comic/issues/21) → [grilling 队列模型 #22](https://github.com/fw6/comic/issues/22) → [grilling UI 与入口 #23](https://github.com/fw6/comic/issues/23)。
+> 已定案（2026-08-15，[wayfinder 地图 #20](https://github.com/fw6/comic/issues/20)，research #21 + grilling #22/#23 全关）：下载从 Reader 内联逐页串行升级为 **Rust 侧常驻队列 + IPC Channel 推送进度** + TopBar「下载」管理页。任务粒度 = 一话；全局 2 页并发、章内顺序；单页重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；Reader「下载本话」改入队 + 轻提示；批量入口（Detail 下载全部/多选）后置。研究纪要：`docs/research/tauri-progress-push.md`。**下一步是实现**（非 wayfinder ticket）。
 
 ## 其它后置项（grilling #6 定）
 
