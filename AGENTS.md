@@ -1,55 +1,49 @@
 # AGENTS.md
 
-You are an expert in JavaScript, Rspeedy, and Lynx application development. You write maintainable, performant, and accessible code.
+You are an expert in Rust, TypeScript/React, and Tauri v2 application development. You write maintainable, performant, and accessible code.
 
 ## Repository Layout
 
-- `sparkling-cimoc/` — **当前主工程**：Cimoc 漫画阅读器，基于 TikTok Sparkling（Brownfield Lynx 容器）+ Rspeedy。工作流统一走官方 `sparkling-app-cli`（dev/build/autolink/run:android/run:ios）。
-- `sparkling-cimoc-bridge/` — **Sparkling Method 包**：16 个原生桥方法（network/storage/download/local/webdav），含 codegen 桩、Android 实现、iOS not-implemented 桩、JS 门面。被 app 以 `file:../sparkling-cimoc-bridge` 依赖。
-- 根目录 `src/`、`android/`、`dist/` — 迁移前的旧 Lynx 工程（rspeedy 直连 + 自建 Android 壳），**已废弃**（见提交 "migrate to Sparkling, abandon self-built Android host"），不要在其上改动。CI（`.github/workflows/release.yml`）构建 `sparkling-cimoc/`。
+- `desktop/` — **当前主工程**：Cimoc 漫画阅读器桌面版（macOS/Windows/Linux），Tauri v2 + React（Vite web 前端）。前端在 `desktop/src/`，Rust 后端在 `desktop/src-tauri/`。
+- `desktop/crates/cimoc-core/` — **Rust 核心**：跨端共享的爬虫引擎（Webtoons/MangaDex）与 WebDAV/下载/本地文件 IO/图片缓存（`cache::fetch_image`）。`src-tauri` 经 tauri command 接线，核心本身无绑定层、不重写。
+- `docs/` — wayfinder 决策地图（GitHub Issues）、研究纪要（`docs/research/`）、issue 追踪约定（`docs/agents/issue-tracker.md`）。
+- `CONTEXT.md` — 领域术语表（无限滚动、外链章节过滤、进度自动记录等，grilling #6 定案）。
+- 旧 Lynx 工程（`sparkling-cimoc/`、根 `src/ android/ dist/`）已删除（big-bang，轨迹见 wayfinder 地图「从 Lynx 迁移到 Tauri」: https://github.com/fw6/comic/issues/2）。
 
 ## Read in Advance
 
-- Sparkling: [llms.txt](https://tiktok.github.io/sparkling/llms.txt)，**REQUIRED**。处理 Sparkling/方法包任务前必须阅读（文档入口）。
-- Lynx: [llms.txt](https://lynxjs.org/next/llms.txt)，**REQUIRED**。
-- 方法包参考实现：直接读 `sparkling-cimoc/node_modules/sparkling-navigation`、`sparkling-cimoc-bridge/node_modules/sparkling-method` 源码（官方 IDL 模式）。
+- Tauri: [llms.txt](https://tauri.app/llms.txt)，**REQUIRED**。处理 Tauri 任务前必须阅读（文档入口）。
+- Tauri 插件: <https://tauri.app/plugin/>（store/dialog/opener/fs 等）。
+- Rust 核心：直接读 `desktop/crates/cimoc-core/src/` 源码（crawler/native/cache 三模块），API 为 `&str` → JSON 字符串。
 
 ## Commands
 
-App（在 `sparkling-cimoc/` 下执行）：
+桌面工程（在 `desktop/` 下执行）：
 
-- `npm run dev` - Start the dev server (port 5969)
-- `npm run build` - `sparkling-app-cli build --copy`，产物复制到 android assets 与 ios/LynxResources
-- `npm run autolink` - 扫描方法包，写 settings.gradle.kts / app build.gradle.kts / Podfile / SparklingAutolink
-- `npm test` - vitest 单元测试
-- `npx tsc --noEmit` - 类型检查（tsconfig 用 `moduleResolution: Bundler`）
-- `cd android && ./gradlew assembleDebug` - 打 debug APK
+- `npm run tauri dev` - 开发模式（Vite HMR；改 Rust 触发后端重编，比前端慢）
+- `npm run tauri build` - 打包桌面应用
+- `npm run build` - 前端构建（`tsc && vite build`）
+- `npx tsc --noEmit` - 仅类型检查
+- `cargo test` / `cargo check` - Rust workspace（cimoc-core + src-tauri）
 
-方法包（在 `sparkling-cimoc-bridge/` 下执行）：
+## Development Workflow
 
-- `npm run codegen` - `sparkling-method-cli codegen`，从 `src/**/*.d.ts` 生成 Android/iOS 桩与 metadata
-- `npm run build` - `tsc -p tsconfig.json`（仅编译入口 index.ts）
+- 改前端（`desktop/src/`）：`npm run tauri dev` 热更新。
+- 改 Rust 核心（`desktop/crates/cimoc-core/`）：workspace 内直接编译，改完跑 `cargo test`（解析器有 fixture 测试）。
+- 图片加载：热链域（Webtoons pstatic.net）必须走 `cimoc-img://` 自定义 scheme 代理（Rust 加 Referer + 磁盘缓存/LRU）；其余域 `<img>` 直连吃 webview HTTP 缓存。macOS/Linux 无法给 `<img>` 注入 Referer，只能走代理。见 `docs/research/desktop-webview-images.md`。
 
 ## Known Gotchas（坑）
 
-1. **codegen 产物不可全信**：`sparkling-method-cli codegen` 生成的逐方法 TS 实现（丢弃 data、`const errorResponse: = {` 类型残缺）与 Swift IDL（非可选属性无默认值，编译不过）均不可用。JS 门面（index.ts）与 iOS 桩需手写，只复用生成的 `.d.ts` 类型。重跑 codegen 会覆盖 index.ts。
-2. **autolink 类名约定**：`sparkling-app-cli autolink` 按 `androidPackageName.<camelCase方法名>.Cimoc<Name>Method` 推断实现类 FQN（methods 配置键 + `className: CimocMethod`）。codegen 桩在 `...cimoc.cimoc.<lowercase>` 包。**实现类必须放 camelCase 包目录**（`getText/` 而非 `gettext/`），否则 `Class.forName` 失败、方法静默不注册。
-3. **createXModel 调用**：必须用官方 receiver 语法 `X::class.java.createXModel()`；`createXModel(X::class.java)` 函数式调用在 Kotlin 1.8 下解析歧义（receiver type mismatch）。
-4. **tsconfig**：必须 `moduleResolution: Bundler`；node16 无法解析 `./x.d` 类型引用与 sparkling-method 的 default 导入。
-5. **sparkling-method 版本**：`.d.ts` codegen 需 `sparkling-method-cli@2.1.0-rc.36`（npm `@latest` 是旧版 2.0.1，不支持该 codegen）。
-6. **Fresco 图片**：Webtoons CDN（pstatic.net）热链保护，需 okhttp interceptor 补 `Referer`；16KB 页设备需 `MemoryChunkType.BUFFER_MEMORY`（绕开未对齐的 libimagepipeline.so）。
-7. **不要自定义壳/构建**：app 的 android/ios 壳与打包统一走官方 `sparkling-app-cli`，勿手写替代流程（用户明确要求对齐 sparkling-app-template 模型）。
+1. **Tauri 同步命令在主线程执行**：阻塞式 reqwest 必须放 async 命令 + `tauri::async_runtime::spawn_blocking`，否则冻结 UI。
+2. **自定义 scheme 回调（cimoc-img://）**：macOS WKURLSchemeHandler 回调跑在主线程，同样需要 spawn_blocking。
+3. **`withGlobalTauri` 必须放 `tauri.conf.json` 的 `app` 段**（不在 `security` 段；`app.withGlobalTauri: true`）。
+4. **cargo 源**：本仓库 `.cargo/config.toml` 将 crates-io 重定向到 rsproxy.cn（用户要求：不用内网 artifactory；官方源 403 时用国内镜像）。不要改动。
+5. **workspace 构建产物**：`desktop/target/` 由 workspace 根生成，成员 crate 的 `/target` 忽略规则覆盖不到——`desktop/.gitignore` 必须包含 `target`。
+6. **cimoc-core 命令 API**：公开函数接收 `&str`、返回 JSON 字符串，无 uniffi 包装；命令层直接传 `&s` 或 `s.as_str()`，不要建 String 参数签名。
 
 ## Related Docs
 
-- Rsbuild: <https://rsbuild.rs/llms.txt>
-
-- Rspack: <https://rspack.rs/llms.txt>
-
-## Tools
-
-### Biome
-
-- Run `npm run lint` to lint your code
-- Run `npm run format` to format your code
-
+- Tauri: <https://tauri.app/llms.txt>
+- Tauri 插件（store/dialog/opener/fs）: <https://tauri.app/plugin/>
+- Vite: <https://vite.dev/>
+- wayfinder 地图: <https://github.com/fw6/comic/issues/2>
