@@ -28,9 +28,12 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 
 - v1 不建（grilling #10 定）；功能集稳定、回归频繁时评估引入。
 
+## 下载任务队列（多任务下载进度管理界面）
+
+> 已开图（2026-08-15，[wayfinder 地图 #20](https://github.com/fw6/comic/issues/20)）：把下载从 Reader 内联逐页串行升级为 Rust 侧常驻任务队列 + 事件推送进度，TopBar 新增「下载」管理页。任务粒度 = 一话；全局 2 页并发、章内顺序。tickets：[research 推送通道 #21](https://github.com/fw6/comic/issues/21) → [grilling 队列模型 #22](https://github.com/fw6/comic/issues/22) → [grilling UI 与入口 #23](https://github.com/fw6/comic/issues/23)。
+
 ## 其它后置项（grilling #6 定）
 
-- 下载任务队列（多任务下载进度管理界面）。
 - WebDAV 备份/恢复（收藏/历史/进度；v1.1 起也是旧手机数据互通的通道）。
 - 发布强化：正式签名/公证（macOS Developer ID + notarytool）、自动更新（tauri-updater，
   需 tauri signer + CI secrets；research #9 事实）。
