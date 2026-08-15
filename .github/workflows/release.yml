@@ -1,6 +1,7 @@
-# 桌面发布（research #9 定案）：tag app-v* 触发 + 手动 dispatch，tauri-action@v1
-# 构建三平台并上传 draft release，人工核验后 publish。
-# 签名策略 v1：macOS ad-hoc（tauri.conf.json bundle.macOS.signingIdentity），Windows/Linux 不签名。
+# 桌面发布（research #9 定案 + wayfinder #26 强化）：tag app-v* 触发 + 手动 dispatch，
+# tauri-action@v1 构建 Windows + Linux（不发 macOS，wayfinder #26 定）并上传 draft release。
+# 自动更新（wayfinder #26/#27）：tauri signer 签名产物（.sig + latest.json）由 action 上传；
+# 私钥经 CI secret TAURI_SIGNING_PRIVATE_KEY 注入（.env 不生效，必须环境变量）。
 name: release
 
 on:
@@ -17,10 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
           - platform: 'ubuntu-22.04'
             args: ''
           - platform: 'windows-latest'
@@ -45,8 +42,6 @@ jobs:
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -60,6 +55,7 @@ jobs:
       - uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           projectPath: desktop
           tagName: app-v__VERSION__

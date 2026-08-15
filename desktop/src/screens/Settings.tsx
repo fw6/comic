@@ -15,6 +15,8 @@ import {
     type SourceEntry,
 } from "../lib/storage";
 import { syncSources, sourceErrors, webdavGet, webdavPut, type SourceError } from "../api";
+import { check as checkUpdate, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
 
 /** 备份文件名（grilling #25 #2：单文件聚合）。 */
 const BACKUP_FILE = "cimoc-backup.json";
@@ -51,6 +53,12 @@ export default function Settings() {
     const [webdav, setWebdav] = useState({ baseUrl: "", user: "", password: "" });
     const [backing, setBacking] = useState(false);
     const [restoring, setRestoring] = useState(false);
+    // 更新段（wayfinder #26/#27：检查/下载进度/重启安装）
+    const [update, setUpdate] = useState<Update | null>(null);
+    const [checkingUpd, setCheckingUpd] = useState(false);
+    const [downloadingUpd, setDownloadingUpd] = useState(false);
+    const [downloaded, setDownloaded] = useState(false);
+    const [updProgress, setUpdProgress] = useState<{ done: number; total: number } | null>(null);
 
     useEffect(() => {
         void getSettings().then((s) => {
@@ -221,6 +229,64 @@ export default function Settings() {
         }
     }
 
+    // ---------- 自动更新（wayfinder #26/#27：设置页手动检查） ----------
+
+    async function checkForUpdate() {
+        setCheckingUpd(true);
+        setNotice(null);
+        try {
+            const found = await checkUpdate();
+            setUpdate(found);
+            setDownloaded(false);
+            setUpdProgress(null);
+            if (found) {
+                setNotice({ kind: "ok", text: `发现新版本 v${found.version}` });
+            } else {
+                setNotice({ kind: "ok", text: "已是最新版本" });
+            }
+        } catch (e) {
+            setNotice({ kind: "err", text: `检查更新失败：${String(e)}` });
+        } finally {
+            setCheckingUpd(false);
+        }
+    }
+
+    async function downloadUpdate() {
+        if (!update) return;
+        setDownloadingUpd(true);
+        setNotice(null);
+        try {
+            await update.download((event) => {
+                if (event.event === "Started") {
+                    setUpdProgress({ done: 0, total: event.data.contentLength ?? 0 });
+                } else if (event.event === "Progress") {
+                    setUpdProgress((p) => ({
+                        done: (p?.done ?? 0) + event.data.chunkLength,
+                        total: p?.total ?? 0,
+                    }));
+                } else if (event.event === "Finished") {
+                    setUpdProgress(null);
+                }
+            });
+            setDownloaded(true);
+            setNotice({ kind: "ok", text: "更新已下载，点击「重启安装」生效" });
+        } catch (e) {
+            setNotice({ kind: "err", text: `下载更新失败：${String(e)}` });
+        } finally {
+            setDownloadingUpd(false);
+        }
+    }
+
+    async function installAndRelaunch() {
+        if (!update) return;
+        try {
+            await update.install();
+            await relaunch();
+        } catch (e) {
+            setNotice({ kind: "err", text: `安装更新失败：${String(e)}` });
+        }
+    }
+
     if (!settings) {
         return <div style={{ padding: 16 }}>加载中…</div>;
     }
@@ -298,6 +364,29 @@ export default function Settings() {
                 >
                     {restoring ? "恢复中…" : "恢复…"}
                 </button>
+            </div>
+
+            <h3 style={{ marginBottom: 4 }}>更新</h3>
+            <div style={{ fontSize: 12, color: "var(--muted)", margin: "4px 0 8px" }}>
+                检查应用新版本（Windows / Linux 自动更新）。
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <button onClick={checkForUpdate} disabled={checkingUpd || downloadingUpd}>
+                    {checkingUpd ? "检查中…" : "检查更新"}
+                </button>
+                {update && !downloaded && !downloadingUpd && (
+                    <button onClick={downloadUpdate} disabled={downloadingUpd}>
+                        {downloadingUpd ? "下载中…" : `下载 v${update.version}`}
+                    </button>
+                )}
+                {downloaded && (
+                    <button onClick={installAndRelaunch}>重启安装</button>
+                )}
+                {updProgress && updProgress.total > 0 && (
+                    <span style={{ color: "var(--muted)", fontSize: 12 }}>
+                        {Math.round((updProgress.done / updProgress.total) * 100)}%
+                    </span>
+                )}
             </div>
 
             <h3 style={{ marginBottom: 4 }}>源</h3>
