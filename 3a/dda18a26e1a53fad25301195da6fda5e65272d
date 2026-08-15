@@ -1,0 +1,44 @@
+desktop/src/api.ts
+  s_3706d3aa2aba8b::t_92392631396a55 143-150,154,161
+desktop/package-lock.json
+  ai_agent 13,1657-1660
+desktop/src-tauri/Cargo.toml
+  s_3706d3aa2aba8b::t_dd8e5d2976546b 31
+desktop/src-tauri/src/lib.rs
+  s_3706d3aa2aba8b::t_d0aa1dc7449892 440
+desktop/src/lib/storage-fs.ts
+  s_3706d3aa2aba8b::t_5af6a0d4b88bb9 1-82
+desktop/src/api.test.ts
+  s_3706d3aa2aba8b::t_53836490fdc975 50-82
+desktop/Cargo.lock
+  ai_agent 874
+desktop/package.json
+  s_3706d3aa2aba8b::t_420502ad3f2fff 17
+desktop/src-tauri/capabilities/default.json
+  s_3706d3aa2aba8b::t_83c7a19e287381 15-22
+desktop/src/lib/storage.ts
+  s_3706d3aa2aba8b::t_cd6d43de8de90a 46-51
+  s_3706d3aa2aba8b::t_b5ccdc820a25aa 4,7-12
+desktop/src/lib/storage.test.ts
+  s_3706d3aa2aba8b::t_952eddcc4a46ec 86
+  s_3706d3aa2aba8b::t_f0739f2b10b1a8 271-316
+  s_3706d3aa2aba8b::t_ef0998526ccacb 41-64
+desktop/.gitignore
+  s_3706d3aa2aba8b::t_8a984c281e23b4 32-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "3adda18a26e1a53fad25301195da6fda5e65272d",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
