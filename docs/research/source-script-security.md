@@ -4,6 +4,8 @@
 
 核心判断：**脚本跑在进程内、无任何宿主绑定时，残余攻击面只有「自 DoS」（CPU/内存/卡死），没有数据窃取与代码逃逸。用 rquickjs 自带的 memory limit + interrupt handler（墙钟超时）+ 栈上限 + 脚本体积检查四个旋钮即可封住 DoS，不需要子进程/虚拟机等重型沙箱。**
 
+> **修订（2026-08-15，prototype #15 实测）**：`Eval` intrinsic **必须挂载**——rquickjs 的 `Ctx::eval` 走 quickjs-ng 的 `JS_Eval → JS_EvalInternal`，该函数以 `ctx->eval_internal` 为门槛（未设则抛 "eval is not supported"，见 quickjs.c `JS_EvalInternal`/`JS_AddIntrinsicEval`），而 `eval_internal` 只能由 `JS_AddIntrinsicEval` 设置。因此 `Context::custom` 缺 `Eval` 时**连脚本本身都加载不了**，§4.1 原基线代码不成立；「禁 eval/Function 字符串编译」与「引擎能执行脚本」不可兼得，全局 `eval`/`Function` 对脚本保留，恶意脚本的动态代码能力靠超时/内存/体积兜底。白名单基线修正为 `Context::custom::<(Date, Json, Eval)>`；`RegExp`/`MapSet`/`Proxy` 等仍可独立裁剪后置。
+
 ---
 
 ## 1. 攻击面：不暴露任何宿主 API 时，脚本能做什么
@@ -154,8 +156,8 @@ qjs.c（quickjs-ng/quickjs master）的用法文本：
 ### 4.1 必做限制（v1 落地）
 
 ```rust
+use rquickjs::context::intrinsic::{Date, Eval, Json};
 use rquickjs::{Context, Runtime};
-use rquickjs::intrinsic::{Date, Json};
 use std::time::Instant;
 
 // 在 tauri::async_runtime::spawn_blocking 的 worker 线程内整体执行（AGENTS.md 坑 #1）
@@ -169,7 +171,7 @@ rt.set_interrupt_handler(Some(Box::new(move || { // ② 墙钟执行超时 2 s
 // ③ 栈上限：保持默认 256 KB（set_max_stack_size 可不调；深递归抛 RangeError）
 // ④ GC 阈值：保持默认 256 KB（set_gc_threshold 可不调）
 
-let ctx = Context::custom::<(Date, Json)>(&rt).map_err(|e| e.to_string())?; // ⑤ 白名单 globals
+let ctx = Context::custom::<(Date, Json, Eval)>(&rt).map_err(|e| e.to_string())?; // ⑤ 白名单 globals（Eval 必挂，见文首修订）
 let result: String = ctx.with(|ctx| ctx.eval(source)).map_err(|e| e.to_string())?;
 // result 即脚本产出的 JSON 字符串，回传调用方
 ```
@@ -187,9 +189,10 @@ let result: String = ctx.with(|ctx| ctx.eval(source)).map_err(|e| e.to_string())
 `Context::custom` 从 base 起步（`Object/Function/Array/Math/Number/String/Boolean/Symbol/Error/Iterator/GeneratorFunction` + 原型方法始终在），**只加解析真正需要的**：
 
 - **加 `Json`**：解析与输出 JSON（若脚本契约是「最后表达式是 JSON 字符串」，甚至可不加，但加着无害且省得社区作者手搓序列化）。
+- **必加 `Eval`**（修订，见文首）：引擎执行脚本本身走 `eval_internal`，缺 Eval 连脚本都加载不了；全局 `eval`/`Function` 因而对脚本保留，其动态代码能力由超时/内存/体积兜底。
 - **加 `Date`**：源站时间戳/章节日期常要格式化。
 - **可后置 `RegExp`**：默认不给（`Context::base` 无 RegExp），要求脚本用字符串方法；若社区反馈确实需要再开——每次少一个 ReDoS 面。
-- **不加**：`Eval`（禁 `eval`/`Function` 字符串编译，见 §1.2）、`Proxy`、`TypedArrays`/`Atomics`、`Promise`（v1 全同步）、`WeakRef`、`Performance`、`MapSet`（可选，脚本作者用普通对象即可）。
+- **不加**：`RegExp`（默认不给，要求脚本用字符串方法；若社区反馈确实需要再开——少一个 ReDoS 面）、`Proxy`、`TypedArrays`/`Atomics`、`Promise`（v1 全同步）、`WeakRef`、`Performance`、`MapSet`（可选，脚本作者用普通对象即可）。
 - 契约上把「可用全局对象清单」写进源脚本规范，作为审核与投稿的公开约束。
 
 ### 4.3 明确的依赖/feature 约束

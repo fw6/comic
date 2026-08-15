@@ -6,6 +6,7 @@
 
 pub mod cache;
 pub mod crawler;
+pub mod js;
 pub mod native;
 
 /// 核心版本字符串。
