@@ -9,6 +9,9 @@
     "mcp-bridge:default",
     "store:default",
     "dialog:default",
-    "updater:default"
+    {
+      "identifier": "updater:default",
+      "platforms": ["windows", "linux"]
+    }
   ]
 }

@@ -21,6 +21,9 @@ import { relaunch } from "@tauri-apps/plugin-process";
 /** 备份文件名（grilling #25 #2：单文件聚合）。 */
 const BACKUP_FILE = "cimoc-backup.json";
 
+/** macOS 平台检测：ad-hoc 签名无法过 Gatekeeper 整包替换，macOS 不发自动更新（wayfinder #26）。 */
+const IS_MACOS = navigator.userAgent.includes("Mac");
+
 /** 源仓库 index（wayfinder #16：公开单一 JSON，每源条目含内嵌脚本 + 整数版本 + sha256）。 */
 const REPO_INDEX_URL =
     "https://raw.githubusercontent.com/fw6/cimoc-sources/main/sources.json";
@@ -370,24 +373,30 @@ export default function Settings() {
             <div style={{ fontSize: 12, color: "var(--muted)", margin: "4px 0 8px" }}>
                 检查应用新版本（Windows / Linux 自动更新）。
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <button onClick={checkForUpdate} disabled={checkingUpd || downloadingUpd}>
-                    {checkingUpd ? "检查中…" : "检查更新"}
-                </button>
-                {update && !downloaded && !downloadingUpd && (
-                    <button onClick={downloadUpdate} disabled={downloadingUpd}>
-                        {downloadingUpd ? "下载中…" : `下载 v${update.version}`}
+            {IS_MACOS ? (
+                <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                    macOS 版暂不提供自动更新，请从发布页手动下载新版本。
+                </div>
+            ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <button onClick={checkForUpdate} disabled={checkingUpd || downloadingUpd}>
+                        {checkingUpd ? "检查中…" : "检查更新"}
                     </button>
-                )}
-                {downloaded && (
-                    <button onClick={installAndRelaunch}>重启安装</button>
-                )}
-                {updProgress && updProgress.total > 0 && (
-                    <span style={{ color: "var(--muted)", fontSize: 12 }}>
-                        {Math.round((updProgress.done / updProgress.total) * 100)}%
-                    </span>
-                )}
-            </div>
+                    {update && !downloaded && !downloadingUpd && (
+                        <button onClick={downloadUpdate} disabled={downloadingUpd}>
+                            {downloadingUpd ? "下载中…" : `下载 v${update.version}`}
+                        </button>
+                    )}
+                    {downloaded && (
+                        <button onClick={installAndRelaunch}>重启安装</button>
+                    )}
+                    {updProgress && updProgress.total > 0 && (
+                        <span style={{ color: "var(--muted)", fontSize: 12 }}>
+                            {Math.round((updProgress.done / updProgress.total) * 100)}%
+                        </span>
+                    )}
+                </div>
+            )}
 
             <h3 style={{ marginBottom: 4 }}>源</h3>
             <div style={{ margin: "8px 0" }}>
