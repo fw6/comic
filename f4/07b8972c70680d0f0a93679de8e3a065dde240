@@ -1,0 +1,53 @@
+desktop/src/screens/Reader.tsx
+  s_3706d3aa2aba8b::t_8b856ff2d8c21b 178-222,245
+  s_3706d3aa2aba8b::t_d37db969614500 4-12,23
+  s_3706d3aa2aba8b::t_b40f0ac5328e0f 340-342,357
+  s_3706d3aa2aba8b::t_45f907fef56f4e 114-122
+  s_3706d3aa2aba8b::t_ea6781a53e4b81 323-332
+  s_3706d3aa2aba8b::t_38dc4304aa50a6 152-154
+  s_3706d3aa2aba8b::t_4d36e32c0b157d 64-70,86
+desktop/src/App.tsx
+  s_3706d3aa2aba8b::t_70c61a813bbadb 83-86
+  s_3706d3aa2aba8b::t_7e9ce8ec733247 21-26
+desktop/crates/cimoc-core/src/native/files.rs
+  s_3706d3aa2aba8b::t_78bcba4c072b3e 3-4,13-15,38-47,52,66,78-79,81,110-124,134-156,182-193,203-213,215-226,228-233
+  s_3706d3aa2aba8b::t_c27e29471c2d06 196-202
+desktop/crates/cimoc-core/src/lib.rs
+  s_3706d3aa2aba8b::t_296a0f06f6d998 39-40,44,50,53-55,58
+docs/roadmap.md
+  s_3706d3aa2aba8b::t_f3c93821bf889e 19
+desktop/src-tauri/src/lib.rs
+  s_3706d3aa2aba8b::t_53c99e2748310c 271,274-283,288,291-299
+  s_3706d3aa2aba8b::t_77c88c461d4159 147-150,152-155,170,174,181,186-211
+  s_3706d3aa2aba8b::t_9208c228a30316 105,112-120,127-132
+desktop/src/api.ts
+  s_3706d3aa2aba8b::t_d8f1184e0e1db7 29,31
+  s_3706d3aa2aba8b::t_b22cdb4d340942 101-105
+  s_3706d3aa2aba8b::t_463e051f2ec4b1 45,51-53,57,61,70
+CONTEXT.md
+  s_3706d3aa2aba8b::t_30cec945e4057f 19
+desktop/src/api.test.ts
+  s_3706d3aa2aba8b::t_b888e5e80bfc1a 80-88,90,92,95,100,102,107,112,115-123,128,136
+  s_3706d3aa2aba8b::t_75e6a574b1d187 10-18
+desktop/src/screens/Library.tsx
+  s_3706d3aa2aba8b::t_d829dd3b5cedaf 133
+  s_3706d3aa2aba8b::t_2842f5516b0154 4-10
+  s_3706d3aa2aba8b::t_1d3fa00435f7a2 111
+  s_3706d3aa2aba8b::t_f3426f0c026e97 145-163,166-209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "f407b8972c70680d0f0a93679de8e3a065dde240",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
