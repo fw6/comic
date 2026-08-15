@@ -1,0 +1,105 @@
+.github/workflows/release.yml
+  s_3706d3aa2aba8b::t_8e904199adcaa8 1-69
+desktop/src/screens/Library.tsx
+  s_3706d3aa2aba8b::t_a9766efef7232d 4-186
+desktop/crates/cimoc-core/src/cache.rs
+  ai_agent 84-176
+desktop/src/lib/scroll.test.ts
+  ai_agent 1-64
+desktop/crates/cimoc-core/src/crawler/mangadex.rs
+  s_3706d3aa2aba8b::t_bc19334b9dff9a 190-195
+desktop/src/screens/Detail.tsx
+  s_3706d3aa2aba8b::t_f4e2a81577611d 5,12-13,16-33,36-40,42,58-63,67-83,85-106
+desktop/crates/cimoc-core/src/lib.rs
+  s_3706d3aa2aba8b::t_f6b215f03bb506 37,44,46
+desktop/src/api.test.ts
+  s_3706d3aa2aba8b::t_32dcddba7015a6 94-109
+desktop/package-lock.json
+  ai_agent 12,14,21,25,27-28,31-81,316-325,374-526,969-986,1411-1417,1645-1653,1663-1728,1774-1791,1840-1843,1845-1852,1854-1855,1858-1861,1865-1867,1869-1870,1872-1882,1885-2059,2077-2086,2107-2120,2128-2141,2160-2185,2193-2212,2265-2284,2328-2347,2355-2405,2442-2469,2506-2539,2589-2614,2636-2643,2692-2701,2748-2760,2783-2789,2800-2837,2855-2910,2925-2934,3041-3211
+desktop/crates/cimoc-core/src/crawler/models.rs
+  s_3706d3aa2aba8b::t_7c2b6a0a6fa519 32-33
+desktop/src-tauri/Cargo.toml
+  ai_agent 28-29
+desktop/src-tauri/tauri.conf.json
+  s_3706d3aa2aba8b::t_031c1cd2b4a233 28-30
+desktop/src/lib/chapters.test.ts
+  s_3706d3aa2aba8b::t_7a028f9ee59073 5-29
+desktop/src/lib/storage.ts
+  s_3706d3aa2aba8b::t_9c3b1f2f45f8cd 119-124
+  s_3706d3aa2aba8b::t_eaa840728b67fc 3
+  s_3706d3aa2aba8b::t_c9ae7a0b3bff99 2
+  s_3706d3aa2aba8b::t_a326bf322cf31a 125-126,128-138
+  s_3706d3aa2aba8b::t_20a54da7c39001 146-165
+  s_3706d3aa2aba8b::t_7a9de3b20bfe12 32
+  s_3706d3aa2aba8b::t_8e572caa29c3a7 127
+desktop/src/App.tsx
+  s_3706d3aa2aba8b::t_1918db7736a2b4 2-9,13-57,60-63
+desktop/src/lib/storage.test.ts
+  s_3706d3aa2aba8b::t_2ab372a71980bb 153-177,179-201
+  s_3706d3aa2aba8b::t_cdf7486b944431 34,36-53
+  s_3706d3aa2aba8b::t_d0246c2a097883 178
+  s_3706d3aa2aba8b::t_ca03a03e6e454d 35
+  s_3706d3aa2aba8b::t_6993fd9758d7ef 8-28
+desktop/src-tauri/src/lib.rs
+  s_3706d3aa2aba8b::t_bc10787363a892 49,52
+desktop/crates/cimoc-core/src/native/files.rs
+  s_3706d3aa2aba8b::t_bdfc0d7e7d6d4c 34-47
+desktop/src/lib/chapters.ts
+  s_3706d3aa2aba8b::t_3ea4fdc544ddc5 4-9
+desktop/crates/cimoc-core/src/crawler/webtoons.rs
+  s_3706d3aa2aba8b::t_cd08fbb3a2c0eb 346
+desktop/src/lib/scroll.ts
+  ai_agent 1-43
+desktop/src-tauri/capabilities/default.json
+  ai_agent 9-11
+desktop/crates/cimoc-core/tests/crawler_test.rs
+  s_3706d3aa2aba8b::t_0d206cc8e69c02 54-57
+desktop/src/screens/Reader.tsx
+  s_3706d3aa2aba8b::t_6fb15bb07b6ffc 2-4
+  s_3706d3aa2aba8b::t_aa3a3cf5189a55 236-266
+  s_3706d3aa2aba8b::t_54b9a364151cbb 36
+  s_3706d3aa2aba8b::t_e8ec761ec824c2 18-27
+  s_3706d3aa2aba8b::t_8a68182acbf0f9 182-195
+  s_3706d3aa2aba8b::t_c98b6488074534 197-228
+  s_3706d3aa2aba8b::t_45c6cc6de05a99 87-112
+desktop/src/screens/Settings.tsx
+  s_3706d3aa2aba8b::t_297f1f85d0e576 47
+desktop/package.json
+  ai_agent 10-12,16,18,25,29,31-32
+desktop/src/lib/theme.ts
+  ai_agent 1-4
+desktop/src/index.css
+  ai_agent 1-18,21-32
+desktop/vite.config.ts
+  ai_agent 1,32-36
+desktop/Cargo.lock
+  ai_agent 846,849,2595,3398-3421,4235-4276,4328-4343,5480-5488,5522,5529-5545,5576-5581,5594-5599,5612-5617,5624-5629,5642-5647,5660-5665,5678-5683,5696-5700
+desktop/src/screens/Sources.tsx
+  s_3706d3aa2aba8b::t_9006d642ba1989 39
+  s_3706d3aa2aba8b::t_11f9e278aec961 4
+  s_3706d3aa2aba8b::t_ddb869448ba452 29
+desktop/crates/cimoc-core/tests/fixtures/mangadex-feed.json
+  s_3706d3aa2aba8b::t_f7dc2cd474781a 13-18
+.github/workflows/ci.yml
+  ai_agent 1-40
+desktop/src/api.ts
+  s_3706d3aa2aba8b::t_893d989eacb301 23-24,29-32
+  s_3706d3aa2aba8b::t_0494839368f5d2 47
+  s_3706d3aa2aba8b::t_adb7a8df0dfa19 56-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "0e573d78a738047657321341569c6da905503ca9",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
