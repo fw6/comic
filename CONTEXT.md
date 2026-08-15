@@ -1,11 +1,12 @@
 # CONTEXT.md — Cimoc
 
-Cimoc 漫画阅读器的领域术语表。桌面 v1（Tauri v2 + React）先落地，移动端（iOS/Android）为后置里程碑，术语跨端共享。术语来源：原 Lynx 产品的 Cimoc 约定 + wayfinder grilling #6 定案（2026-08-15）。
+Cimoc 漫画阅读器的领域术语表。桌面 v1（Tauri v2 + React）先落地，移动端（iOS/Android）为后置里程碑，术语跨端共享。术语来源：原 Lynx 产品的 Cimoc 约定 + wayfinder grilling #6 / #11 定案（2026-08-15）。
 
 ## 术语
 
-- **漫画源（source）**：提供漫画内容的站点（如 webtoons、mangadex）。每个源有自己的爬虫规则与标识（sourceId）。
-- **爬虫（crawl）**：按源规则抓取列表 / 详情 / 章节 / 图片的引擎，驻留 Rust 核心（cimoc-core）。
+- **漫画源（source）**：提供漫画内容的站点（如 webtoons、mangadex）。每个源 = 一个运行时加载的爬虫脚本模块（执行于 Rust 核心的嵌入 JS 运行时），定义 URL 构造、解析规则、请求头与热链域名，以 sourceId 标识，经源仓库分发更新（grilling #11 定案）。
+- **源仓库（source repository）**：分发源脚本的远程索引——源元数据 + 版本 + 下载 URL + sha256 校验；app 内手动检查更新。签名体系后置。
+- **爬虫（crawl）**：按源规则抓取列表 / 详情 / 章节 / 图片的引擎。网络取数（文本/JSON/字节，带 Referer/UA）、磁盘缓存与热链图片代理驻留 Rust 核心（cimoc-core）；解析规则在源脚本中（v1 后按 grilling #11 迁移，v1 期间解析暂留 Rust）。
 - **漫画（comic）**：一部作品，以（source, comicId）唯一标识。
 - **章节（chapter）**：漫画的一个话。源内以序号 chapterIndex 标识；同一作品的章节按章序排列。
 - **外链章节（external chapter）**：images 为空、内容托管在站外的章节（如 MangaDex 上指向 MangaPlus 的章节）。一律过滤：不出现在章节列表，也不进入「下一话」；只有外链章节的书显示空态。桌面 v1 不做跳浏览器等任何外链处理。
