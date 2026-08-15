@@ -152,3 +152,40 @@ export function imgSrc(url: string): string {
 export function localSrc(path: string): string {
     return `cimoc-img://localhost/file?path=${encodeURIComponent(path)}`;
 }
+
+// ---------- WebDAV 备份/恢复（wayfinder #24/#25：core 传输，前端组装内容） ----------
+
+export interface WebdavPutResult {
+    success: boolean;
+    status: number;
+}
+
+export interface WebdavGetResult {
+    ok: boolean;
+    content?: string;
+    status?: number;
+    error?: string;
+}
+
+/** WebDAV PUT 备份文件（core webdav_put：Basic Auth）。 */
+export const webdavPut = (
+    base: string,
+    user: string,
+    password: string,
+    fileName: string,
+    content: string,
+): Promise<WebdavPutResult> =>
+    invoke<string>("webdav_put", { base, user, password, fileName, content }).then(
+        (json) => JSON.parse(json) as WebdavPutResult,
+    );
+
+/** WebDAV GET 读取备份文件（core webdav_get：Basic Auth）。 */
+export const webdavGet = (
+    base: string,
+    user: string,
+    password: string,
+    fileName: string,
+): Promise<WebdavGetResult> =>
+    invoke<string>("webdav_get", { base, user, password, fileName }).then(
+        (json) => JSON.parse(json) as WebdavGetResult,
+    );

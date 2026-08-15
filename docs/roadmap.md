@@ -34,6 +34,6 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 
 ## 其它后置项（grilling #6 定）
 
-- WebDAV 备份/恢复（收藏/历史/进度；v1.1 起也是旧手机数据互通的通道）。
+- WebDAV 备份/恢复（收藏/历史/进度；v1.1 起也是旧手机数据互通的通道）——**已实现**（2026-08-15，[wayfinder 地图 #24](https://github.com/fw6/comic/issues/24)）：设置页「WebDAV 备份」段（地址/账号/密码 + 备份/恢复 + 确认弹窗）；单文件 `cimoc-backup.json` 内聚 `{version:1, exportedAt, favorites, history, progress}`；恢复整体覆盖三域，version≠1 拒绝；复用 core `webdav_put/get`（Basic Auth）。自动定时备份、钥匙串加密后置。
 - 发布强化：正式签名/公证（macOS Developer ID + notarytool）、自动更新（tauri-updater，
   需 tauri signer + CI secrets；research #9 事实）。

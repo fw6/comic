@@ -19,4 +19,4 @@ Cimoc 漫画阅读器的领域术语表。桌面 v1（Tauri v2 + React）先落�
 - **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；Reader「下载本话」把章节**入队**（wayfinder #20/#22），由 Rust 侧队列 worker 按章内顺序、全局 2 页并发下载，进度经 IPC Channel 推送（`download://progress`）。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经 cimoc-img:// 本地模式渲染）。
 - **下载任务（download task）**：多任务下载队列（wayfinder #20 已实现）：一话一个任务，taskId = `source/comicId/chapterIndex`；状态 queued/downloading/done/failed/cancelled；单页失败重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；TopBar「下载」页管理（进度条/取消/重试/清空已完成）。
 - **本地扫描（local scan）**：用户选择一个文件夹，导入其中已下载的漫画（Library「本地」入口）。
-- **WebDAV 备份（backup）**：收藏 / 历史 / 进度的 WebDAV 备份与恢复（v1 后置；也是日后旧手机数据互通的通道）。
+- **WebDAV 备份（backup）**：收藏 / 历史 / 进度的 WebDAV 备份与恢复（wayfinder #24 已实现；也是日后旧手机数据互通的通道）：单文件 `cimoc-backup.json` 内聚 `{version, exportedAt, favorites, history, progress}`，设置页「WebDAV 备份」段配置地址/账号/密码（明文存 settings，钥匙串后置）；恢复整体覆盖三域、version≠1 拒绝；传输复用 core `webdav_put/get`（Basic Auth）。

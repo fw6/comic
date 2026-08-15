@@ -20,6 +20,8 @@ import {
     retryDownload,
     clearDownloads,
     subscribeDownloads,
+    webdavPut,
+    webdavGet,
 } from "./api";
 
 const mockedInvoke = vi.mocked(invoke);
@@ -193,5 +195,46 @@ describe("下载任务队列 API（wayfinder #20/#22/#23）", () => {
         const channel = { id: 1 };
         await subscribeDownloads(channel as never);
         expect(mockedInvoke).toHaveBeenCalledWith("subscribe_downloads", { channel });
+    });
+});
+
+describe("WebDAV 备份/恢复 API（wayfinder #24）", () => {
+    it("webdavPut 透传 base/user/password/fileName/content 并解析结果", async () => {
+        mockedInvoke.mockResolvedValue(JSON.stringify({ success: true, status: 201 }));
+        await expect(
+            webdavPut(
+                "https://dav.example.com/dav/",
+                "u",
+                "p",
+                "cimoc-backup.json",
+                "{}",
+            ),
+        ).resolves.toEqual({ success: true, status: 201 });
+        expect(mockedInvoke).toHaveBeenCalledWith("webdav_put", {
+            base: "https://dav.example.com/dav/",
+            user: "u",
+            password: "p",
+            fileName: "cimoc-backup.json",
+            content: "{}",
+        });
+    });
+
+    it("webdavGet 解析内容与错误字段", async () => {
+        mockedInvoke.mockResolvedValue(
+            JSON.stringify({ ok: true, content: '{"version":1}' }),
+        );
+        await expect(webdavGet("https://dav.example.com/", "u", "p", "cimoc-backup.json")).resolves.toEqual(
+            { ok: true, content: '{"version":1}' },
+        );
+        expect(mockedInvoke).toHaveBeenCalledWith("webdav_get", {
+            base: "https://dav.example.com/",
+            user: "u",
+            password: "p",
+            fileName: "cimoc-backup.json",
+        });
+        mockedInvoke.mockResolvedValue(JSON.stringify({ ok: false, status: 404 }));
+        await expect(webdavGet("https://dav.example.com/", "u", "p", "x.json")).resolves.toEqual(
+            { ok: false, status: 404 },
+        );
     });
 });

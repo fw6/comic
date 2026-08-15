@@ -21,6 +21,9 @@ const mocks = vi.hoisted(() => {
             delete: async (k: string) => storeFor(path).delete(k),
             entries: async <T>() =>
                 [...storeFor(path).entries()] as Array<[string, T]>,
+            clear: async () => {
+                storeFor(path).clear();
+            },
             save: async () => {},
         }),
         reset: () => {
@@ -51,6 +54,10 @@ import {
     comicKey,
     hydrateWebtoonsCache,
     persistWebtoonsCache,
+    exportBackupJson,
+    parseBackupJson,
+    importBackupData,
+    BACKUP_VERSION,
 } from "./storage";
 import type { Comic } from "../api";
 
@@ -166,6 +173,73 @@ describe("设置 settings", () => {
             darkMode: true,
             autoTrim: true,
         });
+    });
+});
+
+describe("WebDAV 备份/恢复（wayfinder #24/#25）", () => {
+    beforeEach(() => {
+        invokeMock.mockReset();
+    });
+
+    it("exportBackupJson 聚合三域为 {version, exportedAt, favorites, history, progress}", async () => {
+        await toggleFavorite(comic("a", "mangadex"));
+        await touchHistory(comic("b", "webtoons"), 2);
+        await setProgress("mangadex", "a", {
+            chapterIndex: 3,
+            position: 0.5,
+            updatedAt: 1000,
+        });
+        const json = await exportBackupJson();
+        const data = JSON.parse(json) as ReturnType<typeof parseBackupJson>;
+        expect(data.version).toBe(BACKUP_VERSION);
+        expect(typeof data.exportedAt).toBe("number");
+        expect(data.favorites[comicKey("mangadex", "a")].title).toBe("作品 a");
+        expect(data.history[comicKey("webtoons", "b")].chapterIndex).toBe(2);
+        expect(data.progress[comicKey("mangadex", "a")].position).toBe(0.5);
+    });
+
+    it("parseBackupJson 接受当前版本、拒绝其他版本", () => {
+        const good = JSON.stringify({
+            version: BACKUP_VERSION,
+            exportedAt: 1,
+            favorites: {},
+            history: {},
+            progress: {},
+        });
+        expect(parseBackupJson(good).version).toBe(BACKUP_VERSION);
+        const bad = good.replace(`"version":${BACKUP_VERSION}`, '"version":999');
+        expect(() => parseBackupJson(bad)).toThrow(/不受支持/);
+    });
+
+    it("importBackupData 整体覆盖本地三域（快照语义）", async () => {
+        await toggleFavorite(comic("old", "mangadex"));
+        await importBackupData({
+            version: BACKUP_VERSION,
+            exportedAt: 1,
+            favorites: { [comicKey("mangadex", "new")]: comic("new", "mangadex") },
+            history: {
+                [comicKey("webtoons", "h")]: {
+                    comic: comic("h", "webtoons"),
+                    chapterIndex: 5,
+                    lastReadAt: 2000,
+                },
+            },
+            progress: {
+                [comicKey("mangadex", "new")]: {
+                    chapterIndex: 7,
+                    position: 0.9,
+                    updatedAt: 3000,
+                },
+            },
+        });
+        const favs = await getFavorites();
+        expect(favs.map((c) => c.id)).toEqual(["new"]);
+        const his = await getHistory();
+        expect(his.map((r) => r.comic.id)).toEqual(["h"]);
+        await expect(getProgress("mangadex", "new")).resolves.toMatchObject({
+            chapterIndex: 7,
+        });
+        await expect(getProgress("mangadex", "old")).resolves.toBeNull();
     });
 });
 

@@ -1,13 +1,23 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { open } from "@tauri-apps/plugin-dialog";
-import { getSettings, setSettings, type Settings as SettingsT } from "../lib/storage";
+import { confirm, open } from "@tauri-apps/plugin-dialog";
+import {
+    getSettings,
+    setSettings,
+    exportBackupJson,
+    parseBackupJson,
+    importBackupData,
+    type Settings as SettingsT,
+} from "../lib/storage";
 import { applyTheme } from "../lib/theme";
 import {
     getSources,
     setSources,
     type SourceEntry,
 } from "../lib/storage";
-import { syncSources, sourceErrors, type SourceError } from "../api";
+import { syncSources, sourceErrors, webdavGet, webdavPut, type SourceError } from "../api";
+
+/** 备份文件名（grilling #25 #2：单文件聚合）。 */
+const BACKUP_FILE = "cimoc-backup.json";
 
 /** 源仓库 index（wayfinder #16：公开单一 JSON，每源条目含内嵌脚本 + 整数版本 + sha256）。 */
 const REPO_INDEX_URL =
@@ -37,9 +47,16 @@ export default function Settings() {
     const [applying, setApplying] = useState(false);
     const [updates, setUpdates] = useState<Record<string, RepoEntry>>({});
     const [notice, setNotice] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+    // WebDAV 段（wayfinder #24/#25）
+    const [webdav, setWebdav] = useState({ baseUrl: "", user: "", password: "" });
+    const [backing, setBacking] = useState(false);
+    const [restoring, setRestoring] = useState(false);
 
     useEffect(() => {
-        void getSettings().then(setSettingsState);
+        void getSettings().then((s) => {
+            setSettingsState(s);
+            if (s.webdav) setWebdav(s.webdav);
+        });
         void refreshSources();
     }, []);
 
@@ -138,6 +155,72 @@ export default function Settings() {
         }
     }
 
+    // ---------- WebDAV 备份/恢复（wayfinder #24/#25） ----------
+
+    async function onWebdavChange(patch: Partial<typeof webdav>) {
+        const next = { ...webdav, ...patch };
+        setWebdav(next);
+        await setSettings({ webdav: next });
+        setSettingsState((s) => (s ? { ...s, webdav: next } : s));
+    }
+
+    async function backupNow() {
+        setBacking(true);
+        setNotice(null);
+        try {
+            if (!webdav.baseUrl || !webdav.user || !webdav.password) {
+                throw new Error("请填写 WebDAV 地址、账号与密码");
+            }
+            const content = await exportBackupJson();
+            const res = await webdavPut(
+                webdav.baseUrl,
+                webdav.user,
+                webdav.password,
+                BACKUP_FILE,
+                content,
+            );
+            if (!res.success) throw new Error(`WebDAV 返回 HTTP ${res.status}`);
+            setNotice({ kind: "ok", text: "备份成功（收藏/历史/进度）" });
+        } catch (e) {
+            setNotice({ kind: "err", text: `备份失败：${String(e)}` });
+        } finally {
+            setBacking(false);
+        }
+    }
+
+    async function restoreNow() {
+        setRestoring(true);
+        setNotice(null);
+        try {
+            if (!webdav.baseUrl || !webdav.user || !webdav.password) {
+                throw new Error("请填写 WebDAV 地址、账号与密码");
+            }
+            const confirmed = await confirm(
+                "恢复将用备份内容整体覆盖本地的收藏、历史与进度，确定继续？",
+                { title: "恢复备份", kind: "warning" },
+            );
+            if (!confirmed) return;
+            const res = await webdavGet(
+                webdav.baseUrl,
+                webdav.user,
+                webdav.password,
+                BACKUP_FILE,
+            );
+            if (!res.ok) {
+                throw new Error(
+                    res.error ? `WebDAV 读取失败：${res.error}` : `WebDAV 返回 HTTP ${res.status}`,
+                );
+            }
+            const data = parseBackupJson(res.content ?? "{}");
+            await importBackupData(data);
+            setNotice({ kind: "ok", text: "恢复成功（收藏/历史/进度已覆盖）" });
+        } catch (e) {
+            setNotice({ kind: "err", text: `恢复失败：${String(e)}` });
+        } finally {
+            setRestoring(false);
+        }
+    }
+
     if (!settings) {
         return <div style={{ padding: 16 }}>加载中…</div>;
     }
@@ -176,6 +259,46 @@ export default function Settings() {
                     onChange={(e) => void toggleTrim(e.target.checked)}
                 />
             </Row>
+
+            <h3 style={{ marginBottom: 4 }}>WebDAV 备份</h3>
+            <div style={{ fontSize: 12, color: "var(--muted)", margin: "4px 0 8px" }}>
+                收藏/历史/进度备份到自己的 WebDAV 服务器（{BACKUP_FILE}）。
+            </div>
+            <Row label="地址">
+                <input
+                    value={webdav.baseUrl}
+                    placeholder="https://dav.example.com/dav/"
+                    onChange={(e) => void onWebdavChange({ baseUrl: e.target.value })}
+                    style={{ width: 280 }}
+                />
+            </Row>
+            <Row label="账号">
+                <input
+                    value={webdav.user}
+                    onChange={(e) => void onWebdavChange({ user: e.target.value })}
+                    style={{ width: 280 }}
+                />
+            </Row>
+            <Row label="密码">
+                <input
+                    type="password"
+                    value={webdav.password}
+                    onChange={(e) => void onWebdavChange({ password: e.target.value })}
+                    style={{ width: 280 }}
+                />
+            </Row>
+            <div style={{ margin: "8px 0" }}>
+                <button onClick={backupNow} disabled={backing || restoring}>
+                    {backing ? "备份中…" : "立即备份"}
+                </button>
+                <button
+                    onClick={restoreNow}
+                    disabled={backing || restoring}
+                    style={{ marginLeft: 8 }}
+                >
+                    {restoring ? "恢复中…" : "恢复…"}
+                </button>
+            </div>
 
             <h3 style={{ marginBottom: 4 }}>源</h3>
             <div style={{ margin: "8px 0" }}>
