@@ -1,0 +1,9 @@
+docs/roadmap.md
+  ai_agent 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "e0f125ddde97b922c0a1f41988e5488eca594d71",
+  "prompts": {}
+}
