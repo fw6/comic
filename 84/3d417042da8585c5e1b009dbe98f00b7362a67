@@ -1,0 +1,23 @@
+CONTEXT.md
+  s_d10e9eec3f98c5::t_0a6d8a27a5f265 1-20
+AGENTS.md
+  s_d10e9eec3f98c5::t_a0931342b8a6c8 3,7-11,15-17,21,23-27,29,31-33,37-42,46-49
+README.md
+  s_d10e9eec3f98c5::t_a9e15b4d119cb3 1,3,5,7,10,12,15-17,19,21-23,25,27-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "843d417042da8585c5e1b009dbe98f00b7362a67",
+  "prompts": {},
+  "sessions": {
+    "s_d10e9eec3f98c5": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_4119ca26-9f82-4058-b4a8-afc5fce88af0",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
