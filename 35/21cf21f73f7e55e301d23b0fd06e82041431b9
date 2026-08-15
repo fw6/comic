@@ -1,0 +1,26 @@
+desktop/src/screens/Settings.tsx
+  s_3706d3aa2aba8b::t_edfdaf6e4b7238 24-26
+  s_3706d3aa2aba8b::t_859d8a21269b24 376-383,385-399
+desktop/src-tauri/tauri.conf.json
+  s_3706d3aa2aba8b::t_2e00139fd937d2 29-31
+desktop/src-tauri/capabilities/default.json
+  s_3706d3aa2aba8b::t_a9342f156eb315 12-15
+.github/workflows/release.yml
+  s_3706d3aa2aba8b::t_c9846ac2419c4b 2-5,22-25,50-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "3521cf21f73f7e55e301d23b0fd06e82041431b9",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "claude-DeepSeek-V4-Flash-0731[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
