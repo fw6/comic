@@ -1,0 +1,27 @@
+desktop/src/screens/Sources.tsx
+  s_486cd3843409af::t_25ad624f63df1f 1,11-18,21-25,27-32,38-39,47-61,63,65-112,114-115,120-131,133-148,150,153-187,192-193,196-197,200,215-252
+desktop/package-lock.json
+  ai_agent 24,1703-1722,1751-1757,1982-2014,2193-2209,2466-2475,2612-2626,2658-2663
+desktop/src/screens/Sources.test.tsx
+  s_486cd3843409af::t_618e340160933b 3-5,9-78,83-167
+  s_486cd3843409af::t_69e1a6cbda9436 1-2,6-8
+  s_486cd3843409af::t_91ae0617e186aa 79-82
+desktop/package.json
+  s_486cd3843409af::t_ff004b16488ecd 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "ebe5d02819ad271df01840502d018e31a745a9d2",
+  "prompts": {},
+  "sessions": {
+    "s_486cd3843409af": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_bce95482-ecb0-402e-89ec-acf8a28a899a",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
