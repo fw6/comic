@@ -1,0 +1,25 @@
+desktop/crates/cimoc-core/Cargo.toml
+  s_3706d3aa2aba8b::t_6fae1c60eba9dd 18
+desktop/Cargo.lock
+  ai_agent 256-274,482,491-499,570-580,617-625,1081-1086,2045-2053,2274,2303-2312,2398-2403,2492-2501,3243-3252,3670,3684-3700,3707,4179-4183
+docs/roadmap.md
+  s_3706d3aa2aba8b::t_da28abcda87d1e 25
+desktop/.gitignore
+  s_3706d3aa2aba8b::t_58e895a2c43bd5 35-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "c1a672d8839287d7671fff608bd6e7b014404fa8",
+  "prompts": {},
+  "sessions": {
+    "s_3706d3aa2aba8b": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_7592fab6-a6a8-4a1e-beda-ed87d80cc2c2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
