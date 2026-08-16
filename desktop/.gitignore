@@ -32,3 +32,5 @@ target
 
 # Tauri 移动工程（tauri android/ios init 生成，wayfinder #31：社区惯例入库忽略）
 src-tauri/gen
+# tauri android/ios 构建脚本需要的 CLI 入口（软链到 node_modules/.bin/tauri，生成物）
+src-tauri/tauri

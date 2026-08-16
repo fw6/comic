@@ -21,9 +21,8 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 ## 移动里程碑（桌面 v1 后，grilling #3/#6 定）
 
 - 功能集 = 桌面 v1 同一套；验收 = 核心阅读路径真机跑通。
-- 首周真机 spike：webview 图片表现与滚动性能。
 - FCM 推送 + 后台下载需自定义 Kotlin/Swift 插件（预算 2–4 周）；自动更新走应用商店。
-- **已开图**（2026-08-15，[wayfinder 地图 #28](https://github.com/fw6/comic/issues/28)）：grilling #29 已定案——验收仅核心阅读路径（书源→详情→无限滚动→进度）；存储层按平台切换（桌面 store / 移动 fs 读写 appDataDir JSON）；图片同一套（MangaDex 直连 + Webtoons scheme 代理）；下载仅前台（后台后置）；复用现有前端。桌面工程已移动就绪（staticlib/cdylib + mobile_entry_point + targets 已装），research #30 与 task #31（骨架+spike）进行中。
+- **骨架与 spike 完成**（2026-08-15，[wayfinder 地图 #28](https://github.com/fw6/comic/issues/28) 全关）：grilling #29 定案验收仅核心阅读路径（书源→详情→无限滚动→进度）、存储层平台切换（桌面 store / 移动 fs）、图片同一套、下载仅前台、复用现有前端；research #30（fs 替换可行、iOS scheme 零改动/Android 改 URL 形态、init 产物）；task #31——`tauri android/ios init` 骨架 + 三个构建修复（rquickjs 加 bindgen feature 支持 iOS 绑定、Android bindgen 注入 NDK sysroot、`src-tauri/tauri` 软链到 CLI）+ Android 模拟器 spike 验证（app 稳定、Tauri bridge 通、前端完整渲染）。**下一步是真机跑通核心阅读路径端到端**（搜索→详情→无限滚动→进度，storage-fs 平台切换已实现待真机确认）。
 
 ## e2e（tauri-driver）
 
