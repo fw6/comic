@@ -1,5 +1,8 @@
 # 桌面发布（research #9 定案 + wayfinder #26 强化）：tag app-v* 触发 + 手动 dispatch，
 # tauri-action@v1 构建 Windows + Linux + macOS（ad-hoc 签名）并上传 draft release。
+# 移动包（wayfinder #31 后）：build-android / build-ios 各自用 tauri CLI 构建并上传
+# 到同一 draft release——Android 出签名直装 APK（CI 临时 keystore）；iOS 无 Apple 开发者
+# 账号，出模拟器 .app（真机 .ipa 需签名，列入后置）。
 # 自动更新（wayfinder #26/#27）：仅 Windows/Linux（macOS ad-hoc 无法公证、更新器整包替换
 # 会被 Gatekeeper 拦，前端不显示更新入口 + capabilities 权限限定）；签名私钥经 CI secret
 # TAURI_SIGNING_PRIVATE_KEY 注入（.env 不生效，必须环境变量）。
@@ -70,3 +73,152 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  # Android 直装 APK：gen/android 按需 init（gitignore，wayfinder #31），
+  # rquickjs-sys bindgen 需注入 NDK sysroot（本地核验：缺它 stdio.h 找不到）。
+  build-android:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: 'npm'
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: install Rust with Android targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './desktop -> target'
+
+      - name: install frontend dependencies
+        run: npm install
+
+      # cargo fetch：让 tauri/插件源码进入 registry 缓存——tauri android init
+      # 生成的 tauri.settings.gradle 引用本地缓存绝对路径，缓存缺失则 init 指向不存在目录。
+      - name: fetch Rust dependencies
+        run: cargo fetch --manifest-path src-tauri/Cargo.toml
+
+      - name: install Android NDK
+        run: |
+          SDKMANAGER="$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -1)"
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install "ndk;29.0.14206865"
+          test -d "$ANDROID_HOME/ndk/29.0.14206865"
+
+      - name: init Android project
+        run: |
+          ln -sf ../node_modules/.bin/tauri src-tauri/tauri
+          npx tauri android init --ci
+
+      - name: build Android APK
+        env:
+          NDK_SYSROOT: $ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot
+        run: |
+          export BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_android="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/aarch64-linux-android"
+          export BINDGEN_EXTRA_CLANG_ARGS_armv7_linux_androideabi="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/arm-linux-androideabi"
+          export BINDGEN_EXTRA_CLANG_ARGS_i686_linux_android="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/i686-linux-android"
+          export BINDGEN_EXTRA_CLANG_ARGS_x86_64_linux_android="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/x86_64-linux-android"
+          npx tauri android build --apk --ci
+
+      # release APK 默认未签名，Android 无法直装：CI 用临时 keystore 签名（仅本包可装，
+      # 后续更新签名不同不可覆盖升级，draft release 阶段可接受）。
+      - name: sign APK
+        run: |
+          VERSION="$(node -p "require('./src-tauri/tauri.conf.json').version")"
+          keytool -genkeypair -v -keystore cimoc-release.keystore -alias cimoc \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass cimoc-ci -keypass cimoc-ci \
+            -dname "CN=Cimoc CI, OU=Release, O=Cimoc, L=Unknown, ST=Unknown, C=CN"
+          APKSIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)"
+          "$APKSIGNER" sign --ks cimoc-release.keystore --ks-pass pass:cimoc-ci --key-pass pass:cimoc-ci \
+            --out "cimoc-$VERSION-android.apk" \
+            "src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-v${{ env.APP_VERSION }}
+          name: Cimoc v${{ env.APP_VERSION }}
+          draft: true
+          files: desktop/cimoc-${{ env.APP_VERSION }}-android.apk
+
+  # iOS 模拟器 .app：真机 .ipa 需 Apple 开发者签名（项目暂无，与桌面 ad-hoc 同思路后置），
+  # 先出可装进模拟器的 aarch64-sim 包（ditto 打包保留权限/符号链接）。
+  build-ios:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: 'npm'
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: install Rust with iOS targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './desktop -> target'
+
+      - name: install frontend dependencies
+        run: npm install
+
+      - name: fetch Rust dependencies
+        run: cargo fetch --manifest-path src-tauri/Cargo.toml
+
+      # macos runner 镜像未预装 xcodegen（tauri ios init 依赖），缺失时补装
+      - name: install XcodeGen
+        run: |
+          which xcodegen || brew install xcodegen
+
+      - name: init iOS project
+        run: |
+          ln -sf ../node_modules/.bin/tauri src-tauri/tauri
+          npx tauri ios init --ci
+
+      - name: build iOS simulator app
+        run: npx tauri ios build --target aarch64-sim --ci
+
+      - name: package .app bundle
+        run: |
+          VERSION="$(node -p "require('./src-tauri/tauri.conf.json').version")"
+          cd src-tauri/gen/apple/build/arm64-sim
+          ditto -c -k --sequesterRsrc --keepParent cimoc.app "$OLDPWD/cimoc-$VERSION-ios-simulator.app.zip"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-v${{ env.APP_VERSION }}
+          name: Cimoc v${{ env.APP_VERSION }}
+          draft: true
+          files: desktop/cimoc-${{ env.APP_VERSION }}-ios-simulator.app.zip
