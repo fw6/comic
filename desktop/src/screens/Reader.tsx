@@ -13,6 +13,12 @@ import {
 import { filterExternalChapters } from "../lib/chapters";
 import { nearBottom, pageIndexAt, positionWithinChapter } from "../lib/scroll";
 import { getProgress, getSettings, setProgress, touchHistory } from "../lib/storage";
+import {
+    BackIcon,
+    BookOpenIcon,
+    DownloadIcon,
+    FullscreenIcon,
+} from "../components/icons";
 
 interface PageItem {
     /** 在过滤后章节列表中的下标 */
@@ -286,6 +292,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
     }, [fullscreen, navigate]);
 
     const lastChapter = currentIdxRef.current >= chapters.length - 1;
+    const currentChapter = chapters[currentIdxRef.current];
 
     return (
         <div
@@ -293,74 +300,64 @@ export default function Reader({ local = false }: { local?: boolean }) {
             onScroll={onScroll}
             onClick={onContainerClick}
             style={{
-                height: "100vh",
+                flex: 1,
+                minHeight: 0,
                 overflowY: "auto",
                 background: "var(--bg)",
                 color: "var(--fg)",
             }}
         >
             {!fullscreen && (
-                <div
-                    style={{
-                        position: "sticky",
-                        top: 0,
-                        background: "var(--bar-bg)",
-                        padding: "8px 12px",
-                        borderBottom: "1px solid var(--border)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        zIndex: 10,
-                    }}
-                >
+                <div className="reader-bar">
                     {local ? (
-                        <Link to="/library">← 书架</Link>
+                        <Link to="/library" className="icon-btn" aria-label="返回书架">
+                            <BackIcon />
+                        </Link>
                     ) : (
-                        <Link to={`/comic/${source}/${encodeURIComponent(id)}`}>← 章节</Link>
+                        <Link
+                            to={`/comic/${source}/${encodeURIComponent(id)}`}
+                            className="icon-btn"
+                            aria-label="返回章节"
+                        >
+                            <BackIcon />
+                        </Link>
                     )}
+                    <div className="reader-bar__title">
+                        {comic?.title ?? "阅读中"}
+                        {currentChapter && (
+                            <span className="reader-bar__chapter">
+                                {" "}
+                                · {currentChapter.title}
+                            </span>
+                        )}
+                    </div>
                     {!local && (
-                        <button onClick={() => void enqueueCurrentChapter()}>
-                            下载本话
+                        <button
+                            className="btn btn--ghost btn--sm"
+                            onClick={() => void enqueueCurrentChapter()}
+                        >
+                            <DownloadIcon />
+                            本话
                         </button>
                     )}
-                    <button onClick={toggleFullscreen} style={{ marginLeft: "auto" }}>
+                    <button
+                        className="btn btn--soft btn--sm"
+                        onClick={toggleFullscreen}
+                        aria-label="全屏"
+                    >
+                        <FullscreenIcon />
                         全屏
                     </button>
-                    {enqueueHint && (
-                        <span
-                            style={{
-                                position: "fixed",
-                                top: 52,
-                                left: "50%",
-                                transform: "translateX(-50%)",
-                                background: "var(--card-bg)",
-                                border: "1px solid var(--border)",
-                                padding: "6px 14px",
-                                borderRadius: 6,
-                                zIndex: 20,
-                            }}
-                        >
-                            {enqueueHint}
-                        </span>
-                    )}
+                    {enqueueHint && <div className="toast">{enqueueHint}</div>}
                 </div>
             )}
             {chapters.length === 0 ? (
-                <div style={{ padding: 32, color: "#999" }}>
-                    {local
-                        ? "该作品没有已下载的章节"
-                        : "该作品暂无可用章节（外链章节已过滤）"}
+                <div className="reader-end">
+                    <BookOpenIcon />
+                    {local ? "该作品没有已下载的章节" : "该作品暂无可用章节（外链章节已过滤）"}
                 </div>
             ) : (
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 4,
-                        padding: "8px 0",
-                    }}
-                >
+                <div className="reader-pages">
                     {pages.map((p, i) => (
                         <img
                             key={i}
@@ -378,15 +375,15 @@ export default function Reader({ local = false }: { local?: boolean }) {
                                 width: autoTrim ? "106%" : "100%",
                                 maxWidth: autoTrim ? "none" : 720,
                                 marginLeft: autoTrim ? "-3%" : undefined,
-                                background: "#f5f5f5",
                             }}
                         />
                     ))}
-                    {loading && (
-                        <div style={{ padding: 16, color: "#999" }}>加载中…</div>
-                    )}
+                    {loading && <div className="spinner" />}
                     {!loading && lastChapter && pages.length > 0 && (
-                        <div style={{ padding: 16, color: "#999" }}>已到最后一话</div>
+                        <div className="reader-end">
+                            <BookOpenIcon />
+                            已到最后一话
+                        </div>
                     )}
                 </div>
             )}

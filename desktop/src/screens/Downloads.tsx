@@ -11,6 +11,8 @@ import {
     type DownloadStatus,
     type DownloadTaskView,
 } from "../api";
+import { EmptyState, ProgressBar } from "../components/ui";
+import { DownloadIcon, RefreshIcon } from "../components/icons";
 
 const STATUS_LABEL: Record<DownloadStatus, string> = {
     queued: "排队中",
@@ -18,6 +20,14 @@ const STATUS_LABEL: Record<DownloadStatus, string> = {
     done: "已完成",
     failed: "失败",
     cancelled: "已取消",
+};
+
+const STATUS_BADGE: Record<DownloadStatus, string> = {
+    queued: "badge--queued",
+    downloading: "badge--downloading",
+    done: "badge--done",
+    failed: "badge--failed",
+    cancelled: "badge--cancelled",
 };
 
 /** 下载任务队列页（wayfinder #20/#23）：订阅进度事件 + 快照，管理多任务下载。 */
@@ -59,24 +69,24 @@ export default function Downloads() {
     }
 
     return (
-        <div style={{ padding: 16 }}>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: 16,
-                }}
-            >
-                <h2 style={{ margin: 0 }}>下载</h2>
-                <button onClick={() => void onClearFinished()} style={{ cursor: "pointer" }}>
-                    清空已完成
-                </button>
+        <div className="page">
+            <div className="page__head">
+                <div>
+                    <h1 className="page__title">下载</h1>
+                    <div className="page__sub">后台下载任务队列，随时掌握进度</div>
+                </div>
+                {tasks.length > 0 && (
+                    <button className="btn btn--ghost" onClick={() => void onClearFinished()}>
+                        <RefreshIcon />
+                        清空已完成
+                    </button>
+                )}
             </div>
+
             {tasks.length === 0 ? (
-                <div style={{ color: "var(--muted)" }}>暂无下载任务</div>
+                <EmptyState text="暂无下载任务" icon={<DownloadIcon />} />
             ) : (
-                <ul style={{ padding: 0, listStyle: "none", margin: 0 }}>
+                <div className="list">
                     {tasks.map((t) => (
                         <TaskRow
                             key={t.taskId}
@@ -85,7 +95,7 @@ export default function Downloads() {
                             onRetry={() => void onRetry(t.taskId)}
                         />
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );
@@ -103,65 +113,52 @@ function TaskRow({
     const pct = task.total === 0 ? 0 : Math.round((task.done / task.total) * 100);
     const canCancel = task.status === "queued" || task.status === "downloading";
     const canRetry = task.status === "failed" || task.status === "cancelled";
+    const badge = `badge ${STATUS_BADGE[task.status]}`;
     return (
-        <li
-            style={{
-                padding: "10px 0",
-                borderBottom: "1px solid var(--border)",
-            }}
-        >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                        <strong style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {task.comicTitle}
-                        </strong>
-                        <span style={{ color: "var(--muted)", fontSize: 12 }}>
-                            第 {task.chapterIndex} 话
-                        </span>
-                        <span style={{ fontSize: 12 }}>{STATUS_LABEL[task.status]}</span>
+        <div className="row" style={{ gap: 14 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        minWidth: 0,
+                    }}
+                >
+                    <div className="row__title" style={{ flexShrink: 1 }}>
+                        {task.comicTitle}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                        <div
-                            style={{
-                                flex: 1,
-                                height: 6,
-                                background: "var(--border)",
-                                borderRadius: 3,
-                                overflow: "hidden",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    height: "100%",
-                                    width: `${pct}%`,
-                                    background: "var(--fg)",
-                                }}
-                            />
-                        </div>
-                        <span style={{ color: "var(--muted)", fontSize: 12 }}>
-                            {task.done}/{task.total}
-                        </span>
+                    <span style={{ color: "var(--fg-3)", fontSize: 12, flexShrink: 0 }}>
+                        第 {task.chapterIndex} 话
+                    </span>
+                    <span className={badge} style={{ flexShrink: 0 }}>
+                        {STATUS_LABEL[task.status]}
+                    </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+                    <ProgressBar pct={pct} done={task.status === "done"} />
+                    <span style={{ color: "var(--fg-3)", fontSize: 12, flexShrink: 0 }}>
+                        {task.done}/{task.total}
+                    </span>
+                </div>
+                {task.error && (
+                    <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 6 }}>
+                        {task.error}
                     </div>
-                    {task.error && (
-                        <div style={{ color: "#c0392b", fontSize: 12, marginTop: 4 }}>
-                            {task.error}
-                        </div>
-                    )}
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                    {canCancel && (
-                        <button onClick={onCancel} style={{ cursor: "pointer" }}>
-                            取消
-                        </button>
-                    )}
-                    {canRetry && (
-                        <button onClick={onRetry} style={{ cursor: "pointer" }}>
-                            重试
-                        </button>
-                    )}
-                </div>
+                )}
             </div>
-        </li>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                {canCancel && (
+                    <button className="btn btn--danger-soft btn--sm" onClick={onCancel}>
+                        取消
+                    </button>
+                )}
+                {canRetry && (
+                    <button className="btn btn--soft btn--sm" onClick={onRetry}>
+                        重试
+                    </button>
+                )}
+            </div>
+        </div>
     );
 }

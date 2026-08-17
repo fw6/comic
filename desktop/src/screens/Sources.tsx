@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { crawl, imgSrc, cimocVersion, sourceErrors, type Comic, type SourceError } from "../api";
+import { crawl, sourceErrors, type Comic, type SourceError } from "../api";
 import { persistWebtoonsCache } from "../lib/storage";
+import { useIsMobile } from "../lib/platform";
+import { Banner, ComicCard, ComicRow, EmptyState } from "../components/ui";
+import { CloseIcon, SearchIcon } from "../components/icons";
 
 const SOURCES = [
     { id: "mangadex", title: "MangaDex" },
@@ -17,6 +19,7 @@ interface ListRequest {
 }
 
 export default function Sources() {
+    const mobile = useIsMobile();
     const [source, setSource] = useState("mangadex");
     const [categories, setCategories] = useState<string[]>([]);
     // 高亮的分类 tab（浏览模式）
@@ -32,17 +35,10 @@ export default function Sources() {
     });
     const [comics, setComics] = useState<Comic[]>([]);
     const [loading, setLoading] = useState(false);
-    const [version, setVersion] = useState("");
     // 源脚本错误行（wayfinder #17：源坏了不再伪装成空列表）
     const [sourceErr, setSourceErr] = useState<string | null>(null);
     // 请求序号：丢弃过期响应，避免分类/搜索竞态
     const listSeq = useRef(0);
-
-    useEffect(() => {
-        cimocVersion()
-            .then(setVersion)
-            .catch(() => {});
-    }, []);
 
     // 切换源：加载分类 tab，默认进第一个分类
     useEffect(() => {
@@ -116,35 +112,46 @@ export default function Sources() {
     }
 
     return (
-        <div style={{ padding: 16, fontFamily: "system-ui" }}>
-            <h2 style={{ margin: "0 0 8px" }}>书源</h2>
+        <div className="page">
+            <div className="page__head">
+                <div>
+                    <h1 className="page__title">书源</h1>
+                    <div className="page__sub">浏览各大漫画源，或搜索你喜欢的作品</div>
+                </div>
+            </div>
+
+            {/* 搜索栏（参考移动端风格） */}
+            <div className="searchbar">
+                <SearchIcon />
+                <input
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && onSearch()}
+                    placeholder="搜索漫画标题…"
+                    aria-label="搜索漫画标题"
+                />
+                {keyword && (
+                    <button
+                        className="searchbar__clear"
+                        onClick={() => setKeyword("")}
+                        aria-label="清空搜索"
+                    >
+                        <CloseIcon />
+                    </button>
+                )}
+                <button className="btn btn--primary btn--sm" onClick={onSearch} disabled={loading}>
+                    {loading ? "加载中…" : "搜索"}
+                </button>
+            </div>
 
             {/* 源 tab 条 */}
-            <div
-                style={{
-                    display: "flex",
-                    gap: 8,
-                    borderBottom: "1px solid var(--border)",
-                    paddingBottom: 8,
-                    marginBottom: 12,
-                }}
-            >
+            <div className="pill-row" aria-label="漫画源">
                 {SOURCES.map((s) => (
                     <button
                         key={s.id}
+                        aria-pressed={source === s.id}
                         onClick={() => s.id !== source && setSource(s.id)}
-                        style={{
-                            padding: "6px 16px",
-                            border: "none",
-                            borderRadius: 6,
-                            cursor: "pointer",
-                            background:
-                                source === s.id
-                                    ? "var(--accent, #4a90d9)"
-                                    : "var(--card-bg, transparent)",
-                            color: source === s.id ? "#fff" : "var(--fg)",
-                            fontWeight: source === s.id ? 600 : 400,
-                        }}
+                        className={`pill ${source === s.id ? "pill--active" : ""}`}
                     >
                         {s.title}
                     </button>
@@ -153,30 +160,13 @@ export default function Sources() {
 
             {/* 分类 tab 条 */}
             {categories.length > 0 && (
-                <div
-                    style={{
-                        display: "flex",
-                        gap: 6,
-                        flexWrap: "wrap",
-                        marginBottom: 12,
-                    }}
-                >
+                <div className="pill-row" aria-label="分类">
                     {categories.map((c) => (
                         <button
                             key={c}
+                            aria-pressed={!inSearch && category === c}
                             onClick={() => selectCategory(c)}
-                            style={{
-                                padding: "4px 12px",
-                                border: "1px solid var(--border)",
-                                borderRadius: 14,
-                                cursor: "pointer",
-                                background:
-                                    !inSearch && category === c
-                                        ? "var(--accent, #4a90d9)"
-                                        : "var(--card-bg, transparent)",
-                                color: !inSearch && category === c ? "#fff" : "var(--fg)",
-                                fontSize: 13,
-                            }}
+                            className={`pill ${!inSearch && category === c ? "pill--accent" : ""}`}
                         >
                             {c}
                         </button>
@@ -184,75 +174,37 @@ export default function Sources() {
                 </div>
             )}
 
-            {/* 搜索 */}
-            <div style={{ display: "flex", gap: 8, margin: "12px 0" }}>
-                <input
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && onSearch()}
-                    placeholder={inSearch ? "搜索 “" + request.keyword + "”…（清空回车回分类）" : "搜索漫画标题…"}
-                    style={{ flex: 1, padding: 8 }}
-                />
-                <button onClick={onSearch} disabled={loading}>
-                    {loading ? "加载中…" : "搜索"}
-                </button>
-            </div>
-
             {sourceErr && (
-                <div
-                    style={{
-                        margin: "8px 0",
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        background: "var(--danger-bg, #fde8e8)",
-                        color: "var(--danger, #c0392b)",
-                        fontSize: 13,
-                    }}
-                >
+                <Banner>
                     加载失败：{sourceErr}（点「搜索」重试）
-                </div>
+                </Banner>
             )}
 
-            {/* 漫画列表 */}
-            {comics.length === 0 && !loading ? (
-                <div style={{ color: "var(--muted)", fontSize: 13, marginTop: 12 }}>
-                    {sourceErr ? "当前源暂不可用" : "暂无内容"}
-                </div>
-            ) : (
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-                        gap: 12,
-                    }}
-                >
-                    {comics.map((c) => (
-                        <Link
+            {/* 漫画列表：桌面网格卡片 / 移动端列表行（参考图风格） */}
+            {loading && comics.length === 0 ? (
+                <div className="spinner" />
+            ) : comics.length === 0 ? (
+                <EmptyState text={sourceErr ? "当前源暂不可用" : "暂无内容"} />
+            ) : mobile ? (
+                <div className="list">
+                    {comics.map((c, i) => (
+                        <ComicRow
                             key={c.id}
+                            delay={Math.min(i * 28, 280)}
                             to={`/comic/${c.source}/${encodeURIComponent(c.id)}`}
-                            style={{ textDecoration: "none", color: "inherit" }}
-                        >
-                            <img
-                                src={imgSrc(c.cover)}
-                                alt={c.title}
-                                style={{
-                                    width: "100%",
-                                    height: 180,
-                                    objectFit: "cover",
-                                    background: "#eee",
-                                    borderRadius: 8,
-                                }}
-                            />
-                            <div style={{ fontSize: 13 }}>{c.title}</div>
-                            <div style={{ fontSize: 12, color: "#888" }}>{c.author}</div>
-                        </Link>
+                            cover={c.cover}
+                            title={c.title}
+                            subtitle={c.author || "未知作者"}
+                            tags={c.tags}
+                            chapterTag={c.lastChapter.replace(/^#/, "")}
+                        />
                     ))}
                 </div>
-            )}
-
-            {version && (
-                <div style={{ marginTop: 12, fontSize: 12, color: "#aaa" }}>
-                    Rust core: {version}
+            ) : (
+                <div className="grid">
+                    {comics.map((c, i) => (
+                        <ComicCard key={c.id} comic={c} delay={Math.min(i * 30, 300)} />
+                    ))}
                 </div>
             )}
         </div>
