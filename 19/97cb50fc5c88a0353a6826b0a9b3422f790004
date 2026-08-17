@@ -1,0 +1,27 @@
+desktop/src-tauri/Cargo.toml
+  s_9d1144e3ee0af9::t_8ea7959a83ae94 3
+desktop/Cargo.lock
+  ai_agent 558,915
+desktop/package.json
+  s_9d1144e3ee0af9::t_8ea7959a83ae94 4
+desktop/crates/cimoc-core/Cargo.toml
+  s_9d1144e3ee0af9::t_8ea7959a83ae94 3
+desktop/src-tauri/tauri.conf.json
+  s_9d1144e3ee0af9::t_8ea7959a83ae94 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "1997cb50fc5c88a0353a6826b0a9b3422f790004",
+  "prompts": {},
+  "sessions": {
+    "s_9d1144e3ee0af9": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_5f6fac61-edad-473d-9ceb-7e2fc5ba5945",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
