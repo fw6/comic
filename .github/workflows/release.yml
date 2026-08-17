@@ -130,9 +130,9 @@ jobs:
           npx tauri android init --ci
 
       - name: build Android APK
-        env:
-          NDK_SYSROOT: $ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot
         run: |
+          # 注意：路径在脚本内由 shell 展开（workflow env: 块不会展开 $ANDROID_HOME）
+          NDK_SYSROOT="$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
           export BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_android="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/aarch64-linux-android"
           export BINDGEN_EXTRA_CLANG_ARGS_armv7_linux_androideabi="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/arm-linux-androideabi"
           export BINDGEN_EXTRA_CLANG_ARGS_i686_linux_android="--sysroot=$NDK_SYSROOT -I$NDK_SYSROOT/usr/include/i686-linux-android"
