@@ -9,7 +9,7 @@
 
 - 解析与 URL 构造由**运行时源脚本**完成：`src/js/sources/`，rquickjs 0.12.2 执行。
 - 契约：`buildUrl(op,payload,ctx)` / `parse(op,input,ctx)` → JSON 字符串（见 `src/js/mod.rs`）。
-- Rust 侧保留网络/请求头/缓存（webtoons series URL、mangadex tags/章节 id）与命令层。
+- Rust 侧保留网络/请求头/缓存（webtoons series URL、mangadex tags/章节 id、copymanga 章节 uuid）与命令层。
 
 ## 命令 API 约定
 

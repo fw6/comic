@@ -6,6 +6,7 @@ use cimoc_core::js;
 
 const WEBTOONS_JS: &str = include_str!("../src/js/sources/webtoons.js");
 const MANGADEX_JS: &str = include_str!("../src/js/sources/mangadex.js");
+const COMYMANGA_JS: &str = include_str!("../src/js/sources/copymanga.js");
 
 const SEARCH_CARD: &str = include_str!("fixtures/search-card.html");
 const DETAIL_HTML: &str = include_str!("fixtures/detail.html");
@@ -14,6 +15,10 @@ const MANGADEX_SEARCH: &str = include_str!("fixtures/mangadex-search.json");
 const MANGADEX_DETAIL: &str = include_str!("fixtures/mangadex-detail.json");
 const MANGADEX_FEED: &str = include_str!("fixtures/mangadex-feed.json");
 const MANGADEX_AT_HOME: &str = include_str!("fixtures/mangadex-at-home.json");
+const COMYMANGA_SEARCH: &str = include_str!("fixtures/copymanga-search.json");
+const COMYMANGA_DETAIL: &str = include_str!("fixtures/copymanga-detail.json");
+const COMYMANGA_FEED: &str = include_str!("fixtures/copymanga-feed.json");
+const COMYMANGA_CHAPTER: &str = include_str!("fixtures/copymanga-chapter.json");
 
 fn parse(script: &str, op: &str, input: &str, ctx: &str) -> serde_json::Value {
     let json = js::call(script, "parse", op, input, ctx).expect("parse 应成功");
@@ -183,6 +188,83 @@ fn mangadex_at_home_parse() {
     assert!(urls[0].as_str().unwrap().contains("/f1-"));
 }
 
+// ---------- copymanga ----------
+
+#[test]
+fn copymanga_build_url() {
+    assert_eq!(
+        build_url(COMYMANGA_JS, "search", r#"{"keyword":"海贼王"}"#, "{}"),
+        "https://api.mangacopy.com/api/v3/search/comic?format=json&platform=3&q=%E6%B5%B7%E8%B4%BC%E7%8E%8B&offset=0&limit=20"
+    );
+    assert_eq!(
+        build_url(COMYMANGA_JS, "category", r#"{"label":"冒险"}"#, "{}"),
+        "https://api.mangacopy.com/api/v3/comics?platform=3&limit=20&offset=0&theme=maoxian"
+    );
+    // 未知分类 → 不带 theme（默认最新列表）
+    assert_eq!(
+        build_url(COMYMANGA_JS, "category", r#"{"label":"不存在的分类"}"#, "{}"),
+        "https://api.mangacopy.com/api/v3/comics?platform=3&limit=20&offset=0"
+    );
+    assert_eq!(
+        build_url(COMYMANGA_JS, "detail", r#"{"comicId":"copymanga-haizeiwang"}"#, "{}"),
+        "https://api.mangacopy.com/api/v3/comic2/haizeiwang?platform=3"
+    );
+    assert_eq!(
+        build_url(COMYMANGA_JS, "images", r#"{"comicId":"copymanga-haizeiwang","chapterIndex":1}"#, r#"{"chapterUuid":"ch-1"}"#),
+        "https://api.mangacopy.com/api/v3/comic/haizeiwang/chapter2/ch-1?platform=3"
+    );
+    // 无 chapterUuid → 空串（无可抓取）
+    assert!(build_url(COMYMANGA_JS, "images", r#"{"comicId":"copymanga-haizeiwang","chapterIndex":1}"#, r#"{"chapterUuid":null}"#).is_empty());
+}
+
+#[test]
+fn copymanga_search_parse() {
+    let v = parse(COMYMANGA_JS, "search", COMYMANGA_SEARCH, "{}");
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 3);
+    let first = &comics[0];
+    assert_eq!(first["id"], "copymanga-haizeiwang");
+    assert_eq!(first["title"], "海贼王");
+    assert_eq!(first["author"], "尾田栄一郎");
+    assert!(first["cover"].as_str().unwrap().starts_with("https://"));
+    assert_eq!(first["source"], "copymanga");
+    assert_eq!(first["status"], "serial");
+}
+
+#[test]
+fn copymanga_detail_parse() {
+    let feed: serde_json::Value = serde_json::from_str(COMYMANGA_FEED).unwrap();
+    let ctx = format!(r#"{{"feed":{}}}"#, feed["results"]["list"]);
+    let v = parse(COMYMANGA_JS, "detail", COMYMANGA_DETAIL, &ctx);
+    assert_eq!(v["comic"]["title"], "海贼王");
+    assert_eq!(v["comic"]["author"], "尾田栄一郎");
+    assert!(v["comic"]["intro"].as_str().unwrap().contains("海贼王"));
+    assert_eq!(v["comic"]["status"], "serial");
+    assert_eq!(v["comic"]["lastChapter"], "第 1000 话");
+    assert_eq!(v["comic"]["tags"][0], "热血");
+    let chapters = v["chapters"].as_array().unwrap();
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(indexes, vec![1.0, 2.0, 3.0]);
+    assert_eq!(chapters[0]["title"], "第 1 话");
+}
+
+#[test]
+fn copymanga_chapter_parse() {
+    let v = parse(COMYMANGA_JS, "images", COMYMANGA_CHAPTER, "{}");
+    let urls = v.as_array().unwrap();
+    assert_eq!(urls.len(), 2);
+    assert!(urls[0].as_str().unwrap().starts_with("https://sh.mangafunb.fun/h/haizeiwang/chapter/"));
+}
+
+#[test]
+fn copymanga_categories_static() {
+    let v = parse(COMYMANGA_JS, "categories", "", "{}");
+    let cats = v.as_array().unwrap();
+    assert_eq!(cats.len(), 17);
+    assert!(cats.contains(&serde_json::Value::String("冒险".into())));
+    assert!(cats.contains(&serde_json::Value::String("百合".into())));
+}
+
 // ---------- 分发 ----------
 
 #[test]
@@ -218,4 +300,8 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     assert_eq!(cimoc_core::crawl("search", "unknown", "{}", ""), "[]");
     // 脚本源但未同步脚本 → 空数组（启动同步前的保护）
     assert_eq!(cimoc_core::crawl("search", "webtoons", "{}", ""), "[]");
+    // copymanga：有脚本走脚本（categories 静态输出），无脚本空数组
+    let cats = cimoc_core::crawl("categories", "copymanga", "{}", COMYMANGA_JS);
+    assert!(cats.contains("冒险"));
+    assert_eq!(cimoc_core::crawl("search", "copymanga", "{}", ""), "[]");
 }

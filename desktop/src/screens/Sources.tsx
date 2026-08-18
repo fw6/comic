@@ -8,6 +8,7 @@ import { CloseIcon, SearchIcon } from "../components/icons";
 const SOURCES = [
     { id: "mangadex", title: "MangaDex" },
     { id: "webtoons", title: "Webtoons" },
+    { id: "copymanga", title: "Copymanga" },
 ];
 
 /** 当前列表要加载什么：分类浏览（label）或搜索（keyword）。 */

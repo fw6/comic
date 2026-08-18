@@ -3,6 +3,7 @@
 
 const WEBTOONS_JS: &str = include_str!("sources/webtoons.js");
 const MANGADEX_JS: &str = include_str!("sources/mangadex.js");
+const COMYMANGA_JS: &str = include_str!("sources/copymanga.js");
 
 /// debug 构建的源脚本目录：编译期烙入仓库路径（release 不烙）。
 #[cfg(debug_assertions)]
@@ -24,11 +25,16 @@ pub fn load(source: &str) -> Option<String> {
     match source {
         "webtoons" => Some(WEBTOONS_JS.to_string()),
         "mangadex" => Some(MANGADEX_JS.to_string()),
+        "copymanga" => Some(COMYMANGA_JS.to_string()),
         _ => None,
     }
 }
 
 /// 内置脚本对（sourceId, script）。
-pub fn bundled() -> [(&'static str, &'static str); 2] {
-    [("webtoons", WEBTOONS_JS), ("mangadex", MANGADEX_JS)]
+pub fn bundled() -> [(&'static str, &'static str); 3] {
+    [
+        ("webtoons", WEBTOONS_JS),
+        ("mangadex", MANGADEX_JS),
+        ("copymanga", COMYMANGA_JS),
+    ]
 }

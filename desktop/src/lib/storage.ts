@@ -182,10 +182,12 @@ export async function setSources(entries: Record<string, SourceEntry>): Promise<
 const SOURCE_NAMES: Record<string, string> = {
     webtoons: "Webtoons",
     mangadex: "MangaDex",
+    copymanga: "Copymanga",
 };
 
 /**
  * 启动时同步源脚本：sources.json 缺失时用内置脚本初始化（#16 Q8：首启种子）；
+ * 老安装合并新增的内置源（#32：避免缺新内置源需手动清 sources.json）；
  * dev 模式每次覆盖（#17 开发回路：改脚本重启即生效）。随后把脚本同步进 Rust registry。
  */
 export async function initSources(): Promise<void> {
@@ -206,8 +208,27 @@ export async function initSources(): Promise<void> {
             };
         }
         await setSources(next);
+    } else {
+        // 老安装：把内置源里缺失的新源合并进来（不覆盖已装版本）。
+        const bundled = await bundledSources();
+        const now = Date.now();
+        let changed = false;
+        const merged: Record<string, SourceEntry> = { ...existing };
+        for (const [id, script] of Object.entries(bundled)) {
+            if (!merged[id]) {
+                merged[id] = {
+                    sourceId: id,
+                    name: SOURCE_NAMES[id] ?? id,
+                    version: 1,
+                    script,
+                    updatedAt: now,
+                };
+                changed = true;
+            }
+        }
+        if (changed) await setSources(merged);
     }
-    const current = missing || dev ? await getSources() : existing;
+    const current = await getSources();
     const scripts: Record<string, string> = {};
     for (const [id, entry] of Object.entries(current)) scripts[id] = entry.script;
     await syncSources(scripts);

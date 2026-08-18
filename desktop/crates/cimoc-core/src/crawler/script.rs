@@ -115,6 +115,7 @@ fn fetch(source: &str, op: &str, url: &str, ctx: &str) -> Result<String, String>
             http::get_text(url, &hs)
         }
         "mangadex" => http::get_text(url, &crate::crawler::mangadex::headers()),
+        "copymanga" => http::get_text(url, &crate::crawler::copymanga::headers()),
         _ => Err("未知 source".into()),
     }
 }
@@ -165,6 +166,31 @@ fn build_ctx(source: &str, op: &str, payload: &Value) -> String {
                         .unwrap_or(0.0);
                     serde_json::json!({
                         "chapterId": crate::crawler::mangadex::chapter_id_for(&manga_id, idx),
+                    })
+                    .to_string()
+                }
+                _ => "{}".to_string(),
+            }
+        }
+        "copymanga" => {
+            let path = payload
+                .get("comicId")
+                .and_then(|v| v.as_str())
+                .and_then(|id| id.strip_prefix(crate::crawler::copymanga::PREFIX))
+                .unwrap_or("")
+                .to_string();
+            match op {
+                "detail" => {
+                    let feed = crate::crawler::copymanga::feed(&path);
+                    serde_json::json!({ "feed": feed }).to_string()
+                }
+                "images" => {
+                    let idx = payload
+                        .get("chapterIndex")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(0.0);
+                    serde_json::json!({
+                        "chapterUuid": crate::crawler::copymanga::chapter_id_for(&path, idx),
                     })
                     .to_string()
                 }
