@@ -1,0 +1,56 @@
+desktop/crates/cimoc-core/tests/fixtures/copymanga-chapter.json
+  s_bfd5c42fc08ed7::t_2bdfe8e9b38645 1
+desktop/crates/cimoc-core/src/js/sources/copymanga.test.js
+  s_bfd5c42fc08ed7::t_03c6f0a47c4696 1-84
+desktop/crates/cimoc-core/tests/fixtures/copymanga-detail.json
+  s_bfd5c42fc08ed7::t_24a01e65be79b4 1
+desktop/src/lib/storage.ts
+  s_bfd5c42fc08ed7::t_f569b52c7b7d24 185
+  s_bfd5c42fc08ed7::t_2db0c6f1f2990d 190,211-229,231
+CONTEXT.md
+  s_bfd5c42fc08ed7::t_2e6432143e1fd3 9
+  s_bfd5c42fc08ed7::t_77c2b7388486ae 7
+desktop/crates/cimoc-core/src/js/sources/copymanga.js
+  s_bfd5c42fc08ed7::t_a559153048faef 1-214
+desktop/crates/cimoc-core/src/crawler/mod.rs
+  s_bfd5c42fc08ed7::t_ef50fbcd3fec3f 35-38
+  s_bfd5c42fc08ed7::t_a541293ed77390 12
+README.md
+  s_bfd5c42fc08ed7::t_6ea7b66a6353f9 3
+desktop/crates/cimoc-core/tests/fixtures/copymanga-feed.json
+  s_bfd5c42fc08ed7::t_d806b7f6363ee3 1
+docs/agents/cimoc-core.md
+  s_bfd5c42fc08ed7::t_46ee5c9a6c2a92 12
+desktop/crates/cimoc-core/src/crawler/copymanga.rs
+  s_bfd5c42fc08ed7::t_3ded96a25d4b4f 1-120
+desktop/src/screens/Sources.tsx
+  s_bfd5c42fc08ed7::t_8c12bb3d8887a0 11
+desktop/crates/cimoc-core/src/js/sources.rs
+  s_bfd5c42fc08ed7::t_aa3eaba912cf8c 6
+  s_bfd5c42fc08ed7::t_880d26dfb9fa97 28,34-39
+desktop/crates/cimoc-core/tests/source_script_test.rs
+  s_bfd5c42fc08ed7::t_ed2223b005ab55 191-267
+  s_bfd5c42fc08ed7::t_205edf3ff35d5f 9,18-21
+  s_bfd5c42fc08ed7::t_b2d73057f262bc 303-306
+desktop/crates/cimoc-core/tests/live_smoke.rs
+  s_bfd5c42fc08ed7::t_bf6300ff8c403a 41-65
+desktop/crates/cimoc-core/src/crawler/script.rs
+  s_bfd5c42fc08ed7::t_d6ab3e8c5b6b04 175-199
+  s_bfd5c42fc08ed7::t_8a55b0e96061dc 118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "911f9eedcaa59a709ca3dfa08221ae297fd96ced",
+  "prompts": {},
+  "sessions": {
+    "s_bfd5c42fc08ed7": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_6237508c-e014-48db-b174-8b3c133a410e",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
