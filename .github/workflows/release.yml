@@ -129,7 +129,8 @@ jobs:
           ln -sf ../node_modules/.bin/tauri src-tauri/tauri
           npx tauri android init --ci
           # 图片代理走 127.0.0.1 明文 HTTP：release 需放行 loopback（research #31 换代理）
-          bash scripts/android-netsec.sh
+          # 脚本对 cwd 不敏感，但用 GITHUB_WORKSPACE 绝对路径避免 working-directory 影响
+          bash "$GITHUB_WORKSPACE/scripts/android-netsec.sh"
 
       - name: build Android APK
         run: |

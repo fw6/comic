@@ -2,9 +2,10 @@
 # 本机图片代理走 127.0.0.1 明文 HTTP：release usesCleartextTraffic=false 会拦，
 # 注入 network security config 放行 loopback（research #31 换代理）。
 # 用法：在 `tauri android init` 之后、`tauri android build` 之前执行
-#（本地 release 构建或 CI 均可直接调用）。
+#（本地 release 构建或 CI 均可直接调用；对 cwd 不敏感，基于脚本自身位置定位）。
 set -euo pipefail
-cd "$(dirname "$0")/../desktop"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/../desktop"
 
 MANIFEST="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
 RES_DIR="src-tauri/gen/android/app/src/main/res/xml"
