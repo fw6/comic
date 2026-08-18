@@ -1,0 +1,19 @@
+desktop/crates/cimoc-core/tests/live_smoke.rs
+  s_bfd5c42fc08ed7::t_2545185fd1980d 54-57,59-61,63-76,79-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "68c5bac535c9778df687a8e88df7b64dd36276b4",
+  "prompts": {},
+  "sessions": {
+    "s_bfd5c42fc08ed7": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_6237508c-e014-48db-b174-8b3c133a410e",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
