@@ -1,0 +1,19 @@
+docs/research/copymanga-source.md
+  s_bfd5c42fc08ed7::t_6c8aa27dca5313 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "b3755f7d725e8dc94c20cdffa9566aa8e7d84035",
+  "prompts": {},
+  "sessions": {
+    "s_bfd5c42fc08ed7": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_6237508c-e014-48db-b174-8b3c133a410e",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
