@@ -1,0 +1,21 @@
+scripts/android-netsec.sh
+  s_41613cd8263e6f::t_3a6360f1824b15 5,7-8
+.github/workflows/release.yml
+  s_41613cd8263e6f::t_9d67ff41a14255 132-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "88ec25938b74638bc3ce8686642174bbac38f4b8",
+  "prompts": {},
+  "sessions": {
+    "s_41613cd8263e6f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_d22d8dde-1bf8-4faa-a8d3-d83f196601df",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
