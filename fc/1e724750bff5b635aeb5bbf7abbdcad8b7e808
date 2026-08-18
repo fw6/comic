@@ -1,0 +1,22 @@
+desktop/crates/cimoc-core/src/crawler/copymanga.rs
+  s_bfd5c42fc08ed7::t_0b9868e63b0aa0 37-41,43
+  s_bfd5c42fc08ed7::t_3748f2afc36278 80-84,91
+  s_bfd5c42fc08ed7::t_be6c262515fd96 106-107,132,134-137,155-188
+  s_bfd5c42fc08ed7::t_9ad03ec7914446 133,138-154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "fc1e724750bff5b635aeb5bbf7abbdcad8b7e808",
+  "prompts": {},
+  "sessions": {
+    "s_bfd5c42fc08ed7": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_6237508c-e014-48db-b174-8b3c133a410e",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
