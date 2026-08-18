@@ -10,7 +10,7 @@ use base64::Engine;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
-use std::sync::{LazyLock, Mutex};
+use std::sync::{Arc, LazyLock, Mutex};
 
 /// 内存 LRU 上限（条数级；逐出后下次回落到磁盘缓存）。
 const LRU_CAP: usize = 128;
@@ -25,6 +25,14 @@ struct Lru {
 
 static LRU: LazyLock<Mutex<Lru>> = LazyLock::new(|| Mutex::new(Lru::default()));
 
+/// 并发去重槽 + 在途表：同一 URL 的下载只发起一次，其余调用方（并发请求 / 前端
+/// 失败重试）在槽上等待同一结果。移动端 webview 对慢速自定义 scheme 请求有硬性
+/// 超时/取消（研究 #31），重试若各自再下载会重复拉取大图、且更难在拦截超时窗口
+/// 内返回；共享下载让后续请求在首次落盘后立即拿到缓存结果。
+type Slot = Arc<Mutex<Option<Result<Entry, String>>>>;
+static IN_FLIGHT: LazyLock<Mutex<HashMap<String, Slot>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
 /// 热链图片取图：内存 LRU → 磁盘缓存 → 网络（带 Referer），命中网络后写回缓存。
 pub fn fetch_image(url: &str, referer: &str, cache_dir: &str) -> Result<Entry, String> {
     if let Some(entry) = lru_get(url) {
@@ -38,11 +46,44 @@ pub fn fetch_image(url: &str, referer: &str, cache_dir: &str) -> Result<Entry, S
         lru_put(url, entry.clone());
         return Ok(entry);
     }
+    let slot = {
+        let mut inflight = IN_FLIGHT.lock().unwrap();
+        match inflight.get(url) {
+            Some(existing) => Arc::clone(existing),
+            None => {
+                let slot: Slot = Arc::new(Mutex::new(None));
+                inflight.insert(url.to_string(), Arc::clone(&slot));
+                slot
+            }
+        }
+    };
+    // 下载方持槽锁直到落盘，其余调用方在此等待同一结果，不重复下载。
+    let mut guard = slot.lock().unwrap();
+    let entry = match guard.as_ref() {
+        Some(result) => result.clone(),
+        None => {
+            let result = download_and_cache(url, referer, &img_path, &meta_path);
+            *guard = Some(result.clone());
+            result
+        }
+    };
+    drop(guard);
+    IN_FLIGHT.lock().unwrap().remove(url);
+    entry
+}
+
+/// 网络取图（带 Referer）→ 落盘（磁盘 + LRU）。
+fn download_and_cache(
+    url: &str,
+    referer: &str,
+    img_path: &Path,
+    meta_path: &Path,
+) -> Result<Entry, String> {
     let entry = http::get_bytes_with_type(url, &[("Referer", referer)])?;
     if let Some(dir) = img_path.parent() {
         let _ = std::fs::create_dir_all(dir);
-        let _ = std::fs::write(&img_path, &entry.0);
-        let _ = std::fs::write(&meta_path, &entry.1);
+        let _ = std::fs::write(img_path, &entry.0);
+        let _ = std::fs::write(meta_path, &entry.1);
     }
     lru_put(url, entry.clone());
     Ok(entry)
@@ -171,6 +212,49 @@ mod tests {
         let (bytes, _) = fetch_image(&url, "ref", dir.to_str().unwrap()).unwrap();
         assert_eq!(bytes, BODY);
         assert_eq!(requests.lock().unwrap().len(), 1);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// 并发/重试同一 URL：只发一次网络请求，其余调用方共享同一下载结果
+    /// （研究 #31：移动端 webview 拦截超时后前端重试，需避免重复拉取大图）。
+    #[test]
+    fn concurrent_fetch_same_url_single_network_request() {
+        const BODY: &[u8] = b"single-flight-bytes";
+        // 服务器延迟响应，保证两个调用方同时在途
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind test server");
+        let addr = listener.local_addr().unwrap();
+        let hits = Arc::new(Mutex::new(0usize));
+        let hits2 = Arc::clone(&hits);
+        std::thread::spawn(move || {
+            for stream in listener.incoming().take(10) {
+                let Ok(mut stream) = stream else { break };
+                let mut buf = [0u8; 4096];
+                let _ = stream.read(&mut buf);
+                *hits2.lock().unwrap() += 1;
+                std::thread::sleep(std::time::Duration::from_millis(200));
+                let head = format!(
+                    "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                    BODY.len()
+                );
+                let _ = stream.write_all(head.as_bytes());
+                let _ = stream.write_all(BODY);
+                let _ = stream.flush();
+            }
+        });
+        let url = format!("http://{addr}/img.png");
+        let dir = temp_cache_dir("singleflight");
+        let (u1, u2) = (url.clone(), url);
+        let (d1, d2) = (
+            dir.to_str().unwrap().to_string(),
+            dir.to_str().unwrap().to_string(),
+        );
+        let h1 = std::thread::spawn(move || fetch_image(&u1, "ref", &d1));
+        let h2 = std::thread::spawn(move || fetch_image(&u2, "ref", &d2));
+        let r1 = h1.join().unwrap().unwrap();
+        let r2 = h2.join().unwrap().unwrap();
+        assert_eq!(r1.0, BODY);
+        assert_eq!(r2.0, BODY);
+        assert_eq!(*hits.lock().unwrap(), 1);
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

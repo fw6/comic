@@ -283,8 +283,8 @@ describe("storage-fs（移动端存储层，wayfinder #31）", () => {
         await expect(s.get("k")).resolves.toEqual({ v: 1 });
         await expect(s.has("k")).resolves.toBe(true);
         await expect(s.entries()).resolves.toEqual([["k", { v: 1 }]]);
-        // 写盘调用：mkdir 幂等 + writeTextFile 落盘
-        expect(fsMocks.mkdir).toHaveBeenCalledWith(".", expect.objectContaining({ recursive: true }));
+        // 写盘调用：recursive mkdir 建 bootstrap 子目录（顺带建 appDataDir，fs scope 只放行子路径）+ writeTextFile 落盘
+        expect(fsMocks.mkdir).toHaveBeenCalledWith("cimoc", expect.objectContaining({ recursive: true }));
         expect(fsMocks.writeTextFile).toHaveBeenCalledWith(
             "progress.json",
             JSON.stringify({ k: { v: 1 } }),

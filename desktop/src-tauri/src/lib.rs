@@ -1,14 +1,22 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use cimoc_core::native::queue::{DownloadProgress, DownloadQueue, DownloadTask, TaskStatus};
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 use std::time::Duration;
 use tauri::ipc::Channel;
 use tauri::{Emitter, Manager};
 
-/// 图片代理缓存目录（setup 时解析 app cache dir 填充，scheme 回调里拿不到 AppHandle）。
+/// 本机图片代理（research #31 换代理：自用 + Android 优先）。
+mod img_proxy;
+
+/// 图片代理缓存目录（setup 时解析 app cache dir 填充，代理线程里拿不到 AppHandle）。
 static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
+
+/// 本机图片代理端口（setup 时绑定 127.0.0.1:0 后填充，前端经 img_proxy_port 读取）。
+static IMG_PROXY_PORT: OnceLock<u16> = OnceLock::new();
+
+/// 用户配置的下载目录（首次查询时由前端 init 传入，代理按 source/comicId 读下载索引）。
+static DOWNLOAD_DIR: OnceLock<String> = OnceLock::new();
 
 /// 源脚本运行时 registry：sourceId -> script（前端从 sources.json 同步进来；
 /// 未同步的源 crawl 返回空结果，见 cimoc-core 分发保护）。
@@ -344,79 +352,16 @@ fn cimoc_version() -> String {
     cimoc_core::cimoc_version()
 }
 
-/// 热链保护图片代理 + 本地文件读取（research #4 / wayfinder #19）。
-/// 前端把 pstatic.net 等域的图片 src 重写为 `cimoc-img://localhost/img?url=..&ref=..`，
-/// 或把本地下载文件路径重写为 `cimoc-img://localhost/file?path=..`；这里转发给
-/// cimoc-core 的缓存取图（LRU + 磁盘缓存，Referer 由 cimoc_core 侧补）或直接读本地文件。
-fn fetch_proxied_image(uri: &str) -> tauri::http::Response<Cow<'static, [u8]>> {
-    let (url, referer, path) = parse_img_query(uri);
-    if !path.is_empty() {
-        return local_file_response(&path);
-    }
-    if url.is_empty() {
-        return error_response(400);
-    }
-    let cache_dir = IMG_CACHE_DIR.get().map(String::as_str).unwrap_or_default();
-    match cimoc_core::cache::fetch_image(&url, &referer, cache_dir) {
-        Ok((bytes, content_type)) => tauri::http::Response::builder()
-            .status(200)
-            .header("Content-Type", content_type)
-            .body(Cow::Owned(bytes))
-            .unwrap_or_else(|_| error_response(500)),
-        Err(_) => error_response(502),
-    }
+/// 本机图片代理端口（setup 时绑定后填充；前端启动时调用，用于拼图片 URL）。
+#[tauri::command]
+fn img_proxy_port() -> u16 {
+    IMG_PROXY_PORT.get().copied().unwrap_or(0)
 }
 
-fn parse_img_query(uri: &str) -> (String, String, String) {
-    let query = uri.split('?').nth(1).unwrap_or("");
-    let mut url = String::new();
-    let mut referer = String::new();
-    let mut path = String::new();
-    for pair in query.split('&') {
-        if let Some((k, v)) = pair.split_once('=') {
-            let value = urlencoding::decode(v).unwrap_or_default().into_owned();
-            match k {
-                "url" => url = value,
-                "ref" => referer = value,
-                "path" => path = value,
-                _ => {}
-            }
-        }
-    }
-    (url, referer, path)
-}
-
-fn local_file_response(path: &str) -> tauri::http::Response<Cow<'static, [u8]>> {
-    match std::fs::read(path) {
-        Ok(bytes) => tauri::http::Response::builder()
-            .status(200)
-            .header("Content-Type", content_type_for(path))
-            .body(Cow::Owned(bytes))
-            .unwrap_or_else(|_| error_response(500)),
-        Err(_) => error_response(404),
-    }
-}
-
-fn content_type_for(path: &str) -> &'static str {
-    let lower = path.to_ascii_lowercase();
-    if lower.ends_with(".png") {
-        "image/png"
-    } else if lower.ends_with(".webp") {
-        "image/webp"
-    } else if lower.ends_with(".gif") {
-        "image/gif"
-    } else if lower.ends_with(".jpeg") || lower.ends_with(".jpg") {
-        "image/jpeg"
-    } else {
-        "application/octet-stream"
-    }
-}
-
-fn error_response(status: u16) -> tauri::http::Response<Cow<'static, [u8]>> {
-    tauri::http::Response::builder()
-        .status(status)
-        .body(Cow::Borrowed(&b""[..]))
-        .unwrap()
+/// 初始化代理的下载目录（前端读取 settings 后调用，wayfinder #31：离线也传 url）。
+#[tauri::command]
+fn img_proxy_set_download_dir(dir: String) {
+    let _ = DOWNLOAD_DIR.set(dir);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -442,6 +387,16 @@ pub fn run() {
             if let Ok(dir) = app.path().app_cache_dir() {
                 let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
             }
+            // 本机图片代理（research #31 换代理）：绑定 127.0.0.1 随机端口，端口经
+            // img_proxy_port 暴露给前端；取代自定义 scheme（Android 30s 拦截上限根因）。
+            if let Ok((listener, port)) = img_proxy::bind_img_proxy() {
+                let _ = IMG_PROXY_PORT.set(port);
+                let cache_dir = IMG_CACHE_DIR.get().cloned().unwrap_or_default();
+                let download_dir = DOWNLOAD_DIR.get().cloned().unwrap_or_default();
+                tauri::async_runtime::spawn(async move {
+                    img_proxy::serve(listener, cache_dir, download_dir).await;
+                });
+            }
             // 下载队列 worker（research #21：setup 里 spawn 常驻；worker 数 = 全局页并发）
             for _ in 0..DOWNLOAD_WORKERS {
                 let handle = app.handle().clone();
@@ -450,13 +405,6 @@ pub fn run() {
                 });
             }
             Ok(())
-        })
-        .register_asynchronous_uri_scheme_protocol("cimoc-img", |_ctx, request, responder| {
-            let uri = request.uri().to_string();
-            // WKURLSchemeHandler 回调在主线程：阻塞取图挪到后台线程，否则卡死 webview。
-            tauri::async_runtime::spawn_blocking(move || {
-                responder.respond(fetch_proxied_image(&uri));
-            });
         })
         .invoke_handler(tauri::generate_handler![
             crawl,
@@ -468,6 +416,8 @@ pub fn run() {
             list_downloaded,
             scan_local,
             cimoc_version,
+            img_proxy_port,
+            img_proxy_set_download_dir,
             subscribe_downloads,
             unsubscribe_downloads,
             get_downloads,
@@ -478,43 +428,4 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parse_img_query_extracts_url_and_ref() {
-        let uri = "cimoc-img://localhost/img?url=https%3A%2F%2Fs.pstatic.net%2Fa.webp&ref=https%3A%2F%2Fwww.webtoons.com%2F";
-        let (url, referer, path) = parse_img_query(uri);
-        assert_eq!(url, "https://s.pstatic.net/a.webp");
-        assert_eq!(referer, "https://www.webtoons.com/");
-        assert_eq!(path, "");
-    }
-
-    #[test]
-    fn parse_img_query_extracts_local_path() {
-        let uri = "cimoc-img://localhost/file?path=%2FUsers%2Fme%2FDownloads%2Fcimoc%2Fwebtoons%2Fc1%2Fchapter_1%2F0.jpg";
-        let (url, referer, path) = parse_img_query(uri);
-        assert_eq!(url, "");
-        assert_eq!(referer, "");
-        assert_eq!(path, "/Users/me/Downloads/cimoc/webtoons/c1/chapter_1/0.jpg");
-    }
-
-    #[test]
-    fn parse_img_query_missing_params_empty() {
-        let (url, referer, path) = parse_img_query("cimoc-img://localhost/img?x=1");
-        assert_eq!(url, "");
-        assert_eq!(referer, "");
-        assert_eq!(path, "");
-    }
-
-    #[test]
-    fn content_type_by_extension() {
-        assert_eq!(content_type_for("/x/a.jpg"), "image/jpeg");
-        assert_eq!(content_type_for("/x/a.webp"), "image/webp");
-        assert_eq!(content_type_for("/x/a.png"), "image/png");
-        assert_eq!(content_type_for("/x/a"), "application/octet-stream");
-    }
 }

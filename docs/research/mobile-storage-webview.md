@@ -213,6 +213,22 @@ Tauri 官方 Builder 文档原话（本地源码 `tauri-2.11.5/src/app.rs` `regi
 - 超长条图：单图解码为 RGBA 约 4 B/像素，GPU 纹理上限各引擎典型 16k px 级（research #4）；Webtoon 页图本为逐页条图，移动端若单页超高需按段切片或降采样。来源：research #4 §3 引用的 WebKit/GTK NEWS。
 - 官方无「移动端 webview 图片列表」专门指南；社区共识是控并发解码（lazy）+ 避免超大单图 + 内存预警时释放远端 DOM（此处已有按章分页渲染，天然符合）。
 
+### 2.4 慢速取图 vs webview 超时/取消（本仓实测 bug，2026-08-18 修复）
+
+热链大图走 `cimoc-img://` 代理时，`fetch_image` 是阻塞下载（LRU → 磁盘 → 网络），webview 侧对自定义 scheme 请求存在硬性截止，首次下载慢于截止即落空；但 Rust 侧 `spawn_blocking` 后台仍会下载完并落盘，故**下一次请求命中缓存即成功**——这正是「封面能显示、阅读页空白/时好时坏」的根因（封面小图秒下、阅读页条图慢且随滚动卸载）：
+
+- **Android**：wry `shouldInterceptRequest` 同步等响应，`rx.recv_timeout(MAIN_PIPE_TIMEOUT * 3)`（10s × 3 = **30s**，见 `wry-0.55.1/src/android/mod.rs:284`，关联 wry#1551 仍未修复）超时后返回 `None` → 请求落回真实网络 → `http://cimoc-img.localhost` DNS 失败 → 空白。
+- **iOS/macOS**：`WKURLSchemeHandler` 的 `stopURLSchemeTask:`（元素卸载即触发）由 wry 移除 task key（`url_scheme_handler.rs:stop_task`），异步 responder 校验失败 → **响应被静默丢弃**，即便 Rust 已下载完并落盘。
+
+**修复（四层，2026-08-18 换代理定案：自用 + Android 优先）**：
+1. **图片交付从自定义 scheme 换成 127.0.0.1 本机 HTTP 代理**（`src-tauri/src/img_proxy.rs`，hyper server）：前端 `imgSrc`/`localSrc` 拼 `http://127.0.0.1:<port>/img?...`，端口启动时经 `img_proxy_port` 命令取（`main.tsx` 渲染前 `initImgProxy`）。普通 HTTP 请求绕开 `shouldInterceptRequest` 的 30s 上限（Android 根因根治）；`cimoc-img://` scheme 注册与相关代码已移除（AGENTS.md 废弃路径直接删）。iOS 元素卸载仍会 abort 请求 → 第 2 层兜底。
+2. 前端 `ProxyImage`（`desktop/src/components/ProxyImage.tsx`）：`<img>` 加载失败按指数退避重建同 URL 重试（300/600/1200/2400ms，最多 4 次），命中缓存即成功；Reader 逐页图接入。
+3. Rust `cimoc_core::cache::fetch_image` 加**单飞行去重**：同 URL 下载只发起一次，重试/并发在槽上等同一结果（`IN_FLIGHT` 表），避免移动端慢网下重复拉取大图、并让重试在拦截超时窗口内返回。
+4. **离线阅读统一走 url（下载索引）**：下载落盘时记录 `url → 相对路径` 到 `<下载目录>/<source>/<comicId>/download_index.json`（`cimoc-core/native/download_index.rs`）；端点 `/img?url=..&source=..&comicId=..` 先查下载索引（命中直接读下载文件），否则回落 `fetch_image` 缓存。`listDownloaded` 返回 `{url, path}`，离线 Reader 只传 url；旧数据（无索引记录）回退 `/img?path=`。代理下载目录经 `img_proxy_set_download_dir` 命令同步（main.tsx 读 settings 后调用）。
+
+**Android release 明文**：`gen/android` 被 gitignore 且 CI 每次 `tauri android init` 重建，release `usesCleartextTraffic=false` 会拦 `http://127.0.0.1` 明文请求（debug 为 true 无需处理）。CI 在 init 后注入 `network_security_config.xml` 放行 `127.0.0.1`/`localhost`（`scripts/android-netsec.sh`）；本地 release 构建先跑该脚本。iOS：ATS 豁免 loopback、app 源 `tauri://` 非 https 无 mixed content，无需配置。
+
+
 ---
 
 ## Q3. tauri android/ios init 的产物与前置

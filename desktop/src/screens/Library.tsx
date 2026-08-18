@@ -6,6 +6,7 @@ import {
     listDownloaded,
     type Comic,
     type LocalComic,
+    type DownloadedPage,
 } from "../api";
 import {
     comicKey,
@@ -162,7 +163,9 @@ export default function Library() {
 /** 下载/本地漫画列表（wayfinder #19）：点漫画就地展开章节，点章节进本地阅读器。 */
 function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
     const [expanded, setExpanded] = useState<string | null>(null);
-    const [chapters, setChapters] = useState<Record<string, string[]>>({});
+    const [chapters, setChapters] = useState<
+        Record<string, Record<string, DownloadedPage[]>>
+    >({});
 
     async function toggle(key: string, item: LocalComic) {
         if (expanded === key) {
@@ -172,9 +175,7 @@ function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
         setExpanded(key);
         if (!chapters[key]) {
             const listed = await listDownloaded(dir, item.source, item.comicId);
-            const flat: Record<string, string[]> = {};
-            for (const [idx, paths] of Object.entries(listed)) flat[idx] = paths;
-            setChapters((c) => ({ ...c, ...flat }));
+            setChapters((c) => ({ ...c, [key]: listed }));
         }
     }
 
@@ -209,14 +210,14 @@ function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
                                         gap: 2,
                                     }}
                                 >
-                                    {Object.entries(chs).map(([idx, paths]) => (
+                                    {Object.entries(chs).map(([idx, pages]) => (
                                         <li key={idx}>
                                             <Link
                                                 to={`/local/${d.source}/${encodeURIComponent(d.comicId)}/${idx}`}
                                                 className="chapter-item"
                                             >
                                                 <span className="chapter-item__title">
-                                                    第 {idx} 话（{paths.length} 页）
+                                                    第 {idx} 话（{pages.length} 页）
                                                 </span>
                                             </Link>
                                         </li>

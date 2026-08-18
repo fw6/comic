@@ -128,6 +128,8 @@ jobs:
         run: |
           ln -sf ../node_modules/.bin/tauri src-tauri/tauri
           npx tauri android init --ci
+          # 图片代理走 127.0.0.1 明文 HTTP：release 需放行 loopback（research #31 换代理）
+          bash scripts/android-netsec.sh
 
       - name: build Android APK
         run: |

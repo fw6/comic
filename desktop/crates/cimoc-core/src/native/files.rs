@@ -4,6 +4,7 @@
 //! 「本地」tab 扫描兼容旧扁平布局（顶层目录直接含 chapter_* → source 记 "local"）。
 
 use crate::crawler::http;
+use crate::native::download_index;
 use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
@@ -56,6 +57,7 @@ pub fn chapter_downloaded(dir: &str, source: &str, comic_id: &str, chapter_index
 
 /// 下载单张图片到 `<dir>/<source>/<comicId>/chapter_<n>/<page>.<ext>`，返回 `"true"`/`"false"`。
 /// referer 非空时带上（热链域如 pstatic.net 需要，research #4）。
+/// 成功后记录 url → 相对路径到下载索引（wayfinder #31：离线也传 url）。
 pub fn download_image(
     url: &str,
     dir: &str,
@@ -79,42 +81,20 @@ pub fn download_image(
     }
     let file = chapter_dir.join(format!("{}.{}", page_index, extension_from_url(url)));
     match fs::write(&file, bytes) {
-        Ok(_) => "true".to_string(),
+        Ok(_) => {
+            // 记录下载索引（相对路径：chapter_<n>/<file>）
+            let rel = format!("{}/{}", chapter_dir_name(chapter_index), file.file_name().unwrap().to_string_lossy());
+            let _ = download_index::record_download(dir, source, comic_id, url, &rel);
+            "true".to_string()
+        }
         Err(_) => "false".to_string(),
     }
 }
 
-/// 已下载章节文件列表：`{chapterIndex: [absolutePaths]}`（按文件名排序）。
+/// 已下载章节文件列表：`{chapterIndex: [{"url": "...", "path": "relative/path"}]}`（按文件名排序）。
+/// 包含 url 字段供离线阅读器直接传 url 调用 img_proxy（wayfinder #31）；旧数据无索引时 url 为空字符串。
 pub fn list_downloaded(dir: &str, source: &str, comic_id: &str) -> String {
-    let comic_path = comic_dir(dir, source, comic_id);
-    let mut map = serde_json::Map::new();
-    if let Ok(entries) = fs::read_dir(&comic_path) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if !path.is_dir() {
-                continue;
-            }
-            let name = entry.file_name().to_string_lossy().to_string();
-            let Some(index) = chapter_index_from_dir_name(&name) else {
-                continue;
-            };
-            let mut files: Vec<String> = fs::read_dir(&path)
-                .map(|it| {
-                    it.flatten()
-                        .map(|f| f.path().to_string_lossy().to_string())
-                        .collect()
-                })
-                .unwrap_or_default();
-            files.sort();
-            if !files.is_empty() {
-                map.insert(
-                    index.to_string(),
-                    Value::Array(files.into_iter().map(Value::String).collect()),
-                );
-            }
-        }
-    }
-    Value::Object(map).to_string()
+    download_index::list_downloaded_with_urls(dir, source, comic_id)
 }
 
 /// 该目录下的章节目录数（仅 chapter_* 前缀）。
@@ -234,13 +214,15 @@ mod tests {
         fs::write(dir.join("comic-c").join("chapter_4").join("0.webp"), b"y").unwrap();
 
         let listed: Value = serde_json::from_str(&list_downloaded(dir.to_str().unwrap(), "webtoons", "comic-a")).unwrap();
+        // 新格式：[{ "url": "", "path": "chapter_1/0.jpg" }]
         assert_eq!(listed["1"].as_array().unwrap().len(), 1);
+        assert_eq!(listed["1"][0]["path"], "chapter_1/0.jpg");
         // 命名空间下找不到扁平路径
         assert!(serde_json::from_str::<Value>(&list_downloaded(dir.to_str().unwrap(), "mangadex", "comic-a")).unwrap().as_object().unwrap().is_empty());
 
         let flat: Value = serde_json::from_str(&list_downloaded(dir.to_str().unwrap(), "local", "comic-c")).unwrap();
         assert_eq!(flat["4"].as_array().unwrap().len(), 1);
-        assert!(flat["4"].as_array().unwrap()[0].as_str().unwrap().contains("comic-c"));
+        assert_eq!(flat["4"][0]["path"], "chapter_4/0.webp");
 
         let _ = fs::remove_dir_all(&dir);
     }

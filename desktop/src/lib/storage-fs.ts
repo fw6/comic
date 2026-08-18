@@ -40,10 +40,15 @@ function load(file: string): Promise<Record<string, unknown>> {
     return dataCache.get(file)!;
 }
 
+/** 幂等确保 appDataDir 存在（移动端默认不存在，研究 #29 #1.3）。fs scope 只放行
+ * appDataDir 的子路径（`$APPDATA/**`），`mkdir(".")` 落在根目录会被拒；用 recursive
+ * mkdir 建一个子目录，顺带创建 appDataDir 本身。 */
+const BOOTSTRAP_DIR = "cimoc";
+
 function persist(file: string): Promise<void> {
     const prev = writeQueue.get(file) ?? Promise.resolve();
     const next = prev.then(async () => {
-        await mkdir(".", { baseDir: BASE, recursive: true }); // 幂等建 appDataDir
+        await mkdir(BOOTSTRAP_DIR, { baseDir: BASE, recursive: true });
         await writeTextFile(file, JSON.stringify(await load(file)), { baseDir: BASE });
     });
     writeQueue.set(file, next);

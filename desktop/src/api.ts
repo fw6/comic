@@ -20,6 +20,8 @@ export interface Chapter {
     index: number;
     title: string;
     pages: string[];
+    /** 本地（离线）章节：与 pages 平行的原始图 URL（wayfinder #31，旧数据可能为空串）。 */
+    pagesUrl?: string[];
     /** 外链章节（内容托管站外，如 MangaPlus）：列表与「下一话」一律过滤（grilling #6） */
     external: boolean;
     downloaded: boolean;
@@ -48,10 +50,16 @@ export const scanLocal = (dir: string) =>
         (json) => JSON.parse(json) as LocalComic[],
     );
 
-/** 某漫画已下载章节：`{chapterIndex: [文件路径]}`（source = "local" 走扁平布局）。 */
+/** 已下载章节条目：`{url: string, path: string}`（path 为相对路径 chapter_<n>/<file>）。 */
+export interface DownloadedPage {
+    url: string;
+    path: string;
+}
+
+/** 某漫画已下载章节：`{chapterIndex: DownloadedPage[]}`（wayfinder #31：离线也传 url，含 source/comicId）。 */
 export const listDownloaded = (dir: string, source: string, comicId: string) =>
     invoke<string>("list_downloaded", { dir, source, comicId }).then(
-        (json) => JSON.parse(json) as Record<string, string[]>,
+        (json) => JSON.parse(json) as Record<string, DownloadedPage[]>,
     );
 
 /** 某源最近一次错误（wayfinder #17：Sources 错误行 / Settings 源区）。 */
@@ -140,25 +148,49 @@ export const syncSources = (entries: Record<string, string>) =>
 /** 各源最近错误：{source: {message, at}}。 */
 export const sourceErrors = (): Promise<Record<string, SourceError>> => invoke("source_errors");
 
-/** 移动平台检测（research #30：Android 无自定义协议 API，需 http://<scheme>.localhost/ workaround；iOS/macOS/Linux 保持 scheme://localhost）。 */
-const IS_ANDROID = /android/i.test(navigator.userAgent);
+/** 本机图片代理端口（research #31 换代理：自用 + Android 优先）。Rust 在 127.0.0.1 起
+ * HTTP 服务，单端点 /img 同时服务热链域缓存取图与本地文件（path 优先、否则 url），
+ * 绕过自定义 scheme 在移动端 webview 的超时/取消。启动时 initImgProxy() 取端口。 */
+let imgProxyPort: number | null = null;
 
-/** 自定义 scheme 前缀（wayfinder #31：Android 走 wry workaround 形态，其余平台原生形态）。 */
-const IMG_SCHEME_PREFIX = IS_ANDROID
-    ? "http://cimoc-img.localhost"
-    : "cimoc-img://localhost";
+export const initImgProxy = async (): Promise<void> => {
+    imgProxyPort = await invoke<number>("img_proxy_port");
+};
 
-/** 热链保护域（research #4 结论）：重写为 cimoc-img:// 代理，其余保持直连吃 webview 缓存。 */
+/** 告诉代理下载目录（wayfinder #31：端点按 source/comicId 读下载索引）。
+ * 前端启动 / settings 变更时调用。 */
+export const setImgProxyDownloadDir = (dir: string) =>
+    invoke<void>("img_proxy_set_download_dir", { dir });
+
+function proxyBase(): string {
+    return imgProxyPort ? `http://127.0.0.1:${imgProxyPort}` : "";
+}
+
+/** 热链保护域（research #4 结论）：重写为本机代理 /img?url=..，其余保持直连吃 webview 缓存。 */
 export function imgSrc(url: string): string {
     if (url.includes("pstatic.net")) {
-        return `${IMG_SCHEME_PREFIX}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent("https://www.webtoons.com/")}`;
+        const base = proxyBase();
+        return base
+            ? `${base}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent("https://www.webtoons.com/")}`
+            : url;
     }
     return url;
 }
 
-/** 本地文件路径 → cimoc-img:// 本地模式（wayfinder #19：Rust 读文件回字节，按扩展名给 content-type）。 */
-export function localSrc(path: string): string {
-    return `${IMG_SCHEME_PREFIX}/file?path=${encodeURIComponent(path)}`;
+/** 离线/本地页 → 本机代理 /img（wayfinder #31：离线也传 url）。
+ * 传入的是 URL 且有 source+comicId 时走 /img?url=..&source=..&comicId=..（端点查下载索引）；
+ * 否则按本地路径走 /img?path=（旧数据兼容）。 */
+export function localSrc(
+    v: string,
+    opts?: { source?: string; comicId?: string },
+): string {
+    const base = proxyBase();
+    if (!base) return "";
+    const { source, comicId } = opts ?? {};
+    if (/^https?:\/\//i.test(v) && source && comicId) {
+        return `${base}/img?url=${encodeURIComponent(v)}&source=${encodeURIComponent(source)}&comicId=${encodeURIComponent(comicId)}`;
+    }
+    return `${base}/img?path=${encodeURIComponent(v)}`;
 }
 
 // ---------- WebDAV 备份/恢复（wayfinder #24/#25：core 传输，前端组装内容） ----------

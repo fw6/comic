@@ -11,6 +11,7 @@ import {
     crawl,
     imgSrc,
     localSrc,
+    initImgProxy,
     cimocVersion,
     scanLocal,
     listDownloaded,
@@ -30,11 +31,18 @@ beforeEach(() => {
     mockedInvoke.mockReset();
 });
 
-describe("imgSrc（热链域 → cimoc-img:// 代理，其余直连）", () => {
-    it("把 pstatic.net 热链图重写为 cimoc-img 代理，带 url 与 ref 参数", () => {
+/** 设置本机代理端口：mock invoke 返回端口后调 initImgProxy（research #31 换代理）。 */
+async function setProxyPort(port: number) {
+    mockedInvoke.mockResolvedValue(port);
+    await initImgProxy();
+}
+
+describe("imgSrc（热链域 → 本机代理，其余直连；research #31 换代理）", () => {
+    it("端口就绪后把 pstatic.net 热链图重写为 http://127.0.0.1:<port>/img，带 url 与 ref 参数", async () => {
+        await setProxyPort(16320);
         const src = imgSrc("https://s.pstatic.net/dummy/cover.webp");
         expect(src).toBe(
-            "cimoc-img://localhost/img?url=" +
+            "http://127.0.0.1:16320/img?url=" +
                 encodeURIComponent("https://s.pstatic.net/dummy/cover.webp") +
                 "&ref=" +
                 encodeURIComponent("https://www.webtoons.com/"),
@@ -44,39 +52,6 @@ describe("imgSrc（热链域 → cimoc-img:// 代理，其余直连）", () => {
     it("非热链域保持直连（吃 webview HTTP 缓存）", () => {
         const src = "https://uploads.mangadex.org/covers/abc/def.jpg";
         expect(imgSrc(src)).toBe(src);
-    });
-});
-
-describe("Android scheme URL 形态（wayfinder #31：wry workaround http://<scheme>.localhost）", () => {
-    it("Android UA 下 imgSrc/localSrc 用 http://cimoc-img.localhost 前缀", async () => {
-        const originalUA = navigator.userAgent;
-        Object.defineProperty(navigator, "userAgent", {
-            value: "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
-            configurable: true,
-        });
-        try {
-            // api.ts 模块级 IS_ANDROID 在首次 import 时求值；这里用动态 import 拿新模块实例
-            vi.resetModules();
-            const api = await import("./api");
-            expect(
-                api.imgSrc("https://s.pstatic.net/dummy/cover.webp"),
-            ).toBe(
-                "http://cimoc-img.localhost/img?url=" +
-                    encodeURIComponent("https://s.pstatic.net/dummy/cover.webp") +
-                    "&ref=" +
-                    encodeURIComponent("https://www.webtoons.com/"),
-            );
-            expect(api.localSrc("/data/0.jpg")).toBe(
-                "http://cimoc-img.localhost/file?path=%2Fdata%2F0.jpg",
-            );
-        } finally {
-            Object.defineProperty(navigator, "userAgent", {
-                value: originalUA,
-                configurable: true,
-            });
-            vi.resetModules();
-            await import("./api"); // 恢复模块，供后续测试使用
-        }
     });
 });
 
@@ -117,11 +92,20 @@ describe("cimocVersion", () => {
     });
 });
 
-describe("localSrc（wayfinder #19：本地文件路径 → cimoc-img 本地模式）", () => {
-    it("把绝对路径重写为 cimoc-img://localhost/file?path=…", () => {
+describe("localSrc（离线页 → 本机代理 /img；wayfinder #31 离线也传 url）", () => {
+    it("本地路径（旧数据）→ /img?path=…", async () => {
+        await setProxyPort(16320);
         const p = "/Users/me/Downloads/cimoc/webtoons/c1/chapter_1/0.jpg";
         expect(localSrc(p)).toBe(
-            `cimoc-img://localhost/file?path=${encodeURIComponent(p)}`,
+            `http://127.0.0.1:16320/img?path=${encodeURIComponent(p)}`,
+        );
+    });
+
+    it("URL + source + comicId → /img?url=..&source=..&comicId=..（端点查下载索引）", async () => {
+        await setProxyPort(16320);
+        const url = "https://s.pstatic.net/ch1/0.jpg";
+        expect(localSrc(url, { source: "webtoons", comicId: "c1" })).toBe(
+            `http://127.0.0.1:16320/img?url=${encodeURIComponent(url)}&source=webtoons&comicId=c1`,
         );
     });
 });
@@ -137,10 +121,12 @@ describe("scanLocal / listDownloaded / downloadImage（本地下载命令包装�
         expect(mockedInvoke).toHaveBeenCalledWith("scan_local", { dir: "/tmp/dl" });
     });
 
-    it("listDownloaded 带 source 解析章节→文件映射", async () => {
-        mockedInvoke.mockResolvedValue(JSON.stringify({ "1": ["/a/1/0.jpg"] }));
+    it("listDownloaded 带 source 解析章节→[{url,path}]", async () => {
+        mockedInvoke.mockResolvedValue(
+            JSON.stringify({ "1": [{ url: "https://a/1.jpg", path: "chapter_1/1.jpg" }] }),
+        );
         await expect(listDownloaded("/tmp/dl", "webtoons", "a")).resolves.toEqual({
-            "1": ["/a/1/0.jpg"],
+            "1": [{ url: "https://a/1.jpg", path: "chapter_1/1.jpg" }],
         });
         expect(mockedInvoke).toHaveBeenCalledWith("list_downloaded", {
             dir: "/tmp/dl",

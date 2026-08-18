@@ -311,11 +311,15 @@ img {
 /* ---------- 顶部栏（移动端 + 阅读器外桌面隐藏） ---------- */
 .topbar {
     display: none;
-    height: var(--topbar-h);
+    /* 状态栏安全区：顶部留出系统状态栏高度（与底部 tabbar 的 safe-area 处理对称，桌面端 inset=0 无影响） */
+    height: calc(var(--topbar-h) + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-right: 12px;
+    padding-bottom: 0;
+    padding-left: 12px;
     flex-shrink: 0;
     align-items: center;
     gap: 10px;
-    padding: 0 12px;
     background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -1227,8 +1231,12 @@ img {
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 52px;
-    padding: 0 14px;
+    /* 阅读器同样顶到状态栏下沿：顶部留出安全区高度 */
+    height: calc(52px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-right: 14px;
+    padding-bottom: 0;
+    padding-left: 14px;
     background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -1347,6 +1355,11 @@ img {
 
     .shell__content {
         padding: 16px 14px 28px;
+    }
+
+    /* 阅读器保持全屏沉浸：媒体查询的通用内边距不适用于 reader 容器 */
+    .shell__content--reader {
+        padding: 0;
     }
 
     .grid {
