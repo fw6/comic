@@ -1,0 +1,131 @@
+desktop/src/screens/Library.tsx
+  s_41613cd8263e6f::t_d51daf6a9df677 213,220
+  s_41613cd8263e6f::t_b61bf9fb861174 166-168,178
+  s_41613cd8263e6f::t_1c763e415f0da3 9
+desktop/crates/cimoc-core/Cargo.toml
+  s_41613cd8263e6f::t_6b234e3af1dbec 3
+desktop/package.json
+  s_c521e9f878e906::t_2e17687d72eb49 15
+  s_41613cd8263e6f::t_7cfd347592ddec 4
+desktop/src-tauri/src/img_proxy.rs
+  s_41613cd8263e6f::t_af25c6de6b4159 401
+  s_41613cd8263e6f::t_ad920c1eee34a7 25-31,36-42
+  s_41613cd8263e6f::t_502622307b6ae8 63,67
+  s_41613cd8263e6f::t_4accd39b1e252a 327,337,343,346-356,358-366
+  s_41613cd8263e6f::t_45edcf045a4f55 252,256-257,262-263,267-268,273,277-289
+  s_41613cd8263e6f::t_7e9ea7efa446ac 307,335,357,375,378-400,402-429
+  s_41613cd8263e6f::t_ba2a51d3ae413d 73-91,100-101
+  s_41613cd8263e6f::t_259e7e33da0678 35,49,52
+  s_41613cd8263e6f::t_e2004ca5331502 3-6
+  s_41613cd8263e6f::t_f3edc0110058ca 93-98
+  s_41613cd8263e6f::t_913f5365c1c337 218,221-222
+  s_41613cd8263e6f::t_6d1f5c8d78dee9 138-141,146
+  s_41613cd8263e6f::t_fb45ccf96bc928 15-16
+  s_41613cd8263e6f::t_074038bbcdf41c 1-2,7-13,17-24,32-34,43-48,50-51,53-62,64-66,68-72,92,99,102-114,116-119,122-128,131-134,136-137,142-145,147-217,219-220,223-251,253-255,258-261,264-266,269-272,274-276,290-306,308-326,328-334,336,338-342,344-345,367-374,376-377,430-433
+  s_41613cd8263e6f::t_527c995f66abf5 115,120-121,129-130,135
+  s_41613cd8263e6f::t_f0f1e480edca12 14
+desktop/crates/cimoc-core/src/native/files.rs
+  s_41613cd8263e6f::t_138b816b1a33cc 94-95,97
+  s_41613cd8263e6f::t_9e66a80a2c3a81 7
+  s_41613cd8263e6f::t_3352200ff68196 217,219,225
+  s_41613cd8263e6f::t_45b0658ea2c5c9 60,84-89
+docs/research/mobile-storage-webview.md
+  s_41613cd8263e6f::t_6a8c4d5336e096 216-222,230-231
+  s_41613cd8263e6f::t_c45c9685aca533 223-224,227
+  s_41613cd8263e6f::t_7292d654e23248 225-226,228-229
+desktop/src/index.css
+  s_c521e9f878e906::t_4be6370471c440 1234-1239
+  s_c521e9f878e906::t_1b230647494a36 1360-1364
+  s_c521e9f878e906::t_2535a3fcb1d283 314-319
+desktop/src/main.tsx
+  s_41613cd8263e6f::t_1afe66ab86795c 8-14,22-30
+  s_41613cd8263e6f::t_5ce5c804dee170 4-5,15-21
+desktop/src/lib/storage-fs.ts
+  s_c521e9f878e906::t_a9320c35a98d50 43-47,51
+desktop/src/components/ProxyImage.tsx
+  s_41613cd8263e6f::t_1cb237f40d29a4 1-3,8-60
+  s_41613cd8263e6f::t_16e5af7993c06f 4-7
+desktop/src/api.ts
+  s_41613cd8263e6f::t_7b604734296f52 160-163
+  s_41613cd8263e6f::t_ef3cdf58948ac6 180-182,184-185,189-191,193
+  s_41613cd8263e6f::t_0a2c72d1f6df5b 152-153,169
+  s_41613cd8263e6f::t_fcce6ce5c6bf9c 53-59,62
+  s_41613cd8263e6f::t_b6141712048cfe 151,154-158,165-168,172-175,187
+  s_41613cd8263e6f::t_404f414b6d5187 183,186,188,192
+  s_41613cd8263e6f::t_e007a60948bc56 23-24
+desktop/src-tauri/Cargo.toml
+  s_41613cd8263e6f::t_92a66e18bb910f 34
+  s_41613cd8263e6f::t_a42ea66f065520 3
+  s_41613cd8263e6f::t_da08b8d8e061ae 32-33,35
+  s_41613cd8263e6f::t_882610c3504ccf 36
+desktop/src/api.test.ts
+  s_41613cd8263e6f::t_1e1c7215ac1fbb 124-127,129
+  s_41613cd8263e6f::t_004219b9404192 95-96,101-108
+  s_41613cd8263e6f::t_57cd7c7829a6c2 100
+  s_41613cd8263e6f::t_283d910f4aa8cc 14,34-42,45
+  s_41613cd8263e6f::t_d6cb3c6c5d9d46 97
+scripts/android-netsec.sh
+  s_41613cd8263e6f::t_54173babf2b377 1-43
+.github/workflows/release.yml
+  s_41613cd8263e6f::t_d4cbb5587955d8 131-132
+desktop/crates/cimoc-core/src/native/download_index.rs
+  s_41613cd8263e6f::t_b10b6caa856ca0 188
+  s_41613cd8263e6f::t_ce84f574780f10 1-187,189-197
+desktop/src/screens/Reader.tsx
+  s_c521e9f878e906::t_f9072ba3e2e13c 67,71
+  s_c521e9f878e906::t_b99d18fc520854 184
+  s_41613cd8263e6f::t_4ee119129e155c 427
+  s_41613cd8263e6f::t_3cef2232d3ce4a 428-432
+  s_41613cd8263e6f::t_a93b19303c1f28 127,129-132
+  s_41613cd8263e6f::t_0146a73466bab2 232,238,241-242
+  s_41613cd8263e6f::t_67aa0e5ee37b7b 17
+  s_c521e9f878e906::t_44980be0ba2606 102-112
+  s_c521e9f878e906::t_2fec64c6448d66 68-70,94,101
+  s_c521e9f878e906::t_a7710439fb312c 190
+  s_c521e9f878e906::t_7da087f08d3481 4,31-38,72-93,95-100,113-115,183,191,193,198,214,218,224,400-426,433-445,453
+desktop/src-tauri/tauri.conf.json
+  s_41613cd8263e6f::t_f9945ac0c383b9 4
+desktop/src/lib/storage.test.ts
+  s_c521e9f878e906::t_7b560e3cdfa1d6 286-287
+desktop/crates/cimoc-core/src/cache.rs
+  s_41613cd8263e6f::t_d7a987485b55e2 49-81,85-86
+  s_41613cd8263e6f::t_2826984ead813d 217-259
+  s_41613cd8263e6f::t_5d58bdccbdbca3 13
+  s_41613cd8263e6f::t_0e5f301c21a6bf 28-35
+desktop/src/components/ProxyImage.test.tsx
+  s_41613cd8263e6f::t_fd862e098f1428 1-53
+desktop/src-tauri/src/lib.rs
+  s_41613cd8263e6f::t_44293936eeab43 419
+  s_41613cd8263e6f::t_a28e1ec40c8f16 361-364
+  s_41613cd8263e6f::t_34a3f673510c36 17-19
+  s_41613cd8263e6f::t_248cd6b3ff19eb 9-12,15-16
+  s_41613cd8263e6f::t_550ea958398a14 355-358
+  s_41613cd8263e6f::t_b3d419a95b95e2 390-394,396,398-399
+  s_41613cd8263e6f::t_644720dcc15f94 395,397,420
+desktop/crates/cimoc-core/src/native/mod.rs
+  s_41613cd8263e6f::t_5bdb58b819fc21 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "6b251635f23a33652ebe0cd614ab667e5725ebb6",
+  "prompts": {},
+  "sessions": {
+    "s_41613cd8263e6f": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_d22d8dde-1bf8-4faa-a8d3-d83f196601df",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_c521e9f878e906": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_9953accc-d67c-463c-b350-23c0c44b26f2",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
