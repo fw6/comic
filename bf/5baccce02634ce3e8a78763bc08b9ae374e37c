@@ -1,0 +1,98 @@
+desktop/crates/cimoc-core/src/js/sources.rs
+  s_bfd5c42fc08ed7::t_784fa649870a8f 8
+  s_bfd5c42fc08ed7::t_990aad3c7df23d 32,38,44
+  s_bfd5c42fc08ed7::t_6da8d3e7f0a947 7
+  s_bfd5c42fc08ed7::t_d17dad8244f279 31,43
+desktop/src/lib/storage.ts
+  s_bfd5c42fc08ed7::t_ef5dd23f8afa28 186-187
+desktop/crates/cimoc-core/tests/live_smoke.rs
+  s_bfd5c42fc08ed7::t_aee9babb8e6651 115-141,151-161
+  s_bfd5c42fc08ed7::t_fa530528749579 83-114
+  s_bfd5c42fc08ed7::t_c031777a01a94d 142-150
+desktop/crates/cimoc-core/src/crawler/dongman.rs
+  s_bfd5c42fc08ed7::t_1c8d11adc699f0 1-188
+desktop/crates/cimoc-core/src/crawler/mod.rs
+  s_bfd5c42fc08ed7::t_76319c8bb21cb9 45-48
+  s_bfd5c42fc08ed7::t_597cec09f8f484 41-44
+  s_bfd5c42fc08ed7::t_11f8ae06ec7bc4 16
+  s_bfd5c42fc08ed7::t_85f4af64f41fc0 13
+CONTEXT.md
+  s_bfd5c42fc08ed7::t_22c1c465c0cdd7 9
+  s_bfd5c42fc08ed7::t_a7d1e083500172 7
+desktop/crates/cimoc-core/src/js/sources/dongman.js
+  s_bfd5c42fc08ed7::t_f3d0d8c3258815 255
+  s_bfd5c42fc08ed7::t_2174244db133a7 1-254,256-350
+desktop/package.json
+  s_bfd5c42fc08ed7::t_4072ef9da8266e 4
+desktop/src/screens/Sources.tsx
+  s_bfd5c42fc08ed7::t_e7efbb65e6ecb4 12-13
+docs/research/manhuagui-source.md
+  s_bfd5c42fc08ed7::t_115a55e9ebe5fe 1-60
+desktop/crates/cimoc-core/src/js/sources/manhuagui.js
+  s_bfd5c42fc08ed7::t_fb259cd04db7d5 1-223,225-266,279-291,294-303,315-345,349-351,353-499
+  s_bfd5c42fc08ed7::t_df93483e1ae56f 293,304-314
+  s_bfd5c42fc08ed7::t_41afa789249f3c 267-278
+  s_bfd5c42fc08ed7::t_d9a05fa745add7 346-348,352
+  s_bfd5c42fc08ed7::t_33bed1de297af3 224
+  s_bfd5c42fc08ed7::t_56f18788f747a9 292
+desktop/crates/cimoc-core/src/crawler/script.rs
+  s_bfd5c42fc08ed7::t_87b3ac5831712e 120
+  s_bfd5c42fc08ed7::t_8089b05ef1ee51 119
+  s_bfd5c42fc08ed7::t_e94c6041ec2000 224-236
+  s_bfd5c42fc08ed7::t_c0588a4acf9fab 202-223
+desktop/crates/cimoc-core/tests/fixtures/manhuagui-search.html
+  s_bfd5c42fc08ed7::t_c81e0b40a9868a 1-38
+desktop/crates/cimoc-core/src/crawler/manhuagui.rs
+  s_bfd5c42fc08ed7::t_d16f7097419d0f 1-22
+desktop/crates/cimoc-core/src/js/sources/dongman.test.js
+  s_bfd5c42fc08ed7::t_803cb9734b5099 1-87
+desktop/crates/cimoc-core/tests/fixtures/dongman-viewer.html
+  s_bfd5c42fc08ed7::t_6fc3ae93055665 1-14
+desktop/crates/cimoc-core/tests/fixtures/manhuagui-chapter.html
+  s_bfd5c42fc08ed7::t_fa0e87b168dafa 1-12
+docs/agents/cimoc-core.md
+  s_bfd5c42fc08ed7::t_f65abb909766de 12
+desktop/crates/cimoc-core/Cargo.toml
+  s_bfd5c42fc08ed7::t_24775452f3c2ea 3
+README.md
+  s_bfd5c42fc08ed7::t_d8bf2acdd96d79 3
+docs/research/chinese-sources-landscape.md
+  s_bfd5c42fc08ed7::t_a11e75f22ecc4a 1-45
+desktop/src/api.ts
+  s_bfd5c42fc08ed7::t_3b772d2a6e612d 169-179,181-186
+desktop/crates/cimoc-core/tests/fixtures/dongman-search.html
+  s_bfd5c42fc08ed7::t_2209901e39702f 1-53
+desktop/crates/cimoc-core/tests/fixtures/dongman-detail.html
+  s_bfd5c42fc08ed7::t_e0242c5da350fc 1-46
+desktop/crates/cimoc-core/tests/fixtures/manhuagui-detail.html
+  s_bfd5c42fc08ed7::t_2e15e0d1bf8f5a 1-57
+desktop/crates/cimoc-core/tests/source_script_test.rs
+  s_bfd5c42fc08ed7::t_0a818d1aa2e425 463-466
+  s_bfd5c42fc08ed7::t_5fefab5a45e548 467-470
+  s_bfd5c42fc08ed7::t_d0aae5b9b7f576 27-29
+  s_bfd5c42fc08ed7::t_c1de6d999acd10 11
+  s_bfd5c42fc08ed7::t_5c0d6730b2e61f 10,24-26
+  s_bfd5c42fc08ed7::t_c8c8ff8b173e48 276-352
+  s_bfd5c42fc08ed7::t_dadf68ce9fe87e 353-423
+docs/research/dongman-source.md
+  s_bfd5c42fc08ed7::t_7f5f3ac219158b 1-44
+desktop/crates/cimoc-core/src/js/sources/manhuagui.test.js
+  s_bfd5c42fc08ed7::t_d8873ab52a604b 1-61,63-97
+  s_bfd5c42fc08ed7::t_2ef3d07dbe7f16 62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.41-trip",
+  "base_commit_sha": "bf5baccce02634ce3e8a78763bc08b9ae374e37c",
+  "prompts": {},
+  "sessions": {
+    "s_bfd5c42fc08ed7": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_6237508c-e014-48db-b174-8b3c133a410e",
+        "model": "nemotron-3-ultra-550b-a55b:free"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
