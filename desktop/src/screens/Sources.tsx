@@ -9,6 +9,8 @@ const SOURCES = [
     { id: "mangadex", title: "MangaDex" },
     { id: "webtoons", title: "Webtoons" },
     { id: "copymanga", title: "Copymanga" },
+    { id: "dongman", title: "咚漫" },
+    { id: "manhuagui", title: "漫画柜" },
 ];
 
 /** 当前列表要加载什么：分类浏览（label）或搜索（keyword）。 */

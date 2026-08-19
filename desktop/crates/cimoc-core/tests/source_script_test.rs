@@ -7,6 +7,8 @@ use cimoc_core::js;
 const WEBTOONS_JS: &str = include_str!("../src/js/sources/webtoons.js");
 const MANGADEX_JS: &str = include_str!("../src/js/sources/mangadex.js");
 const COMYMANGA_JS: &str = include_str!("../src/js/sources/copymanga.js");
+const DONGMAN_JS: &str = include_str!("../src/js/sources/dongman.js");
+const MANHUAGUI_JS: &str = include_str!("../src/js/sources/manhuagui.js");
 
 const SEARCH_CARD: &str = include_str!("fixtures/search-card.html");
 const DETAIL_HTML: &str = include_str!("fixtures/detail.html");
@@ -19,6 +21,12 @@ const COMYMANGA_SEARCH: &str = include_str!("fixtures/copymanga-search.json");
 const COMYMANGA_DETAIL: &str = include_str!("fixtures/copymanga-detail.json");
 const COMYMANGA_FEED: &str = include_str!("fixtures/copymanga-feed.json");
 const COMYMANGA_CHAPTER: &str = include_str!("fixtures/copymanga-chapter.json");
+const DONGMAN_SEARCH: &str = include_str!("fixtures/dongman-search.html");
+const DONGMAN_DETAIL: &str = include_str!("fixtures/dongman-detail.html");
+const DONGMAN_VIEWER: &str = include_str!("fixtures/dongman-viewer.html");
+const MANHUAGUI_SEARCH: &str = include_str!("fixtures/manhuagui-search.html");
+const MANHUAGUI_DETAIL: &str = include_str!("fixtures/manhuagui-detail.html");
+const MANHUAGUI_CHAPTER: &str = include_str!("fixtures/manhuagui-chapter.html");
 
 fn parse(script: &str, op: &str, input: &str, ctx: &str) -> serde_json::Value {
     let json = js::call(script, "parse", op, input, ctx).expect("parse 应成功");
@@ -265,6 +273,154 @@ fn copymanga_categories_static() {
     assert!(cats.contains(&serde_json::Value::String("百合".into())));
 }
 
+// ---------- dongman ----------
+
+#[test]
+fn dongman_build_url() {
+    assert_eq!(
+        build_url(DONGMAN_JS, "search", r#"{"keyword":"甜蜜"}"#, "{}"),
+        "https://www.dongmanmanhua.cn/search?keyword=%E7%94%9C%E8%9C%9C"
+    );
+    assert_eq!(
+        build_url(DONGMAN_JS, "category", r#"{"label":"少年"}"#, "{}"),
+        "https://www.dongmanmanhua.cn/BOY"
+    );
+    // 未知分类 → 空串（无可抓取）
+    assert!(build_url(DONGMAN_JS, "category", r#"{"label":"未知"}"#, "{}").is_empty());
+    assert_eq!(
+        build_url(DONGMAN_JS, "detail", r#"{"comicId":"dongman-1418"}"#, "{}"),
+        "https://www.dongmanmanhua.cn/episodeList?titleNo=1418"
+    );
+    // images：viewer URL 由 Rust 提供；无则空串
+    let viewer = "https://www.dongmanmanhua.cn/METROPOLIS/x/viewer?title_no=2859&episode_no=10";
+    assert_eq!(
+        build_url(DONGMAN_JS, "images", r#"{"comicId":"dongman-2859","chapterIndex":10}"#, &format!(r#"{{"viewerUrl":"{viewer}"}}"#)),
+        viewer
+    );
+    assert!(build_url(DONGMAN_JS, "images", r#"{"comicId":"dongman-2859","chapterIndex":10}"#, r#"{"viewerUrl":null}"#).is_empty());
+}
+
+#[test]
+fn dongman_search_parse() {
+    let v = parse(DONGMAN_JS, "search", DONGMAN_SEARCH, "{}");
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 3);
+    let first = &comics[0];
+    assert_eq!(first["id"], "dongman-1418");
+    assert_eq!(first["title"], "甜蜜保质期");
+    assert_eq!(first["author"], "黑琪可可 / 惊歌");
+    assert!(first["cover"]
+        .as_str()
+        .unwrap()
+        .starts_with("https://cdn.dongmanmanhua.cn/"));
+    assert_eq!(first["source"], "dongman");
+    // 首页分类榜单 li（无 data-title-no）被过滤
+    assert!(!comics.iter().any(|c| c["id"] == "dongman-1139"));
+}
+
+#[test]
+fn dongman_detail_parse() {
+    let ctx = r#"{"titleNo":"2859"}"#;
+    let v = parse(DONGMAN_JS, "detail", DONGMAN_DETAIL, ctx);
+    let comic = &v["comic"];
+    assert_eq!(comic["title"], "跳槽日志");
+    assert_eq!(comic["author"], "Woo Si-mok, Lee Ha-an");
+    assert!(comic["intro"].as_str().unwrap().contains("社恐打工人"));
+    assert_eq!(
+        comic["cover"],
+        "https://cdn-sns.dongmanmanhua.cn/e452801b-3c10-4680-beae-63c3535baae3.jpg"
+    );
+    assert_eq!(comic["lastChapter"], "【免费】第1季后记");
+    let chapters = v["chapters"].as_array().unwrap();
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(indexes, vec![55.0, 10.0, 9.0]);
+    assert_eq!(chapters[0]["title"], "【免费】第1季后记");
+}
+
+#[test]
+fn dongman_viewer_parse() {
+    let v = parse(DONGMAN_JS, "images", DONGMAN_VIEWER, "{}");
+    let urls = v.as_array().unwrap();
+    assert_eq!(urls.len(), 3);
+    for u in urls {
+        assert!(u
+            .as_str()
+            .unwrap()
+            .starts_with("https://cdn.dongmanmanhua.cn/"));
+    }
+}
+
+// ---------- manhuagui ----------
+
+#[test]
+fn manhuagui_build_url() {
+    assert_eq!(
+        build_url(MANHUAGUI_JS, "search", r#"{"keyword":"音速"}"#, "{}"),
+        "https://www.manhuagui.com/s/%E9%9F%B3%E9%80%9F_p1.html"
+    );
+    assert_eq!(
+        build_url(MANHUAGUI_JS, "category", r#"{"label":"热血"}"#, "{}"),
+        "https://www.manhuagui.com/list/rexue/"
+    );
+    // 未知分类 → 空串
+    assert!(build_url(MANHUAGUI_JS, "category", r#"{"label":"未知"}"#, "{}").is_empty());
+    assert_eq!(
+        build_url(MANHUAGUI_JS, "detail", r#"{"comicId":"manhuagui-43847"}"#, "{}"),
+        "https://www.manhuagui.com/comic/43847/"
+    );
+    // images：章节号即章节页 href 的 cid
+    assert_eq!(
+        build_url(MANHUAGUI_JS, "images", r#"{"comicId":"manhuagui-43847","chapterIndex":901676}"#, "{}"),
+        "https://www.manhuagui.com/comic/43847/901676.html"
+    );
+}
+
+#[test]
+fn manhuagui_search_parse() {
+    let v = parse(MANHUAGUI_JS, "search", MANHUAGUI_SEARCH, "{}");
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 2);
+    let first = &comics[0];
+    assert_eq!(first["id"], "manhuagui-48320");
+    assert_eq!(first["title"], "用最强天赋开始经营领地慢生活");
+    assert!(first["author"].as_str().unwrap().contains("眠田睑"));
+    assert_eq!(first["cover"], "https://cf.mhgui.com/cpic/b/48320.jpg");
+    assert_eq!(first["status"], "serial");
+    assert_eq!(comics[1]["status"], "finish");
+    assert!(first["intro"].as_str().unwrap().contains("梅尔基斯"));
+}
+
+#[test]
+fn manhuagui_detail_parse() {
+    let ctx = r#"{"comicId":"manhuagui-43847"}"#;
+    let v = parse(MANHUAGUI_JS, "detail", MANHUAGUI_DETAIL, ctx);
+    assert_eq!(v["comic"]["title"], "脑洞学生会");
+    assert_eq!(v["comic"]["cover"], "https://cf.mhgui.com/cpic/h/43847_14.jpg");
+    assert!(v["comic"]["intro"].as_str().unwrap().contains("水之江梅"));
+    assert_eq!(v["comic"]["lastChapter"], "第180话");
+    let chapters = v["chapters"].as_array().unwrap();
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(indexes, vec![628732.0, 633620.0, 755107.0, 901676.0]);
+    assert_eq!(chapters[3]["title"], "第180话");
+    // 同类推荐里其它漫画的章节（/comic/52300/…）被过滤
+    assert!(!chapters.iter().any(|c| c["index"] == 902850.0));
+}
+
+#[test]
+fn manhuagui_chapter_parse_unpacks_packer() {
+    let v = parse(MANHUAGUI_JS, "images", MANHUAGUI_CHAPTER, "{}");
+    let urls = v.as_array().unwrap();
+    assert_eq!(urls.len(), 4);
+    assert_eq!(
+        urls[0],
+        "https://us.hamreus.com/02/43847/901676/1_abc.jpg?e=1651837515&m=1111111111"
+    );
+    assert_eq!(
+        urls[3],
+        "https://us.hamreus.com/02/43847/901676/4_jkl.jpg?e=1651837515&m=1111111111"
+    );
+}
+
 // ---------- 分发 ----------
 
 #[test]
@@ -304,4 +460,12 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     let cats = cimoc_core::crawl("categories", "copymanga", "{}", COMYMANGA_JS);
     assert!(cats.contains("冒险"));
     assert_eq!(cimoc_core::crawl("search", "copymanga", "{}", ""), "[]");
+    // dongman：有脚本走脚本，无脚本空数组
+    let cats = cimoc_core::crawl("categories", "dongman", "{}", DONGMAN_JS);
+    assert!(cats.contains("恋爱"));
+    assert_eq!(cimoc_core::crawl("search", "dongman", "{}", ""), "[]");
+    // manhuagui：有脚本走脚本，无脚本空数组
+    let cats = cimoc_core::crawl("categories", "manhuagui", "{}", MANHUAGUI_JS);
+    assert!(cats.contains("热血"));
+    assert_eq!(cimoc_core::crawl("search", "manhuagui", "{}", ""), "[]");
 }

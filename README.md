@@ -1,6 +1,6 @@
 # Cimoc · Tauri
 
-Cimoc 漫画阅读器的桌面版（macOS / Windows / Linux），基于 **Tauri v2** + **React**（Vite web 前端）。Rust 核心 `cimoc-core` 承载爬虫引擎（Webtoons + MangaDex + Copymanga）与 WebDAV / 下载 / 本地扫描 / 图片缓存，数据层为真实图源链路，不含 mock。
+Cimoc 漫画阅读器的桌面版（macOS / Windows / Linux），基于 **Tauri v2** + **React**（Vite web 前端）。Rust 核心 `cimoc-core` 承载爬虫引擎（Webtoons + MangaDex + Copymanga + 咚漫 + 漫画柜）与 WebDAV / 下载 / 本地扫描 / 图片缓存，数据层为真实图源链路，不含 mock。
 
 > **2026-08 迁移**：原 Lynx（Sparkling）工程已按 big-bang 决定删除（`sparkling-cimoc/`、根 `src/ android/ dist/`），迁移决策轨迹见 wayfinder 地图：https://github.com/fw6/comic/issues/2
 

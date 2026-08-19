@@ -116,6 +116,8 @@ fn fetch(source: &str, op: &str, url: &str, ctx: &str) -> Result<String, String>
         }
         "mangadex" => http::get_text(url, &crate::crawler::mangadex::headers()),
         "copymanga" => http::get_text(url, &crate::crawler::copymanga::headers()),
+        "dongman" => http::get_text(url, &crate::crawler::dongman::headers()),
+        "manhuagui" => http::get_text(url, &crate::crawler::manhuagui::headers()),
         _ => Err("未知 source".into()),
     }
 }
@@ -194,6 +196,41 @@ fn build_ctx(source: &str, op: &str, payload: &Value) -> String {
                     })
                     .to_string()
                 }
+                _ => "{}".to_string(),
+            }
+        }
+        "dongman" => {
+            let title_no = payload
+                .get("comicId")
+                .and_then(|v| v.as_str())
+                .and_then(|id| id.strip_prefix(crate::crawler::dongman::PREFIX))
+                .unwrap_or("")
+                .to_string();
+            match op {
+                "images" => {
+                    let idx = payload
+                        .get("chapterIndex")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(0.0);
+                    serde_json::json!({
+                        "viewerUrl": crate::crawler::dongman::viewer_url_for(&title_no, idx),
+                    })
+                    .to_string()
+                }
+                "detail" => serde_json::json!({ "titleNo": title_no }).to_string(),
+                _ => "{}".to_string(),
+            }
+        }
+        "manhuagui" => {
+            // detail 解析需按 /comic/{id}/ 过滤本漫画章节（同类推荐的其它漫画链接不进来）
+            let id = payload
+                .get("comicId")
+                .and_then(|v| v.as_str())
+                .and_then(|v| v.strip_prefix(crate::crawler::manhuagui::PREFIX))
+                .unwrap_or("")
+                .to_string();
+            match op {
+                "detail" => serde_json::json!({ "comicId": id }).to_string(),
                 _ => "{}".to_string(),
             }
         }

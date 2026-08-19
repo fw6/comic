@@ -166,13 +166,24 @@ function proxyBase(): string {
     return imgProxyPort ? `http://127.0.0.1:${imgProxyPort}` : "";
 }
 
-/** 热链保护域（research #4 结论）：重写为本机代理 /img?url=..，其余保持直连吃 webview 缓存。 */
+/** 热链保护域（research #4 结论）：重写为本机代理 /img?url=..，其余保持直连吃 webview 缓存。
+ * 各源图片 CDN 域名 → 需带上的 Referer（多源共用一个代理端点）。 */
+const HOTLINK_REFERERS: Array<[string, string]> = [
+    // webtoons 图片（pstatic.net）
+    ["pstatic.net", "https://www.webtoons.com/"],
+    // 咚漫图片（cdn.dongmanmanhua.cn）
+    ["dongmanmanhua.cn", "https://www.dongmanmanhua.cn/"],
+    // 漫画柜图片（us.hamreus.com 等）
+    ["hamreus.com", "https://www.manhuagui.com/"],
+];
+
 export function imgSrc(url: string): string {
-    if (url.includes("pstatic.net")) {
-        const base = proxyBase();
-        return base
-            ? `${base}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent("https://www.webtoons.com/")}`
-            : url;
+    const base = proxyBase();
+    if (!base) return url;
+    for (const [domain, referer] of HOTLINK_REFERERS) {
+        if (url.includes(domain)) {
+            return `${base}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent(referer)}`;
+        }
     }
     return url;
 }

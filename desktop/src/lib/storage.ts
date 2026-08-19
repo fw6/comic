@@ -183,6 +183,8 @@ const SOURCE_NAMES: Record<string, string> = {
     webtoons: "Webtoons",
     mangadex: "MangaDex",
     copymanga: "Copymanga",
+    dongman: "咚漫",
+    manhuagui: "漫画柜",
 };
 
 /**
