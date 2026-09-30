@@ -186,6 +186,9 @@ const SOURCE_NAMES: Record<string, string> = {
     dongman: "咚漫",
     manhuagui: "漫画柜",
     baozimh: "包子漫画",
+    nnhanman: "鸟鸟韩漫",
+    kxmanhua: "开心看漫画",
+    hentara: "Hentara",
 };
 
 /**

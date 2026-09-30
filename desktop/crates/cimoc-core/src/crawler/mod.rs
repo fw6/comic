@@ -12,7 +12,9 @@
 pub mod baozimh;
 pub mod copymanga;
 pub mod dongman;
+pub mod hentara;
 pub mod http;
+pub mod kxmanhua;
 pub mod mangadex;
 pub mod manhuagui;
 pub mod models;
@@ -36,19 +38,9 @@ pub fn crawl(op: &str, source: &str, payload: &str, script: &str) -> String {
             _ if !script.is_empty() => script::run(op, source, payload, script),
             _ => "[]".into(),
         },
-        "copymanga" => match op {
-            _ if !script.is_empty() => script::run(op, source, payload, script),
-            _ => "[]".into(),
-        },
-        "dongman" => match op {
-            _ if !script.is_empty() => script::run(op, source, payload, script),
-            _ => "[]".into(),
-        },
-        "manhuagui" => match op {
-            _ if !script.is_empty() => script::run(op, source, payload, script),
-            _ => "[]".into(),
-        },
-        "baozimh" => match op {
+        // 纯脚本源：op 全交运行时脚本（nnhanman 的抓取经渲染通道，见 script::fetch）
+        "copymanga" | "dongman" | "manhuagui" | "baozimh" | "nnhanman" | "kxmanhua"
+        | "hentara" => match op {
             _ if !script.is_empty() => script::run(op, source, payload, script),
             _ => "[]".into(),
         },

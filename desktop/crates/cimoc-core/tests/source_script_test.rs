@@ -10,6 +10,9 @@ const COMYMANGA_JS: &str = include_str!("../src/js/sources/copymanga.js");
 const DONGMAN_JS: &str = include_str!("../src/js/sources/dongman.js");
 const MANHUAGUI_JS: &str = include_str!("../src/js/sources/manhuagui.js");
 const BAOZIMH_JS: &str = include_str!("../src/js/sources/baozimh.js");
+const NNHANMAN_JS: &str = include_str!("../src/js/sources/nnhanman.js");
+const KXMANHUA_JS: &str = include_str!("../src/js/sources/kxmanhua.js");
+const HENTARA_JS: &str = include_str!("../src/js/sources/hentara.js");
 
 const SEARCH_CARD: &str = include_str!("fixtures/search-card.html");
 const DETAIL_HTML: &str = include_str!("fixtures/detail.html");
@@ -31,6 +34,17 @@ const MANHUAGUI_CHAPTER: &str = include_str!("fixtures/manhuagui-chapter.html");
 const BAOZIMH_SEARCH: &str = include_str!("fixtures/baozimh-search.html");
 const BAOZIMH_DETAIL: &str = include_str!("fixtures/baozimh-detail.html");
 const BAOZIMH_CHAPTER: &str = include_str!("fixtures/baozimh-chapter.html");
+const NNHANMAN_SEARCH: &str = include_str!("fixtures/nnhanman-search.html");
+const NNHANMAN_DETAIL: &str = include_str!("fixtures/nnhanman-detail.html");
+const NNHANMAN_CHAPTER: &str = include_str!("fixtures/nnhanman-chapter.html");
+const KXMANHUA_SEARCH: &str = include_str!("fixtures/kxmanhua-search.html");
+const KXMANHUA_DETAIL: &str = include_str!("fixtures/kxmanhua-detail.html");
+const KXMANHUA_CHAPTER: &str = include_str!("fixtures/kxmanhua-chapter.html");
+const HENTARA_INDEX: &str = include_str!("fixtures/hentara-index.json");
+const HENTARA_BROWSE: &str = include_str!("fixtures/hentara-browse.html");
+const HENTARA_GENRE: &str = include_str!("fixtures/hentara-genre.html");
+const HENTARA_DETAIL: &str = include_str!("fixtures/hentara-detail.json");
+const HENTARA_EPISODE: &str = include_str!("fixtures/hentara-episode.json");
 
 fn parse(script: &str, op: &str, input: &str, ctx: &str) -> serde_json::Value {
     let json = js::call(script, "parse", op, input, ctx).expect("parse 应成功");
@@ -537,6 +551,343 @@ fn baozimh_chapter_parse() {
     );
 }
 
+// ---------- nnhanman ----------
+
+#[test]
+fn nnhanman_build_url() {
+    assert_eq!(
+        build_url(NNHANMAN_JS, "search", r#"{"keyword":"韓"}"#, "{}"),
+        "https://nnhanman.xyz/catalog.php?key=%E9%9F%93"
+    );
+    assert_eq!(
+        build_url(NNHANMAN_JS, "category", r#"{"label":"热门"}"#, "{}"),
+        "https://nnhanman.xyz/comics/all/ob/hits/st/all"
+    );
+    // 题材分类：目录名按 URL 编码拼进路径（站方接受编码后的中文路径）
+    assert_eq!(
+        build_url(NNHANMAN_JS, "category", r#"{"label":"恋爱"}"#, "{}"),
+        "https://nnhanman.xyz/comics/%E6%81%8B%E7%88%B1/ob/time/st/all"
+    );
+    // 未知分类 → 空串（无可抓取）
+    assert!(build_url(NNHANMAN_JS, "category", r#"{"label":"不存在"}"#, "{}").is_empty());
+    assert_eq!(
+        build_url(NNHANMAN_JS, "detail", r#"{"comicId":"nnhanman-zui-bang-de-ta"}"#, "{}"),
+        "https://nnhanman.xyz/comic/zui-bang-de-ta.html"
+    );
+    // 章节 id 即 URL 里的章节号（可重建，无需 Rust 缓存）
+    assert_eq!(
+        build_url(
+            NNHANMAN_JS,
+            "images",
+            r#"{"comicId":"nnhanman-zui-bang-de-ta","chapterIndex":85993}"#,
+            "{}"
+        ),
+        "https://nnhanman.xyz/comic/zui-bang-de-ta/chapter-85993.html"
+    );
+}
+
+#[test]
+fn nnhanman_categories_static() {
+    let v = parse(NNHANMAN_JS, "categories", "", "{}");
+    let cats = v.as_array().unwrap();
+    assert_eq!(cats.len(), 24);
+    assert_eq!(cats[0], "最新更新");
+    assert!(cats.contains(&serde_json::Value::String("恋爱".into())));
+    assert!(cats.contains(&serde_json::Value::String("日漫".into())));
+}
+
+#[test]
+fn nnhanman_search_parse() {
+    let v = parse(NNHANMAN_JS, "search", NNHANMAN_SEARCH, "{}");
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 3);
+    let first = &comics[0];
+    assert_eq!(first["id"], "nnhanman-lian-ai-zuo-bi-bai-ke");
+    assert_eq!(first["title"], "戀愛作弊百科");
+    assert_eq!(first["source"], "nnhanman");
+    assert_eq!(
+        first["cover"],
+        "https://new.niaopic.com/202608/20260818135631986.jpg"
+    );
+    // 列表页的 info 是更新日期，不是章节标题
+    assert_eq!(first["lastChapter"], "");
+}
+
+#[test]
+fn nnhanman_detail_parse() {
+    let ctx = r#"{"comicId":"nnhanman-zui-bang-de-ta"}"#;
+    let v = parse(NNHANMAN_JS, "detail", NNHANMAN_DETAIL, ctx);
+    let comic = &v["comic"];
+    assert_eq!(comic["id"], "nnhanman-zui-bang-de-ta");
+    // h1 带书名号，解析时剥掉
+    assert_eq!(comic["title"], "最棒的她");
+    assert_eq!(comic["author"], "BYUK CHA");
+    assert!(comic["intro"].as_str().unwrap().contains("青梅竹馬的媽媽"));
+    assert_eq!(
+        comic["cover"],
+        "https://new.niaopic.com/202609/20260929145709400.jpg"
+    );
+    assert_eq!(comic["status"], "serial");
+    assert_eq!(comic["tags"][0], "正妹");
+    assert_eq!(comic["tags"][5], "同居");
+    assert_eq!(comic["lastChapter"], "第5話");
+
+    // 章节页给的是倒序，解析后按章节号升序；「开始阅读」按钮链到首话不污染标题
+    let chapters = v["chapters"].as_array().unwrap();
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(
+        indexes,
+        vec![85989.0, 85990.0, 85991.0, 85992.0, 85993.0]
+    );
+    assert_eq!(chapters[0]["title"], "第1話");
+    assert_eq!(chapters[4]["title"], "第5話");
+}
+
+#[test]
+fn nnhanman_chapter_parse() {
+    let v = parse(NNHANMAN_JS, "images", NNHANMAN_CHAPTER, "{}");
+    let urls = v.as_array().unwrap();
+    // 统计像素图（yandex）与站内 logo 无 data-index，不混入
+    assert_eq!(urls.len(), 4);
+    assert_eq!(
+        urls[0],
+        "https://new.niaopic.com/2026092914/20260929144622267.jpg"
+    );
+    // 末图只有 src、没有 data-src，回落到 src
+    assert_eq!(
+        urls[3],
+        "https://new.niaopic.com/2026092914/20260929144917909.jpg"
+    );
+}
+
+// ---------- kxmanhua ----------
+
+#[test]
+fn kxmanhua_build_url() {
+    assert_eq!(
+        build_url(KXMANHUA_JS, "search", r#"{"keyword":"最棒"}"#, "{}"),
+        "https://kxmanhua.com/manga/search?keyword=%E6%9C%80%E6%A3%92"
+    );
+    assert_eq!(
+        build_url(KXMANHUA_JS, "category", r#"{"label":"韩漫"}"#, "{}"),
+        "https://kxmanhua.com/manga/library?type=2"
+    );
+    // 未知分类 → 空串（无可抓取）
+    assert!(build_url(KXMANHUA_JS, "category", r#"{"label":"不存在"}"#, "{}").is_empty());
+    assert_eq!(
+        build_url(KXMANHUA_JS, "detail", r#"{"comicId":"kxmanhua-7067"}"#, "{}"),
+        "https://kxmanhua.com/manga/7067"
+    );
+    // 章节 id 即章节页 URL 末段（可重建）
+    assert_eq!(
+        build_url(
+            KXMANHUA_JS,
+            "images",
+            r#"{"comicId":"kxmanhua-7067","chapterIndex":173807}"#,
+            "{}"
+        ),
+        "https://kxmanhua.com/manga/7067/detail/173807"
+    );
+}
+
+#[test]
+fn kxmanhua_categories_static() {
+    let v = parse(KXMANHUA_JS, "categories", "", "{}");
+    let cats = v.as_array().unwrap();
+    assert_eq!(cats.len(), 10);
+    assert_eq!(cats[0], "最新上架");
+    assert!(cats.contains(&serde_json::Value::String("韩漫".into())));
+}
+
+#[test]
+fn kxmanhua_search_parse() {
+    let v = parse(KXMANHUA_JS, "search", KXMANHUA_SEARCH, "{}");
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 2);
+    let first = &comics[0];
+    assert_eq!(first["id"], "kxmanhua-7067");
+    assert_eq!(first["title"], "最棒的她");
+    assert_eq!(first["source"], "kxmanhua");
+    assert_eq!(first["status"], "serial");
+    assert_eq!(
+        first["cover"],
+        "https://img.imh99.top/webtoon/cover-image/4085_1790735521874.webp"
+    );
+    // 搜索页卡片锚没有 title 属性，标题取锚文本；完结态是 epgreen
+    assert_eq!(comics[1]["id"], "kxmanhua-3915");
+    assert_eq!(comics[1]["title"], "[3D]奸魔再世");
+    assert_eq!(comics[1]["status"], "finish");
+}
+
+#[test]
+fn kxmanhua_detail_parse() {
+    let ctx = r#"{"comicId":"kxmanhua-7067"}"#;
+    let v = parse(KXMANHUA_JS, "detail", KXMANHUA_DETAIL, ctx);
+    let comic = &v["comic"];
+    assert_eq!(comic["id"], "kxmanhua-7067");
+    assert_eq!(comic["title"], "最棒的她");
+    assert_eq!(comic["author"], "BYUK CHA");
+    assert!(comic["intro"].as_str().unwrap().contains("青梅竹马的妈妈"));
+    assert_eq!(
+        comic["cover"],
+        "https://img.imh99.top/webtoon/cover-image/4085_1790735521874.webp"
+    );
+    // 连载态取封面区的 ep；同类推荐区里的 epgreen（别的漫画完结）不得污染
+    assert_eq!(comic["status"], "serial");
+    assert_eq!(comic["lastChapter"], "第5话");
+
+    // 章节列表是倒序，解析后按章节 id 升序
+    let chapters = v["chapters"].as_array().unwrap();
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(
+        indexes,
+        vec![173803.0, 173804.0, 173805.0, 173806.0, 173807.0]
+    );
+    assert_eq!(chapters[0]["title"], "第1话");
+    assert_eq!(chapters[4]["title"], "第5话");
+}
+
+#[test]
+fn kxmanhua_chapter_parse() {
+    let v = parse(KXMANHUA_JS, "images", KXMANHUA_CHAPTER, "{}");
+    let urls = v.as_array().unwrap();
+    // 站内相对路径 logo 与广告位 gif 都不是章节图，不混入
+    assert_eq!(urls.len(), 3);
+    assert_eq!(
+        urls[0],
+        "https://img.imh99.top/webtoon/content/4085/114628/000_1790738399524.webp"
+    );
+    assert_eq!(
+        urls[2],
+        "https://img.imh99.top/webtoon/content/4085/114628/002_1790738399527.webp"
+    );
+}
+
+// ---------- hentara ----------
+
+#[test]
+fn hentara_build_url() {
+    // 站内搜索是前端在 index.json 上过滤，服务端 /browse?search= 不过滤
+    assert_eq!(
+        build_url(HENTARA_JS, "search", r#"{"keyword":"harem"}"#, "{}"),
+        "https://cdn.hentara.com/data/index.json"
+    );
+    assert_eq!(
+        build_url(HENTARA_JS, "category", r#"{"label":"全部"}"#, "{}"),
+        "https://hentara.com/browse"
+    );
+    assert_eq!(
+        build_url(HENTARA_JS, "category", r#"{"label":"Harem"}"#, "{}"),
+        "https://hentara.com/genres/harem-manhwa"
+    );
+    // 未知分类 → 空串（无可抓取）
+    assert!(build_url(HENTARA_JS, "category", r#"{"label":"不存在"}"#, "{}").is_empty());
+    assert_eq!(
+        build_url(HENTARA_JS, "detail", r#"{"comicId":"hentara-capitalist-harem"}"#, "{}"),
+        "https://cdn.hentara.com/data/comics/capitalist-harem.json"
+    );
+    // 话数即章节 JSON 的文件名（可重建）
+    assert_eq!(
+        build_url(
+            HENTARA_JS,
+            "images",
+            r#"{"comicId":"hentara-capitalist-harem","chapterIndex":1}"#,
+            "{}"
+        ),
+        "https://cdn.hentara.com/data/episodes/capitalist-harem/1.json"
+    );
+}
+
+#[test]
+fn hentara_categories_static() {
+    let v = parse(HENTARA_JS, "categories", "", "{}");
+    let cats = v.as_array().unwrap();
+    assert_eq!(cats.len(), 18);
+    assert_eq!(cats[0], "全部");
+    assert!(cats.contains(&serde_json::Value::String("Doujinshi".into())));
+}
+
+#[test]
+fn hentara_search_parse() {
+    let ctx = r#"{"keyword":"harem"}"#;
+    let v = parse(HENTARA_JS, "search", HENTARA_INDEX, ctx);
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 2);
+    // 命中按最近更新排前（Capitalist Harem 的 updated_at 比 Harem King 新）
+    let first = &comics[0];
+    assert_eq!(first["id"], "hentara-capitalist-harem");
+    assert_eq!(first["title"], "Capitalist Harem");
+    assert_eq!(first["source"], "hentara");
+    assert_eq!(
+        first["cover"],
+        "https://cdn.hentara.com/capitalist-harem/thumbnail.jpg"
+    );
+    assert_eq!(first["lastChapter"], "Chapter 14");
+    // 标题不含关键词的不进结果
+    assert!(!comics.iter().any(|c| c["id"] == "hentara-1-day-1-girl"));
+
+    // 关键词大小写不敏感
+    let upper = parse(HENTARA_JS, "search", HENTARA_INDEX, r#"{"keyword":"HAREM"}"#);
+    assert_eq!(upper.as_array().unwrap().len(), 2);
+}
+
+#[test]
+fn hentara_card_parse() {
+    // 列表页三种卡片形态（pg-card / ssr-card / genre-card）都能取到 id/标题/封面
+    let browse = parse(HENTARA_JS, "category", HENTARA_BROWSE, "{}");
+    let cards = browse.as_array().unwrap();
+    assert_eq!(cards.len(), 2);
+    assert_eq!(cards[0]["id"], "hentara-heart-pounding-s-matching");
+    assert_eq!(cards[0]["title"], "Heart Pounding S Matching (Uncensored)");
+    assert_eq!(
+        cards[0]["cover"],
+        "https://cdn.hentara.com/heart-pounding-s-matching/thumbnail.jpg"
+    );
+
+    let genre = parse(HENTARA_JS, "category", HENTARA_GENRE, "{}");
+    let gcards = genre.as_array().unwrap();
+    assert_eq!(gcards.len(), 2);
+    assert_eq!(gcards[0]["id"], "hentara-teach-me-first");
+    assert_eq!(gcards[0]["title"], "Teach Me First! (Uncensored)");
+}
+
+#[test]
+fn hentara_detail_parse() {
+    let v = parse(HENTARA_JS, "detail", HENTARA_DETAIL, "{}");
+    let comic = &v["comic"];
+    assert_eq!(comic["id"], "hentara-capitalist-harem");
+    assert_eq!(comic["title"], "Capitalist Harem");
+    assert_eq!(comic["source"], "hentara");
+    assert_eq!(
+        comic["cover"],
+        "https://cdn.hentara.com/capitalist-harem/thumbnail.jpg"
+    );
+    assert_eq!(comic["lastChapter"], "Chapter 14");
+
+    let chapters = v["chapters"].as_array().unwrap();
+    assert_eq!(chapters.len(), 14);
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(indexes[0], 1.0);
+    assert_eq!(indexes[13], 14.0);
+    // 话标题为空时用话数兜底
+    assert_eq!(chapters[0]["title"], "Chapter 1");
+}
+
+#[test]
+fn hentara_chapter_parse() {
+    let v = parse(HENTARA_JS, "images", HENTARA_EPISODE, "{}");
+    let urls = v.as_array().unwrap();
+    assert_eq!(urls.len(), 14);
+    assert_eq!(
+        urls[0],
+        "https://cdn.hentara.com/capitalist-harem/chapter-001/001.jpg"
+    );
+    assert_eq!(
+        urls[13],
+        "https://cdn.hentara.com/capitalist-harem/chapter-001/014.jpg"
+    );
+}
+
 // ---------- 分发 ----------
 
 #[test]
@@ -591,5 +942,21 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     let out = cimoc_core::crawl("search", "baozimh", r#"{"keyword":"海贼"}"#, BAOZIMH_JS);
     assert_eq!(out, "[]");
     let (msg, _) = cimoc_core::crawler::script::last_error("baozimh").expect("应记录源错误");
+    assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
+
+    // kxmanhua / hentara：普通抓取源，categories 静态输出走脚本
+    let cats = cimoc_core::crawl("categories", "kxmanhua", "{}", KXMANHUA_JS);
+    assert!(cats.contains("韩漫"));
+    assert_eq!(cimoc_core::crawl("search", "kxmanhua", "{}", ""), "[]");
+    let cats = cimoc_core::crawl("categories", "hentara", "{}", HENTARA_JS);
+    assert!(cats.contains("全部"));
+    assert_eq!(cimoc_core::crawl("search", "hentara", "{}", ""), "[]");
+    // nnhanman：渲染源，需抓取的 op 在无渲染通道宿主下报错并返回空结果
+    let cats = cimoc_core::crawl("categories", "nnhanman", "{}", NNHANMAN_JS);
+    assert!(cats.contains("热门"));
+    assert_eq!(cimoc_core::crawl("search", "nnhanman", "{}", ""), "[]");
+    let out = cimoc_core::crawl("search", "nnhanman", r#"{"keyword":"韓"}"#, NNHANMAN_JS);
+    assert_eq!(out, "[]");
+    let (msg, _) = cimoc_core::crawler::script::last_error("nnhanman").expect("应记录源错误");
     assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
 }

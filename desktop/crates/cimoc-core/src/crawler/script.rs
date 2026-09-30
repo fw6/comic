@@ -122,6 +122,8 @@ fn fetch(source: &str, op: &str, url: &str, ctx: &str) -> Result<String, String>
         "copymanga" => http::get_text(url, &crate::crawler::copymanga::headers()),
         "dongman" => http::get_text(url, &crate::crawler::dongman::headers()),
         "manhuagui" => http::get_text(url, &crate::crawler::manhuagui::headers()),
+        "kxmanhua" => http::get_text(url, &crate::crawler::kxmanhua::headers()),
+        "hentara" => http::get_text(url, &crate::crawler::hentara::headers()),
         _ => Err("未知 source".into()),
     }
 }
@@ -256,6 +258,30 @@ fn build_ctx(source: &str, op: &str, payload: &Value) -> String {
                     })
                     .to_string()
                 }
+                _ => "{}".to_string(),
+            }
+        }
+        // 下列源的解析只按 comicId 过滤本作章节（同类推荐锚不混入）
+        "nnhanman" | "kxmanhua" => {
+            let comic_id = payload
+                .get("comicId")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            match op {
+                "detail" => serde_json::json!({ "comicId": comic_id }).to_string(),
+                _ => "{}".to_string(),
+            }
+        }
+        // hentara 搜索在脚本内过滤 index.json（搜索词经 ctx 传入）
+        "hentara" => {
+            let keyword = payload
+                .get("keyword")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            match op {
+                "search" => serde_json::json!({ "keyword": keyword }).to_string(),
                 _ => "{}".to_string(),
             }
         }

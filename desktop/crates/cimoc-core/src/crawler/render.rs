@@ -14,9 +14,10 @@ type RenderFetcher = Box<dyn Fn(&str) -> Result<String, String> + Send + Sync>;
 
 static FETCHER: OnceLock<RenderFetcher> = OnceLock::new();
 
-/// 该源是否整源经渲染通道抓取页面（按源声明；baozimh —— Cloudflare 防护）。
+/// 该源是否整源经渲染通道抓取页面（按源声明；baozimh —— Cloudflare 防护；
+/// nnhanman —— 整站 TLS 连接对本机重置，普通 HTTP 客户端拿不到页面）。
 pub fn needed(source: &str) -> bool {
-    matches!(source, "baozimh")
+    matches!(source, "baozimh" | "nnhanman")
 }
 
 /// 宿主注册渲染实现（进程内一次；重复注册被忽略）。
@@ -39,7 +40,10 @@ mod tests {
     #[test]
     fn render_sources_declared() {
         assert!(needed("baozimh"));
+        assert!(needed("nnhanman"));
         assert!(!needed("manhuagui"));
+        assert!(!needed("kxmanhua"));
+        assert!(!needed("hentara"));
         assert!(!needed("webtoons"));
     }
 

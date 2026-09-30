@@ -159,3 +159,53 @@ fn manhuagui_live_detail_and_images() {
     }
     println!("manhuagui detail: {} 章；首章 {} 张图", chapters.len(), imgs_arr.len());
 }
+
+#[test]
+#[ignore]
+fn kxmanhua_live_detail_and_images() {
+    // 完整链路：搜索 → 详情 → 章节页 → 图片。开心看漫画无 IP 风控（2026-09-30 本环境实测可通）。
+    let comics = live_crawl("kxmanhua", "search", r#"{"keyword":"最棒"}"#);
+    let arr = comics.as_array().expect("search 返回数组");
+    assert!(!arr.is_empty(), "kxmanhua 搜索应有结果");
+    let id = arr[0]["id"].as_str().expect("comicId").to_string();
+    let detail = live_crawl("kxmanhua", "detail", &format!(r#"{{"comicId":"{id}"}}"#));
+    let chapters = detail
+        .get("chapters")
+        .and_then(|c| c.as_array())
+        .cloned()
+        .unwrap_or_default();
+    assert!(!chapters.is_empty(), "kxmanhua 详情应有章节");
+    let idx = chapters[0]["index"].as_f64().unwrap();
+    let imgs = live_crawl("kxmanhua", "images", &format!(r#"{{"comicId":"{id}","chapterIndex":{idx}}}"#));
+    let imgs_arr = imgs.as_array().cloned().unwrap_or_default();
+    assert!(!imgs_arr.is_empty(), "kxmanhua 章节应有图片");
+    println!("kxmanhua detail: {} 章；首章 {} 张图", chapters.len(), imgs_arr.len());
+}
+
+#[test]
+#[ignore]
+fn hentara_live_detail_and_images() {
+    // 完整链路：搜索（index.json 本地过滤）→ 详情 → 章节 JSON → 图片。
+    // Hentara 站点与数据 CDN 都无 IP 风控（2026-09-30 本环境实测可通）。
+    let comics = live_crawl("hentara", "search", r#"{"keyword":"harem"}"#);
+    let arr = comics.as_array().expect("search 返回数组");
+    assert!(!arr.is_empty(), "hentara 搜索应有结果");
+    let id = arr[0]["id"].as_str().expect("comicId").to_string();
+    let detail = live_crawl("hentara", "detail", &format!(r#"{{"comicId":"{id}"}}"#));
+    let chapters = detail
+        .get("chapters")
+        .and_then(|c| c.as_array())
+        .cloned()
+        .unwrap_or_default();
+    assert!(!chapters.is_empty(), "hentara 详情应有章节");
+    let idx = chapters[0]["index"].as_f64().unwrap();
+    let imgs = live_crawl("hentara", "images", &format!(r#"{{"comicId":"{id}","chapterIndex":{idx}}}"#));
+    let imgs_arr = imgs.as_array().cloned().unwrap_or_default();
+    assert!(!imgs_arr.is_empty(), "hentara 章节应有图片");
+    println!("hentara detail: {} 章；首章 {} 张图", chapters.len(), imgs_arr.len());
+}
+
+// nnhanman 是渲染源：页面抓取经隐藏 webview 渲染通道，cimoc-core 单进程没有宿主，
+// 真网验证走 src-tauri 的渲染通道探针（见 docs/research/nnhanman-source.md）：
+//   cd desktop/src-tauri
+//   cargo run --example render_probe -- chain nnhanman nnhanman-zui-bang-de-ta 85989

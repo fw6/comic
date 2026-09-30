@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-09-28T16:08:22.297Z",
+  "total_comics": 3,
+  "total_genres": 2,
+  "comics": [
+    {
+      "id": "7f7ea1ee-6006-432a-83d2-42f07838125b",
+      "title": "1 Day 1 Girl",
+      "slug": "1-day-1-girl",
+      "thumbnail_url": "https://cdn.hentara.com/1-day-1-girl/thumbnail.jpg",
+      "description": null,
+      "episode_count": 30,
+      "latest_episode": 30,
+      "latest_episode_date": "2026-06-17T18:00:43.069Z",
+      "genres": [],
+      "view_count": 0,
+      "updated_at": "2026-06-17T18:00:43.069Z"
+    },
+    {
+      "id": "2a27eca9-93a8-4a5a-bff5-5b74e8ac1c8f",
+      "title": "Capitalist Harem",
+      "slug": "capitalist-harem",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/thumbnail.jpg",
+      "description": null,
+      "episode_count": 14,
+      "latest_episode": 14,
+      "latest_episode_date": "2026-09-26T15:06:23.077Z",
+      "genres": [],
+      "view_count": 0,
+      "updated_at": "2026-09-26T15:20:12.593Z"
+    },
+    {
+      "id": "b0a1c2d3-1111-2222-3333-444455556666",
+      "title": "Harem King",
+      "slug": "harem-king",
+      "thumbnail_url": "https://cdn.hentara.com/harem-king/thumbnail.png",
+      "description": "A harem story.",
+      "episode_count": 60,
+      "latest_episode": 60,
+      "latest_episode_date": "2026-09-20T10:00:00.000Z",
+      "genres": [{ "name": "Harem", "slug": "harem" }],
+      "view_count": 120,
+      "updated_at": "2026-09-20T10:00:00.000Z"
+    }
+  ],
+  "genres": [
+    {
+      "id": "c8bd8370-f6aa-4683-a7c0-76b4a3adc252",
+      "name": "Cheating",
+      "slug": "cheating",
+      "comic_count": 9
+    }
+  ],
+  "featured": {
+    "popular": ["capitalist-harem", "harem-king"]
+  }
+}

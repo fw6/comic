@@ -1,0 +1,115 @@
+{
+  "comic": {
+    "id": "2a27eca9-93a8-4a5a-bff5-5b74e8ac1c8f",
+    "title": "Capitalist Harem",
+    "slug": "capitalist-harem",
+    "description": null,
+    "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/thumbnail.jpg",
+    "cover_url": null,
+    "genres": [],
+    "view_count": 0,
+    "created_at": "2026-08-02T14:09:43.069Z",
+    "updated_at": "2026-09-26T15:20:12.593Z"
+  },
+  "episodes": [
+    {
+      "id": "6871dd71-d9f3-4541-a19e-9332d98e28ba",
+      "episode_number": 1,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-001/001.jpg",
+      "created_at": "2026-08-02T13:50:01.862Z"
+    },
+    {
+      "id": "109c1cb5-9325-4476-912f-b291b31cc761",
+      "episode_number": 2,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-002/001.jpg",
+      "created_at": "2026-08-02T13:50:00.912Z"
+    },
+    {
+      "id": "2efa721b-0438-4bb9-a42f-02a00162bf2c",
+      "episode_number": 3,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-003/001.jpg",
+      "created_at": "2026-08-02T13:50:05.139Z"
+    },
+    {
+      "id": "c9e7668e-2260-46e6-95e4-c0b8af5ed094",
+      "episode_number": 4,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-004/001.jpg",
+      "created_at": "2026-08-02T13:50:04.027Z"
+    },
+    {
+      "id": "af13e656-08b2-4c91-a90e-797e5f9d7487",
+      "episode_number": 5,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-005/001.jpg",
+      "created_at": "2026-08-04T12:52:33.876Z"
+    },
+    {
+      "id": "c42b1d76-c0d0-48f0-ac70-d6830f76e679",
+      "episode_number": 6,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-006/001.jpg",
+      "created_at": "2026-08-06T12:23:25.193Z"
+    },
+    {
+      "id": "9f6046ac-a6f6-4758-8ae1-ab93a2d5f3d9",
+      "episode_number": 7,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-007/001.jpg",
+      "created_at": "2026-08-12T13:48:57.550Z"
+    },
+    {
+      "id": "1444d9af-2e94-4949-b2d9-6651864246c7",
+      "episode_number": 8,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-008/001.jpg",
+      "created_at": "2026-08-16T13:53:44.521Z"
+    },
+    {
+      "id": "b0d02e2c-fd35-4e91-8514-5a4dd8d277eb",
+      "episode_number": 9,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-009/001.jpg",
+      "created_at": "2026-08-21T13:38:15.080Z"
+    },
+    {
+      "id": "adebe584-7010-45f2-96d0-284689ce0bc0",
+      "episode_number": 10,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-010/001.jpg",
+      "created_at": "2026-09-01T21:55:45.034Z"
+    },
+    {
+      "id": "dee858fa-648a-4800-885c-152be9732533",
+      "episode_number": 11,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-011/001.jpg",
+      "created_at": "2026-09-10T14:57:46.956Z"
+    },
+    {
+      "id": "b03cdaa4-861a-4dca-b943-1f9cf8fa8331",
+      "episode_number": 12,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-012/001.jpg",
+      "created_at": "2026-09-16T14:16:34.084Z"
+    },
+    {
+      "id": "b09569c4-7997-43d6-802a-79e32948c739",
+      "episode_number": 13,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-013/001.jpg",
+      "created_at": "2026-09-24T13:35:26.193Z"
+    },
+    {
+      "id": "f648462c-5809-44e8-96e2-bf76cc1a8487",
+      "episode_number": 14,
+      "title": "",
+      "thumbnail_url": "https://cdn.hentara.com/capitalist-harem/chapter-014/001.jpg",
+      "created_at": "2026-09-26T15:06:23.077Z"
+    }
+  ],
+  "total_episodes": 14
+}
