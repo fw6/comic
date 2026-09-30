@@ -1,0 +1,21 @@
+desktop/src-tauri/src/lib.rs
+  s_dfef31332a2526::t_58d591cf48846c 397-403
+  s_dfef31332a2526::t_ddf0fdf90e38bc 411-412
+  s_dfef31332a2526::t_8d08d51bc3f146 13-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "cdaacddf43a8c065f687d4f02ff9a75976310ff6",
+  "prompts": {},
+  "sessions": {
+    "s_dfef31332a2526": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_1d2e4193-b6eb-4cf1-ba95-691f2729a1d1",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
