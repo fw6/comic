@@ -1,0 +1,33 @@
+desktop/src-tauri/tauri.conf.json
+  s_28ff8cce8cf016::t_ba98596d102211 4
+desktop/Cargo.lock
+  s_dfef31332a2526::t_d29c23ce4446da 558,915
+desktop/src-tauri/Cargo.toml
+  s_28ff8cce8cf016::t_1a0892ef38cc97 3
+desktop/crates/cimoc-core/Cargo.toml
+  s_28ff8cce8cf016::t_dad3b3cc4f9886 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "113f27d833b24f1298fb25772fa23d71ecd24a6b",
+  "prompts": {},
+  "sessions": {
+    "s_28ff8cce8cf016": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_8425ec76-1254-4d3a-88c7-a067bb87728a",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_dfef31332a2526": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_1d2e4193-b6eb-4cf1-ba95-691f2729a1d1",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
