@@ -1,0 +1,261 @@
+desktop/src/lib/platform.ts
+  s_dfef31332a2526::t_facf32bc0f6f95 17
+  s_dfef31332a2526::t_af52fc1a7fb3ec 3-4
+desktop/src/components/beui/input.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-240
+desktop/src/screens/Sources.test.tsx
+  s_dfef31332a2526::t_55d2f81fe714a5 86-87
+  s_dfef31332a2526::t_5613faed1af722 98-99
+  s_dfef31332a2526::t_ab7fa5eb9e4d47 151-152
+  s_dfef31332a2526::t_04aeffe7758cf7 110-111
+  s_dfef31332a2526::t_74678b1119a126 125
+desktop/src/components/beui/animated-number.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-50
+desktop/src/lib/hooks/use-hover-gesture.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-59
+desktop/scripts/probe-app.mjs
+  s_dfef31332a2526::t_3434283f4fb1b7 1-16,29-34,38-40,42
+  s_dfef31332a2526::t_63da32fff738d7 17-28,35-37,41,43-64
+desktop/package.json
+  s_28ff8cce8cf016::t_ed767a648b0288 4
+  s_dfef31332a2526::t_ab8a73b1582461 15,26
+  s_dfef31332a2526::t_3ab89a93ca3f75 16,25,27-28,31-33
+desktop/scripts/audit-contrast.mjs
+  s_dfef31332a2526::t_2f1a562d9a1af7 1-125,130-149,151-153
+  s_dfef31332a2526::t_34500762a23b80 126-129,150
+desktop/vite.config.ts
+  s_dfef31332a2526::t_9a96516d0979bd 1,4,11-16
+  s_dfef31332a2526::t_101638f1839887 44
+desktop/src/components/beui/loader.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-614
+desktop/src/main.tsx
+  s_dfef31332a2526::t_ffdba6d8e7d675 6
+DESIGN.md
+  s_dfef31332a2526::t_524ebf5ff4c542 95
+  s_dfef31332a2526::t_891f34726372e2 238
+  s_dfef31332a2526::t_c41a5965fc6b65 179-180
+  s_dfef31332a2526::t_eb79e918c9f214 1-11,14,16,20-22,24-28,31-94,96-117,119-125,127-133,135-137,139-141,143-155,158-178,181-192,194-196,198,200-202,204-208,210-237,239-271
+  s_dfef31332a2526::t_768405ca6f9953 118,126
+  s_dfef31332a2526::t_e73af0e7cd5cef 193,197,199,203
+  s_dfef31332a2526::t_1e07b42fd8c955 138,142
+  s_dfef31332a2526::t_c78fbd2218443a 209
+  s_dfef31332a2526::t_c136481e38c334 29-30
+  s_dfef31332a2526::t_1874a6c5bd8d42 134
+  s_dfef31332a2526::t_3f290622abfec3 13
+  s_dfef31332a2526::t_44d9ba75ce3e24 12,15,17-19,23
+  s_dfef31332a2526::t_0b0a47073b0d0e 156-157
+desktop/src/components/beui/shared-layout-bg.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-149
+.impeccable/design.json
+  s_dfef31332a2526::t_d234ae132d5b3c 130
+  s_dfef31332a2526::t_cf5bf8c57c4876 328-332
+  s_dfef31332a2526::t_c529cb1528ba2c 348
+  s_dfef31332a2526::t_106b5871f3fc96 40
+  s_dfef31332a2526::t_c78d7e6037d5f4 225,247,255,271,278
+  s_dfef31332a2526::t_8de35556ea67c2 168-169,177-179
+  s_dfef31332a2526::t_3419c2b70e4081 1-9,11,20-39,41-99,101-114,116-129,131-167,170-176,180-224,226-246,248-254,256-270,272-277,279-312,318-327,333-347,349-361
+  s_dfef31332a2526::t_79fe5731b35364 100
+  s_dfef31332a2526::t_d62e2045eb0064 10,12-19
+  s_dfef31332a2526::t_9d080774e4101d 313-317
+  s_dfef31332a2526::t_54f1d6ffd191cf 115
+desktop/src/components/beui/button/metallic.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-98
+desktop/index.html
+  s_dfef31332a2526::t_71366bb83346dd 7-8
+AGENTS.md
+  s_dfef31332a2526::t_88b3fb0c9e7330 16,25
+desktop/src/screens/Library.tsx
+  s_dfef31332a2526::t_a99fa3a9083a4c 258
+  s_dfef31332a2526::t_7ced03d49640d1 234
+  s_dfef31332a2526::t_dcf3a094997047 6
+  s_dfef31332a2526::t_8b72bea2f5bbf9 4,7-13,28-34,38-42,47-49,74-75,77-96,99-106,108,115,117-121,128-135,137,144,152-158,160-164,171-185,188,194,225,231-233,235-246,248-257,259-270,272,274-296,298
+desktop/src/components/beui/button/magnetic.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-23
+desktop/src/components/beui/action-swap.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-338
+PRODUCT.md
+  s_dfef31332a2526::t_49f38b6984aa08 1-58
+desktop/src/components/beui/button/base.tsx
+  s_dfef31332a2526::t_498bf500439b4a 46,54
+  s_dfef31332a2526::t_bca91f731a864e 1-45,47-53,55-187
+desktop/src/components/beui/button/stateful.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-235
+desktop/src/components/beui/tabs.tsx
+  s_dfef31332a2526::t_0c9fc5a2309f2d 282,327
+  s_dfef31332a2526::t_bca91f731a864e 1-281,283-326,328-373
+desktop/src/components/beui/theme-toggle.tsx
+  s_dfef31332a2526::t_d24703a3fc671f 4
+  s_dfef31332a2526::t_bca91f731a864e 1-3,5-210
+desktop/src/lib/hooks/use-touch-capable.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-29
+desktop/src/components/beui/animated-toast-stack.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-505
+desktop/src/components/beui/command-palette.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-363
+desktop/src/screens/Reader.tsx
+  s_dfef31332a2526::t_eb19b5a201d0bc 5-12,25-26,28-32,69-70,78,84,89,99-101,103,132,138,145,164-175,207,213,223-226,241,243,245,247,254-255,340-344,410-412,415,418-428,430-438,441-497,499-531,533-547,553-583,585-590,592-604,607-613,619-630,632-633,635-644,651-660
+  s_dfef31332a2526::t_61d15382e3606a 548-552
+  s_dfef31332a2526::t_d2cb841c490b27 79-81
+  s_dfef31332a2526::t_0cfe20142049a3 106-122,130
+  s_dfef31332a2526::t_df8f06f21df3ac 385-392
+  s_dfef31332a2526::t_bcdfd4dc1ff16f 532
+  s_dfef31332a2526::t_60ba053e592055 614-618
+  s_dfef31332a2526::t_80aed3d584853e 645-650
+  s_dfef31332a2526::t_b9e7946306a99a 40-62
+  s_dfef31332a2526::t_2fe635fa2f0577 417
+  s_dfef31332a2526::t_8656c2e1f1f129 409
+  s_dfef31332a2526::t_0d4a5c3ba4cdc1 584,591
+desktop/src/screens/Detail.tsx
+  s_dfef31332a2526::t_da1353ea527cc8 84-94
+  s_dfef31332a2526::t_96a49ff196fe11 223
+  s_dfef31332a2526::t_85047e68cf8d52 3-5,8-9,11-21,37,48-62,68,80-83,95-107,109-124,126-138,140-144,146-163,165-169,171-188,191,193-203,205-219,222,224-227,229-231,233-235,239-259
+  s_dfef31332a2526::t_474848d352ce67 125
+  s_dfef31332a2526::t_f8724c8b597303 10
+  s_dfef31332a2526::t_ad1ea8fa8aa729 39-42
+  s_dfef31332a2526::t_ca137a8ace4003 38,46,63-67,73
+desktop/src/lib/touch.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-117
+desktop/src/lib/scroll-container.ts
+  s_dfef31332a2526::t_34daf8efa16704 1-9
+desktop/src/lib/command-search.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-59
+desktop/src/screens/Sources.tsx
+  s_dfef31332a2526::t_66b2f6ce84757e 2,6,8-20,32-33,41,68-70,91-95,103-105,125-126,133-134,136-145,147-149,151-154,156,159-164,166,169-183,186-199,204-212,217-227
+  s_dfef31332a2526::t_a03efe53af978b 7
+  s_dfef31332a2526::t_77dfa764795519 229-261
+desktop/src/lib/hooks/use-row-cursor.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-84
+desktop/tsconfig.json
+  s_dfef31332a2526::t_d5c4905b8b2156 3,5
+  s_dfef31332a2526::t_eadee2a9e552ee 21-25
+desktop/src/lib/hooks/use-hover-capable.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-21
+desktop/src/components/beui/animated-badge.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-213
+desktop/src/screens/Downloads.tsx
+  s_dfef31332a2526::t_4f7b6c46959f4d 149
+  s_dfef31332a2526::t_8333b950cefc8b 45-51
+  s_dfef31332a2526::t_75872b8830ec66 159
+  s_dfef31332a2526::t_c164af7fad3089 3,15-27,37-42,56,63-64,94-110,112-119,121,150-158,161-179,182-189,191-194
+desktop/src/components/toast.tsx
+  s_dfef31332a2526::t_d97c3ae6cf9908 1-53
+desktop/src/components/command-menu.tsx
+  s_dfef31332a2526::t_2774347aa4e565 1-55
+desktop/src/components/shell.tsx
+  s_dfef31332a2526::t_14e661818b3799 1,4,12-24,41-44,58-70,73-87,92,98-99,102,108,110,114,117,119-121,124-133,137-161,165-168,170-178,181-192,201-202
+  s_dfef31332a2526::t_00330a7685ec9e 8
+  s_dfef31332a2526::t_9da0a296d6eb57 220
+  s_dfef31332a2526::t_c89ec73ea35c9b 49
+  s_dfef31332a2526::t_47a461f8bd44fe 89-91,93-96
+  s_dfef31332a2526::t_ded3b4769bd492 263
+  s_dfef31332a2526::t_b6b1997f469187 2-3,5-7,9-11,25-40,45-48,50-57,71-72,88,97,100-101,103-107,109,111-113,115-116,118,122-123,134-136,162-164,169,179-180,193-200,203-219,221-262,264-308
+desktop/src/components/beui/animated-sidebar.tsx
+  s_dfef31332a2526::t_148cc5a4476a2b 1-1172
+desktop/src/components/beui/expandable-action-bar.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-412
+desktop/package-lock.json
+  s_dfef31332a2526::t_b6b73fa7089bee 3,9,11-12,21-24,27-29,1000-1024,1451-1707,2426-2434,2525-2533,2548-2560,2671-2693,2719-2724,2745-2753,2838-3117,3128-3142,3169-3205,3554-3582,3673-3677
+desktop/src/components/beui/magnetic.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-48
+desktop/src/components/beui/scroll-progress.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-127
+desktop/src/lib/ease.ts
+  s_dfef31332a2526::t_cdc0627e0035b9 4-8,10-11,13-19,21-27,29-35,37-43,45-50,53-57
+  s_dfef31332a2526::t_3fc13271acff0b 1-3,9,12,20,28,36,44,51-52
+desktop/src/App.tsx
+  s_dfef31332a2526::t_f549a5a25d31fc 1-2,9-12,23-48
+desktop/scripts/fetch-beui.mjs
+  s_dfef31332a2526::t_d55cfff1dc9964 133,135-136
+  s_dfef31332a2526::t_0bcc7957b33299 3,5-15,17-35,37-44,47-57,66-70,74-76,99-115,118,121-129,131,134,137-139
+  s_dfef31332a2526::t_7cb1f3a0d9daab 81-82,87-96
+  s_dfef31332a2526::t_c3ddc438dc29f6 1-2,4,16,58-65,71-73,77-78,116-117,119-120,140
+  s_dfef31332a2526::t_799b74341173a8 79-80,83-86,97-98
+  s_dfef31332a2526::t_af270bbe3a0cd6 36
+  s_dfef31332a2526::t_a1815bd6494998 130,132
+  s_dfef31332a2526::t_a03ea9fa0b57be 45-46
+desktop/src/test-setup.ts
+  s_dfef31332a2526::t_2eeb66dd75ef20 1-46
+desktop/src/lib/hooks/use-on-open.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-22
+desktop/src/lib/hooks/use-tap-gesture.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-64
+desktop/src/lib/sources.ts
+  s_dfef31332a2526::t_0c562b33e748d3 1-21
+desktop/src/components/beui/switch.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-94
+docs/agents/frontend.md
+  s_dfef31332a2526::t_dce3de1892780e 1-41,43-47,49-50
+  s_dfef31332a2526::t_f54855755d42f5 42,48,51
+desktop/.gitignore
+  s_dfef31332a2526::t_2710b48ed54207 37-39
+desktop/src/components/ui.tsx
+  s_dfef31332a2526::t_e031b0de4e3531 218-219
+  s_dfef31332a2526::t_ec910c3f5ebde5 262-263
+  s_dfef31332a2526::t_9b34774407d63f 91,102,104-110,114
+  s_dfef31332a2526::t_4c6826626a07d9 4,6,8,10,14-15,18-29,31,33-42,48,53,55,57-58,60-72,78-84,93,95-96,99-100,103,111-113,115,122-126,128-139,143,154,164,167-169,171-174,176-179,181-217,220-225,231-260,264,271-277,280,282-283,285-294,299-343,345,347-348,351-352,355-363,367,369-374,376-380,385
+  s_dfef31332a2526::t_d3b44d1f978ac3 3,7,9
+  s_dfef31332a2526::t_52da691e5128b2 382,384,386
+  s_dfef31332a2526::t_bd801093abccaf 59
+  s_dfef31332a2526::t_ad2a789123cf30 127
+  s_dfef31332a2526::t_e851fe83afd97a 170,175
+  s_dfef31332a2526::t_283a6926eea70c 30,32
+  s_dfef31332a2526::t_0f07d6a06d3b5c 11
+desktop/src/lib/hooks/use-dismiss.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-118
+desktop/src/components/beui/button/index.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-13
+desktop/src/components/beui/scroll-reveal.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-60
+desktop/src/lib/presence-gate.tsx
+  s_dfef31332a2526::t_3fc13271acff0b 1-50
+desktop/src/components/beui/smooth-scroll.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-264
+desktop/src/lib/nav.ts
+  s_dfef31332a2526::t_3200c4032a4c56 1-16
+desktop/src/styles/beui.css
+  s_dfef31332a2526::t_7fc950e1d27b37 48
+  s_dfef31332a2526::t_5534c9c4f705a4 23,25-28,32
+  s_dfef31332a2526::t_042b0c38125fac 1-16,18-22,24,29-31,33-47,49-194,196
+  s_dfef31332a2526::t_bc623ba4576a69 195,197-211
+  s_dfef31332a2526::t_a644f7e21d4bd0 17
+desktop/src/screens/Settings.tsx
+  s_dfef31332a2526::t_0e29e9b625d6cd 4,12
+  s_dfef31332a2526::t_10243455ef042d 342,344-345,348-353
+  s_dfef31332a2526::t_45e211a8c22d81 1,5-11,13,25-33,36-44,72,81-83,93-96,188-191,254-256,328,332,335-336,340-341,343,346,357-390,392-430,432-441,443-464,466,468-474,477-481,483,486-490,493-495,497-509,511,513-522,524-538,540-565
+desktop/src/lib/utils.ts
+  s_dfef31332a2526::t_3fc13271acff0b 1-2,5
+  s_dfef31332a2526::t_41304dc3d2d24c 3-4,6
+desktop/src/components/ProxyImage.tsx
+  s_dfef31332a2526::t_99e1f4146d2695 7,17-21,27-28,31,36,40,58-64,81-82
+  s_dfef31332a2526::t_f01f66e3b86625 51-56
+  s_dfef31332a2526::t_f67419463c0f69 83
+  s_dfef31332a2526::t_07d32f45eb45df 29-30
+desktop/src/lib/theme.tsx
+  s_dfef31332a2526::t_3d638c485d7aeb 1-69
+desktop/src/components/beui/tilt-card.tsx
+  s_dfef31332a2526::t_bca91f731a864e 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "3d6157dd2e424ea38f8febf3d9e18d619d5511b0",
+  "prompts": {},
+  "sessions": {
+    "s_28ff8cce8cf016": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_8425ec76-1254-4d3a-88c7-a067bb87728a",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_dfef31332a2526": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_1d2e4193-b6eb-4cf1-ba95-691f2729a1d1",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
