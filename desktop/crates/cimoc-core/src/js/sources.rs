@@ -6,6 +6,7 @@ const MANGADEX_JS: &str = include_str!("sources/mangadex.js");
 const COMYMANGA_JS: &str = include_str!("sources/copymanga.js");
 const DONGMAN_JS: &str = include_str!("sources/dongman.js");
 const MANHUAGUI_JS: &str = include_str!("sources/manhuagui.js");
+const BAOZIMH_JS: &str = include_str!("sources/baozimh.js");
 
 /// debug 构建的源脚本目录：编译期烙入仓库路径（release 不烙）。
 #[cfg(debug_assertions)]
@@ -30,17 +31,19 @@ pub fn load(source: &str) -> Option<String> {
         "copymanga" => Some(COMYMANGA_JS.to_string()),
         "dongman" => Some(DONGMAN_JS.to_string()),
         "manhuagui" => Some(MANHUAGUI_JS.to_string()),
+        "baozimh" => Some(BAOZIMH_JS.to_string()),
         _ => None,
     }
 }
 
 /// 内置脚本对（sourceId, script）。
-pub fn bundled() -> [(&'static str, &'static str); 5] {
+pub fn bundled() -> [(&'static str, &'static str); 6] {
     [
         ("webtoons", WEBTOONS_JS),
         ("mangadex", MANGADEX_JS),
         ("copymanga", COMYMANGA_JS),
         ("dongman", DONGMAN_JS),
         ("manhuagui", MANHUAGUI_JS),
+        ("baozimh", BAOZIMH_JS),
     ]
 }

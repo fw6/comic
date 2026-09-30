@@ -11,6 +11,19 @@
 - 契约：`buildUrl(op,payload,ctx)` / `parse(op,input,ctx)` → JSON 字符串（见 `src/js/mod.rs`）。
 - Rust 侧保留网络/请求头/缓存（webtoons series URL、mangadex tags/章节 id、copymanga 章节 uuid、dongman viewer URL、manhuagui 仅请求头）与命令层。
 
+## 渲染源（隐藏 webview 通道，2026-09-30 起）
+
+- **JS 挑战 / 客户端环境校验型防护的源**（当前 baozimh）整源改经隐藏 webview 渲染通道取页面：
+  `crawler/render.rs` 的 `needed(source)` 声明、`script.rs::fetch` 分流、宿主（src-tauri）经
+  `render::set_fetcher` 注册实现；取回的渲染后 HTML 走与普通抓取相同的 parse 契约。
+- 未注册宿主（cimoc-core 单独跑测试）时 `fetch` 返回「渲染通道未注册」错误，由 `record_error`
+  呈现；`cargo test` 不依赖 webview。
+- baozimh 的章节中转链 URL 经 detail 解析的隐藏字段 `pageUrl` + `script::post_process` 入
+  `crawler/baozimh.rs` 进程内缓存（同 webtoons seriesUrl / dongman viewerUrl 形状），images 的
+  `build_ctx` 从缓存取；缓存未命中按空结果返回。
+- 真网验证用 `src-tauri/examples/render_probe.rs`（dump / crawl / chain 三种模式），设计细节与
+  踩坑见 `docs/research/webview-render-channel.md`。
+
 ## 命令 API 约定
 
 - 公开函数接收 `&str`、返回 JSON 字符串，无 uniffi 包装。

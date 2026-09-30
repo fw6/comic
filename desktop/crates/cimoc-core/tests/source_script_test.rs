@@ -9,6 +9,7 @@ const MANGADEX_JS: &str = include_str!("../src/js/sources/mangadex.js");
 const COMYMANGA_JS: &str = include_str!("../src/js/sources/copymanga.js");
 const DONGMAN_JS: &str = include_str!("../src/js/sources/dongman.js");
 const MANHUAGUI_JS: &str = include_str!("../src/js/sources/manhuagui.js");
+const BAOZIMH_JS: &str = include_str!("../src/js/sources/baozimh.js");
 
 const SEARCH_CARD: &str = include_str!("fixtures/search-card.html");
 const DETAIL_HTML: &str = include_str!("fixtures/detail.html");
@@ -27,6 +28,9 @@ const DONGMAN_VIEWER: &str = include_str!("fixtures/dongman-viewer.html");
 const MANHUAGUI_SEARCH: &str = include_str!("fixtures/manhuagui-search.html");
 const MANHUAGUI_DETAIL: &str = include_str!("fixtures/manhuagui-detail.html");
 const MANHUAGUI_CHAPTER: &str = include_str!("fixtures/manhuagui-chapter.html");
+const BAOZIMH_SEARCH: &str = include_str!("fixtures/baozimh-search.html");
+const BAOZIMH_DETAIL: &str = include_str!("fixtures/baozimh-detail.html");
+const BAOZIMH_CHAPTER: &str = include_str!("fixtures/baozimh-chapter.html");
 
 fn parse(script: &str, op: &str, input: &str, ctx: &str) -> serde_json::Value {
     let json = js::call(script, "parse", op, input, ctx).expect("parse 应成功");
@@ -421,6 +425,118 @@ fn manhuagui_chapter_parse_unpacks_packer() {
     );
 }
 
+// ---------- baozimh ----------
+
+#[test]
+fn baozimh_build_url() {
+    assert_eq!(
+        build_url(BAOZIMH_JS, "search", r#"{"keyword":"海贼"}"#, "{}"),
+        "https://cn.baozimh.com/search?q=%E6%B5%B7%E8%B4%BC"
+    );
+    assert_eq!(
+        build_url(BAOZIMH_JS, "category", r#"{"label":"热血"}"#, "{}"),
+        "https://cn.baozimh.com/classify?type=rexue&region=all&state=all&filter=%2a"
+    );
+    // 未知分类 → 空串（无可抓取）
+    assert!(build_url(BAOZIMH_JS, "category", r#"{"label":"未知"}"#, "{}").is_empty());
+    assert_eq!(
+        build_url(BAOZIMH_JS, "detail", r#"{"comicId":"baozimh-haizeiwang-x"}"#, "{}"),
+        "https://cn.baozimh.com/comic/haizeiwang-x"
+    );
+    // images：URL 来自 Rust 缓存的章节中转链（同 dongman viewerUrl 形状）
+    let page = "https://cn.baozimh.com/user/page_direct?comic_id=a_i1&section_slot=0&chapter_slot=0";
+    assert_eq!(
+        build_url(
+            BAOZIMH_JS,
+            "images",
+            r#"{"comicId":"baozimh-a","chapterIndex":1}"#,
+            &format!(r#"{{"pageUrl":"{page}"}}"#)
+        ),
+        page
+    );
+    // 缓存缺失 → 空串
+    assert!(build_url(BAOZIMH_JS, "images", r#"{"comicId":"baozimh-a","chapterIndex":1}"#, "{}").is_empty());
+}
+
+#[test]
+fn baozimh_categories_static() {
+    let v = parse(BAOZIMH_JS, "categories", "", "{}");
+    let cats = v.as_array().unwrap();
+    assert_eq!(cats.len(), 25);
+    assert!(cats.contains(&serde_json::Value::String("热血".into())));
+    assert!(cats.contains(&serde_json::Value::String("恋爱".into())));
+}
+
+#[test]
+fn baozimh_search_parse() {
+    let v = parse(BAOZIMH_JS, "search", BAOZIMH_SEARCH, "{}");
+    let comics = v.as_array().unwrap();
+    assert_eq!(comics.len(), 2);
+    let first = &comics[0];
+    assert_eq!(first["id"], "baozimh-haizeiwang-weitianrongyilang");
+    assert_eq!(first["title"], "海贼王");
+    // 作者在卡片第二个锚（comics-card__info）里
+    assert_eq!(first["author"], "尾田荣一郎");
+    assert_eq!(
+        first["cover"],
+        "https://static-tw.baozimh.com/cover/haizeiwang-weitianrongyilang.jpg?w=285&h=375&q=100"
+    );
+    assert_eq!(first["source"], "baozimh");
+    assert_eq!(comics[1]["id"], "baozimh-haizeiwangyellow-weitianrongyilang");
+    assert_eq!(comics[1]["title"], "海贼王yellow");
+}
+
+#[test]
+fn baozimh_detail_parse() {
+    let ctx = r#"{"comicId":"baozimh-haizeiwang-weitianrongyilang"}"#;
+    let v = parse(BAOZIMH_JS, "detail", BAOZIMH_DETAIL, ctx);
+    let comic = &v["comic"];
+    assert_eq!(comic["id"], "baozimh-haizeiwang-weitianrongyilang");
+    assert_eq!(comic["title"], "航海王");
+    assert_eq!(comic["author"], "尾田荣一郎");
+    assert!(comic["intro"].as_str().unwrap().contains("哥尔"));
+    assert_eq!(
+        comic["cover"],
+        "https://static-tw.baozimh.com/cover/hanghaiwang-weitianrongyilang.jpg?w=285&h=375&q=100"
+    );
+    assert_eq!(comic["status"], "serial");
+    // tag-list 首个 span 是状态，其余是地区/类型
+    assert_eq!(comic["tags"][0], "日本");
+    assert_eq!(comic["tags"][3], "热血");
+    // 「最新：」取章节锚文本（页头「最新上架」菜单不得干扰）
+    assert_eq!(comic["lastChapter"], "第1186话 再一次");
+
+    // 可见区（最新 3 话）与 chapters_other_list（全量）重复项去重后按槽位升序，index = 1 起序号
+    let chapters = v["chapters"].as_array().unwrap();
+    assert_eq!(chapters.len(), 5);
+    let indexes: Vec<f64> = chapters.iter().map(|c| c["index"].as_f64().unwrap()).collect();
+    assert_eq!(indexes, vec![1.0, 2.0, 3.0, 4.0, 5.0]);
+    assert_eq!(chapters[0]["title"], "第1话 ROMANCE DAWN 冒险的序幕");
+    assert_eq!(chapters[4]["title"], "第1186话 再一次");
+    // 隐藏字段 pageUrl（中转链完整 URL，Rust post_process 提取入缓存后剥离）
+    assert!(chapters[0]["pageUrl"]
+        .as_str()
+        .unwrap()
+        .starts_with("https://cn.baozimh.com/user/page_direct?comic_id=hanghaiwang-weitianrongyilang_i6wg8y"));
+    assert!(chapters[4]["pageUrl"].as_str().unwrap().contains("chapter_slot=1186"));
+}
+
+#[test]
+fn baozimh_chapter_parse() {
+    let v = parse(BAOZIMH_JS, "images", BAOZIMH_CHAPTER, "{}");
+    let urls = v.as_array().unwrap();
+    // noscript 备份图 / amp-state JSON / 重载按钮 URL 都不是 chapter-img，不会混入
+    assert_eq!(urls.len(), 3);
+    assert_eq!(
+        urls[0],
+        "https://s1.bzcdn.net/scomic/hanghaiwang-weitianrongyilang/0/24-3olw/1.jpg"
+    );
+    assert_eq!(
+        urls[2],
+        "https://s1.bzcdn.net/scomic/hanghaiwang-weitianrongyilang/0/24-3olw/3.jpg"
+    );
+}
+
 // ---------- 分发 ----------
 
 #[test]
@@ -468,4 +584,12 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     let cats = cimoc_core::crawl("categories", "manhuagui", "{}", MANHUAGUI_JS);
     assert!(cats.contains("热血"));
     assert_eq!(cimoc_core::crawl("search", "manhuagui", "{}", ""), "[]");
+    // baozimh：categories 静态输出走脚本；需抓取的 op 在无渲染通道宿主下报错并返回空结果
+    let cats = cimoc_core::crawl("categories", "baozimh", "{}", BAOZIMH_JS);
+    assert!(cats.contains("热血"));
+    assert_eq!(cimoc_core::crawl("search", "baozimh", "{}", ""), "[]");
+    let out = cimoc_core::crawl("search", "baozimh", r#"{"keyword":"海贼"}"#, BAOZIMH_JS);
+    assert_eq!(out, "[]");
+    let (msg, _) = cimoc_core::crawler::script::last_error("baozimh").expect("应记录源错误");
+    assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
 }

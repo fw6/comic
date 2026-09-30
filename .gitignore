@@ -15,3 +15,6 @@ dist/
 # TypeScript
 *.tsbuildinfo
 .zcode/
+
+# 探针中间产物（render_probe dump）
+desktop/.probe/

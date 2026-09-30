@@ -9,12 +9,14 @@
 //! 运行时脚本）；webtoons 的 cache_dump/cache_hydrate 与 mangadex 的 categories 为 Rust 侧
 //! 缓存/网络实现（不经脚本）。
 
+pub mod baozimh;
 pub mod copymanga;
 pub mod dongman;
 pub mod http;
 pub mod mangadex;
 pub mod manhuagui;
 pub mod models;
+pub mod render;
 pub mod script;
 pub mod webtoons;
 
@@ -43,6 +45,10 @@ pub fn crawl(op: &str, source: &str, payload: &str, script: &str) -> String {
             _ => "[]".into(),
         },
         "manhuagui" => match op {
+            _ if !script.is_empty() => script::run(op, source, payload, script),
+            _ => "[]".into(),
+        },
+        "baozimh" => match op {
             _ if !script.is_empty() => script::run(op, source, payload, script),
             _ => "[]".into(),
         },

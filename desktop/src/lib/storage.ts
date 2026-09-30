@@ -185,6 +185,7 @@ const SOURCE_NAMES: Record<string, string> = {
     copymanga: "Copymanga",
     dongman: "咚漫",
     manhuagui: "漫画柜",
+    baozimh: "包子漫画",
 };
 
 /**

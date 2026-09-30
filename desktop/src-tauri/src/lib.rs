@@ -9,6 +9,9 @@ use tauri::{Emitter, Manager};
 /// 本机图片代理（research #31 换代理：自用 + Android 优先）。
 mod img_proxy;
 
+/// 隐藏 webview 渲染通道（Cloudflare 防护源；pub 供 examples/render_probe 复用）。
+pub mod render;
+
 /// 图片代理缓存目录（setup 时解析 app cache dir 填充，代理线程里拿不到 AppHandle）。
 static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
 
@@ -383,10 +386,20 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
+        // 主窗口销毁时连带销毁隐藏渲染 webview，保持「关掉全部窗口即退出」的原有行为
+        .on_window_event(|window, event| {
+            if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
+                if let Some(rw) = window.app_handle().get_webview_window(render::RENDER_LABEL) {
+                    let _ = rw.destroy();
+                }
+            }
+        })
         .setup(|app| {
             if let Ok(dir) = app.path().app_cache_dir() {
                 let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
             }
+            // 渲染通道注册（cimoc-core 的渲染源 fetch 经隐藏 webview 取页面）
+            render::init(app.handle());
             // 本机图片代理（research #31 换代理）：绑定 127.0.0.1 随机端口，端口经
             // img_proxy_port 暴露给前端；取代自定义 scheme（Android 30s 拦截上限根因）。
             if let Ok((listener, port)) = img_proxy::bind_img_proxy() {

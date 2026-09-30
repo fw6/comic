@@ -11,7 +11,7 @@
 | **咚漫** dongmanmanhua.cn | ✅ 已接入 + 全链路真网验证通过 | 本机（数据中心 IP）搜索/详情/章节/图片全通，无风控 |
 | **漫画柜** manhuagui.com | ✅ 已接入；搜索/详情真网验证通过 | 图片链路（p.a.c.k.e.r 解包 → hamreus）需家用网络验证；数据中心 IP 被强反爬（首次可通，随后整站连接被拒） |
 | **漫画人** manhuaren.com | ⏸ 推迟 | 搜索/分类/详情头/阅读页图片已实测；**章节列表 DOM 对数据中心 IP 剥离**（详情页无任何章节容器），且开源参考（venera manhuaren.js）用的 `.chapteritem` 在当前 DM5 模板站已不存在——无法构建准确 fixture |
-| **包子漫画** baozimh | ❌ 放弃 | `cn.baozimh.com` 首页可开，但 search/classify/详情全部 301 → `tw.baozimh.com`（Cloudflare「Just a moment」），Rust 普通 http 客户端无法过 |
+| **包子漫画** baozimh | ✅ 已接入 + 全链路真网验证通过（2026-09-30，隐藏 webview 渲染通道） | 搜索 77 条 / 分类 37 条 / 详情 1187 章 / 章节图片（50 张）全通，正文见 `docs/research/webview-render-channel.md` |
 | **DM5** dm5.com | ❌ 放弃 | 与 manhuaren 同款 DM5 模板、同被剥离章节列表（详情页仅同类推荐链接） |
 | 看漫画/动漫之家/漫画岛/知漫画 | ❌ 已死/不可达 | 调研确认（2026-08-19） |
 | 哔哩哔哩漫画 | ❌ | 需登录 + DRM |
@@ -29,6 +29,10 @@
    漫画柜章节号即 URL 的 cid（可重建）→ 纯脚本侧，Rust 只留请求头。
 4. 加源时先探测「目标端点是否对本机 IP 剥离内容」——剥离的源（manhuaren/dm5）无法本机验证，
    只能在有住宅 IP 配合时接入。
+5. **「JS 挑战 / 客户端环境校验」型防护的源走隐藏 webview 渲染通道**（2026-09-30 起，见
+   `docs/research/webview-render-channel.md`）：不可见 webview 加载页面、等验证自动完成、取回
+   渲染后 HTML 走原有 parse 契约。包子漫画按此方案接入并经真网验证；此前因 Cloudflare 放弃的
+   候选源可重新评估。纯 IP 信誉封锁（copymanga 详情/漫画柜）不受影响，这类源仍看住宅 IP。
 
 ## 新增源清单（本次）
 

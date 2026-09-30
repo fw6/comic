@@ -3,7 +3,7 @@
 //! 网络/请求头/缓存驻留 Rust（grilling #11）：脚本只负责 URL 构造与解析；
 //! Rust 侧经 ctx 提供缓存派生值（webtoons seriesUrl、mangadex tagId/chapterId/feed）。
 
-use crate::crawler::http;
+use crate::crawler::{http, render};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
@@ -82,7 +82,11 @@ pub fn run(op: &str, source: &str, payload: &str, script: &str) -> String {
 }
 
 /// 抓取原始响应体（HTML 或 JSON 文本）；请求头按源/op（图片 op 带 Referer）。
+/// 渲染源（Cloudflare 防护，见 `render::needed`）整源改经隐藏 webview 渲染通道。
 fn fetch(source: &str, op: &str, url: &str, ctx: &str) -> Result<String, String> {
+    if render::needed(source) {
+        return render::fetch(url);
+    }
     match source {
         "webtoons" => {
             let base: Vec<(&str, &str)> = crate::crawler::webtoons::headers();
@@ -234,13 +238,39 @@ fn build_ctx(source: &str, op: &str, payload: &Value) -> String {
                 _ => "{}".to_string(),
             }
         }
+        "baozimh" => {
+            let comic_id = payload
+                .get("comicId")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            match op {
+                "detail" => serde_json::json!({ "comicId": comic_id }).to_string(),
+                "images" => {
+                    let idx = payload
+                        .get("chapterIndex")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(0.0) as i64;
+                    serde_json::json!({
+                        "pageUrl": crate::crawler::baozimh::page_url_for(&comic_id, idx).unwrap_or_default(),
+                    })
+                    .to_string()
+                }
+                _ => "{}".to_string(),
+            }
+        }
         _ => "{}".to_string(),
     }
 }
 
-/// 后处理：webtoons search/category 把列表项的隐藏 seriesUrl 提取进系列 URL 缓存并剥离
-/// （前端契约不变，缓存供 detail/images 的 URL 构造）。
+/// 后处理：
+/// - webtoons search/category 把列表项的隐藏 seriesUrl 提取进系列 URL 缓存并剥离
+///   （前端契约不变，缓存供 detail/images 的 URL 构造）；
+/// - baozimh detail 把每章隐藏字段 pageUrl（page_direct 中转链）提取进章节 URL 缓存并剥离。
 fn post_process(source: &str, op: &str, json: &str) -> String {
+    if source == "baozimh" && op == "detail" {
+        return cache_baozimh_chapters(json);
+    }
     if source != "webtoons" || (op != "search" && op != "category") {
         return json.to_string();
     }
@@ -276,6 +306,41 @@ fn empty_for(op: &str) -> String {
     }
 }
 
+/// baozimh detail 后处理：章节的 pageUrl 隐藏字段入缓存并剥离（前端契约不变）。
+fn cache_baozimh_chapters(json: &str) -> String {
+    let mut v: Value = match serde_json::from_str(json) {
+        Ok(v) => v,
+        Err(_) => return json.to_string(),
+    };
+    let comic_id = v
+        .pointer("/comic/id")
+        .and_then(|i| i.as_str())
+        .unwrap_or("")
+        .to_string();
+    let mut entries: Vec<(i64, String)> = Vec::new();
+    if let Some(chapters) = v.get_mut("chapters").and_then(|c| c.as_array_mut()) {
+        for ch in chapters.iter_mut() {
+            if let Some(obj) = ch.as_object_mut() {
+                let url = obj
+                    .remove("pageUrl")
+                    .and_then(|u| u.as_str().map(String::from));
+                if let (Some(url), Some(idx)) = (
+                    url,
+                    obj.get("index").and_then(|i| i.as_f64()),
+                ) {
+                    if !url.is_empty() {
+                        entries.push((idx as i64, url));
+                    }
+                }
+            }
+        }
+    }
+    if !comic_id.is_empty() {
+        crate::crawler::baozimh::cache_chapters(&comic_id, entries);
+    }
+    v.to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -304,6 +369,31 @@ mod tests {
     fn non_webtoons_passthrough() {
         let json = r#"[{"id":"mangadex-x","title":"Y"}]"#;
         assert_eq!(post_process("mangadex", "search", json), json);
+    }
+
+    #[test]
+    fn baozimh_detail_page_url_cached_and_stripped() {
+        let json = r#"{
+            "comic": {"id": "baozimh-haizeiwang-y", "title": "海贼王"},
+            "chapters": [
+                {"index": 1, "title": "第1话", "pageUrl": "https://cn.baozimh.com/user/page_direct?comic_id=a_i1&section_slot=0&chapter_slot=0"},
+                {"index": 2, "title": "第2话", "pageUrl": "https://cn.baozimh.com/user/page_direct?comic_id=a_i1&section_slot=0&chapter_slot=1"}
+            ]
+        }"#;
+        let out = post_process("baozimh", "detail", json);
+        let v: Value = serde_json::from_str(&out).unwrap();
+        // hidden field stripped so the frontend contract stays unchanged
+        assert!(v["chapters"][0].get("pageUrl").is_none());
+        assert_eq!(v["chapters"][0]["title"], "第1话");
+        // cached for the images ctx
+        assert!(crate::crawler::baozimh::page_url_for("baozimh-haizeiwang-y", 2)
+            .unwrap()
+            .contains("chapter_slot=1"));
+    }
+
+    #[test]
+    fn baozimh_post_process_passthrough_on_bad_json() {
+        assert_eq!(post_process("baozimh", "detail", "not json"), "not json");
     }
 
     #[test]
