@@ -1,0 +1,91 @@
+desktop/crates/cimoc-core/src/crawler/script.rs
+  s_af7e4968070a5e::t_e37f1a7a01dc51 6
+  s_af7e4968070a5e::t_5388bf4a032acd 85,87-89
+  s_af7e4968070a5e::t_a292c9745ded4c 241-261
+  s_af7e4968070a5e::t_17c92d6f0338bb 309-343
+  s_af7e4968070a5e::t_0c9e7613e900c4 266-269,271-273
+  s_af7e4968070a5e::t_c7daa13e307bdf 375-398
+desktop/crates/cimoc-core/src/crawler/mod.rs
+  s_af7e4968070a5e::t_6adbcb01b55979 51-54
+  s_af7e4968070a5e::t_651e4ca1bb7480 19
+  s_af7e4968070a5e::t_19f72fda85c0ac 12
+desktop/src-tauri/examples/render_probe.rs
+  s_af7e4968070a5e::t_06863aaa740fd8 1-7,10-62,64,66-69,89,91-96,98-101
+  s_af7e4968070a5e::t_8eb8027a0e0790 8-9,63,65,70-88,90,97,102-157
+desktop/Cargo.lock
+  s_af7e4968070a5e::t_536a7513bc510f 558
+desktop/crates/cimoc-core/src/js/sources.rs
+  s_af7e4968070a5e::t_3b9f6983bb906c 9
+  s_af7e4968070a5e::t_5fdabf31a4b640 34,40,47
+desktop/crates/cimoc-core/src/crawler/baozimh.rs
+  s_af7e4968070a5e::t_4c35a7fb77e7c4 1-66
+desktop/src/screens/Sources.tsx
+  s_af7e4968070a5e::t_794c19ef91ebc9 14
+docs/agents/cimoc-core.md
+  s_af7e4968070a5e::t_0071361085d09f 14-26
+docs/research/chinese-sources-landscape.md
+  s_af7e4968070a5e::t_07590fbaeab3f1 32-35
+  s_af7e4968070a5e::t_fa9a73ab619efa 14
+docs/agents/tauri-development.md
+  s_af7e4968070a5e::t_c02cc577733a0e 21-26,32-36
+desktop/crates/cimoc-core/src/crawler/render.rs
+  s_af7e4968070a5e::t_7746ace4930ae2 1-52
+desktop/crates/cimoc-core/tests/fixtures/baozimh-detail.html
+  s_af7e4968070a5e::t_f5f13a8ebd4105 1-41
+desktop/src/lib/storage.ts
+  s_af7e4968070a5e::t_319efee6088353 188
+.gitignore
+  s_af7e4968070a5e::t_564f2f786f0594 18-20
+docs/research/webview-render-channel.md
+  s_af7e4968070a5e::t_c27c9597ccae94 1-77
+CONTEXT.md
+  s_af7e4968070a5e::t_57de237c8cee1a 7-8
+  s_af7e4968070a5e::t_945504989375de 10
+desktop/crates/cimoc-core/tests/source_script_test.rs
+  s_af7e4968070a5e::t_43ab5d02bfae69 428-539
+  s_af7e4968070a5e::t_f732e46166368b 31-33
+  s_af7e4968070a5e::t_b6625593aaf099 587-594
+  s_af7e4968070a5e::t_51c55cc1af2388 12
+desktop/crates/cimoc-core/tests/fixtures/baozimh-chapter.html
+  s_af7e4968070a5e::t_121fafcc08f38f 1-34
+desktop/crates/cimoc-core/tests/fixtures/baozimh-search.html
+  s_af7e4968070a5e::t_b559e8858dade2 1-14
+desktop/src-tauri/src/lib.rs
+  s_af7e4968070a5e::t_2fb2bea29eb482 401-402
+  s_af7e4968070a5e::t_91e264124c052f 12-14
+  s_af7e4968070a5e::t_cab7fb20c3caa0 389-396
+desktop/crates/cimoc-core/src/js/sources/baozimh.js
+  s_af7e4968070a5e::t_f0a69209d8a6a1 364,366
+  s_af7e4968070a5e::t_acd2d5240f36a8 279-281
+  s_af7e4968070a5e::t_e518c7ea889577 227-229
+  s_af7e4968070a5e::t_5bf33af2ea4f7a 1-198,205-225,230-233,236,238-248,266-267,271,282-283,287,289,291-363,365,367-447
+  s_af7e4968070a5e::t_25b9f687f68a68 199-204,226,234-235,237,249-265,268-270,272-278,284-286,288,290
+desktop/crates/cimoc-core/src/js/sources/baozimh.test.js
+  s_af7e4968070a5e::t_d61f8e51ed46e1 1-114
+desktop/src-tauri/src/render.rs
+  s_af7e4968070a5e::t_d001b3aff9c74d 2-5,13-16,19-26,28-32,35-38,43-45,48-51,67-74,79,85-87,89-90,92-95,98-109,116-123,139-146,148-171,176,181-212
+  s_af7e4968070a5e::t_5509eaaff40903 1,6-12,17-18,27,33-34,76-78,80-84,96,124-138,172
+  s_af7e4968070a5e::t_a97d40bb29f8ff 39-42,46-47
+  s_af7e4968070a5e::t_b7d890fe5593cc 52,65-66,75,111-112,114-115
+  s_af7e4968070a5e::t_c0e567e614af4c 147
+  s_af7e4968070a5e::t_fa9cf0c5683102 88,91,97,113
+  s_af7e4968070a5e::t_d9f2808d34c8e9 53-58
+  s_af7e4968070a5e::t_82cad8403501a1 59-64,110
+  s_af7e4968070a5e::t_84f0765cc5bb9f 173-175,177-180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "35bc4f4012c1609b06b2f987ac0c28a32882648e",
+  "prompts": {},
+  "sessions": {
+    "s_af7e4968070a5e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_d8753bd7-d806-42d4-b58c-84bee4f8cba7",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
