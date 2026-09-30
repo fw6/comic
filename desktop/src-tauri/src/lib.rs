@@ -10,6 +10,11 @@ use tauri::{Emitter, Manager};
 mod img_proxy;
 
 /// 隐藏 webview 渲染通道（Cloudflare 防护源；pub 供 examples/render_probe 复用）。
+///
+/// 仅桌面端：隐藏副窗口用到的 `skip_taskbar` / `decorations` / `focused` 在 tauri 里
+/// 属于 `#[cfg(desktop)]` 的构建器方法，iOS / Android 上不存在；移动端不注册渲染通道，
+/// cimoc-core 会按既有路径返回「渲染通道未注册」。
+#[cfg(desktop)]
 pub mod render;
 
 /// 图片代理缓存目录（setup 时解析 app cache dir 填充，代理线程里拿不到 AppHandle）。
@@ -389,8 +394,13 @@ pub fn run() {
         // 主窗口销毁时连带销毁隐藏渲染 webview，保持「关掉全部窗口即退出」的原有行为
         .on_window_event(|window, event| {
             if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
-                if let Some(rw) = window.app_handle().get_webview_window(render::RENDER_LABEL) {
-                    let _ = rw.destroy();
+                #[cfg(desktop)]
+                {
+                    if let Some(rw) =
+                        window.app_handle().get_webview_window(render::RENDER_LABEL)
+                    {
+                        let _ = rw.destroy();
+                    }
                 }
             }
         })
@@ -398,7 +408,8 @@ pub fn run() {
             if let Ok(dir) = app.path().app_cache_dir() {
                 let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
             }
-            // 渲染通道注册（cimoc-core 的渲染源 fetch 经隐藏 webview 取页面）
+            // 渲染通道注册（cimoc-core 的渲染源 fetch 经隐藏 webview 取页面；仅桌面端）
+            #[cfg(desktop)]
             render::init(app.handle());
             // 本机图片代理（research #31 换代理）：绑定 127.0.0.1 随机端口，端口经
             // img_proxy_port 暴露给前端；取代自定义 scheme（Android 30s 拦截上限根因）。
