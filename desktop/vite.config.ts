@@ -1,12 +1,19 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
+
+  resolve: {
+    // beui 组件源码以 "@/lib/utils" 这类路径引用内部工具
+    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -34,6 +41,7 @@ export default defineConfig(async () => ({
   // 源脚本测试（#17 双轨的 JS 侧）：脚本在 cimoc-core/src/js/sources/，fixture 走 fs 读取）
   test: {
     environment: "jsdom",
+    setupFiles: ["src/test-setup.ts"],
     include: ["src/**/*.test.{ts,tsx}", "crates/cimoc-core/src/js/**/*.test.js"],
   },
 }));

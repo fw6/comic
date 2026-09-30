@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { initImgProxy, setImgProxyDownloadDir } from "./api";
 import { getSettings } from "./lib/storage";
-import "./index.css";
+import "./styles/beui.css";
 
 // 图片代理端口在渲染前取到：避免首屏封面/阅读页图片 URL 落在兜底值
 // （research #31 换代理：端口由 Rust 侧本机 HTTP 服务分配）。

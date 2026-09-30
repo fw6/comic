@@ -34,3 +34,6 @@ target
 src-tauri/gen
 # tauri android/ios 构建脚本需要的 CLI 入口（软链到 node_modules/.bin/tauri，生成物）
 src-tauri/tauri
+
+# 本地中间结果（构建/运行日志等）
+.scratch

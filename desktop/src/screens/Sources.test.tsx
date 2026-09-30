@@ -83,8 +83,8 @@ afterEach(() => {
 describe("Sources 书源 List 页面（tab 切换）", () => {
     it("挂载即加载分类 tab，默认加载第一个分类的列表", async () => {
         renderSources();
-        expect(await screen.findByRole("button", { name: "动作" })).toBeTruthy();
-        expect(screen.getByRole("button", { name: "恋爱" })).toBeTruthy();
+        expect(await screen.findByRole("tab", { name: "动作" })).toBeTruthy();
+        expect(screen.getByRole("tab", { name: "恋爱" })).toBeTruthy();
         await waitFor(() =>
             expect(mockedCrawl).toHaveBeenCalledWith("category", "mangadex", {
                 label: "动作",
@@ -95,8 +95,8 @@ describe("Sources 书源 List 页面（tab 切换）", () => {
 
     it("切换分类 tab 重新加载该分类列表", async () => {
         renderSources();
-        await screen.findByRole("button", { name: "恋爱" });
-        fireEvent.click(screen.getByRole("button", { name: "恋爱" }));
+        await screen.findByRole("tab", { name: "恋爱" });
+        fireEvent.click(screen.getByRole("tab", { name: "恋爱" }));
         await waitFor(() =>
             expect(mockedCrawl).toHaveBeenCalledWith("category", "mangadex", {
                 label: "恋爱",
@@ -107,8 +107,8 @@ describe("Sources 书源 List 页面（tab 切换）", () => {
 
     it("切换源 tab 重新加载该源的分类与列表", async () => {
         renderSources();
-        await screen.findByRole("button", { name: "动作" });
-        fireEvent.click(screen.getByRole("button", { name: "Webtoons" }));
+        await screen.findByRole("tab", { name: "动作" });
+        fireEvent.click(screen.getByRole("tab", { name: "Webtoons" }));
         await waitFor(() =>
             expect(mockedCrawl).toHaveBeenCalledWith("categories", "webtoons", {}),
         );
@@ -122,7 +122,7 @@ describe("Sources 书源 List 页面（tab 切换）", () => {
 
     it("搜索触发 search op，Webtoons 源搜索后回灌缓存", async () => {
         renderSources();
-        await screen.findByRole("button", { name: "动作" });
+        await screen.findByRole("tab", { name: "动作" });
         fireEvent.change(screen.getByPlaceholderText("搜索漫画标题…"), {
             target: { value: "海贼王" },
         });
@@ -148,8 +148,8 @@ describe("Sources 书源 List 页面（tab 切换）", () => {
             return Promise.resolve([]);
         });
         renderSources();
-        await screen.findByRole("button", { name: "动作" });
-        fireEvent.click(screen.getByRole("button", { name: "Webtoons" }));
+        await screen.findByRole("tab", { name: "动作" });
+        fireEvent.click(screen.getByRole("tab", { name: "Webtoons" }));
         await waitFor(() => expect(persistWebtoonsCache).toHaveBeenCalled());
     });
 

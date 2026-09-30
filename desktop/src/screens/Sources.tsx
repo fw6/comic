@@ -1,18 +1,23 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { crawl, sourceErrors, type Comic, type SourceError } from "../api";
 import { persistWebtoonsCache } from "../lib/storage";
 import { useIsMobile } from "../lib/platform";
-import { Banner, ComicCard, ComicRow, EmptyState } from "../components/ui";
-import { CloseIcon, SearchIcon } from "../components/icons";
-
-const SOURCES = [
-    { id: "mangadex", title: "MangaDex" },
-    { id: "webtoons", title: "Webtoons" },
-    { id: "copymanga", title: "Copymanga" },
-    { id: "dongman", title: "咚漫" },
-    { id: "manhuagui", title: "漫画柜" },
-    { id: "baozimh", title: "包子漫画" },
-];
+import { SOURCES } from "../lib/sources";
+import { cn } from "../lib/utils";
+import {
+    Banner,
+    ComicCard,
+    ComicRow,
+    EmptyState,
+    Loading,
+    PageHeader,
+    Tag,
+} from "../components/ui";
+import { Button } from "../components/beui/button";
+import { Tabs, TabsList, TabsTrigger } from "../components/beui/tabs";
+import { Input } from "../components/beui/input";
+import { Compass, Search } from "lucide-react";
 
 /** 当前列表要加载什么：分类浏览（label）或搜索（keyword）。 */
 interface ListRequest {
@@ -24,7 +29,8 @@ interface ListRequest {
 
 export default function Sources() {
     const mobile = useIsMobile();
-    const [source, setSource] = useState("mangadex");
+    const [params] = useSearchParams();
+    const [source, setSource] = useState(params.get("source") ?? SOURCES[0].id);
     const [categories, setCategories] = useState<string[]>([]);
     // 高亮的分类 tab（浏览模式）
     const [category, setCategory] = useState<string | null>(null);
@@ -32,7 +38,7 @@ export default function Sources() {
     const [inSearch, setInSearch] = useState(false);
     const [keyword, setKeyword] = useState("");
     const [request, setRequest] = useState<ListRequest>({
-        source: "mangadex",
+        source: params.get("source") ?? SOURCES[0].id,
         op: "category",
         category: null,
         keyword: "",
@@ -59,7 +65,9 @@ export default function Sources() {
             const first = cats[0] ?? null;
             setCategory(first);
             setRequest({ source, op: "category", category: first, keyword: "" });
-            const errs = await sourceErrors().catch((): Record<string, SourceError> => ({}));
+            const errs = await sourceErrors().catch(
+                (): Record<string, SourceError> => ({}),
+            );
             if (cancelled) return;
             setSourceErr(errs[source]?.message.split("\n")[0] ?? null);
         })();
@@ -80,7 +88,11 @@ export default function Sources() {
                     request.op === "search"
                         ? { keyword: request.keyword }
                         : { label: request.category };
-                const results = await crawl<Comic[]>(request.op, request.source, payload);
+                const results = await crawl<Comic[]>(
+                    request.op,
+                    request.source,
+                    payload,
+                );
                 if (seq !== listSeq.current) return;
                 setComics(results);
                 if (request.source === "webtoons") void persistWebtoonsCache();
@@ -88,7 +100,9 @@ export default function Sources() {
                 console.error("list failed", e);
             } finally {
                 if (seq !== listSeq.current) return;
-                const errs = await sourceErrors().catch((): Record<string, SourceError> => ({}));
+                const errs = await sourceErrors().catch(
+                    (): Record<string, SourceError> => ({}),
+                );
                 if (seq !== listSeq.current) return;
                 setSourceErr(errs[request.source]?.message.split("\n")[0] ?? null);
                 setLoading(false);
@@ -108,107 +122,143 @@ export default function Sources() {
         if (!kw) {
             // 空关键词 → 回到分类浏览
             setInSearch(false);
-            if (category) setRequest({ source, op: "category", category, keyword: "" });
+            if (category)
+                setRequest({ source, op: "category", category, keyword: "" });
             return;
         }
         setInSearch(true);
         setRequest({ source, op: "search", category: null, keyword: kw });
     }
 
-    return (
-        <div className="page">
-            <div className="page__head">
-                <div>
-                    <h1 className="page__title">书源</h1>
-                    <div className="page__sub">浏览各大漫画源，或搜索你喜欢的作品</div>
-                </div>
-            </div>
+    const isEmpty = !loading && comics.length === 0;
 
-            {/* 搜索栏（参考移动端风格） */}
-            <div className="searchbar">
-                <SearchIcon />
-                <input
+    return (
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
+            <PageHeader
+                title="书源"
+                sub="浏览各大漫画源，或搜索你喜欢的作品"
+                actions={
+                    <Tag tone="primary">
+                        {SOURCES.find((s) => s.id === source)?.title ?? source}
+                    </Tag>
+                }
+            />
+
+            <div className="mb-4 flex items-end gap-2">
+                <Input
+                    className="flex-1"
                     value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && onSearch()}
+                    onChange={setKeyword}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") onSearch();
+                    }}
                     placeholder="搜索漫画标题…"
+                    leftIcon={<Search className="size-4" />}
                     aria-label="搜索漫画标题"
                 />
-                {keyword && (
-                    <button
-                        className="searchbar__clear"
-                        onClick={() => setKeyword("")}
-                        aria-label="清空搜索"
-                    >
-                        <CloseIcon />
-                    </button>
-                )}
-                <button className="btn btn--primary btn--sm" onClick={onSearch} disabled={loading}>
+                <Button
+                    variant="primary"
+                    size="md"
+                    onClick={onSearch}
+                    disabled={loading}
+                >
                     {loading ? "加载中…" : "搜索"}
-                </button>
+                </Button>
             </div>
 
-            {/* 源 tab 条 */}
-            <div className="pill-row" aria-label="漫画源">
-                {SOURCES.map((s) => (
-                    <button
-                        key={s.id}
-                        aria-pressed={source === s.id}
-                        onClick={() => s.id !== source && setSource(s.id)}
-                        className={`pill ${source === s.id ? "pill--active" : ""}`}
-                    >
-                        {s.title}
-                    </button>
-                ))}
-            </div>
-
-            {/* 分类 tab 条 */}
-            {categories.length > 0 && (
-                <div className="pill-row" aria-label="分类">
-                    {categories.map((c) => (
-                        <button
-                            key={c}
-                            aria-pressed={!inSearch && category === c}
-                            onClick={() => selectCategory(c)}
-                            className={`pill ${!inSearch && category === c ? "pill--accent" : ""}`}
-                        >
-                            {c}
-                        </button>
+            {/* 源与分类（beui Tabs：弹簧滑块指示器） */}
+            <Tabs
+                value={source}
+                onValueChange={(v) => v !== source && setSource(v)}
+                variant="pill"
+                className="mb-2 w-full"
+            >
+                <TabsList className="max-w-full bg-card">
+                    {SOURCES.map((s) => (
+                        <TabsTrigger key={s.id} value={s.id}>
+                            {s.title}
+                        </TabsTrigger>
                     ))}
-                </div>
+                </TabsList>
+            </Tabs>
+
+            {categories.length > 0 && (
+                <Tabs
+                    value={inSearch ? "__search" : (category ?? "")}
+                    onValueChange={selectCategory}
+                    variant="segment"
+                    className="mb-5 w-full"
+                >
+                    <TabsList className="max-w-full bg-card">
+                        {categories.map((c) => (
+                            <TabsTrigger key={c} value={c}>
+                                {c}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
             )}
 
             {sourceErr && (
                 <Banner>
-                    加载失败：{sourceErr}（点「搜索」重试）
+                    加载失败：{sourceErr}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-2"
+                        onClick={onSearch}
+                    >
+                        重试
+                    </Button>
                 </Banner>
             )}
 
-            {/* 漫画列表：桌面网格卡片 / 移动端列表行（参考图风格） */}
             {loading && comics.length === 0 ? (
-                <div className="spinner" />
-            ) : comics.length === 0 ? (
-                <EmptyState text={sourceErr ? "当前源暂不可用" : "暂无内容"} />
-            ) : mobile ? (
-                <div className="list">
-                    {comics.map((c, i) => (
-                        <ComicRow
-                            key={c.id}
-                            delay={Math.min(i * 28, 280)}
-                            to={`/comic/${c.source}/${encodeURIComponent(c.id)}`}
-                            cover={c.cover}
-                            title={c.title}
-                            subtitle={c.author || "未知作者"}
-                            tags={c.tags}
-                            chapterTag={c.lastChapter.replace(/^#/, "")}
-                        />
-                    ))}
-                </div>
+                <Loading label="正在读取列表" />
+            ) : isEmpty ? (
+                <EmptyState
+                    icon={<Compass className="size-7" />}
+                    text={sourceErr ? "当前源暂不可用" : "暂无内容"}
+                    hint={
+                        sourceErr
+                            ? "可以换一个源，或稍后再试"
+                            : "换一个分类，或搜索其它关键词"
+                    }
+                />
             ) : (
-                <div className="grid">
-                    {comics.map((c, i) => (
-                        <ComicCard key={c.id} comic={c} delay={Math.min(i * 30, 300)} />
-                    ))}
+                <div
+                    className={cn(
+                        "transition-opacity duration-200",
+                        loading && "pointer-events-none opacity-50",
+                    )}
+                    aria-busy={loading}
+                >
+                    {mobile ? (
+                        <div className="flex flex-col gap-2">
+                            {comics.map((c, i) => (
+                                <ComicRow
+                                    key={c.id}
+                                    delay={Math.min(i * 28, 280)}
+                                    to={`/comic/${c.source}/${encodeURIComponent(c.id)}`}
+                                    cover={c.cover}
+                                    title={c.title}
+                                    subtitle={c.author || "未知作者"}
+                                    tags={c.tags}
+                                    chapterTag={c.lastChapter.replace(/^#/, "")}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+                            {comics.map((c, i) => (
+                                <ComicCard
+                                    key={c.id}
+                                    comic={c}
+                                    delay={Math.min(i * 30, 300)}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

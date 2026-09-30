@@ -1,0 +1,361 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-30T23:10:00+08:00",
+  "title": "Design System: Cimoc",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "信号蓝",
+        "canonical": "#0560c0",
+        "tonalRamp": [
+          "oklch(15% 0.07 256)",
+          "oklch(27% 0.11 256)",
+          "oklch(38% 0.15 256)",
+          "oklch(44% 0.16 256)",
+          "oklch(50% 0.17 256)",
+          "oklch(65% 0.16 256)",
+          "oklch(80% 0.13 256)",
+          "oklch(92% 0.07 256)"
+        ]
+      },
+      "primary-dark": {
+        "role": "primary",
+        "displayName": "信号蓝（深色主题）",
+        "canonical": "#2f9dff",
+        "tonalRamp": [
+          "oklch(20% 0.08 249)",
+          "oklch(32% 0.12 249)",
+          "oklch(45% 0.16 249)",
+          "oklch(58% 0.18 249)",
+          "oklch(70% 0.19 249)",
+          "oklch(80% 0.16 249)",
+          "oklch(88% 0.12 249)",
+          "oklch(96% 0.06 249)"
+        ]
+      },
+      "accent-cyan": {
+        "role": "secondary",
+        "displayName": "青绿焦点",
+        "canonical": "oklch(56% 0.15 195)",
+        "tonalRamp": [
+          "oklch(15% 0.07 195)",
+          "oklch(27% 0.11 195)",
+          "oklch(38% 0.15 195)",
+          "oklch(50% 0.17 195)",
+          "oklch(62% 0.18 195)",
+          "oklch(72% 0.18 195)",
+          "oklch(84% 0.13 195)",
+          "oklch(94% 0.07 195)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "墨黑",
+        "canonical": "oklch(15% 0 0)",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(62% 0 0)",
+          "oklch(74% 0 0)",
+          "oklch(86% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "纸白",
+        "canonical": "oklch(99% 0 0)",
+        "tonalRamp": [
+          "oklch(18% 0 0)",
+          "oklch(30% 0 0)",
+          "oklch(42% 0 0)",
+          "oklch(55% 0 0)",
+          "oklch(68% 0 0)",
+          "oklch(80% 0 0)",
+          "oklch(91% 0 0)",
+          "oklch(99% 0 0)"
+        ]
+      },
+      "background-dark": {
+        "role": "neutral",
+        "displayName": "夜间底",
+        "canonical": "#151515",
+        "tonalRamp": [
+          "#151515",
+          "#1c1c1c",
+          "#232323",
+          "#2f2f2f",
+          "#454545",
+          "#6b6b6b",
+          "#a3a3a3",
+          "#f5f5f5"
+        ]
+      },
+      "destructive": {
+        "role": "tertiary",
+        "displayName": "危险红",
+        "canonical": "oklch(52% 0.2 25)",
+        "tonalRamp": [
+          "oklch(15% 0.08 25)",
+          "oklch(27% 0.13 25)",
+          "oklch(38% 0.18 25)",
+          "oklch(50% 0.21 25)",
+          "oklch(62% 0.22 25)",
+          "oklch(74% 0.18 25)",
+          "oklch(86% 0.12 25)",
+          "oklch(95% 0.06 25)"
+        ]
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "完成绿",
+        "canonical": "oklch(48% 0.16 155)",
+        "tonalRamp": [
+          "oklch(15% 0.07 155)",
+          "oklch(27% 0.11 155)",
+          "oklch(38% 0.15 155)",
+          "oklch(50% 0.17 155)",
+          "oklch(62% 0.18 155)",
+          "oklch(70% 0.18 155)",
+          "oklch(84% 0.13 155)",
+          "oklch(94% 0.07 155)"
+        ]
+      },
+      "warning": {
+        "role": "tertiary",
+        "displayName": "警示琥珀",
+        "canonical": "oklch(52% 0.16 75)",
+        "tonalRamp": [
+          "oklch(15% 0.06 75)",
+          "oklch(28% 0.1 75)",
+          "oklch(40% 0.14 75)",
+          "oklch(52% 0.17 75)",
+          "oklch(65% 0.18 75)",
+          "oklch(78% 0.18 75)",
+          "oklch(88% 0.13 75)",
+          "oklch(96% 0.07 75)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "页面标题",
+        "purpose": "每个页面唯一的一处标题，24px / 600。"
+      },
+      "title": {
+        "displayName": "面板与卡片标题",
+        "purpose": "14px / 600，用于面板头、列表行主标题、卡片标题。"
+      },
+      "body": {
+        "displayName": "正文",
+        "purpose": "14px / 400，简介与说明文字。"
+      },
+      "label": {
+        "displayName": "标签",
+        "purpose": "12px / 500，作者名、时间、计数等次级信息。"
+      },
+      "mono": {
+        "displayName": "等宽",
+        "purpose": "12px，版本号、文件路径、章节 URL。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "glass",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "真的浮在内容之上的面板：命令面板、阅读器操作栏、轻提示。配 backdrop-blur 时确实透出下方内容。"
+      },
+      {
+        "name": "lift",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "封面悬停时浮起。"
+      },
+      {
+        "name": "none",
+        "value": "none",
+        "purpose": "页面级顶栏、底栏、阅读器栏一律实底 --background 加 1px 分隔线，不加阴影也不加模糊。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "一次性进场与退场，例如滚动进入视口的显示。"
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "已经在屏幕上的对象在两个位置之间移动。"
+      },
+      {
+        "name": "spring-press",
+        "value": "spring(stiffness 500, damping 30, mass 0.6)",
+        "purpose": "按钮与可按压表面的按压反馈（悬停 1.02、按下 0.93）。"
+      },
+      {
+        "name": "spring-layout",
+        "value": "spring(stiffness 360, damping 32, mass 0.6)",
+        "purpose": "导航高亮、标签页指示器、共享布局在位置之间滑动。"
+      },
+      {
+        "name": "spring-panel",
+        "value": "spring(stiffness 420, damping 40, mass 0.5)",
+        "purpose": "浮层、抽屉、列表项展开。"
+      },
+      {
+        "name": "spring-glide",
+        "value": "spring(stiffness 700, damping 50, mass 0.5)",
+        "purpose": "跟手拖动与进度填充，临界阻尼不回弹。"
+      }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "主按钮",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "一屏只出现一次的主操作：继续阅读、搜索、立即备份。",
+      "html": "<button class=\"ds-btn-primary\">继续阅读 第 14 话</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 20px; border: none; border-radius: 9999px; background: var(--color-primary, #0560c0); color: var(--color-primary-foreground, #fff); font: 500 14px/1 ui-sans-serif, system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { background: color-mix(in oklab, var(--color-primary, #0560c0) 90%, black); transform: scale(1.02); } .ds-btn-primary:active { transform: scale(0.93); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-ring, oklch(72% 0.18 195)); outline-offset: 2px; }"
+    },
+    {
+      "name": "次按钮",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "次一级动作：重试、恢复、选择文件夹。",
+      "html": "<button class=\"ds-btn-secondary\">重试</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 9999px; border: 1px solid var(--color-border, rgb(0 0 0 / 0.08)); background: var(--color-card, oklch(97% 0 0)); color: var(--color-foreground, oklch(15% 0 0)); font: 500 12px/1 ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms cubic-bezier(0.16,1,0.3,1), background-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-secondary:hover { border-color: var(--color-border-strong, rgb(0 0 0 / 0.14)); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--color-ring, oklch(72% 0.18 195)); outline-offset: 2px; }"
+    },
+    {
+      "name": "图标按钮",
+      "kind": "button",
+      "description": "工具栏与阅读器操作栏里的图标动作，悬停才出现底色。",
+      "html": "<button class=\"ds-btn-icon\" aria-label=\"全屏\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M16 3h3a2 2 0 0 1 2 2v3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/><path d=\"M8 21H5a2 2 0 0 1-2-2v-3\"/></svg></button>",
+      "css": ".ds-btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: none; border-radius: 8px; background: transparent; color: var(--color-muted-foreground, oklch(50% 0 0)); cursor: pointer; transition: background-color 150ms cubic-bezier(0.16,1,0.3,1), color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-icon:hover { background: color-mix(in oklab, var(--color-muted, oklch(95.5% 0 0)) 60%, transparent); color: var(--color-foreground, oklch(15% 0 0)); } .ds-btn-icon:active { transform: scale(0.96); } .ds-btn-icon:focus-visible { outline: 2px solid var(--color-ring, oklch(72% 0.18 195)); outline-offset: 2px; }"
+    },
+    {
+      "name": "源标签页",
+      "kind": "nav",
+      "description": "书源与分类的切换条；选中项用蓝色药丸标记，位置切换时滑动过渡。",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab-active\">MangaDex</button><button class=\"ds-tab\">Webtoons</button><button class=\"ds-tab\">Copymanga</button></div>",
+      "css": ".ds-tabs { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: 9999px; background: var(--color-card, oklch(97% 0 0)); } .ds-tab { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; height: 28px; padding: 0 14px; border: none; border-radius: 9999px; background: transparent; color: var(--color-muted-foreground, oklch(50% 0 0)); font: 500 14px/1 ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-tab:hover { color: var(--color-foreground, oklch(15% 0 0)); } .ds-tab-active { background: var(--color-primary, #0560c0); color: var(--color-primary-foreground, #fff); } .ds-tab-active:hover { color: var(--color-primary-foreground, #fff); } .ds-tab:focus-visible { outline: 2px solid var(--color-ring, oklch(72% 0.18 195)); outline-offset: 2px; }"
+    },
+    {
+      "name": "章节块",
+      "kind": "chip",
+      "refersTo": "chapter-tile",
+      "description": "详情页的章节入口；当前正在读的一话用蓝色底与描边标记。",
+      "html": "<a class=\"ds-chapter\" href=\"#\">Chapter 14</a><a class=\"ds-chapter ds-chapter-current\" href=\"#\">Chapter 15</a>",
+      "css": ".ds-chapter { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--color-border, rgb(0 0 0 / 0.08)); background: var(--color-card, oklch(97% 0 0)); color: var(--color-muted-foreground, oklch(50% 0 0)); font: 400 14px/1.3 ui-sans-serif, system-ui, sans-serif; text-decoration: none; transition: background-color 150ms cubic-bezier(0.16,1,0.3,1), color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-chapter:hover { background: color-mix(in oklab, var(--color-secondary, oklch(95% 0 0)) 60%, transparent); color: var(--color-foreground, oklch(15% 0 0)); } .ds-chapter-current { border-color: color-mix(in oklab, var(--color-primary, #0560c0) 50%, transparent); background: color-mix(in oklab, var(--color-primary, #0560c0) 12%, transparent); color: var(--color-foreground, oklch(15% 0 0)); }"
+    },
+    {
+      "name": "封面",
+      "kind": "card",
+      "refersTo": "cover",
+      "description": "2:3 的封面容器，加载前是脉动的灰底，失败时回退到首字。",
+      "html": "<div class=\"ds-cover\"><img class=\"ds-cover-img\" alt=\"封面\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 3'%3E%3Crect width='2' height='3' fill='%23d9d9d9'/%3E%3C/svg%3E\"></div>",
+      "css": ".ds-cover { position: relative; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 16px; border: 1px solid var(--color-border, rgb(0 0 0 / 0.08)); background: var(--color-muted, oklch(95.5% 0 0)); transition: box-shadow 300ms cubic-bezier(0.16,1,0.3,1); } .ds-cover:hover { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); } .ds-cover-img { width: 100%; height: 100%; object-fit: cover; display: block; }"
+    },
+    {
+      "name": "侧边栏导航项",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "桌面侧边栏的导航项，当前项用灰底滑动标记；折叠后只剩 16px 图标。",
+      "html": "<a class=\"ds-nav\" href=\"#\"><span class=\"ds-nav-icon\">◍</span>书源</a><a class=\"ds-nav ds-nav-active\" href=\"#\"><span class=\"ds-nav-icon\">◍</span>书架</a>",
+      "css": ".ds-nav { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: 12px; color: var(--color-muted-foreground, oklch(50% 0 0)); font: 400 14px/1 ui-sans-serif, system-ui, sans-serif; text-decoration: none; transition: color 150ms cubic-bezier(0.16,1,0.3,1), background-color 150ms cubic-bezier(0.16,1,0.3,1); } .ds-nav:hover { color: var(--color-foreground, oklch(15% 0 0)); } .ds-nav-active { background: var(--color-secondary, oklch(95% 0 0)); color: var(--color-foreground, oklch(15% 0 0)); font-weight: 500; } .ds-nav-active .ds-nav-icon { color: var(--color-primary, #0560c0); } .ds-nav-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; font-size: 12px; }"
+    },
+    {
+      "name": "状态徽章",
+      "kind": "chip",
+      "description": "下载任务与源状态；状态切换时图标滚动换位，加载态带呼吸。",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-badge-dot\"></span>下载中</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px; border-radius: 9999px; border: 1px solid color-mix(in oklab, var(--color-primary, #0560c0) 30%, transparent); background: color-mix(in oklab, var(--color-primary, #0560c0) 10%, transparent); color: var(--color-primary, #0560c0); font: 500 12px/1 ui-sans-serif, system-ui, sans-serif; white-space: nowrap; } .ds-badge-dot { width: 8px; height: 8px; border-radius: 9999px; background: currentColor; }"
+    },
+    {
+      "name": "轻提示",
+      "kind": "card",
+      "refersTo": "toast-surface",
+      "description": "底部居中的一次性反馈：已加入下载队列、章节已下载、源出错。",
+      "html": "<div class=\"ds-toast\"><span class=\"ds-toast-title\">已加入下载队列</span></div>",
+      "css": ".ds-toast { display: flex; align-items: center; gap: 10px; max-width: 24rem; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--color-border, rgb(0 0 0 / 0.08)); background: var(--color-popover, #fff); color: var(--color-foreground, oklch(15% 0 0)); box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); backdrop-filter: blur(16px); } .ds-toast-title { font: 500 14px/1.4 ui-sans-serif, system-ui, sans-serif; }"
+    },
+    {
+      "name": "阅读页单元",
+      "kind": "custom",
+      "description": "阅读器的签名组件：加载前用预估高度撑住布局，图片到达后释放预留高度、按自身比例撑开。",
+      "html": "<div class=\"ds-page\"><div class=\"ds-page-ph\"><span class=\"ds-page-dots\"></span><span class=\"ds-page-num\">第 12 页</span></div></div>",
+      "css": ".ds-page { min-height: 1008px; } .ds-page-ph { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 1008px; background: color-mix(in oklab, var(--color-muted, oklch(95.5% 0 0)) 40%, transparent); color: var(--color-muted-foreground, oklch(50% 0 0)); } .ds-page-num { font: 400 11px/1 ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; } .ds-page-dots { width: 18px; height: 6px; border-radius: 9999px; background: currentColor; opacity: 0.4; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "安静的取景框",
+    "overview": "阅读器是唯一的主角，界面是它的取景框。除阅读页之外的每一屏都保持中性：近白的底、低对比的分隔线、没有纹理的背景，让封面和页面成为画面里唯一有颜色的东西。控件带一点手感——按压回弹、指示器滑动、面板展开——但都不持续、不循环、不吸引注意力。配色只有一处声音：蓝色 primary 独占“当前项”和“主要动作”，其余全部落在灰阶上。它是操作型界面该有的做法，读者来这里是看漫画的，不是看界面的。深色是阅读场景的主力主题（夜间、长时间、暗环境），浅色作为对照保留同一套语义令牌。",
+    "keyCharacteristics": [
+      "中性灰阶底 + 单一蓝色强调，无渐变、无纹理、无彩色分区",
+      "圆角分三档：控件用全圆角药丸，卡片 12–16px，大面板 24px",
+      "深度靠色调分层（card 在 background 之上），不靠阴影",
+      "动效只在元素“移动位置”或“换内容”时出现，用弹簧曲线，进场位移 ≤12px",
+      "移动端（<768px）换用顶部玻璃栏 + 底部标签栏，桌面侧边栏可折叠成图标轨道"
+    ],
+    "rules": [
+      {
+        "name": "The One Voice Rule",
+        "body": "蓝色只用来标记“当前”和“主操作”，任何一屏里它的面积不超过 10%。它一旦变成装饰，读者就找不到真正需要点的地方。",
+        "section": "colors"
+      },
+      {
+        "name": "The Color Carries Meaning, Not Text Rule",
+        "body": "语义色负责图标、圆点、描边与底纹；需要成段文字时，文字用 --foreground，颜色留给它旁边的图标。状态徽章是唯一例外——它的文字短且必须能被颜色区分，所以浅色主题的语义色按「落在自身浅底上 ≥4.5:1」取深度。",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink, Not Gray Rule",
+        "body": "浅色主题的边框一律是半透明的墨（oklch(15% 0 0 / 0.08)），不是固定灰。深色主题对应半透明白。",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Weights Rule",
+        "body": "只有 400 和 600 两档字重。中间态用颜色（次级文字）区分，不用 500 去凑层级。",
+        "section": "typography"
+      },
+      {
+        "name": "The One Entrance Rule",
+        "body": "全站只有一种进场动效：滚动到视口时位移 12px、从 6px 模糊里显出，同排按列位错开 40ms 以内，once 只播一次。列表与网格共用它，不另立第二种。",
+        "section": "typography"
+      },
+      {
+        "name": "The Glass Over Content Rule",
+        "body": "模糊只在内容真的从它下方滚过时使用（阅读器栏、移动端顶栏/底栏、命令面板）。静止的卡片不配模糊。",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Declarer Rule",
+        "body": "一个表面要么有描边要么有阴影，不在静态状态下同时用两者；封面静止时只有 1px 描边，阴影留给悬停。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 用蓝色标记“当前项 + 主操作”，一屏不超过 10% 面积。",
+      "Do 让图片先占位再加载：容器先有预估高度，图片到达后才改变自身高度。",
+      "Do 用 card 底 + 1px 描边表达层级；需要浮起来时才加阴影。",
+      "Do 用弹簧曲线表达位置变化（360/32/0.6），一次性进场用 ease-out。",
+      "Do 让语义色去染图标与底纹，文字保持 --foreground。",
+      "Do 尊重 prefers-reduced-motion：位移与缩放降为不透明度变化。",
+      "Do 给滚动条、选区、焦点环、等宽数字都套上令牌。"
+    ],
+    "donts": [
+      "Don't 用渐变文字、彩色光晕阴影、border-left 彩条。",
+      "Don't 给静止的卡片同时加描边和阴影。",
+      "Don't 把玻璃模糊用在不会滚动的内容上。",
+      "Don't 用 emoji 或 Unicode 字符替代图标。",
+      "Don't 在中文界面里用非系统字体做正文。",
+      "Don't 引入第三种字重或第二个强调色。"
+    ]
+  }
+}

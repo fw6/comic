@@ -13,6 +13,7 @@ Cimoc 漫画阅读器桌面版 — Tauri v2（Rust 后端）+ React（Vite web �
 ## 约定（渐进式披露，按需阅读）
 
 - [Tauri / 桌面开发](docs/agents/tauri-development.md) — 处理任何 Tauri 任务前**必读** Tauri llms.txt；前端 HMR 工作流；图片加载 scheme 代理；同步命令/主线程坑
+- [前端 desktop/src](docs/agents/frontend.md) — Tailwind v4 + beui 组件（`scripts/fetch-beui.mjs` 拉取）、设计令牌位置、断点约定、阅读器分页策略、不用截图验证界面的方法
 - [Rust 核心 cimoc-core](docs/agents/cimoc-core.md) — 架构、运行时源脚本契约、命令 API 约定（`&str` → JSON）、测试
 - [构建环境](docs/agents/build-environment.md) — cargo 源（勿改）、workspace target/gitignore
 - [工程原则与优先级](docs/agents/principles.md) — 全局原则（`~/.zcode/AGENTS.md`）+ 冲突裁决（长期演进优先）
@@ -21,3 +22,4 @@ Cimoc 漫画阅读器桌面版 — Tauri v2（Rust 后端）+ React（Vite web �
 
 - [docs/](docs/) — wayfinder 决策地图、研究纪要（`docs/research/`）、ADR、issue 追踪约定（`docs/agents/issue-tracker.md`）
 - [CONTEXT.md](CONTEXT.md) — 领域术语表（无限滚动、外链章节过滤、进度自动记录等）
+- [PRODUCT.md](PRODUCT.md) / [DESIGN.md](DESIGN.md) — 产品事实与视觉设计系统（配色/字体/组件规范）

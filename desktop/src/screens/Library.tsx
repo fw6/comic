@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { open } from "@tauri-apps/plugin-dialog";
+import { AnimatePresence, motion } from "motion/react";
+import {
+    ChevronDown,
+    Clock,
+    Download,
+    FolderOpen,
+    HardDrive,
+    Heart,
+    History,
+} from "lucide-react";
 import {
     scanLocal,
     listDownloaded,
@@ -15,29 +25,28 @@ import {
     getSettings,
     type HistoryRecord,
 } from "../lib/storage";
-import { ComicRow, EmptyState } from "../components/ui";
-import {
-    ClockIcon,
-    DownloadIcon,
-    FolderIcon,
-    HeartIcon,
-    ChevronDownIcon,
-} from "../components/icons";
+import { cn } from "../lib/utils";
+import { EASE_OUT, SPRING_PANEL } from "../lib/ease";
+import { sourceTitle } from "../lib/sources";
+import { ComicRow, EmptyState, Loading, PageHeader, Tag } from "../components/ui";
+import { Button } from "../components/beui/button";
+import { Tabs, TabsList, TabsTrigger } from "../components/beui/tabs";
+import { AnimatedBadge } from "../components/beui/animated-badge";
 
 type Tab = "history" | "favorites" | "downloads" | "local";
 
-const TABS: { id: Tab; label: string; icon: typeof ClockIcon }[] = [
-    { id: "history", label: "历史", icon: ClockIcon },
-    { id: "favorites", label: "收藏", icon: HeartIcon },
-    { id: "downloads", label: "下载", icon: DownloadIcon },
-    { id: "local", label: "本地", icon: FolderIcon },
+const TABS: { id: Tab; label: string; icon: typeof Clock }[] = [
+    { id: "history", label: "历史", icon: History },
+    { id: "favorites", label: "收藏", icon: Heart },
+    { id: "downloads", label: "下载", icon: Download },
+    { id: "local", label: "本地", icon: FolderOpen },
 ];
 
 export default function Library() {
     const [tab, setTab] = useState<Tab>("history");
-    const [history, setHistory] = useState<HistoryRecord[]>([]);
-    const [favorites, setFavorites] = useState<Comic[]>([]);
-    const [downloads, setDownloads] = useState<LocalComic[]>([]);
+    const [history, setHistory] = useState<HistoryRecord[] | null>(null);
+    const [favorites, setFavorites] = useState<Comic[] | null>(null);
+    const [downloads, setDownloads] = useState<LocalComic[] | null>(null);
     const [local, setLocal] = useState<LocalComic[]>([]);
     const [downloadDir, setDownloadDir] = useState<string | null>(null);
     const [lastScanDir, setLastScanDir] = useState<string | null>(null);
@@ -62,61 +71,77 @@ export default function Library() {
     }
 
     return (
-        <div className="page">
-            <div className="page__head">
-                <div>
-                    <h1 className="page__title">书架</h1>
-                    <div className="page__sub">你的阅读足迹、收藏与本地漫画</div>
-                </div>
-            </div>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
+            <PageHeader title="书架" sub="你的阅读足迹、收藏与本地漫画" />
 
-            <div className="segment" aria-label="书架分类" style={{ marginBottom: 24 }}>
-                {TABS.map((t) => {
-                    const Icon = t.icon;
-                    return (
-                        <button
-                            key={t.id}
-                            aria-pressed={tab === t.id}
-                            onClick={() => setTab(t.id)}
-                            className={`segment__item ${tab === t.id ? "segment__item--active" : ""}`}
-                        >
-                            <Icon />
-                            {t.label}
-                        </button>
-                    );
-                })}
-            </div>
+            <Tabs
+                value={tab}
+                onValueChange={(v) => setTab(v as Tab)}
+                variant="segment"
+                className="mb-5 w-full"
+            >
+                <TabsList className="bg-card">
+                    {TABS.map((t) => {
+                        const Icon = t.icon;
+                        return (
+                            <TabsTrigger key={t.id} value={t.id}>
+                                <span className="flex items-center gap-1.5">
+                                    <Icon className="size-3.5" />
+                                    {t.label}
+                                </span>
+                            </TabsTrigger>
+                        );
+                    })}
+                </TabsList>
+            </Tabs>
 
             {tab === "history" &&
-                (history.length === 0 ? (
-                    <EmptyState text="还没有阅读历史，去书源挑一部开始吧" icon={<ClockIcon />} />
+                (history === null ? (
+                    <Loading label="读取阅读历史" />
+                ) : history.length === 0 ? (
+                    <EmptyState
+                        icon={<History className="size-7" />}
+                        text="还没有阅读历史"
+                        hint="去书源挑一部开始阅读，进度会自动记录"
+                    />
                 ) : (
-                    <div className="list">
+                    <div className="flex flex-col gap-2">
                         {history.map((h) => (
                             <ComicRow
                                 key={comicKey(h.comic.source, h.comic.id)}
                                 to={`/reader/${h.comic.source}/${encodeURIComponent(h.comic.id)}/${h.chapterIndex}`}
                                 cover={h.comic.cover}
                                 title={h.comic.title}
-                                subtitle={h.comic.author}
+                                subtitle={h.comic.author || sourceTitle(h.comic.source)}
                                 meta={`读到第 ${h.chapterIndex} 话`}
+                                badge={
+                                    <AnimatedBadge status="info" size="sm">
+                                        第 {h.chapterIndex} 话
+                                    </AnimatedBadge>
+                                }
                             />
                         ))}
                     </div>
                 ))}
 
             {tab === "favorites" &&
-                (favorites.length === 0 ? (
-                    <EmptyState text="暂无收藏，去书源页收藏喜欢的漫画" icon={<HeartIcon />} />
+                (favorites === null ? (
+                    <Loading label="读取收藏" />
+                ) : favorites.length === 0 ? (
+                    <EmptyState
+                        icon={<Heart className="size-7" />}
+                        text="暂无收藏"
+                        hint="在漫画详情页点击收藏，之后会出现在这里"
+                    />
                 ) : (
-                    <div className="list">
+                    <div className="flex flex-col gap-2">
                         {favorites.map((c) => (
                             <ComicRow
                                 key={comicKey(c.source, c.id)}
                                 to={`/comic/${c.source}/${encodeURIComponent(c.id)}`}
                                 cover={c.cover}
                                 title={c.title}
-                                subtitle={c.author}
+                                subtitle={c.author || sourceTitle(c.source)}
                             />
                         ))}
                     </div>
@@ -124,32 +149,49 @@ export default function Library() {
 
             {tab === "downloads" &&
                 (downloadDir === null ? (
-                    <EmptyState text="下载目录不可用，请到「设置」中检查" icon={<DownloadIcon />} />
+                    <EmptyState
+                        icon={<Download className="size-7" />}
+                        text="下载目录不可用"
+                        hint="到「设置」里选择一个下载目录"
+                    />
+                ) : downloads === null ? (
+                    <Loading label="扫描下载目录" />
                 ) : downloads.length === 0 ? (
-                    <EmptyState text="还没有下载的漫画" icon={<DownloadIcon />} />
+                    <EmptyState
+                        icon={<Download className="size-7" />}
+                        text="还没有下载的漫画"
+                        hint="在线阅读时点「下载本话」即可离线保存"
+                    />
                 ) : (
                     <DirList dir={downloadDir} items={downloads} />
                 ))}
 
             {tab === "local" && (
                 <div>
-                    <button className="btn btn--ghost" onClick={pickLocalDir} style={{ marginBottom: 14 }}>
-                        <FolderIcon />
-                        {lastScanDir ? "重新选择文件夹…" : "选择文件夹扫描…"}
-                    </button>
-                    {lastScanDir && (
-                        <div style={{ color: "var(--fg-3)", fontSize: 12, marginBottom: 8 }}>
-                            {lastScanDir}
-                        </div>
-                    )}
+                    <div className="mb-4 flex flex-wrap items-center gap-3">
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            onClick={() => void pickLocalDir()}
+                        >
+                            <FolderOpen className="size-4" />
+                            {lastScanDir ? "重新选择文件夹…" : "选择文件夹扫描…"}
+                        </Button>
+                        {lastScanDir && (
+                            <span className="truncate font-mono text-xs text-muted-foreground">
+                                {lastScanDir}
+                            </span>
+                        )}
+                    </div>
                     {local.length === 0 ? (
                         <EmptyState
+                            icon={<HardDrive className="size-7" />}
                             text={
                                 lastScanDir
                                     ? "该文件夹没有已下载的漫画"
                                     : "选择包含已下载漫画的文件夹"
                             }
-                            icon={<FolderIcon />}
+                            hint="会按下载目录的结构识别漫画与章节"
                         />
                     ) : (
                         <DirList dir={lastScanDir!} items={local} />
@@ -180,60 +222,80 @@ function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
     }
 
     return (
-        <div className="list">
+        <div className="flex flex-col gap-2">
             {items.map((d) => {
                 const key = `${d.source}:${d.comicId}`;
                 const chs = chapters[key];
                 const isOpen = expanded === key;
                 return (
-                    <div key={key} className="row">
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <button
-                                onClick={() => void toggle(key, d)}
-                                style={{ width: "100%", textAlign: "left" }}
-                                aria-expanded={isOpen}
-                            >
-                                <div className="row__title">{d.comicId}</div>
-                                <div className="row__caption">
-                                    {d.source !== "local" ? `${d.source} · ` : ""}
-                                    {d.chapterCount} 话
-                                </div>
-                            </button>
-                            {isOpen && chs && (
-                                <ul
-                                    style={{
-                                        padding: "6px 0 2px",
-                                        listStyle: "none",
-                                        margin: 0,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        gap: 2,
-                                    }}
-                                >
-                                    {Object.entries(chs).map(([idx, pages]) => (
-                                        <li key={idx}>
-                                            <Link
-                                                to={`/local/${d.source}/${encodeURIComponent(d.comicId)}/${idx}`}
-                                                className="chapter-item"
-                                            >
-                                                <span className="chapter-item__title">
-                                                    第 {idx} 话（{pages.length} 页）
-                                                </span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                        <span
-                            className="row__chevron"
-                            style={{
-                                transform: isOpen ? "rotate(180deg)" : undefined,
-                                transition: "transform 0.2s var(--ease)",
-                            }}
+                    <div
+                        key={key}
+                        className={cn(
+                            "overflow-hidden rounded-lg border bg-card transition-colors",
+                            isOpen ? "border-primary/40" : "border-border",
+                        )}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => void toggle(key, d)}
+                            aria-expanded={isOpen}
+                            className="flex w-full items-center justify-between gap-3 p-3.5 text-left transition-colors hover:bg-secondary/50"
                         >
-                            <ChevronDownIcon />
-                        </span>
+                            <div className="min-w-0">
+                                <div className="truncate text-sm font-medium text-foreground">
+                                    {d.comicId}
+                                </div>
+                                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Tag>{sourceTitle(d.source)}</Tag>
+                                    <span>{d.chapterCount} 话</span>
+                                </div>
+                            </div>
+                            <motion.span
+                                animate={{ rotate: isOpen ? 180 : 0 }}
+                                transition={{ duration: 0.2, ease: EASE_OUT }}
+                                className="text-muted-foreground"
+                            >
+                                <ChevronDown className="size-4" />
+                            </motion.span>
+                        </button>
+                        <AnimatePresence initial={false}>
+                            {isOpen && (
+                                <motion.div
+                                    key="content"
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{
+                                        height: SPRING_PANEL,
+                                        opacity: { duration: 0.16, ease: EASE_OUT },
+                                    }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="flex flex-col gap-0.5 px-2.5 pb-2.5">
+                                        {chs === undefined ? (
+                                            <span className="px-2 py-2 text-xs text-muted-foreground">
+                                                读取章节…
+                                            </span>
+                                        ) : (
+                                            Object.entries(chs).map(
+                                                ([idx, pages]) => (
+                                                    <Link
+                                                        key={idx}
+                                                        to={`/local/${d.source}/${encodeURIComponent(d.comicId)}/${idx}`}
+                                                        className="flex items-center justify-between rounded-xl px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                                                    >
+                                                        <span>第 {idx} 话</span>
+                                                        <span className="text-xs">
+                                                            {pages.length} 页
+                                                        </span>
+                                                    </Link>
+                                                ),
+                                            )
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 );
             })}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Channel } from "@tauri-apps/api/core";
+import { Download, RotateCcw, Trash2 } from "lucide-react";
 import {
     cancelDownload,
     clearDownloads,
@@ -11,8 +12,19 @@ import {
     type DownloadStatus,
     type DownloadTaskView,
 } from "../api";
-import { EmptyState, ProgressBar } from "../components/ui";
-import { DownloadIcon, RefreshIcon } from "../components/icons";
+import {
+    EmptyState,
+    Loading,
+    PageHeader,
+    ProgressBar,
+    Tag,
+} from "../components/ui";
+import { Button } from "../components/beui/button";
+import {
+    AnimatedBadge,
+    type AnimatedBadgeStatus,
+} from "../components/beui/animated-badge";
+import { AnimatedNumber } from "../components/beui/animated-number";
 
 const STATUS_LABEL: Record<DownloadStatus, string> = {
     queued: "排队中",
@@ -22,24 +34,34 @@ const STATUS_LABEL: Record<DownloadStatus, string> = {
     cancelled: "已取消",
 };
 
-const STATUS_BADGE: Record<DownloadStatus, string> = {
-    queued: "badge--queued",
-    downloading: "badge--downloading",
-    done: "badge--done",
-    failed: "badge--failed",
-    cancelled: "badge--cancelled",
+const STATUS_BADGE: Record<DownloadStatus, AnimatedBadgeStatus> = {
+    queued: "neutral",
+    downloading: "loading",
+    done: "success",
+    failed: "danger",
+    cancelled: "warning",
+};
+
+/** 完成/取消两态在浅色主题下要用本仓库的语义色（beui 原生的 emerald/amber 偏亮）。 */
+const STATUS_BADGE_CLASS: Record<DownloadStatus, string> = {
+    queued: "",
+    downloading: "",
+    done: "text-success",
+    failed: "",
+    cancelled: "text-warning",
 };
 
 /** 下载任务队列页（wayfinder #20/#23）：订阅进度事件 + 快照，管理多任务下载。 */
 export default function Downloads() {
-    const [tasks, setTasks] = useState<DownloadTaskView[]>([]);
+    const [tasks, setTasks] = useState<DownloadTaskView[] | null>(null);
 
     // 订阅进度（Channel 存 Rust State，worker 推送；卸载时退订清理，grilling #23 #6）
     useEffect(() => {
         const channel = new Channel<DownloadProgress>();
         channel.onmessage = (p) => {
             setTasks((prev) =>
-                prev.map((t) => (t.taskId === p.taskId ? { ...t, ...p } : t)),
+                prev?.map((t) => (t.taskId === p.taskId ? { ...t, ...p } : t)) ??
+                null,
             );
         };
         void subscribeDownloads(channel);
@@ -69,24 +91,34 @@ export default function Downloads() {
     }
 
     return (
-        <div className="page">
-            <div className="page__head">
-                <div>
-                    <h1 className="page__title">下载</h1>
-                    <div className="page__sub">后台下载任务队列，随时掌握进度</div>
-                </div>
-                {tasks.length > 0 && (
-                    <button className="btn btn--ghost" onClick={() => void onClearFinished()}>
-                        <RefreshIcon />
-                        清空已完成
-                    </button>
-                )}
-            </div>
+        <div className="mx-auto w-full max-w-4xl px-4 py-6 md:px-8">
+            <PageHeader
+                title="下载"
+                sub="后台下载任务队列，随时掌握进度"
+                actions={
+                    tasks && tasks.length > 0 ? (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => void onClearFinished()}
+                        >
+                            <Trash2 className="size-3.5" />
+                            清空已完成
+                        </Button>
+                    ) : undefined
+                }
+            />
 
-            {tasks.length === 0 ? (
-                <EmptyState text="暂无下载任务" icon={<DownloadIcon />} />
+            {tasks === null ? (
+                <Loading label="读取下载队列" />
+            ) : tasks.length === 0 ? (
+                <EmptyState
+                    icon={<Download className="size-7" />}
+                    text="暂无下载任务"
+                    hint="在阅读器里点「下载本话」把章节存到本地"
+                />
             ) : (
-                <div className="list">
+                <div className="flex flex-col gap-2">
                     {tasks.map((t) => (
                         <TaskRow
                             key={t.taskId}
@@ -113,52 +145,53 @@ function TaskRow({
     const pct = task.total === 0 ? 0 : Math.round((task.done / task.total) * 100);
     const canCancel = task.status === "queued" || task.status === "downloading";
     const canRetry = task.status === "failed" || task.status === "cancelled";
-    const badge = `badge ${STATUS_BADGE[task.status]}`;
     return (
-        <div className="row" style={{ gap: 14 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        minWidth: 0,
-                    }}
+        <div className="rounded-lg border border-border bg-card p-4">
+            <div className="flex flex-wrap items-center gap-2.5">
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+                    {task.comicTitle}
+                </span>
+                <Tag>第 {task.chapterIndex} 话</Tag>
+                <AnimatedBadge
+                    status={STATUS_BADGE[task.status]}
+                    size="sm"
+                    contentKey={task.status}
+                    className={STATUS_BADGE_CLASS[task.status]}
                 >
-                    <div className="row__title" style={{ flexShrink: 1 }}>
-                        {task.comicTitle}
-                    </div>
-                    <span style={{ color: "var(--fg-3)", fontSize: 12, flexShrink: 0 }}>
-                        第 {task.chapterIndex} 话
-                    </span>
-                    <span className={badge} style={{ flexShrink: 0 }}>
-                        {STATUS_LABEL[task.status]}
-                    </span>
+                    {STATUS_LABEL[task.status]}
+                </AnimatedBadge>
+                <div className="flex items-center gap-1.5">
+                    {canCancel && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onCancel}
+                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        >
+                            取消
+                        </Button>
+                    )}
+                    {canRetry && (
+                        <Button variant="secondary" size="sm" onClick={onRetry}>
+                            <RotateCcw className="size-3.5" />
+                            重试
+                        </Button>
+                    )}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
-                    <ProgressBar pct={pct} done={task.status === "done"} />
-                    <span style={{ color: "var(--fg-3)", fontSize: 12, flexShrink: 0 }}>
-                        {task.done}/{task.total}
-                    </span>
-                </div>
-                {task.error && (
-                    <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 6 }}>
-                        {task.error}
-                    </div>
-                )}
             </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                {canCancel && (
-                    <button className="btn btn--danger-soft btn--sm" onClick={onCancel}>
-                        取消
-                    </button>
-                )}
-                {canRetry && (
-                    <button className="btn btn--soft btn--sm" onClick={onRetry}>
-                        重试
-                    </button>
-                )}
+
+            <div className="mt-3 flex items-center gap-3">
+                <ProgressBar pct={pct} done={task.status === "done"} />
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                    <AnimatedNumber value={task.done} startOnView={false} />
+                    {" / "}
+                    {task.total}
+                </span>
             </div>
+
+            {task.error && (
+                <div className="mt-2 text-xs text-destructive">{task.error}</div>
+            )}
         </div>
     );
 }

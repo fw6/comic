@@ -1,5 +1,16 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { confirm, open } from "@tauri-apps/plugin-dialog";
+import {
+    CircleCheck,
+    CloudDownload,
+    CloudUpload,
+    FolderOpen,
+    Info,
+    RefreshCw,
+    ScrollText,
+    SlidersHorizontal,
+    TriangleAlert,
+} from "lucide-react";
 import {
     getSettings,
     setSettings,
@@ -11,11 +22,26 @@ import {
     type Settings as SettingsT,
     type SourceEntry,
 } from "../lib/storage";
-import { applyTheme } from "../lib/theme";
-import { syncSources, sourceErrors, webdavGet, webdavPut, cimocVersion, type SourceError } from "../api";
+import { useTheme } from "../lib/theme";
+import {
+    syncSources,
+    sourceErrors,
+    webdavGet,
+    webdavPut,
+    cimocVersion,
+    type SourceError,
+} from "../api";
 import { check as checkUpdate, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
-import { Switch } from "../components/ui";
+import { cn } from "../lib/utils";
+import { Button } from "../components/beui/button";
+import { Switch } from "../components/beui/switch";
+import { Input } from "../components/beui/input";
+import {
+    AnimatedBadge,
+    type AnimatedBadgeStatus,
+} from "../components/beui/animated-badge";
+import { Loading, PageHeader, Panel, SettingRow, Tag } from "../components/ui";
 
 /** 备份文件名（grilling #25 #2：单文件聚合）。 */
 const BACKUP_FILE = "cimoc-backup.json";
@@ -43,6 +69,7 @@ async function sha256Hex(s: string): Promise<string> {
 }
 
 export default function Settings() {
+    const { isDark, setDark } = useTheme();
     const [settings, setSettingsState] = useState<SettingsT | null>(null);
     const [version, setVersion] = useState("");
     // 源区（wayfinder #16/#17）
@@ -51,7 +78,9 @@ export default function Settings() {
     const [checking, setChecking] = useState(false);
     const [applying, setApplying] = useState(false);
     const [updates, setUpdates] = useState<Record<string, RepoEntry>>({});
-    const [notice, setNotice] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+    const [notice, setNotice] = useState<{ kind: "ok" | "err"; text: string } | null>(
+        null,
+    );
     // WebDAV 段（wayfinder #24/#25）
     const [webdav, setWebdav] = useState({ baseUrl: "", user: "", password: "" });
     const [backing, setBacking] = useState(false);
@@ -61,7 +90,10 @@ export default function Settings() {
     const [checkingUpd, setCheckingUpd] = useState(false);
     const [downloadingUpd, setDownloadingUpd] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
-    const [updProgress, setUpdProgress] = useState<{ done: number; total: number } | null>(null);
+    const [updProgress, setUpdProgress] = useState<{
+        done: number;
+        total: number;
+    } | null>(null);
 
     useEffect(() => {
         void cimocVersion()
@@ -88,12 +120,6 @@ export default function Settings() {
         if (typeof dir !== "string") return;
         await setSettings({ downloadDir: dir });
         setSettingsState((s) => (s ? { ...s, downloadDir: dir } : s));
-    }
-
-    async function toggleDark(dark: boolean) {
-        await setSettings({ darkMode: dark });
-        applyTheme(dark);
-        setSettingsState((s) => (s ? { ...s, darkMode: dark } : s));
     }
 
     async function toggleTrim(trim: boolean) {
@@ -159,7 +185,10 @@ export default function Settings() {
             await refreshSources();
             setNotice(
                 failed > 0
-                    ? { kind: "err", text: `应用 ${applied} 个，${failed} 个校验失败已跳过（保留旧版本）` }
+                    ? {
+                          kind: "err",
+                          text: `应用 ${applied} 个，${failed} 个校验失败已跳过（保留旧版本）`,
+                      }
                     : { kind: "ok", text: `已应用 ${applied} 个源更新` },
             );
         } catch (e) {
@@ -222,7 +251,9 @@ export default function Settings() {
             );
             if (!res.ok) {
                 throw new Error(
-                    res.error ? `WebDAV 读取失败：${res.error}` : `WebDAV 返回 HTTP ${res.status}`,
+                    res.error
+                        ? `WebDAV 读取失败：${res.error}`
+                        : `WebDAV 返回 HTTP ${res.status}`,
                 );
             }
             const data = parseBackupJson(res.content ?? "{}");
@@ -294,230 +325,245 @@ export default function Settings() {
     }
 
     if (!settings) {
-        return <div className="spinner" />;
+        return <Loading label="读取设置" />;
     }
 
     const sourceList = Object.values(sources);
+    const busy = backing || restoring;
 
     return (
-        <div className="page" style={{ maxWidth: 680 }}>
-            <div className="page__head">
-                <div>
-                    <h1 className="page__title">设置</h1>
-                    <div className="page__sub">阅读偏好、备份与更新</div>
-                </div>
-            </div>
+        <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-8">
+            <PageHeader title="设置" sub="阅读偏好、备份与更新" />
 
             {notice && (
                 <div
-                    style={{
-                        marginBottom: 16,
-                        fontSize: 13,
-                        padding: "9px 14px",
-                        borderRadius: 12,
-                        background:
-                            notice.kind === "ok" ? "var(--success-soft)" : "var(--danger-soft)",
-                        color: notice.kind === "ok" ? "var(--success)" : "var(--danger)",
-                    }}
+                    role="status"
+                    className={cn(
+                        "mb-4 flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-sm text-foreground",
+                        notice.kind === "ok"
+                            ? "border-success/30 bg-success/10"
+                            : "border-destructive/30 bg-destructive/10",
+                    )}
                 >
-                    {notice.text}
+                    {notice.kind === "ok" ? (
+                        <CircleCheck className="mt-0.5 size-4 shrink-0 text-success" />
+                    ) : (
+                        <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+                    )}
+                    <div className="min-w-0">{notice.text}</div>
                 </div>
             )}
 
-            {/* 通用 */}
-            <div className="panel">
-                <div className="panel__head">
-                    <div>
-                        <div className="panel__title">通用</div>
-                        <div className="panel__desc">阅读与存储偏好</div>
-                    </div>
-                </div>
-                <SettingRow label="下载目录" hint="漫画下载保存的位置">
-                    <span className="s-row__value">{settings.downloadDir}</span>
-                    <button className="btn btn--ghost btn--sm" onClick={pickDir}>
-                        选择…
-                    </button>
-                </SettingRow>
-                <SettingRow label="夜间模式" hint="深色墨水主题，更护眼">
-                    <Switch checked={settings.darkMode} onChange={(v) => void toggleDark(v)} label="夜间模式" />
-                </SettingRow>
-                <SettingRow label="自动裁边" hint="阅读时裁掉页面边缘空白">
-                    <Switch checked={settings.autoTrim} onChange={(v) => void toggleTrim(v)} label="自动裁边" />
-                </SettingRow>
-            </div>
-
-            {/* WebDAV 备份 */}
-            <div className="panel">
-                <div className="panel__head">
-                    <div>
-                        <div className="panel__title">WebDAV 备份</div>
-                        <div className="panel__desc">
-                            收藏/历史/进度备份到自己的 WebDAV 服务器（{BACKUP_FILE}）
-                        </div>
-                    </div>
-                </div>
-                <SettingRow label="地址">
-                    <input
-                        className="input"
-                        style={{ width: 260 }}
-                        value={webdav.baseUrl}
-                        placeholder="https://dav.example.com/dav/"
-                        onChange={(e) => void onWebdavChange({ baseUrl: e.target.value })}
-                    />
-                </SettingRow>
-                <SettingRow label="账号">
-                    <input
-                        className="input"
-                        style={{ width: 260 }}
-                        value={webdav.user}
-                        onChange={(e) => void onWebdavChange({ user: e.target.value })}
-                    />
-                </SettingRow>
-                <SettingRow label="密码">
-                    <input
-                        className="input"
-                        style={{ width: 260 }}
-                        type="password"
-                        value={webdav.password}
-                        onChange={(e) => void onWebdavChange({ password: e.target.value })}
-                    />
-                </SettingRow>
-                <SettingRow label="操作">
-                    <div style={{ display: "flex", gap: 8 }}>
-                        <button className="btn btn--primary btn--sm" onClick={backupNow} disabled={backing || restoring}>
-                            {backing ? "备份中…" : "立即备份"}
-                        </button>
-                        <button className="btn btn--ghost btn--sm" onClick={restoreNow} disabled={backing || restoring}>
-                            {restoring ? "恢复中…" : "恢复…"}
-                        </button>
-                    </div>
-                </SettingRow>
-            </div>
-
-            {/* 应用更新 */}
-            <div className="panel">
-                <div className="panel__head">
-                    <div>
-                        <div className="panel__title">应用更新</div>
-                        <div className="panel__desc">检查应用新版本（Windows / Linux 自动更新）</div>
-                    </div>
-                </div>
-                {IS_MACOS ? (
-                    <SettingRow label="macOS">
-                        <span className="s-row__value">暂不提供自动更新，请从发布页手动下载新版本</span>
-                    </SettingRow>
-                ) : (
-                    <SettingRow label="版本">
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                            <button className="btn btn--primary btn--sm" onClick={checkForUpdate} disabled={checkingUpd || downloadingUpd}>
-                                {checkingUpd ? "检查中…" : "检查更新"}
-                            </button>
-                            {update && !downloaded && !downloadingUpd && (
-                                <button className="btn btn--soft btn--sm" onClick={downloadUpdate} disabled={downloadingUpd}>
-                                    {downloadingUpd ? "下载中…" : `下载 v${update.version}`}
-                                </button>
-                            )}
-                            {downloaded && (
-                                <button className="btn btn--soft btn--sm" onClick={installAndRelaunch}>
-                                    重启安装
-                                </button>
-                            )}
-                            {updProgress && updProgress.total > 0 && (
-                                <span style={{ color: "var(--fg-3)", fontSize: 12 }}>
-                                    {Math.round((updProgress.done / updProgress.total) * 100)}%
-                                </span>
-                            )}
-                        </div>
-                    </SettingRow>
-                )}
-            </div>
-
-            {/* 源 */}
-            <div className="panel">
-                <div className="panel__head">
-                    <div>
-                        <div className="panel__title">源</div>
-                        <div className="panel__desc">已安装的漫画源与脚本版本</div>
-                    </div>
-                </div>
-                <SettingRow label="更新">
-                    <div style={{ display: "flex", gap: 8 }}>
-                        <button className="btn btn--ghost btn--sm" onClick={checkUpdates} disabled={checking || applying}>
-                            {checking ? "检查中…" : "检查更新"}
-                        </button>
-                        {Object.keys(updates).length > 0 && (
-                            <button className="btn btn--soft btn--sm" onClick={applyUpdates} disabled={applying}>
-                                {applying ? "应用中…" : `全部应用（${Object.keys(updates).length}）`}
-                            </button>
-                        )}
-                    </div>
-                </SettingRow>
-                {sourceList.map((entry) => {
-                    const err = errors[entry.sourceId];
-                    return (
-                        <SettingRow
-                            key={entry.sourceId}
-                            label={`${entry.name} v${entry.version}`}
-                            hint={
-                                err
-                                    ? `最近出错：${err.message.split("\n")[0]}`
-                                    : new Date(entry.updatedAt).toLocaleString()
-                            }
+            <div className="flex flex-col gap-4">
+                <Panel
+                    title="通用"
+                    desc="阅读与存储偏好"
+                    actions={<SlidersHorizontal className="size-4 text-muted-foreground" />}
+                >
+                    <SettingRow label="下载目录" hint="漫画下载保存的位置">
+                        <span className="max-w-[16rem] truncate font-mono text-xs text-muted-foreground">
+                            {settings.downloadDir}
+                        </span>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => void pickDir()}
                         >
-                            <span
-                                style={{
-                                    color: err ? "var(--danger)" : "var(--fg-3)",
-                                    fontSize: 12,
-                                    textAlign: "right",
-                                }}
-                            >
-                                {err ? "出错了" : "正常"}
+                            <FolderOpen className="size-3.5" />
+                            选择
+                        </Button>
+                    </SettingRow>
+                    <SettingRow label="夜间模式" hint="深色主题，眼睛更省力">
+                        <Switch
+                            checked={isDark}
+                            onCheckedChange={(v) => setDark(v)}
+                            ariaLabel="夜间模式"
+                        />
+                    </SettingRow>
+                    <SettingRow label="自动裁边" hint="阅读时裁掉页面边缘空白">
+                        <Switch
+                            checked={settings.autoTrim}
+                            onCheckedChange={(v) => void toggleTrim(v)}
+                            ariaLabel="自动裁边"
+                        />
+                    </SettingRow>
+                </Panel>
+
+                <Panel
+                    title="WebDAV 备份"
+                    desc={`收藏、历史与进度备份到自己的 WebDAV（${BACKUP_FILE}）`}
+                    actions={<CloudUpload className="size-4 text-muted-foreground" />}
+                >
+                    <SettingRow label="地址">
+                        <Input
+                            className="w-[18rem]"
+                            value={webdav.baseUrl}
+                            placeholder="https://dav.example.com/dav/"
+                            aria-label="WebDAV 地址"
+                            onChange={(v) => void onWebdavChange({ baseUrl: v })}
+                        />
+                    </SettingRow>
+                    <SettingRow label="账号">
+                        <Input
+                            className="w-[18rem]"
+                            value={webdav.user}
+                            aria-label="WebDAV 账号"
+                            onChange={(v) => void onWebdavChange({ user: v })}
+                        />
+                    </SettingRow>
+                    <SettingRow label="密码">
+                        <Input
+                            className="w-[18rem]"
+                            type="password"
+                            value={webdav.password}
+                            aria-label="WebDAV 密码"
+                            onChange={(v) => void onWebdavChange({ password: v })}
+                        />
+                    </SettingRow>
+                    <SettingRow label="操作">
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => void backupNow()}
+                            disabled={busy}
+                        >
+                            <CloudUpload className="size-3.5" />
+                            {backing ? "备份中…" : "立即备份"}
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => void restoreNow()}
+                            disabled={busy}
+                        >
+                            <CloudDownload className="size-3.5" />
+                            {restoring ? "恢复中…" : "恢复"}
+                        </Button>
+                    </SettingRow>
+                </Panel>
+
+                <Panel
+                    title="应用更新"
+                    desc="检查应用新版本（Windows / Linux 自动更新）"
+                    actions={<Info className="size-4 text-muted-foreground" />}
+                >
+                    {IS_MACOS ? (
+                        <SettingRow label="macOS">
+                            <span className="text-xs text-muted-foreground">
+                                暂不提供自动更新，请从发布页手动下载新版本
                             </span>
                         </SettingRow>
-                    );
-                })}
-            </div>
+                    ) : (
+                        <SettingRow label="版本">
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => void checkForUpdate()}
+                                disabled={checkingUpd || downloadingUpd}
+                            >
+                                <RefreshCw className="size-3.5" />
+                                {checkingUpd ? "检查中…" : "检查更新"}
+                            </Button>
+                            {update && !downloaded && !downloadingUpd && (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => void downloadUpdate()}
+                                >
+                                    下载 v{update.version}
+                                </Button>
+                            )}
+                            {downloaded && (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => void installAndRelaunch()}
+                                >
+                                    重启安装
+                                </Button>
+                            )}
+                            {updProgress && updProgress.total > 0 && (
+                                <span className="text-xs tabular-nums text-muted-foreground">
+                                    {Math.round(
+                                        (updProgress.done / updProgress.total) * 100,
+                                    )}
+                                    %
+                                </span>
+                            )}
+                        </SettingRow>
+                    )}
+                </Panel>
 
-            {/* 关于 */}
-            <div
-                style={{
-                    textAlign: "center",
-                    color: "var(--fg-3)",
-                    fontSize: 12,
-                    padding: "8px 0 4px",
-                }}
-            >
-                Cimoc · Rust core {version || "…"}
-                <span style={{ margin: "0 6px" }}>·</span>
-                <a
-                    href="https://deerflow.tech"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: "inherit", textDecoration: "underline" }}
+                <Panel
+                    title="源"
+                    desc="已安装的漫画源与脚本版本"
+                    actions={<ScrollText className="size-4 text-muted-foreground" />}
                 >
-                    Created by Deerflow
-                </a>
-            </div>
-        </div>
-    );
-}
+                    <SettingRow label="更新">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => void checkUpdates()}
+                            disabled={checking || applying}
+                        >
+                            <RefreshCw className="size-3.5" />
+                            {checking ? "检查中…" : "检查更新"}
+                        </Button>
+                        {Object.keys(updates).length > 0 && (
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => void applyUpdates()}
+                                disabled={applying}
+                            >
+                                {applying
+                                    ? "应用中…"
+                                    : `全部应用（${Object.keys(updates).length}）`}
+                            </Button>
+                        )}
+                    </SettingRow>
+                    {sourceList.map((entry) => {
+                        const err = errors[entry.sourceId];
+                        const status: AnimatedBadgeStatus = err
+                            ? "danger"
+                            : "neutral";
+                        return (
+                            <SettingRow
+                                key={entry.sourceId}
+                                label={entry.name}
+                                hint={
+                                    err
+                                        ? `最近出错：${err.message.split("\n")[0]}`
+                                        : new Date(entry.updatedAt).toLocaleString()
+                                }
+                            >
+                                <Tag>v{entry.version}</Tag>
+                                <AnimatedBadge
+                                    status={status}
+                                    size="sm"
+                                    contentKey={err ? "err" : "ok"}
+                                >
+                                    {err ? "出错了" : "正常"}
+                                </AnimatedBadge>
+                            </SettingRow>
+                        );
+                    })}
+                </Panel>
 
-function SettingRow({
-    label,
-    hint,
-    children,
-}: {
-    label: string;
-    hint?: string;
-    children: ReactNode;
-}) {
-    return (
-        <div className="s-row">
-            <div>
-                <div className="s-row__label">{label}</div>
-                {hint && <div className="s-row__hint">{hint}</div>}
+                <footer className="pb-2 text-center text-xs text-muted-foreground">
+                    Cimoc · Rust core{" "}
+                    <code className="font-mono">{version || "…"}</code>
+                    <span className="mx-1.5">·</span>
+                    <a
+                        href="https://deerflow.tech"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline underline-offset-2 hover:text-foreground"
+                    >
+                        Created by Deerflow
+                    </a>
+                </footer>
             </div>
-            <div className="s-row__control">{children}</div>
         </div>
     );
 }

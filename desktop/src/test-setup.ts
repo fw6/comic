@@ -1,0 +1,46 @@
+/**
+ * vitest（jsdom）环境补丁：jsdom 没有实现 IntersectionObserver，
+ * 而 beui 的 ScrollReveal 进入动效依赖它。这里提供一个什么都不触发的桩：
+ * 元素保持初始状态，测试断言的是文本与角色，不依赖动画是否播放。
+ */
+class IntersectionObserverStub implements IntersectionObserver {
+    readonly root: Element | Document | null = null;
+    readonly rootMargin: string = "";
+    readonly thresholds: ReadonlyArray<number> = [];
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+    takeRecords(): IntersectionObserverEntry[] {
+        return [];
+    }
+}
+
+if (typeof globalThis.IntersectionObserver === "undefined") {
+    globalThis.IntersectionObserver =
+        IntersectionObserverStub as unknown as typeof IntersectionObserver;
+}
+
+/** jsdom 也没有 matchMedia，beui 组件与 useIsMobile 都用到。 */
+if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
+    window.matchMedia = ((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+}
+
+/** ResizeObserver 同样缺失（虚拟列表与阅读列宽度测量用到）。 */
+if (typeof globalThis.ResizeObserver === "undefined") {
+    class ResizeObserverStub {
+        observe(): void {}
+        unobserve(): void {}
+        disconnect(): void {}
+    }
+    globalThis.ResizeObserver =
+        ResizeObserverStub as unknown as typeof ResizeObserver;
+}
