@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Android 自适应图标要求背景层不透明：这一层就是宣纸的底色 -->
+  <rect width="1024" height="1024" fill="#f6f3ec"/>
+</svg>

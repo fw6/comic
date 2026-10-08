@@ -42,6 +42,7 @@ Cimoc 的主形态是 Tauri v2 桌面应用（macOS / Windows / Linux），移�
 
 - 产品名 Cimoc，署名 "Created by Deerflow"。
 - 界面语言为中文。
+- 应用图标是一张水墨侧脸（江南女子的形态：柳叶眉、低垂的杏眼、挽起的髻），通体只有墨与纸；源文件 `desktop/src-tauri/icons/app-icon.svg`，规范见 `DESIGN.md` 的「App Icon」。
 
 ## Evidence on Hand
 
