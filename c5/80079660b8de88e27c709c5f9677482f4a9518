@@ -1,0 +1,19 @@
+docs/research/webview-render-channel.md
+  s_1c715c0f12b7db::t_b71acf570644ca 122-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "c580079660b8de88e27c709c5f9677482f4a9518",
+  "prompts": {},
+  "sessions": {
+    "s_1c715c0f12b7db": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_96843cae-f9d0-4695-b030-8c54dfe56e20",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
