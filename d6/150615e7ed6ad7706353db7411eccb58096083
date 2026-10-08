@@ -1,0 +1,43 @@
+desktop/src/App.tsx
+  s_94a04c6b536e53::t_60a0fd8a502a13 2,13-36,51
+desktop/src/components/keep-alive.tsx
+  s_94a04c6b536e53::t_63fc29971db946 107,109,111-118,123
+  s_94a04c6b536e53::t_1db802d52aacad 129-131,133,135-149
+  s_94a04c6b536e53::t_cd80d48acd1bab 84-86,93-94
+  s_94a04c6b536e53::t_b40eaa16bb58c1 1-83,87-92,95-106,108,110,119-122,124-128,132,134,150-171
+desktop/src/components/keep-alive.test.tsx
+  s_94a04c6b536e53::t_a7d9a2598fac95 119-120
+  s_94a04c6b536e53::t_2039338b1bccd5 134-142
+  s_94a04c6b536e53::t_dc2a74349f5e4d 143-170
+  s_94a04c6b536e53::t_c69f6477743d4a 1-118,121-133,171-207
+desktop/src/screens/Sources.test.tsx
+  s_94a04c6b536e53::t_69ad639174b67c 129-130
+docs/agents/frontend.md
+  s_94a04c6b536e53::t_088266e5365133 38
+  s_94a04c6b536e53::t_b169cc9d548a40 30-34,36-37,39-41
+  s_94a04c6b536e53::t_a2cd2f19cd9098 35
+desktop/src/components/shell.tsx
+  s_94a04c6b536e53::t_7fbc27ab292f3d 1
+  s_94a04c6b536e53::t_6f8996e30bc898 55-56,62-70,73-79,81-83,85
+desktop/src/screens/Sources.tsx
+  s_94a04c6b536e53::t_fcb943b0a13c03 88
+  s_94a04c6b536e53::t_6a3d7b0cd3e36b 54-55,59
+  s_94a04c6b536e53::t_151a469e875091 104
+  s_94a04c6b536e53::t_cf771e5e9f8173 52-53,69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "d6150615e7ed6ad7706353db7411eccb58096083",
+  "prompts": {},
+  "sessions": {
+    "s_94a04c6b536e53": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_51b4a716-9e9d-4e5b-b253-c75afd051df5",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
