@@ -51,11 +51,15 @@ fn load_tags() -> Result<(), String> {
     Ok(())
 }
 
-/// 分类标签列表（categories op 的 Rust 侧实现）。
-pub fn categories() -> Vec<String> {
-    load_tags()
-        .map(|_| TAGS_CACHE.lock().unwrap().iter().map(|(_, l)| l.clone()).collect())
-        .unwrap_or_default()
+/// 分类标签列表（categories op 的 Rust 侧实现）。失败返回 Err（供结果缓存判定是否写入）。
+pub fn categories() -> Result<Vec<String>, String> {
+    load_tags()?;
+    Ok(TAGS_CACHE
+        .lock()
+        .unwrap()
+        .iter()
+        .map(|(_, l)| l.clone())
+        .collect())
 }
 
 /// label -> tag id（category op 的 ctx；标签未找到返回 None → 脚本 buildUrl 返回空串 → 空结果）。

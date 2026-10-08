@@ -22,6 +22,7 @@ const FILES = [
     "components/motion/animated-number.tsx",
     "components/motion/animated-sidebar.tsx",
     "components/motion/animated-toast-stack.tsx",
+    "components/motion/bottom-sheet.tsx",
     "components/motion/button/base.tsx",
     "components/motion/button/index.tsx",
     "components/motion/button/magnetic.tsx",
@@ -32,6 +33,7 @@ const FILES = [
     "components/motion/input.tsx",
     "components/motion/loader.tsx",
     "components/motion/magnetic.tsx",
+    "components/motion/overflow-actions.tsx",
     "components/motion/scroll-progress.tsx",
     "components/motion/scroll-reveal.tsx",
     "components/motion/shared-layout-bg.tsx",
@@ -79,11 +81,21 @@ function transform(source) {
 /**
  * 写入前对个别文件做适配，重跑脚本不会把这些改动冲掉：
  *   - theme-toggle 用本仓库的 lib/theme（next-themes 不引入）；
- *   - tabs 的触发按钮补键盘焦点环（上游只有 outline-none）。
+ *   - tabs 的触发按钮补键盘焦点环（上游只有 outline-none）；
+ *   - bottom-sheet 的可访问名改中文（界面语言为中文）。
  */
 const PATCHES = {
     "components/motion/theme-toggle.tsx": (src) =>
         src.replace('from "next-themes"', 'from "@/lib/theme"'),
+    "components/motion/bottom-sheet.tsx": (src) =>
+        src
+            .replace('aria-label="Close bottom sheet"', 'aria-label="关闭面板"')
+            .replace(
+                'aria-label={title ? undefined : "Bottom sheet"}',
+                'aria-label={title ? undefined : "面板"}',
+            )
+            // 面板标题按设计系统的区块标题档（14px/600）而不是上游的 16px
+            .replace("text-base font-semibold text-foreground", "text-sm font-semibold text-foreground"),
     "components/motion/tabs.tsx": (src) =>
         src
             .replace(

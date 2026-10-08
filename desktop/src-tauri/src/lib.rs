@@ -17,8 +17,9 @@ mod img_proxy;
 #[cfg(desktop)]
 pub mod render;
 
-/// 图片代理缓存目录（setup 时解析 app cache dir 填充，代理线程里拿不到 AppHandle）。
-static IMG_CACHE_DIR: OnceLock<String> = OnceLock::new();
+/// 应用缓存目录（setup 时解析 app cache dir 填充，代理线程里拿不到 AppHandle）：
+/// 图片代理缓存与抓取结果缓存共用。
+static APP_CACHE_DIR: OnceLock<String> = OnceLock::new();
 
 /// 本机图片代理端口（setup 时绑定 127.0.0.1:0 后填充，前端经 img_proxy_port 读取）。
 static IMG_PROXY_PORT: OnceLock<u16> = OnceLock::new();
@@ -45,6 +46,9 @@ const DOWNLOAD_WORKERS: usize = 2;
 
 /// 单页失败重试次数（grilling #22 #3：单页失败自动重试 2 次，共 3 次尝试）。
 const PAGE_RETRIES: usize = 3;
+
+/// 结果缓存条目的保留期（秒）：超过此时长未更新的条目在启动时清理（常用条目每次抓取刷新）。
+const RESULT_CACHE_MAX_AGE_SECS: u64 = 7 * 24 * 60 * 60;
 
 /// 进度推送：优先走 Channel（强类型/有序）；send 失败（webview 已销毁）则清掉并回退 emit。
 fn push_progress(app: &tauri::AppHandle, p: DownloadProgress) {
@@ -254,6 +258,7 @@ fn clear_downloads(state: tauri::State<'_, Mutex<DownloadState>>) -> usize {
 
 /// 爬虫引擎统一入口（转发 Rust core，返回 JSON 字符串）。
 /// 阻塞式 reqwest 放入 spawn_blocking：同步命令在主线程执行，直接调用会卡死 UI。
+/// 成功结果由 core 写入结果缓存（cache_dir），供 crawl_cached 读取。
 /// 源脚本错误（#17 呈现）经 cimoc-core 错误 registry 记录，这里追加到 app 日志目录。
 #[tauri::command]
 async fn crawl(
@@ -265,8 +270,9 @@ async fn crawl(
 ) -> Result<String, String> {
     let src = source.clone();
     let script = state.0.lock().unwrap().get(&source).cloned().unwrap_or_default();
+    let cache_dir = APP_CACHE_DIR.get().cloned().unwrap_or_default();
     let out = tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::crawl(&op, &src, &payload, &script)
+        cimoc_core::crawl(&op, &src, &payload, &script, &cache_dir)
     })
     .await
     .unwrap_or_default();
@@ -285,6 +291,26 @@ async fn crawl(
                 });
         }
     }
+    Ok(out)
+}
+
+/// 读取抓取结果缓存（不触发网络）。命中返回 `{"data": <结果>, "fetchedAt": <unix_ms>}`，
+/// 未命中返回 `null`。前端加载列表/详情的 stale-while-revalidate 前半段：
+/// 先渲染缓存，再调 crawl 拉最新并回写。
+#[tauri::command]
+async fn crawl_cached(
+    state: tauri::State<'_, SourceRegistry>,
+    op: String,
+    source: String,
+    payload: String,
+) -> Result<String, String> {
+    let script = state.0.lock().unwrap().get(&source).cloned().unwrap_or_default();
+    let cache_dir = APP_CACHE_DIR.get().cloned().unwrap_or_default();
+    let out = tauri::async_runtime::spawn_blocking(move || {
+        cimoc_core::cached_result(&op, &source, &payload, &script, &cache_dir)
+    })
+    .await
+    .unwrap_or_default();
     Ok(out)
 }
 
@@ -407,7 +433,16 @@ pub fn run() {
         })
         .setup(|app| {
             if let Ok(dir) = app.path().app_cache_dir() {
-                let _ = IMG_CACHE_DIR.set(dir.to_string_lossy().into_owned());
+                let _ = APP_CACHE_DIR.set(dir.to_string_lossy().into_owned());
+            }
+            // 结果缓存清理：删除超过保留期未更新的条目（常用条目每次抓取都刷新修改时间）
+            if let Some(cache_dir) = APP_CACHE_DIR.get().cloned() {
+                tauri::async_runtime::spawn_blocking(move || {
+                    cimoc_core::crawler::result_cache::prune(
+                        &cache_dir,
+                        Duration::from_secs(RESULT_CACHE_MAX_AGE_SECS),
+                    );
+                });
             }
             // 渲染通道注册（cimoc-core 的渲染源 fetch 经隐藏 webview 取页面）：
             // 桌面端是隐藏副窗口，移动端是插件的离屏 webview
@@ -419,7 +454,7 @@ pub fn run() {
             // img_proxy_port 暴露给前端；取代自定义 scheme（Android 30s 拦截上限根因）。
             if let Ok((listener, port)) = img_proxy::bind_img_proxy() {
                 let _ = IMG_PROXY_PORT.set(port);
-                let cache_dir = IMG_CACHE_DIR.get().cloned().unwrap_or_default();
+                let cache_dir = APP_CACHE_DIR.get().cloned().unwrap_or_default();
                 let download_dir = DOWNLOAD_DIR.get().cloned().unwrap_or_default();
                 tauri::async_runtime::spawn(async move {
                     img_proxy::serve(listener, cache_dir, download_dir).await;
@@ -436,6 +471,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             crawl,
+            crawl_cached,
             bundled_sources,
             sync_sources,
             source_errors,

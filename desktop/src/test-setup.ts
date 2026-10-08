@@ -44,3 +44,7 @@ if (typeof globalThis.ResizeObserver === "undefined") {
     globalThis.ResizeObserver =
         ResizeObserverStub as unknown as typeof ResizeObserver;
 }
+
+/** jsdom 的 window.scrollTo 是「未实现」占位（调用只打警告）；BottomSheet 的滚动锁
+ * 在关闭时调用它恢复位置，这里换成空实现。 */
+window.scrollTo = (() => {}) as typeof window.scrollTo;

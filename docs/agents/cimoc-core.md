@@ -28,6 +28,20 @@
 - 真网验证用 `src-tauri/examples/render_probe.rs`（dump / crawl / chain 三种模式），设计细节与
   踩坑见 `docs/research/webview-render-channel.md`。
 
+## 结果缓存（stale-while-revalidate，2026-10-08 起）
+
+- `crawler/result_cache.rs`：列表/详情类 op（`categories | category | search | detail`）的**成功**
+  结果缓存——内存 LRU + 磁盘 `<appCacheDir>/results/<sha256>.json`；`images` 不缓存（地址可能带
+  时效参数），cache_dump/cache_hydrate 是缓存管理 op 本身。
+- 缓存键 = (source, op, 规范化 payload, 脚本) 的 sha256：payload 解析后按 serde_json 默认
+  键序重排（同对象不同键序命中同一条），脚本变化即自然失效。
+- 接线在 `crawler::crawl`：`script::run` 返回 `(结果, 是否成功)`，失败（含空 URL）不写入；
+  `cache_dir` 参数为空串表示禁用缓存（测试与 render_probe 用）。
+- 读取入口 `cimoc_core::cached_result`（命令 `crawl_cached`）：命中返回
+  `{"data": ..., "fetchedAt": ms}` 并清除该源陈旧错误行，未命中返回 `null`。
+- 条目保留期 7 天（src-tauri setup 启动时 `result_cache::prune` 清理）；新鲜度判定在前端
+  （`fetchedAt` 与本地时钟比较），Rust 侧不设 TTL。
+
 ## 命令 API 约定
 
 - 公开函数接收 `&str`、返回 JSON 字符串，无 uniffi 包装。

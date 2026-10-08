@@ -31,7 +31,7 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 
 ## 下载任务队列（多任务下载进度管理界面）
 
-> **已实现**（2026-08-15，[wayfinder 地图 #20](https://github.com/fw6/comic/issues/20)）：下载从 Reader 内联逐页串行升级为 **Rust 侧常驻队列 + IPC Channel 推送进度**（`Mutex<DownloadQueue>` 入 State，setup spawn 2 个 worker，每页 `spawn_blocking(cimoc_core::download_image)`）+ TopBar「下载」管理页。任务粒度 = 一话（taskId = `source/comicId/chapterIndex`）；全局 2 页并发、章内顺序；状态 queued/downloading/done/failed/cancelled，单页重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；Reader「下载本话」改入队 + 轻提示；批量入口（Detail 下载全部/多选）后置。研究纪要：`docs/research/tauri-progress-push.md`。
+> **已实现**（2026-08-15，[wayfinder 地图 #20](https://github.com/fw6/comic/issues/20)）：下载从 Reader 内联逐页串行升级为 **Rust 侧常驻队列 + IPC Channel 推送进度**（`Mutex<DownloadQueue>` 入 State，setup spawn 2 个 worker，每页 `spawn_blocking(cimoc_core::download_image)`）+ TopBar「下载」管理页。任务粒度 = 一话（taskId = `source/comicId/chapterIndex`）；全局 2 页并发、章内顺序；状态 queued/downloading/done/failed/cancelled，单页重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；下载入口在详情页章节区（点「下载」进入多选模式，勾选多话逐话入队，已在磁盘的章节显示为已下载、不可勾选）。研究纪要：`docs/research/tauri-progress-push.md`。
 
 ## 其它后置项（grilling #6 定）
 

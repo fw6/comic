@@ -44,27 +44,28 @@ pub fn all_errors() -> HashMap<String, (String, u64)> {
 }
 
 /// 跑一个脚本源 op：buildUrl →（抓取）→ parse → 后处理。失败按协议返回空 JSON 并记录错误。
-pub fn run(op: &str, source: &str, payload: &str, script: &str) -> String {
+/// 第二个返回值 = 本次是否成功（供结果缓存判定，见 `crawler::crawl`）。
+pub fn run(op: &str, source: &str, payload: &str, script: &str) -> (String, bool) {
     let payload_val: Value = serde_json::from_str(payload).unwrap_or(Value::Null);
     let ctx = build_ctx(source, op, &payload_val);
     let url = match crate::js::call(script, "buildUrl", op, payload, &ctx) {
         Ok(u) => u,
         Err(e) => {
             record_error(source, &format!("buildUrl({op}): {e}"));
-            return empty_for(op);
+            return (empty_for(op), false);
         }
     };
     // categories 无 URL：脚本静态输出，跳过抓取；其余 op 空 URL = 无可抓取（按空结果返回）。
     let input = if url.is_empty() && op == "categories" {
         String::new()
     } else if url.is_empty() {
-        return empty_for(op);
+        return (empty_for(op), false);
     } else {
         match fetch(source, op, &url, &ctx) {
             Ok(s) => s,
             Err(e) => {
                 record_error(source, &format!("fetch({op}): {e}"));
-                return empty_for(op);
+                return (empty_for(op), false);
             }
         }
     };
@@ -72,11 +73,11 @@ pub fn run(op: &str, source: &str, payload: &str, script: &str) -> String {
         Ok(json) => {
             let out = post_process(source, op, &json);
             clear_error(source);
-            out
+            (out, true)
         }
         Err(e) => {
             record_error(source, &format!("parse({op}): {e}"));
-            empty_for(op)
+            (empty_for(op), false)
         }
     }
 }

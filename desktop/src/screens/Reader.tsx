@@ -7,14 +7,12 @@ import {
     AlertTriangle,
     ArrowLeft,
     BookOpen,
-    Download,
     Maximize,
 } from "lucide-react";
 import {
     crawl,
     imgSrc,
     localSrc,
-    enqueueDownload,
     listDownloaded,
     type Chapter,
     type Comic,
@@ -22,11 +20,9 @@ import {
 import { filterExternalChapters } from "../lib/chapters";
 import { nearBottom, pageIndexAt, positionWithinChapter } from "../lib/scroll";
 import { getProgress, getSettings, setProgress, touchHistory } from "../lib/storage";
-import { useIsMobile } from "../lib/platform";
 import { cn } from "../lib/utils";
 import ProxyImage from "../components/ProxyImage";
 import { useToast } from "../components/toast";
-import { ExpandableActionBar } from "../components/beui/expandable-action-bar";
 import { Loader } from "../components/beui/loader";
 import { ScrollProgress } from "../components/beui/scroll-progress";
 import { Button } from "../components/beui/button";
@@ -67,7 +63,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const id = comicId ? decodeURIComponent(comicId) : "";
     const navigate = useNavigate();
     const toast = useToast();
-    const mobile = useIsMobile();
 
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -172,7 +167,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
         );
         observer.observe(el);
         return () => observer.disconnect();
-    }, [autoTrim, mobile]);
+    }, [autoTrim]);
 
     /** 追加某章图片（幂等：已加载章节跳过；失败可重试）。 */
     const appendChapter = useCallback(
@@ -212,37 +207,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
         },
         [source, id, local, toast],
     );
-
-    /** 入队当前话下载（wayfinder #20/#23：Reader「下载本话」改入队 + 轻提示，不再阻塞）。 */
-    const enqueueCurrentChapter = useCallback(async () => {
-        const chs = chaptersRef.current;
-        const idx = currentIdxRef.current;
-        const ch = chs[idx];
-        if (!ch) return;
-        const settings = await getSettings();
-        if (!settings.downloadDir) {
-            toast.show("请先在设置里选择下载目录", "error");
-            return;
-        }
-        const referer = source === "webtoons" ? "https://www.webtoons.com/" : "";
-        const urls = pagesRef.current
-            .filter((p) => p.chapterIdx === idx)
-            .map((p) => p.url);
-        if (urls.length === 0) return;
-        const out = await enqueueDownload({
-            source: source!,
-            comicId: id,
-            comicTitle: comicRef.current?.title ?? id,
-            chapterIndex: ch.index,
-            dir: settings.downloadDir,
-            referer,
-            urls,
-        });
-        toast.show(
-            out.result === "alreadyDownloaded" ? "该章节已下载" : "已加入下载队列",
-            out.result === "alreadyDownloaded" ? "neutral" : "success",
-        );
-    }, [source, id, toast]);
 
     /** 按视口中心计算（章节, 话内位置）并写入进度 + 历史。 */
     const recordProgress = useCallback(() => {
@@ -432,34 +396,20 @@ export default function Reader({ local = false }: { local?: boolean }) {
                                 {pages.length > 0 && (
                                     <>
                                         {" · "}
-                                        已载入 {pages.length} 页
+                                        已加载 {pages.length} 页
                                     </>
                                 )}
                             </div>
                         )}
                     </div>
-                    <ExpandableActionBar
-                        size="sm"
-                        expandOnHover={!mobile}
-                        items={[
-                            ...(local
-                                ? []
-                                : [
-                                      {
-                                          id: "download",
-                                          label: "下载本话",
-                                          icon: <Download className="size-4" />,
-                                          onClick: () => void enqueueCurrentChapter(),
-                                      },
-                                  ]),
-                            {
-                                id: "fullscreen",
-                                label: "全屏",
-                                icon: <Maximize className="size-4" />,
-                                onClick: () => void toggleFullscreen(),
-                            },
-                        ]}
-                    />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="全屏"
+                        onClick={() => void toggleFullscreen()}
+                    >
+                        <Maximize className="size-4" />
+                    </Button>
                 </header>
             )}
 
@@ -482,8 +432,8 @@ export default function Reader({ local = false }: { local?: boolean }) {
                         <BookOpen className="size-8 text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">
                             {local
-                                ? "该作品没有已下载的章节"
-                                : "该作品暂无可用章节（外链章节已过滤）"}
+                                ? "这部作品还没有下载的章节"
+                                : "这部作品只有站外章节，已经隐藏"}
                         </p>
                         <Button variant="secondary" size="sm" onClick={() => navigate(-1)}>
                             返回
@@ -503,10 +453,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
                                 {virtualizer.getVirtualItems().map((vi) => {
                                     const page = pages[vi.index];
                                     if (!page) return null;
-                                    const previous = pages[vi.index - 1];
-                                    const startsChapter =
-                                        !previous ||
-                                        previous.chapterIdx !== page.chapterIdx;
                                     return (
                                         <div
                                             key={vi.key}
@@ -530,12 +476,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
                                                 reserved={reserved}
                                                 autoTrim={autoTrim}
                                                 onNaturalSize={onNaturalSize}
-                                                chapterTitle={
-                                                    startsChapter
-                                                        ? chapters[page.chapterIdx]
-                                                              ?.title
-                                                        : undefined
-                                                }
                                             />
                                         </div>
                                     );
@@ -557,13 +497,13 @@ export default function Reader({ local = false }: { local?: boolean }) {
                         {!loading && lastChapter && pages.length > 0 && (
                             <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
                                 <BookOpen className="size-8 text-muted-foreground" />
-                                <p className="text-sm font-medium">已到最后一话</p>
+                                <p className="text-sm font-medium">已经是最后一话了</p>
                                 <Button
                                     variant="secondary"
                                     size="sm"
                                     onClick={() => navigate(backTo)}
                                 >
-                                    返回目录
+                                    回到章节列表
                                 </Button>
                             </div>
                         )}
@@ -580,14 +520,12 @@ function ReaderPage({
     index,
     reserved,
     autoTrim,
-    chapterTitle,
     onNaturalSize,
 }: {
     src: string;
     index: number;
     reserved: number;
     autoTrim: boolean;
-    chapterTitle?: string;
     onNaturalSize: (width: number, height: number) => void;
 }) {
     const [loaded, setLoaded] = useState(false);
@@ -596,15 +534,6 @@ function ReaderPage({
 
     return (
         <div style={{ minHeight: loaded ? undefined : reserved }}>
-            {chapterTitle && (
-                <div className="flex items-center gap-3 px-4 py-3">
-                    <span className="text-xs font-medium text-muted-foreground">
-                        {chapterTitle}
-                    </span>
-                    <span className="h-px flex-1 bg-border" />
-                </div>
-            )}
-
             <div
                 className={cn("relative", !loaded && !failed && "overflow-hidden")}
                 style={{ minHeight: loaded || failed ? undefined : reserved }}

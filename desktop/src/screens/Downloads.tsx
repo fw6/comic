@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Channel } from "@tauri-apps/api/core";
-import { Download, RotateCcw, Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ChevronDown, Download, RotateCcw, Trash2 } from "lucide-react";
 import {
     cancelDownload,
     clearDownloads,
@@ -12,6 +13,14 @@ import {
     type DownloadStatus,
     type DownloadTaskView,
 } from "../api";
+import {
+    donePercent,
+    groupDownloads,
+    type DownloadGroup,
+} from "../lib/downloads";
+import { EASE_OUT, SPRING_PANEL } from "../lib/ease";
+import { sourceTitle } from "../lib/sources";
+import { cn } from "../lib/utils";
 import {
     EmptyState,
     Loading,
@@ -51,28 +60,45 @@ const STATUS_BADGE_CLASS: Record<DownloadStatus, string> = {
     cancelled: "text-warning",
 };
 
-/** 下载任务队列页（wayfinder #20/#23）：订阅进度事件 + 快照，管理多任务下载。 */
+/** 下载任务队列页（wayfinder #20/#23）：按漫画分组展示，展开看单章节进度。 */
 export default function Downloads() {
     const [tasks, setTasks] = useState<DownloadTaskView[] | null>(null);
+    // 已见过的任务 id：进度事件只在快照里已有的任务上原地更新；出现没见过的任务
+    // （别处刚入队）就重取一次快照补齐。页面被保留（KeepAlive）时不会重新挂载，
+    // 只靠初始快照会把新任务漏掉。
+    const knownIds = useRef<Set<string>>(new Set());
 
     // 订阅进度（Channel 存 Rust State，worker 推送；卸载时退订清理，grilling #23 #6）
     useEffect(() => {
         const channel = new Channel<DownloadProgress>();
         channel.onmessage = (p) => {
+            if (!knownIds.current.has(p.taskId)) {
+                void getDownloads().then((list) => {
+                    knownIds.current = new Set(list.map((t) => t.taskId));
+                    setTasks(list);
+                });
+                return;
+            }
             setTasks((prev) =>
                 prev?.map((t) => (t.taskId === p.taskId ? { ...t, ...p } : t)) ??
                 null,
             );
         };
         void subscribeDownloads(channel);
-        void getDownloads().then(setTasks);
+        void getDownloads().then((list) => {
+            knownIds.current = new Set(list.map((t) => t.taskId));
+            setTasks(list);
+        });
         return () => {
             void unsubscribeDownloads();
         };
     }, []);
 
     const refresh = useCallback(() => {
-        void getDownloads().then(setTasks);
+        void getDownloads().then((list) => {
+            knownIds.current = new Set(list.map((t) => t.taskId));
+            setTasks(list);
+        });
     }, []);
 
     async function onCancel(taskId: string) {
@@ -90,11 +116,13 @@ export default function Downloads() {
         refresh();
     }
 
+    const groups = groupDownloads(tasks ?? []);
+
     return (
         <div className="mx-auto w-full max-w-4xl px-4 py-6 md:px-8">
             <PageHeader
                 title="下载"
-                sub="后台下载任务队列，随时掌握进度"
+                sub="下载中和下载过的漫画"
                 actions={
                     tasks && tasks.length > 0 ? (
                         <Button
@@ -110,21 +138,21 @@ export default function Downloads() {
             />
 
             {tasks === null ? (
-                <Loading label="读取下载队列" />
+                <Loading label="正在加载下载列表" />
             ) : tasks.length === 0 ? (
                 <EmptyState
                     icon={<Download className="size-7" />}
-                    text="暂无下载任务"
-                    hint="在阅读器里点「下载本话」把章节存到本地"
+                    text="还没有下载任务"
+                    hint="在作品页选中章节下载，任务会出现在这里"
                 />
             ) : (
                 <div className="flex flex-col gap-2">
-                    {tasks.map((t) => (
-                        <TaskRow
-                            key={t.taskId}
-                            task={t}
-                            onCancel={() => void onCancel(t.taskId)}
-                            onRetry={() => void onRetry(t.taskId)}
+                    {groups.map((group) => (
+                        <ComicGroup
+                            key={group.key}
+                            group={group}
+                            onCancel={(id) => void onCancel(id)}
+                            onRetry={(id) => void onRetry(id)}
                         />
                     ))}
                 </div>
@@ -133,7 +161,123 @@ export default function Downloads() {
     );
 }
 
-function TaskRow({
+/** 一部作品一组：组头是章节粒度的汇总，展开后逐话看页进度与重试/取消。 */
+function ComicGroup({
+    group,
+    onCancel,
+    onRetry,
+}: {
+    group: DownloadGroup;
+    onCancel: (taskId: string) => void;
+    onRetry: (taskId: string) => void;
+}) {
+    const [expanded, setExpanded] = useState(false);
+    const total = group.chapters.length;
+
+    return (
+        <div
+            className={cn(
+                "overflow-hidden rounded-lg border bg-card transition-colors",
+                expanded ? "border-primary/40" : "border-border",
+            )}
+        >
+            <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                aria-expanded={expanded}
+                className="w-full p-3.5 text-left transition-colors hover:bg-secondary/50"
+            >
+                <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-foreground">
+                            {group.title}
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                            <Tag>{sourceTitle(group.source)}</Tag>
+                            <span className="tabular-nums">
+                                待下载 {group.pending} 话
+                            </span>
+                            {group.done > 0 && (
+                                <span className="tabular-nums">
+                                    已完成 {group.done} 话
+                                </span>
+                            )}
+                            {group.failed > 0 && (
+                                <span className="tabular-nums text-destructive">
+                                    失败 {group.failed} 话
+                                </span>
+                            )}
+                            {group.cancelled > 0 && (
+                                <span className="tabular-nums">
+                                    已取消 {group.cancelled} 话
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2.5">
+                        <AnimatedBadge
+                            status={STATUS_BADGE[group.status]}
+                            size="sm"
+                            contentKey={group.status}
+                            className={STATUS_BADGE_CLASS[group.status]}
+                        >
+                            {STATUS_LABEL[group.status]}
+                        </AnimatedBadge>
+                        <motion.span
+                            animate={{ rotate: expanded ? 180 : 0 }}
+                            transition={{ duration: 0.2, ease: EASE_OUT }}
+                            className="text-muted-foreground"
+                        >
+                            <ChevronDown className="size-4" />
+                        </motion.span>
+                    </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-3">
+                    <ProgressBar
+                        pct={donePercent(group.done, total)}
+                        done={group.status === "done"}
+                    />
+                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                        <AnimatedNumber value={group.done} startOnView={false} />
+                        {" / "}
+                        {total} 话
+                    </span>
+                </div>
+            </button>
+
+            <AnimatePresence initial={false}>
+                {expanded && (
+                    <motion.div
+                        key="chapters"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                            height: SPRING_PANEL,
+                            opacity: { duration: 0.16, ease: EASE_OUT },
+                        }}
+                        className="overflow-hidden"
+                    >
+                        <div className="border-t border-border">
+                            {group.chapters.map((task) => (
+                                <ChapterRow
+                                    key={task.taskId}
+                                    task={task}
+                                    onCancel={() => onCancel(task.taskId)}
+                                    onRetry={() => onRetry(task.taskId)}
+                                />
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
+/** 单话一行：页进度 + 状态 + 取消/重试。 */
+function ChapterRow({
     task,
     onCancel,
     onRetry,
@@ -142,25 +286,23 @@ function TaskRow({
     onCancel: () => void;
     onRetry: () => void;
 }) {
-    const pct = task.total === 0 ? 0 : Math.round((task.done / task.total) * 100);
     const canCancel = task.status === "queued" || task.status === "downloading";
     const canRetry = task.status === "failed" || task.status === "cancelled";
     return (
-        <div className="rounded-lg border border-border bg-card p-4">
-            <div className="flex flex-wrap items-center gap-2.5">
-                <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                    {task.comicTitle}
+        <div className="border-t border-border px-3.5 py-2.5 first:border-t-0">
+            <div className="flex items-center justify-between gap-2.5">
+                <span className="text-xs font-medium tabular-nums text-foreground">
+                    第 {task.chapterIndex} 话
                 </span>
-                <Tag>第 {task.chapterIndex} 话</Tag>
-                <AnimatedBadge
-                    status={STATUS_BADGE[task.status]}
-                    size="sm"
-                    contentKey={task.status}
-                    className={STATUS_BADGE_CLASS[task.status]}
-                >
-                    {STATUS_LABEL[task.status]}
-                </AnimatedBadge>
                 <div className="flex items-center gap-1.5">
+                    <AnimatedBadge
+                        status={STATUS_BADGE[task.status]}
+                        size="sm"
+                        contentKey={task.status}
+                        className={STATUS_BADGE_CLASS[task.status]}
+                    >
+                        {STATUS_LABEL[task.status]}
+                    </AnimatedBadge>
                     {canCancel && (
                         <Button
                             variant="ghost"
@@ -180,17 +322,18 @@ function TaskRow({
                 </div>
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
-                <ProgressBar pct={pct} done={task.status === "done"} />
+            <div className="mt-2 flex items-center gap-3">
+                <ProgressBar
+                    pct={donePercent(task.done, task.total)}
+                    done={task.status === "done"}
+                />
                 <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                    <AnimatedNumber value={task.done} startOnView={false} />
-                    {" / "}
-                    {task.total}
+                    {task.done} / {task.total} 页
                 </span>
             </div>
 
             {task.error && (
-                <div className="mt-2 text-xs text-destructive">{task.error}</div>
+                <div className="mt-1.5 text-xs text-destructive">{task.error}</div>
             )}
         </div>
     );

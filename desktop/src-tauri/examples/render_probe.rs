@@ -63,7 +63,8 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
             let Some(script) = load_script(source) else {
                 return 2;
             };
-            let out = cimoc_core::crawl(op, source, payload, &script);
+            // 禁用结果缓存（空 cache_dir）：探针每次走真实链路
+            let out = cimoc_core::crawl(op, source, payload, &script, "");
             println!("{out}");
             if let Some((msg, _)) = cimoc_core::crawler::script::last_error(source) {
                 eprintln!("源错误: {msg}");
@@ -75,14 +76,14 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
                 return 2;
             };
             let payload = format!(r#"{{"comicId":"{comic_id}"}}"#);
-            let detail = cimoc_core::crawl("detail", source, &payload, &script);
+            let detail = cimoc_core::crawl("detail", source, &payload, &script, "");
             if let Some((msg, _)) = cimoc_core::crawler::script::last_error(source) {
                 eprintln!("detail 源错误: {msg}");
                 return 1;
             }
             println!("detail: {}", summarize_detail(&detail));
             let payload = format!(r#"{{"comicId":"{comic_id}","chapterIndex":{chapter_index}}}"#);
-            let images = cimoc_core::crawl("images", source, &payload, &script);
+            let images = cimoc_core::crawl("images", source, &payload, &script, "");
             if let Some((msg, _)) = cimoc_core::crawler::script::last_error(source) {
                 eprintln!("images 源错误: {msg}");
                 return 1;

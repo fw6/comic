@@ -4,6 +4,11 @@
 
 use cimoc_core::js;
 
+/// 测试内 crawl 包装：统一禁用结果缓存（cache_dir 空串），缓存接线另有 result_cache_test。
+fn crawl(op: &str, source: &str, payload: &str, script: &str) -> String {
+    cimoc_core::crawl(op, source, payload, script, "")
+}
+
 const WEBTOONS_JS: &str = include_str!("../src/js/sources/webtoons.js");
 const MANGADEX_JS: &str = include_str!("../src/js/sources/mangadex.js");
 const COMYMANGA_JS: &str = include_str!("../src/js/sources/copymanga.js");
@@ -893,69 +898,69 @@ fn hentara_chapter_parse() {
 #[test]
 fn crawl_dispatch_routes_script_and_cache_ops() {
     // webtoons categories 走脚本（静态输出）
-    let cats = cimoc_core::crawl("categories", "webtoons", "{}", WEBTOONS_JS);
+    let cats = crawl("categories", "webtoons", "{}", WEBTOONS_JS);
     assert!(cats.contains("奇幻"));
 
     // cache op 不经脚本（脚本参数被忽略）
     let payload = r#"{"cache-test-1":"https://www.webtoons.com/en/x/y/list?title_no=1"}"#;
-    assert_eq!(cimoc_core::crawl("cache_hydrate", "webtoons", payload, ""), "true");
+    assert_eq!(crawl("cache_hydrate", "webtoons", payload, ""), "true");
     let dump: serde_json::Value =
-        serde_json::from_str(&cimoc_core::crawl("cache_dump", "webtoons", "{}", "")).unwrap();
+        serde_json::from_str(&crawl("cache_dump", "webtoons", "{}", "")).unwrap();
     assert_eq!(
         dump.get("cache-test-1").and_then(|v| v.as_str()),
         Some("https://www.webtoons.com/en/x/y/list?title_no=1")
     );
     // 已有值不被覆盖
-    cimoc_core::crawl(
+    crawl(
         "cache_hydrate",
         "webtoons",
         r#"{"cache-test-1":"overwrite"}"#,
         "",
     );
     let dump2: serde_json::Value =
-        serde_json::from_str(&cimoc_core::crawl("cache_dump", "webtoons", "{}", "")).unwrap();
+        serde_json::from_str(&crawl("cache_dump", "webtoons", "{}", "")).unwrap();
     assert_eq!(
         dump2.get("cache-test-1").and_then(|v| v.as_str()),
         Some("https://www.webtoons.com/en/x/y/list?title_no=1")
     );
 
     // 未知 source → 空数组
-    assert_eq!(cimoc_core::crawl("search", "unknown", "{}", ""), "[]");
+    assert_eq!(crawl("search", "unknown", "{}", ""), "[]");
     // 脚本源但未同步脚本 → 空数组（启动同步前的保护）
-    assert_eq!(cimoc_core::crawl("search", "webtoons", "{}", ""), "[]");
+    assert_eq!(crawl("search", "webtoons", "{}", ""), "[]");
     // copymanga：有脚本走脚本（categories 静态输出），无脚本空数组
-    let cats = cimoc_core::crawl("categories", "copymanga", "{}", COMYMANGA_JS);
+    let cats = crawl("categories", "copymanga", "{}", COMYMANGA_JS);
     assert!(cats.contains("冒险"));
-    assert_eq!(cimoc_core::crawl("search", "copymanga", "{}", ""), "[]");
+    assert_eq!(crawl("search", "copymanga", "{}", ""), "[]");
     // dongman：有脚本走脚本，无脚本空数组
-    let cats = cimoc_core::crawl("categories", "dongman", "{}", DONGMAN_JS);
+    let cats = crawl("categories", "dongman", "{}", DONGMAN_JS);
     assert!(cats.contains("恋爱"));
-    assert_eq!(cimoc_core::crawl("search", "dongman", "{}", ""), "[]");
+    assert_eq!(crawl("search", "dongman", "{}", ""), "[]");
     // manhuagui：有脚本走脚本，无脚本空数组
-    let cats = cimoc_core::crawl("categories", "manhuagui", "{}", MANHUAGUI_JS);
+    let cats = crawl("categories", "manhuagui", "{}", MANHUAGUI_JS);
     assert!(cats.contains("热血"));
-    assert_eq!(cimoc_core::crawl("search", "manhuagui", "{}", ""), "[]");
+    assert_eq!(crawl("search", "manhuagui", "{}", ""), "[]");
     // baozimh：categories 静态输出走脚本；需抓取的 op 在无渲染通道宿主下报错并返回空结果
-    let cats = cimoc_core::crawl("categories", "baozimh", "{}", BAOZIMH_JS);
+    let cats = crawl("categories", "baozimh", "{}", BAOZIMH_JS);
     assert!(cats.contains("热血"));
-    assert_eq!(cimoc_core::crawl("search", "baozimh", "{}", ""), "[]");
-    let out = cimoc_core::crawl("search", "baozimh", r#"{"keyword":"海贼"}"#, BAOZIMH_JS);
+    assert_eq!(crawl("search", "baozimh", "{}", ""), "[]");
+    let out = crawl("search", "baozimh", r#"{"keyword":"海贼"}"#, BAOZIMH_JS);
     assert_eq!(out, "[]");
     let (msg, _) = cimoc_core::crawler::script::last_error("baozimh").expect("应记录源错误");
     assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
 
     // kxmanhua / hentara：普通抓取源，categories 静态输出走脚本
-    let cats = cimoc_core::crawl("categories", "kxmanhua", "{}", KXMANHUA_JS);
+    let cats = crawl("categories", "kxmanhua", "{}", KXMANHUA_JS);
     assert!(cats.contains("韩漫"));
-    assert_eq!(cimoc_core::crawl("search", "kxmanhua", "{}", ""), "[]");
-    let cats = cimoc_core::crawl("categories", "hentara", "{}", HENTARA_JS);
+    assert_eq!(crawl("search", "kxmanhua", "{}", ""), "[]");
+    let cats = crawl("categories", "hentara", "{}", HENTARA_JS);
     assert!(cats.contains("全部"));
-    assert_eq!(cimoc_core::crawl("search", "hentara", "{}", ""), "[]");
+    assert_eq!(crawl("search", "hentara", "{}", ""), "[]");
     // nnhanman：渲染源，需抓取的 op 在无渲染通道宿主下报错并返回空结果
-    let cats = cimoc_core::crawl("categories", "nnhanman", "{}", NNHANMAN_JS);
+    let cats = crawl("categories", "nnhanman", "{}", NNHANMAN_JS);
     assert!(cats.contains("热门"));
-    assert_eq!(cimoc_core::crawl("search", "nnhanman", "{}", ""), "[]");
-    let out = cimoc_core::crawl("search", "nnhanman", r#"{"keyword":"韓"}"#, NNHANMAN_JS);
+    assert_eq!(crawl("search", "nnhanman", "{}", ""), "[]");
+    let out = crawl("search", "nnhanman", r#"{"keyword":"韓"}"#, NNHANMAN_JS);
     assert_eq!(out, "[]");
     let (msg, _) = cimoc_core::crawler::script::last_error("nnhanman").expect("应记录源错误");
     assert!(msg.contains("渲染通道未注册"), "msg = {msg}");

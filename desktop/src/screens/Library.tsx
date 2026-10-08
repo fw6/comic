@@ -39,7 +39,7 @@ const TABS: { id: Tab; label: string; icon: typeof Clock }[] = [
     { id: "history", label: "历史", icon: History },
     { id: "favorites", label: "收藏", icon: Heart },
     { id: "downloads", label: "下载", icon: Download },
-    { id: "local", label: "本地", icon: FolderOpen },
+    { id: "local", label: "本地文件", icon: FolderOpen },
 ];
 
 export default function Library() {
@@ -72,7 +72,7 @@ export default function Library() {
 
     return (
         <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
-            <PageHeader title="书架" sub="你的阅读足迹、收藏与本地漫画" />
+            <PageHeader title="书架" sub="看过的、收藏的、下载的都在这里" />
 
             <Tabs
                 value={tab}
@@ -97,19 +97,19 @@ export default function Library() {
 
             {tab === "history" &&
                 (history === null ? (
-                    <Loading label="读取阅读历史" />
+                    <Loading label="正在加载历史" />
                 ) : history.length === 0 ? (
                     <EmptyState
                         icon={<History className="size-7" />}
-                        text="还没有阅读历史"
-                        hint="去书源挑一部开始阅读，进度会自动记录"
+                        text="还没有看过漫画"
+                        hint="去「发现」挑一部开始看，进度会自动记下"
                     />
                 ) : (
                     <div className="flex flex-col gap-2">
                         {history.map((h) => (
                             <ComicRow
                                 key={comicKey(h.comic.source, h.comic.id)}
-                                to={`/reader/${h.comic.source}/${encodeURIComponent(h.comic.id)}/${h.chapterIndex}`}
+                                to={`/comic/${h.comic.source}/${encodeURIComponent(h.comic.id)}`}
                                 cover={h.comic.cover}
                                 title={h.comic.title}
                                 subtitle={h.comic.author || sourceTitle(h.comic.source)}
@@ -126,12 +126,12 @@ export default function Library() {
 
             {tab === "favorites" &&
                 (favorites === null ? (
-                    <Loading label="读取收藏" />
+                    <Loading label="正在加载收藏" />
                 ) : favorites.length === 0 ? (
                     <EmptyState
                         icon={<Heart className="size-7" />}
-                        text="暂无收藏"
-                        hint="在漫画详情页点击收藏，之后会出现在这里"
+                        text="还没有收藏"
+                        hint="在作品页点「收藏」，就会出现在这里"
                     />
                 ) : (
                     <div className="flex flex-col gap-2">
@@ -151,16 +151,16 @@ export default function Library() {
                 (downloadDir === null ? (
                     <EmptyState
                         icon={<Download className="size-7" />}
-                        text="下载目录不可用"
-                        hint="到「设置」里选择一个下载目录"
+                        text="还没有设置下载位置"
+                        hint="到「设置」里选一个文件夹存下载"
                     />
                 ) : downloads === null ? (
-                    <Loading label="扫描下载目录" />
+                    <Loading label="正在扫描文件夹" />
                 ) : downloads.length === 0 ? (
                     <EmptyState
                         icon={<Download className="size-7" />}
                         text="还没有下载的漫画"
-                        hint="在线阅读时点「下载本话」即可离线保存"
+                        hint="在作品页选中章节下载，没网也能看"
                     />
                 ) : (
                     <DirList dir={downloadDir} items={downloads} />
@@ -175,7 +175,7 @@ export default function Library() {
                             onClick={() => void pickLocalDir()}
                         >
                             <FolderOpen className="size-4" />
-                            {lastScanDir ? "重新选择文件夹…" : "选择文件夹扫描…"}
+                            {lastScanDir ? "更换文件夹" : "选择文件夹"}
                         </Button>
                         {lastScanDir && (
                             <span className="truncate font-mono text-xs text-muted-foreground">
@@ -188,10 +188,10 @@ export default function Library() {
                             icon={<HardDrive className="size-7" />}
                             text={
                                 lastScanDir
-                                    ? "该文件夹没有已下载的漫画"
-                                    : "选择包含已下载漫画的文件夹"
+                                    ? "这个文件夹里没有漫画"
+                                    : "选一个存着漫画的文件夹"
                             }
-                            hint="会按下载目录的结构识别漫画与章节"
+                            hint="会读取里面的漫画和章节"
                         />
                     ) : (
                         <DirList dir={lastScanDir!} items={local} />
@@ -274,7 +274,7 @@ function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
                                     <div className="flex flex-col gap-0.5 px-2.5 pb-2.5">
                                         {chs === undefined ? (
                                             <span className="px-2 py-2 text-xs text-muted-foreground">
-                                                读取章节…
+                                                正在加载章节…
                                             </span>
                                         ) : (
                                             Object.entries(chs).map(

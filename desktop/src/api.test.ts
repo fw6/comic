@@ -9,6 +9,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 import { invoke } from "@tauri-apps/api/core";
 import {
     crawl,
+    crawlCached,
     imgSrc,
     localSrc,
     initImgProxy,
@@ -81,6 +82,33 @@ describe("crawl（invoke 包装：payload 序列化 + JSON 解析）", () => {
     it("响应不是合法 JSON 时拒绝（JSON.parse 抛错）", async () => {
         mockedInvoke.mockResolvedValue("{broken");
         await expect(crawl("search", "mangadex", { keyword: "x" })).rejects.toThrow();
+    });
+});
+
+describe("crawlCached（结果缓存读取：stale-while-revalidate 的 stale 一侧）", () => {
+    it("把 op/source/payload 传给 crawl_cached 并解析 {data, fetchedAt}", async () => {
+        mockedInvoke.mockResolvedValue(
+            JSON.stringify({ data: [{ id: "a" }], fetchedAt: 1700000000000 }),
+        );
+        const out = await crawlCached<{ id: string }[]>("category", "mangadex", {
+            label: "动作",
+        });
+        expect(mockedInvoke).toHaveBeenCalledWith("crawl_cached", {
+            op: "category",
+            source: "mangadex",
+            payload: JSON.stringify({ label: "动作" }),
+        });
+        expect(out).toEqual({ data: [{ id: "a" }], fetchedAt: 1700000000000 });
+    });
+
+    it("未命中（null）返回 null", async () => {
+        mockedInvoke.mockResolvedValue("null");
+        await expect(crawlCached("category", "mangadex", { label: "x" })).resolves.toBeNull();
+    });
+
+    it("缓存通道异常时按未命中降级（不抛错，不影响 crawl 主路径）", async () => {
+        mockedInvoke.mockRejectedValue(new Error("command not found"));
+        await expect(crawlCached("category", "mangadex", { label: "x" })).resolves.toBeNull();
     });
 });
 

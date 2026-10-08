@@ -78,6 +78,7 @@ import {
     comicKey,
     hydrateWebtoonsCache,
     persistWebtoonsCache,
+    whenSourcesReady,
     exportBackupJson,
     parseBackupJson,
     importBackupData,
@@ -345,5 +346,19 @@ describe("Webtoons series URL 缓存持久化", () => {
         expect(await store.get("cache")).toEqual({
             "1571": "https://www.webtoons.com/x/list?title_no=1571",
         });
+    });
+});
+
+describe("whenSourcesReady（源脚本同步单例）", () => {
+    it("并发与重复调用共享同一次同步（sync_sources 只发一次）", async () => {
+        invokeMock.mockImplementation(async (cmd: string) => {
+            if (cmd === "bundled_sources") return { mangadex: "script-v1" };
+            return undefined;
+        });
+        await Promise.all([whenSourcesReady(), whenSourcesReady()]);
+        await whenSourcesReady();
+        const syncCalls = invokeMock.mock.calls.filter(([cmd]) => cmd === "sync_sources");
+        expect(syncCalls).toHaveLength(1);
+        expect(syncCalls[0][1]).toEqual({ entries: { mangadex: "script-v1" } });
     });
 });

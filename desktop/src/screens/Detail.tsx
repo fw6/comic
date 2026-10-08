@@ -1,10 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useScroll } from "motion/react";
-import { ArrowLeft, BookOpen, Check, Heart } from "lucide-react";
-import { crawl, imgSrc, type Chapter, type Comic } from "../api";
+import { ArrowLeft, BookOpen, Check, Download, Heart, X } from "lucide-react";
+import {
+    crawl,
+    crawlCached,
+    enqueueDownload,
+    imgSrc,
+    listDownloaded,
+    type Chapter,
+    type Comic,
+} from "../api";
 import { filterExternalChapters } from "../lib/chapters";
-import { getProgress, isFavorite, toggleFavorite } from "../lib/storage";
+import {
+    getProgress,
+    getSettings,
+    isFavorite,
+    toggleFavorite,
+    whenSourcesReady,
+} from "../lib/storage";
 import { cn } from "../lib/utils";
 import { sourceTitle } from "../lib/sources";
 import { useScrollContainerRef } from "../lib/scroll-container";
@@ -17,18 +31,20 @@ import {
     Reveal,
     Tag,
 } from "../components/ui";
+import { useToast } from "../components/toast";
 import { Button } from "../components/beui/button";
 import { ScrollProgress } from "../components/beui/scroll-progress";
 
 const STATUS_LABEL: Record<string, string> = {
     serial: "连载中",
     completed: "已完结",
-    hiatus: "暂停",
+    hiatus: "停更",
 };
 
 export default function Detail() {
     const { source, comicId } = useParams();
     const navigate = useNavigate();
+    const toast = useToast();
     const id = comicId ? decodeURIComponent(comicId) : "";
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -36,6 +52,16 @@ export default function Detail() {
     const [resume, setResume] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [reloadKey, setReloadKey] = useState(0);
+    // 下载（多选）：磁盘上已有的章节 + 用户勾选 + 提交进度
+    const [downloadDir, setDownloadDir] = useState<string | null>(null);
+    const [onDisk, setOnDisk] = useState<Set<number>>(new Set());
+    const [queued, setQueued] = useState<Set<number>>(new Set());
+    const [selecting, setSelecting] = useState(false);
+    const [selected, setSelected] = useState<Set<number>>(new Set());
+    const [submitting, setSubmitting] = useState<{
+        done: number;
+        total: number;
+    } | null>(null);
     const container = useScrollContainerRef();
     const { scrollYProgress } = useScroll(
         container ? { container } : { container: undefined },
@@ -46,24 +72,61 @@ export default function Detail() {
         setError(null);
         (async () => {
             try {
-                const [d, fav, prog] = await Promise.all([
-                    crawl<{ comic: Comic; chapters: Chapter[] }>("detail", source!, {
+                // 等源脚本同步完成：registry 未就绪时脚本源的 op 会返回空
+                await whenSourcesReady();
+                if (cancelled) return;
+                // SWR：先渲染缓存的详情与章节（立即），随后 crawl 拉最新覆盖。
+                // detail 每次都拉网络：渲染源的章节中转链经 post_process 写入进程内缓存
+                // （baozimh 的 images 依赖它），跳过抓取会让章节打不开。
+                const [cached, fav, prog, settings] = await Promise.all([
+                    crawlCached<{ comic: Comic; chapters: Chapter[] }>("detail", source!, {
                         comicId: id,
                     }),
                     isFavorite(source!, id),
                     getProgress(source!, id),
+                    getSettings(),
                 ]);
                 if (cancelled) return;
-                setComic(d.comic);
-                setChapters(filterExternalChapters(d.chapters));
+                if (cached) {
+                    setComic(cached.data.comic);
+                    setChapters(filterExternalChapters(cached.data.chapters));
+                }
                 setFavorite(fav);
                 if (prog) setResume(prog.chapterIndex);
+                setDownloadDir(settings.downloadDir);
+                setSelecting(false);
+                setSelected(new Set());
+                setQueued(new Set());
+                setOnDisk(
+                    settings.downloadDir
+                        ? new Set(
+                              Object.keys(
+                                  await listDownloaded(
+                                      settings.downloadDir,
+                                      source!,
+                                      id,
+                                  ),
+                              ).map(Number),
+                          )
+                        : new Set(),
+                );
+                const d = await crawl<{ comic: Comic; chapters: Chapter[] }>(
+                    "detail",
+                    source!,
+                    { comicId: id },
+                );
+                if (cancelled) return;
+                // 源失败时返回空对象：保留缓存展示
+                if (d.comic) {
+                    setComic(d.comic);
+                    setChapters(filterExternalChapters(d.chapters));
+                }
             } catch (e) {
                 if (cancelled) return;
                 setError(
                     e instanceof Error && e.message
                         ? e.message
-                        : "源没有返回这部作品的信息",
+                        : "这个漫画源没有返回作品信息",
                 );
             }
         })();
@@ -75,6 +138,82 @@ export default function Detail() {
     async function onToggleFavorite() {
         if (!comic) return;
         setFavorite(await toggleFavorite(comic));
+    }
+
+    /** 本地已有的章节（已下载或排队中）不再参与勾选。 */
+    const taken = (index: number) => onDisk.has(index) || queued.has(index);
+    const selectable = chapters.filter((ch) => !taken(ch.index));
+    const allSelected = selectable.length > 0 && selected.size === selectable.length;
+
+    function toggleChapter(index: number) {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(index)) next.delete(index);
+            else next.add(index);
+            return next;
+        });
+    }
+
+    function exitSelection() {
+        setSelecting(false);
+        setSelected(new Set());
+    }
+
+    /**
+     * 逐话取图片列表并入队：每话拿到 url 就入队，下载立刻开始，不必等全部提交完。
+     * 入队后本页按「排队中」标记，进度到「下载」页看。
+     */
+    async function startDownload() {
+        if (!comic || selected.size === 0) return;
+        const dir = downloadDir;
+        if (!dir) {
+            toast.show("请先到「设置」里选一个下载位置", "error");
+            return;
+        }
+        const indexes = [...selected].sort((a, b) => a - b);
+        const referer = source === "webtoons" ? "https://www.webtoons.com/" : "";
+        setSubmitting({ done: 0, total: indexes.length });
+        let queuedCount = 0;
+        let skipped = 0;
+        let failed = 0;
+        for (const [i, chapterIndex] of indexes.entries()) {
+            setSubmitting({ done: i, total: indexes.length });
+            try {
+                const urls = await crawl<string[]>("images", source!, {
+                    comicId: id,
+                    chapterIndex,
+                });
+                if (urls.length === 0) {
+                    failed += 1;
+                    continue;
+                }
+                const out = await enqueueDownload({
+                    source: source!,
+                    comicId: id,
+                    comicTitle: comic.title,
+                    chapterIndex,
+                    dir,
+                    referer,
+                    urls,
+                });
+                if (out.result === "alreadyDownloaded") {
+                    skipped += 1;
+                    setOnDisk((prev) => new Set(prev).add(chapterIndex));
+                } else {
+                    queuedCount += 1;
+                    setQueued((prev) => new Set(prev).add(chapterIndex));
+                }
+            } catch (e) {
+                console.error("提交下载失败", e);
+                failed += 1;
+            }
+        }
+        setSubmitting(null);
+        exitSelection();
+        const parts = [`已排队下载 ${queuedCount} 话`];
+        if (skipped > 0) parts.push(`${skipped} 话本地已有`);
+        if (failed > 0) parts.push(`${failed} 话没能添加`);
+        toast.show(parts.join("，"), failed > 0 ? "error" : "success");
     }
 
     if (error) {
@@ -100,7 +239,7 @@ export default function Detail() {
         return (
             <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8">
                 <BackButton onClick={() => navigate(-1)} />
-                <Loading label="读取作品信息" />
+                <Loading label="正在加载作品信息" />
             </div>
         );
     }
@@ -191,24 +330,34 @@ export default function Detail() {
                 </div>
 
                 <section className="mt-8">
-                    <header className="mb-4 flex items-end justify-between gap-3">
+                    <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
                         <div>
                             <h2 className="text-sm font-semibold text-foreground">
                                 章节
                             </h2>
                             <p className="mt-1 text-xs text-muted-foreground">
                                 {chapters.length === 0
-                                    ? "该作品暂无可用章节（外链章节已过滤）"
+                                    ? "只有站外章节，已隐藏"
                                     : `共 ${chapters.length} 话`}
                             </p>
                         </div>
+                        {chapters.length > 0 && !selecting && (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setSelecting(true)}
+                            >
+                                <Download className="size-3.5" />
+                                下载章节
+                            </Button>
+                        )}
                     </header>
 
                     {chapters.length === 0 ? (
                         <EmptyState
                             icon={<BookOpen className="size-7" />}
-                            text="暂无可用章节"
-                            hint="该作品只有站外链接章节，已按设置过滤"
+                            text="没有可看的章节"
+                            hint="这类章节在站外，应用打不开"
                         />
                     ) : (
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -217,32 +366,155 @@ export default function Detail() {
                                     key={ch.index}
                                     delay={Math.min(i * 12, 240)}
                                 >
-                                    <Link
-                                        to={`/reader/${source}/${encodeURIComponent(id)}/${ch.index}`}
-                                        className={cn(
-                                            "flex h-full items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors",
-                                            ch.index === resume
-                                                ? "border-primary/50 bg-primary/10 text-foreground"
-                                                : "border-border bg-card text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
-                                        )}
-                                    >
-                                        <span className="min-w-0 flex-1 truncate">
-                                            {ch.title}
-                                        </span>
-                                        {ch.downloaded && (
-                                            <Check
-                                                className="size-3.5 shrink-0 text-success"
-                                                aria-label="已下载"
-                                            />
-                                        )}
-                                    </Link>
+                                    <ChapterTile
+                                        chapter={ch}
+                                        current={ch.index === resume}
+                                        state={
+                                            onDisk.has(ch.index)
+                                                ? "downloaded"
+                                                : queued.has(ch.index)
+                                                  ? "queued"
+                                                  : "none"
+                                        }
+                                        selecting={selecting}
+                                        selected={selected.has(ch.index)}
+                                        source={source!}
+                                        comicId={id}
+                                        onToggle={() => toggleChapter(ch.index)}
+                                    />
                                 </Reveal>
                             ))}
+                        </div>
+                    )}
+
+                    {selecting && (
+                        <div className="sticky bottom-3 z-20 mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/95 px-3 py-2 shadow-2xl backdrop-blur-xl">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={selectable.length === 0}
+                                onClick={() =>
+                                    setSelected(
+                                        allSelected
+                                            ? new Set()
+                                            : new Set(
+                                                  selectable.map((ch) => ch.index),
+                                              ),
+                                    )
+                                }
+                            >
+                                {allSelected ? "取消全选" : "全选"}
+                            </Button>
+                            <span className="flex-1 text-xs tabular-nums text-muted-foreground">
+                                已选 {selected.size} 话，可选 {selectable.length} 话
+                            </span>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                disabled={selected.size === 0 || submitting !== null}
+                                onClick={() => void startDownload()}
+                            >
+                                {submitting
+                                    ? `正在加入下载 ${submitting.done}/${submitting.total}`
+                                    : "开始下载"}
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="退出选择"
+                                disabled={submitting !== null}
+                                onClick={exitSelection}
+                            >
+                                <X className="size-4" />
+                            </Button>
                         </div>
                     )}
                 </section>
             </div>
         </>
+    );
+}
+
+/** 章节块：浏览时是进入阅读的链接，选择模式下是勾选按钮（本地已有的章节不可选）。 */
+function ChapterTile({
+    chapter: ch,
+    current,
+    state,
+    selecting,
+    selected,
+    source,
+    comicId,
+    onToggle,
+}: {
+    chapter: Chapter;
+    current: boolean;
+    state: "none" | "downloaded" | "queued";
+    selecting: boolean;
+    selected: boolean;
+    source: string;
+    comicId: string;
+    onToggle: () => void;
+}) {
+    /** 本地已有的章节（已下载或排队中）：选择模式下不可勾选。 */
+    const local = state !== "none";
+
+    const body = (
+        <>
+            <span className="min-w-0 flex-1 truncate">{ch.title}</span>
+            {state === "downloaded" && (
+                <Check
+                    className="size-3.5 shrink-0 text-success"
+                    aria-label="已下载"
+                />
+            )}
+            {state === "queued" && <Tag>排队中</Tag>}
+            {selecting && !local && (
+                <span
+                    className={cn(
+                        "grid size-4 shrink-0 place-items-center rounded-full border",
+                        selected
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border-strong",
+                    )}
+                >
+                    {selected && <Check className="size-3" />}
+                </span>
+            )}
+        </>
+    );
+
+    const className = cn(
+        "flex h-full w-full items-center gap-2 rounded-md border px-3 py-2.5 text-left text-sm transition-colors",
+        selecting && selected
+            ? "border-primary/60 bg-primary/12 text-foreground"
+            : selecting && local
+              ? "border-border bg-card/50 text-muted-foreground"
+              : current
+                ? "border-primary/50 bg-primary/10 text-foreground"
+                : "border-border bg-card text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
+    );
+
+    if (!selecting) {
+        return (
+            <Link
+                to={`/reader/${source}/${encodeURIComponent(comicId)}/${ch.index}`}
+                className={className}
+            >
+                {body}
+            </Link>
+        );
+    }
+
+    return (
+        <button
+            type="button"
+            disabled={local}
+            aria-pressed={selected}
+            onClick={onToggle}
+            className={cn(className, local && "cursor-default")}
+        >
+            {body}
+        </button>
     );
 }
 

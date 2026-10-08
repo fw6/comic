@@ -127,6 +127,16 @@ const originalTheme = await evaluate(
     `return document.documentElement.dataset.theme || "light"`,
 );
 
+// 应用窗口不在前台时 WebView 暂停渲染，`transition-colors` 这类过渡会永远停在起点：
+// 切换主题后仍读到切换前的颜色，与切换后的底色配成假阳性。扫之前先关掉过渡。
+await evaluate(`
+const s = document.createElement("style");
+s.id = "audit-freeze";
+s.textContent = "*{transition:none !important}";
+document.head.appendChild(s);
+return 1;
+`);
+
 let failures = 0;
 for (const theme of THEMES) {
     await evaluate(`document.documentElement.dataset.theme = ${JSON.stringify(theme)}; return 1`);
@@ -147,7 +157,8 @@ for (const theme of THEMES) {
     }
 }
 await evaluate(
-    `document.documentElement.dataset.theme = ${JSON.stringify(originalTheme)}; return 1`,
+    `document.getElementById("audit-freeze")?.remove();
+document.documentElement.dataset.theme = ${JSON.stringify(originalTheme)}; return 1`,
 );
 console.log(failures === 0 ? "\n全部达标" : `\n共 ${failures} 项低于标准`);
 process.exit(failures === 0 ? 0 : 1);

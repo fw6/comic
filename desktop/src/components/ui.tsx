@@ -17,6 +17,10 @@ import { ButtonLink, type ButtonSize, type ButtonVariant } from "./beui/button";
 
 /* ---------- 页面标题 ---------- */
 
+/**
+ * 页头：当前页已由导航标出，顶部不再重复写一遍页面名，
+ * 视觉上只留一行副标题与右侧动作，标题留给读屏。
+ */
 export function PageHeader({
     title,
     sub,
@@ -27,13 +31,9 @@ export function PageHeader({
     actions?: ReactNode;
 }) {
     return (
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-                <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground">
-                    {title}
-                </h1>
-                {sub && <p className="mt-1 text-sm text-muted-foreground">{sub}</p>}
-            </div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h1 className="sr-only">{title}</h1>
+            {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
             {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>
     );

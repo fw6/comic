@@ -240,6 +240,17 @@ export async function initSources(): Promise<void> {
     await syncSources(scripts);
 }
 
+/** 源脚本同步的单例：首次调用执行，后续调用等待同一个 Promise。
+ * 页面取数前 await 它——脚本尚未进入 registry 时，脚本源的 op 会按空结果返回。 */
+let sourcesReady: Promise<void> | null = null;
+
+export function whenSourcesReady(): Promise<void> {
+    sourcesReady ??= initSources().catch((err) => {
+        console.error("源脚本同步失败", err);
+    });
+    return sourcesReady;
+}
+
 // ---------- Webtoons series URL 缓存（进程内静态 → 持久化，grilling #6 存储域） ----------
 
 /** 启动时把上次保存的 series URL 映射回灌进 Rust 进程内缓存。 */

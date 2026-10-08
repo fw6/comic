@@ -145,7 +145,10 @@ export default function Settings() {
             setUpdates(found);
             setNotice(
                 Object.keys(found).length > 0
-                    ? { kind: "ok", text: `有 ${Object.keys(found).length} 个源可更新` }
+                    ? {
+                          kind: "ok",
+                          text: `有 ${Object.keys(found).length} 个漫画源可以更新`,
+                      }
                     : { kind: "ok", text: "已是最新版本" },
             );
         } catch (e) {
@@ -187,12 +190,12 @@ export default function Settings() {
                 failed > 0
                     ? {
                           kind: "err",
-                          text: `应用 ${applied} 个，${failed} 个校验失败已跳过（保留旧版本）`,
+                          text: `已更新 ${applied} 个，${failed} 个文件损坏已跳过`,
                       }
-                    : { kind: "ok", text: `已应用 ${applied} 个源更新` },
+                    : { kind: "ok", text: `已更新 ${applied} 个漫画源` },
             );
         } catch (e) {
-            setNotice({ kind: "err", text: `应用更新失败：${String(e)}` });
+            setNotice({ kind: "err", text: `更新失败：${String(e)}` });
         } finally {
             setApplying(false);
         }
@@ -212,7 +215,7 @@ export default function Settings() {
         setNotice(null);
         try {
             if (!webdav.baseUrl || !webdav.user || !webdav.password) {
-                throw new Error("请填写 WebDAV 地址、账号与密码");
+                throw new Error("请先填写地址、账号和密码");
             }
             const content = await exportBackupJson();
             const res = await webdavPut(
@@ -223,7 +226,7 @@ export default function Settings() {
                 content,
             );
             if (!res.success) throw new Error(`WebDAV 返回 HTTP ${res.status}`);
-            setNotice({ kind: "ok", text: "备份成功（收藏/历史/进度）" });
+            setNotice({ kind: "ok", text: "已备份收藏、历史和进度" });
         } catch (e) {
             setNotice({ kind: "err", text: `备份失败：${String(e)}` });
         } finally {
@@ -236,10 +239,10 @@ export default function Settings() {
         setNotice(null);
         try {
             if (!webdav.baseUrl || !webdav.user || !webdav.password) {
-                throw new Error("请填写 WebDAV 地址、账号与密码");
+                throw new Error("请先填写地址、账号和密码");
             }
             const confirmed = await confirm(
-                "恢复将用备份内容整体覆盖本地的收藏、历史与进度，确定继续？",
+                "恢复会覆盖本机现在的收藏、历史和进度",
                 { title: "恢复备份", kind: "warning" },
             );
             if (!confirmed) return;
@@ -258,7 +261,7 @@ export default function Settings() {
             }
             const data = parseBackupJson(res.content ?? "{}");
             await importBackupData(data);
-            setNotice({ kind: "ok", text: "恢复成功（收藏/历史/进度已覆盖）" });
+            setNotice({ kind: "ok", text: "已恢复收藏、历史和进度" });
         } catch (e) {
             setNotice({ kind: "err", text: `恢复失败：${String(e)}` });
         } finally {
@@ -306,9 +309,9 @@ export default function Settings() {
                 }
             });
             setDownloaded(true);
-            setNotice({ kind: "ok", text: "更新已下载，点击「重启安装」生效" });
+            setNotice({ kind: "ok", text: "新版本已下载，点「重启并安装」生效" });
         } catch (e) {
-            setNotice({ kind: "err", text: `下载更新失败：${String(e)}` });
+            setNotice({ kind: "err", text: `下载新版本失败：${String(e)}` });
         } finally {
             setDownloadingUpd(false);
         }
@@ -320,12 +323,12 @@ export default function Settings() {
             await update.install();
             await relaunch();
         } catch (e) {
-            setNotice({ kind: "err", text: `安装更新失败：${String(e)}` });
+            setNotice({ kind: "err", text: `安装失败：${String(e)}` });
         }
     }
 
     if (!settings) {
-        return <Loading label="读取设置" />;
+        return <Loading label="正在加载设置" />;
     }
 
     const sourceList = Object.values(sources);
@@ -333,7 +336,7 @@ export default function Settings() {
 
     return (
         <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-8">
-            <PageHeader title="设置" sub="阅读偏好、备份与更新" />
+            <PageHeader title="设置" sub="阅读、备份和更新" />
 
             {notice && (
                 <div
@@ -356,11 +359,11 @@ export default function Settings() {
 
             <div className="flex flex-col gap-4">
                 <Panel
-                    title="通用"
-                    desc="阅读与存储偏好"
+                    title="常用"
+                    desc="下载位置和阅读显示"
                     actions={<SlidersHorizontal className="size-4 text-muted-foreground" />}
                 >
-                    <SettingRow label="下载目录" hint="漫画下载保存的位置">
+                    <SettingRow label="下载位置" hint="下载的漫画存在这里">
                         <span className="max-w-[16rem] truncate font-mono text-xs text-muted-foreground">
                             {settings.downloadDir}
                         </span>
@@ -370,17 +373,17 @@ export default function Settings() {
                             onClick={() => void pickDir()}
                         >
                             <FolderOpen className="size-3.5" />
-                            选择
+                            更改
                         </Button>
                     </SettingRow>
-                    <SettingRow label="夜间模式" hint="深色主题，眼睛更省力">
+                    <SettingRow label="夜间模式" hint="背景变暗，晚上看着不刺眼">
                         <Switch
                             checked={isDark}
                             onCheckedChange={(v) => setDark(v)}
                             ariaLabel="夜间模式"
                         />
                     </SettingRow>
-                    <SettingRow label="自动裁边" hint="阅读时裁掉页面边缘空白">
+                    <SettingRow label="自动裁边" hint="页面稍微放大，去掉白边">
                         <Switch
                             checked={settings.autoTrim}
                             onCheckedChange={(v) => void toggleTrim(v)}
@@ -391,7 +394,7 @@ export default function Settings() {
 
                 <Panel
                     title="WebDAV 备份"
-                    desc={`收藏、历史与进度备份到自己的 WebDAV（${BACKUP_FILE}）`}
+                    desc="收藏、历史和进度存到你的网盘"
                     actions={<CloudUpload className="size-4 text-muted-foreground" />}
                 >
                     <SettingRow label="地址">
@@ -420,7 +423,7 @@ export default function Settings() {
                             onChange={(v) => void onWebdavChange({ password: v })}
                         />
                     </SettingRow>
-                    <SettingRow label="操作">
+                    <SettingRow label="备份">
                         <Button
                             variant="primary"
                             size="sm"
@@ -437,20 +440,20 @@ export default function Settings() {
                             disabled={busy}
                         >
                             <CloudDownload className="size-3.5" />
-                            {restoring ? "恢复中…" : "恢复"}
+                            {restoring ? "恢复中…" : "恢复备份"}
                         </Button>
                     </SettingRow>
                 </Panel>
 
                 <Panel
-                    title="应用更新"
-                    desc="检查应用新版本（Windows / Linux 自动更新）"
+                    title="软件更新"
+                    desc="检查新版本，下载后重启安装"
                     actions={<Info className="size-4 text-muted-foreground" />}
                 >
                     {IS_MACOS ? (
                         <SettingRow label="macOS">
                             <span className="text-xs text-muted-foreground">
-                                暂不提供自动更新，请从发布页手动下载新版本
+                                不能自动更新，请到发布页下载新版本
                             </span>
                         </SettingRow>
                     ) : (
@@ -462,7 +465,7 @@ export default function Settings() {
                                 disabled={checkingUpd || downloadingUpd}
                             >
                                 <RefreshCw className="size-3.5" />
-                                {checkingUpd ? "检查中…" : "检查更新"}
+                                {checkingUpd ? "检查中…" : "检查新版本"}
                             </Button>
                             {update && !downloaded && !downloadingUpd && (
                                 <Button
@@ -479,7 +482,7 @@ export default function Settings() {
                                     size="sm"
                                     onClick={() => void installAndRelaunch()}
                                 >
-                                    重启安装
+                                    重启并安装
                                 </Button>
                             )}
                             {updProgress && updProgress.total > 0 && (
@@ -495,8 +498,8 @@ export default function Settings() {
                 </Panel>
 
                 <Panel
-                    title="源"
-                    desc="已安装的漫画源与脚本版本"
+                    title="漫画源"
+                    desc="各漫画源的版本，可手动更新"
                     actions={<ScrollText className="size-4 text-muted-foreground" />}
                 >
                     <SettingRow label="更新">
@@ -507,7 +510,7 @@ export default function Settings() {
                             disabled={checking || applying}
                         >
                             <RefreshCw className="size-3.5" />
-                            {checking ? "检查中…" : "检查更新"}
+                            {checking ? "检查中…" : "检查源更新"}
                         </Button>
                         {Object.keys(updates).length > 0 && (
                             <Button
@@ -517,8 +520,8 @@ export default function Settings() {
                                 disabled={applying}
                             >
                                 {applying
-                                    ? "应用中…"
-                                    : `全部应用（${Object.keys(updates).length}）`}
+                                    ? "更新中…"
+                                    : `全部更新（${Object.keys(updates).length}）`}
                             </Button>
                         )}
                     </SettingRow>
@@ -533,7 +536,7 @@ export default function Settings() {
                                 label={entry.name}
                                 hint={
                                     err
-                                        ? `最近出错：${err.message.split("\n")[0]}`
+                                        ? `上次出错：${err.message.split("\n")[0]}`
                                         : new Date(entry.updatedAt).toLocaleString()
                                 }
                             >
@@ -551,7 +554,7 @@ export default function Settings() {
                 </Panel>
 
                 <footer className="pb-2 text-center text-xs text-muted-foreground">
-                    Cimoc · Rust core{" "}
+                    Cimoc · 版本{" "}
                     <code className="font-mono">{version || "…"}</code>
                     <span className="mx-1.5">·</span>
                     <a

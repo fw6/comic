@@ -35,11 +35,31 @@ export interface LocalComic {
     chapterCount: number;
 }
 
-/** 调 Rust crawl 命令：payload 编码为 JSON 字符串，返回解析后的 JSON。 */
+/** 调 Rust crawl 命令：payload 编码为 JSON 字符串，返回解析后的 JSON。
+ * 成功结果由 Rust 侧写入结果缓存，供 crawlCached 读取（stale-while-revalidate）。 */
 export function crawl<T>(op: string, source: string, payload: unknown): Promise<T> {
     return invoke<string>("crawl", { op, source, payload: JSON.stringify(payload) }).then(
         (json) => JSON.parse(json) as T,
     );
+}
+
+/** 缓存命中的抓取结果（stale-while-revalidate 的 stale 一侧）。 */
+export interface CachedCrawl<T> {
+    data: T;
+    /** 抓取时刻（unix 毫秒），前端据此判断新鲜度。 */
+    fetchedAt: number;
+}
+
+/** 读取抓取结果缓存（不触发网络）：先渲染它、再调 crawl 拉最新。
+ * 未命中或缓存通道异常均返回 null（按未命中降级，不影响 crawl 主路径）。 */
+export function crawlCached<T>(
+    op: string,
+    source: string,
+    payload: unknown,
+): Promise<CachedCrawl<T> | null> {
+    return invoke<string>("crawl_cached", { op, source, payload: JSON.stringify(payload) })
+        .then((json) => (JSON.parse(json) as CachedCrawl<T> | null) ?? null)
+        .catch(() => null);
 }
 
 export const cimocVersion = () => invoke<string>("cimoc_version");

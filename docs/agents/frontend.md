@@ -27,6 +27,13 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 - Tailwind 的 `md:`
 - beui 侧边栏内部的 `MOBILE_QUERY`
 
+## 移动端外壳与导航
+
+- 窄屏只在主导航页面上有一条导航：`src/components/shell.tsx` 的 `NavRail`（beui `overflow-actions` 药丸栏），二级页面（作品详情）不渲染它——退出靠顶部栏的返回。发现、书架常驻在栏里，下载、设置收进「…」，当前页落在溢出组时自动展开一次。桌面侧边栏与它共用 `src/lib/nav.ts` 的 `NAV`；改导航结构要同时看这两处与 `RAIL_PRIMARY` / `RAIL_OVERFLOW`。
+- 主导航页面（发现 / 书架 / 下载 / 设置）不渲染顶部栏，页头（`ui.tsx` 的 `PageHeader`）也不再写页面名——导航已经标出当前页，视觉上只留一行副标题与右侧动作，页面名以 `sr-only` 留给读屏；子页面（作品详情）才有「返回 + 标题 + 搜索」，由 `TopBar` 渲染。阅读器是沉浸模式，整条导航壳都不渲染。
+- 状态栏高度统一由 `AnimatedSidebarInset` 的 `padding-top: env(safe-area-inset-top)` 让出，页面自己不要再加；底部安全区有导航栏时栏自己让（`max(…, env(safe-area-inset-bottom))`），二级页面没有栏，由外壳按同一变量补 `padding-bottom`。
+- 主题切换入口只有设置页（`src/lib/theme.tsx` 的 `useTheme` + `Switch`）；命令面板与外壳里都没有主题按钮，加回会在设计上出现第二个入口。
+
 ## 页面保留（切页不丢状态）
 
 路由切换保留页面状态（等价 Vue 的 `<KeepAlive />`）：`src/components/keep-alive.tsx` 的 `KeepAliveRoutes` + `src/App.tsx` 的 `PAGES` 路由表。
@@ -38,6 +45,24 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 - 页面要能忍受 effect 被重放：React 在开发期（StrictMode）会在隐藏的子树重新显示时销毁并重跑它里面所有 effect。取数据的 effect 不要顺手把用户状态清掉（`src/screens/Sources.tsx` 用 `loadedSource` / `loadedRequest` 记住「这个源/这个请求已经取过」，重放时直接跳过；请求换了新对象才重新取，重试按钮照常工作）。
 
 验证走 `probe-app.mjs`：`[data-page]` 上的 `style.display` 看哪个页面是当前页，`scrollTop` 看位置是否还原，DOM 节点身份可以确认实例有没有被重建。
+
+## 发现页的源选择
+
+切换源是低频操作：源列表收在页头右侧的「当前源」按钮后，点击打开底部面板（`src/components/source-sheet.tsx`，beui `BottomSheet`；两端同一形态——贴底、居中限宽 672px）。面板里每个源一行，当前项用蓝色 12% 底与勾选标记，该源最近一次抓取失败时行内标出「上次加载失败」（打开面板时经 `sourceErrors()` 取一次）。打开时焦点落在当前源行，关闭（选择 / Escape / 点遮罩）后回到页头按钮。分类 tab 留在页面上：切分类是高频操作。面板组件来自 beui registry（`fetch-beui.mjs` 的 FILES 清单），可访问名已用 PATCHES 改为中文。
+
+## 数据加载与结果缓存（stale-while-revalidate）
+
+列表与详情的抓取结果由 Rust 侧缓存（`crawler/result_cache.rs`，见 `docs/agents/cimoc-core.md`），
+前端加载一律两段式，并先 `await whenSourcesReady()`（`lib/storage.ts` 的源脚本同步单例，
+registry 未就绪时脚本源的 op 会返回空结果）：
+
+- 先 `crawlCached(op, source, payload)` 读缓存（不触发网络，未命中返回 `null`），有就立即渲染；
+- 再 `crawl(op, source, payload)` 拉最新并覆盖，Rust 侧把成功结果写回缓存。
+
+`Sources.tsx` 的列表加载在缓存命中且 `fetchedAt` 处于新鲜窗口（`LIST_MAX_AGE_MS`，2 分钟）内时
+跳过本次请求（来回切源不重复拉取）；源返回空列表而缓存有数据时保留缓存展示（错误行另经
+`sourceErrors` 呈现）。`Detail.tsx` 只做「先缓存后拉新」、不跳过请求——渲染源的章节中转链依赖
+detail 的 post_process 写入进程内缓存（baozimh 的 images 依赖它）。
 
 ## 阅读器的分页策略
 

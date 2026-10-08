@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { crawl, sourceErrors, type Comic, type SourceError } from "../api";
-import { persistWebtoonsCache } from "../lib/storage";
+import { crawl, crawlCached, sourceErrors, type Comic, type SourceError } from "../api";
+import { persistWebtoonsCache, whenSourcesReady } from "../lib/storage";
 import { useIsMobile } from "../lib/platform";
-import { SOURCES } from "../lib/sources";
+import { SOURCES, sourceTitle } from "../lib/sources";
 import { cn } from "../lib/utils";
 import {
     Banner,
@@ -12,12 +12,12 @@ import {
     EmptyState,
     Loading,
     PageHeader,
-    Tag,
 } from "../components/ui";
 import { Button } from "../components/beui/button";
 import { Tabs, TabsList, TabsTrigger } from "../components/beui/tabs";
 import { Input } from "../components/beui/input";
-import { Compass, Search } from "lucide-react";
+import { SourceSheet } from "../components/source-sheet";
+import { ChevronDown, Compass, Search } from "lucide-react";
 
 /** 当前列表要加载什么：分类浏览（label）或搜索（keyword）。 */
 interface ListRequest {
@@ -26,6 +26,10 @@ interface ListRequest {
     category: string | null;
     keyword: string;
 }
+
+/** 列表缓存的新鲜窗口：窗口内切换源/分类直接用缓存、不发请求；
+ * 窗口外先显示缓存（stale），再拉最新覆盖（revalidate）。 */
+const LIST_MAX_AGE_MS = 2 * 60 * 1000;
 
 export default function Sources() {
     const mobile = useIsMobile();
@@ -53,8 +57,11 @@ export default function Sources() {
     // 重复取，也不清掉用户正在看的分类与列表。只在拿到结果后才记，重放时没取完的照常重取。
     const loadedSource = useRef<string | null>(null);
     const loadedRequest = useRef<ListRequest | null>(null);
+    // 源选择面板（切换源是低频操作，列表收进面板；页头只留当前源按钮）
+    const [sheetOpen, setSheetOpen] = useState(false);
+    const sourceTriggerRef = useRef<HTMLButtonElement>(null);
 
-    // 切换源：加载分类 tab，默认进第一个分类
+    // 切换源：加载分类 tab，默认进第一个分类。SWR：先渲染缓存分类（立即出 tab），再拉最新。
     useEffect(() => {
         if (loadedSource.current === source) return;
         let cancelled = false;
@@ -62,15 +69,32 @@ export default function Sources() {
         setInSearch(false);
         setComics([]);
         (async () => {
+            // 等源脚本同步完成：registry 未就绪时脚本源的 op 会返回空
+            await whenSourcesReady();
+            if (cancelled) return;
+            const cached = await crawlCached<string[]>("categories", source, {});
+            if (cancelled) return;
+            if (cached) {
+                setCategories(cached.data);
+                setCategory(cached.data[0] ?? null);
+                setRequest({
+                    source,
+                    op: "category",
+                    category: cached.data[0] ?? null,
+                    keyword: "",
+                });
+            }
             const cats = await crawl<string[]>("categories", source, {}).catch(
                 (): string[] => [],
             );
             if (cancelled) return;
             loadedSource.current = source;
-            setCategories(cats);
-            const first = cats[0] ?? null;
-            setCategory(first);
-            setRequest({ source, op: "category", category: first, keyword: "" });
+            // 源返回空（可能失败）且已有缓存时，保留缓存分类
+            if (cats.length > 0 || !cached) setCategories(cats);
+            if (!cached) {
+                setCategory(cats[0] ?? null);
+                setRequest({ source, op: "category", category: cats[0] ?? null, keyword: "" });
+            }
             const errs = await sourceErrors().catch(
                 (): Record<string, SourceError> => ({}),
             );
@@ -82,7 +106,8 @@ export default function Sources() {
         };
     }, [source]);
 
-    // 按 request 加载列表（分类浏览或搜索结果）
+    // 按 request 加载列表（分类浏览或搜索结果）。SWR：先渲染缓存列表，再拉最新替换；
+    // 缓存足够新（窗口内）时跳过本次请求（切源往返不重复拉取）。
     useEffect(() => {
         if (request.op === "category" && !request.category) return;
         if (loadedRequest.current === request) return;
@@ -90,11 +115,25 @@ export default function Sources() {
         setLoading(true);
         setSourceErr(null);
         (async () => {
+            const payload =
+                request.op === "search"
+                    ? { keyword: request.keyword }
+                    : { label: request.category };
             try {
-                const payload =
-                    request.op === "search"
-                        ? { keyword: request.keyword }
-                        : { label: request.category };
+                const cached = await crawlCached<Comic[]>(
+                    request.op,
+                    request.source,
+                    payload,
+                );
+                if (seq !== listSeq.current) return;
+                if (cached) {
+                    setComics(cached.data);
+                    setLoading(false);
+                    if (Date.now() - cached.fetchedAt < LIST_MAX_AGE_MS) {
+                        loadedRequest.current = request;
+                        return;
+                    }
+                }
                 const results = await crawl<Comic[]>(
                     request.op,
                     request.source,
@@ -102,7 +141,8 @@ export default function Sources() {
                 );
                 if (seq !== listSeq.current) return;
                 loadedRequest.current = request;
-                setComics(results);
+                // 源返回空（可能失败）且已有缓存展示时，保留缓存列表（错误行经 sourceErr 呈现）
+                if (results.length > 0 || !cached) setComics(results);
                 if (request.source === "webtoons") void persistWebtoonsCache();
             } catch (e) {
                 console.error("list failed", e);
@@ -143,12 +183,24 @@ export default function Sources() {
     return (
         <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
             <PageHeader
-                title="书源"
-                sub="浏览各大漫画源，或搜索你喜欢的作品"
+                title="发现"
+                sub="搜索漫画，或按分类浏览"
                 actions={
-                    <Tag tone="primary">
-                        {SOURCES.find((s) => s.id === source)?.title ?? source}
-                    </Tag>
+                    <button
+                        type="button"
+                        ref={sourceTriggerRef}
+                        onClick={() => setSheetOpen(true)}
+                        aria-haspopup="dialog"
+                        aria-expanded={sheetOpen}
+                        className={cn(
+                            "inline-flex h-7 items-center gap-1 rounded-full bg-primary/12 pl-3 pr-2.5 text-xs font-medium text-primary",
+                            "transition-colors hover:bg-primary/20",
+                            "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        )}
+                    >
+                        {sourceTitle(source)}
+                        <ChevronDown className="size-3.5" aria-hidden="true" />
+                    </button>
                 }
             />
 
@@ -174,22 +226,7 @@ export default function Sources() {
                 </Button>
             </div>
 
-            {/* 源与分类（beui Tabs：弹簧滑块指示器） */}
-            <Tabs
-                value={source}
-                onValueChange={(v) => v !== source && setSource(v)}
-                variant="pill"
-                className="mb-2 w-full"
-            >
-                <TabsList className="max-w-full bg-card">
-                    {SOURCES.map((s) => (
-                        <TabsTrigger key={s.id} value={s.id}>
-                            {s.title}
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-
+            {/* 分类（beui Tabs：弹簧滑块指示器）；源列表在页头的选择面板里 */}
             {categories.length > 0 && (
                 <Tabs
                     value={inSearch ? "__search" : (category ?? "")}
@@ -222,15 +259,15 @@ export default function Sources() {
             )}
 
             {loading && comics.length === 0 ? (
-                <Loading label="正在读取列表" />
+                <Loading label="正在加载列表" />
             ) : isEmpty ? (
                 <EmptyState
                     icon={<Compass className="size-7" />}
-                    text={sourceErr ? "当前源暂不可用" : "暂无内容"}
+                    text={sourceErr ? "这个漫画源暂时用不了" : "这里还没有漫画"}
                     hint={
                         sourceErr
-                            ? "可以换一个源，或稍后再试"
-                            : "换一个分类，或搜索其它关键词"
+                            ? "换一个漫画源，或稍后再试"
+                            : "换个分类，或搜别的词"
                     }
                 />
             ) : (
@@ -269,6 +306,14 @@ export default function Sources() {
                     )}
                 </div>
             )}
+
+            <SourceSheet
+                open={sheetOpen}
+                onOpenChange={setSheetOpen}
+                current={source}
+                onSelect={setSource}
+                restoreFocusRef={sourceTriggerRef}
+            />
         </div>
     );
 }

@@ -6,7 +6,7 @@ use cimoc_core::js;
 
 fn live_crawl(source: &str, op: &str, payload: &str) -> serde_json::Value {
     let script = js::sources::load(source).expect("内置脚本");
-    let out = cimoc_core::crawl(op, source, payload, &script);
+    let out = cimoc_core::crawl(op, source, payload, &script, "");
     serde_json::from_str(&out).expect("输出应为合法 JSON")
 }
 

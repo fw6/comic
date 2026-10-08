@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { Compass, Moon, Sun } from "lucide-react";
+import { Compass } from "lucide-react";
 import { NAV } from "../lib/nav";
 import { SOURCES } from "../lib/sources";
-import { useTheme } from "../lib/theme";
 import { CommandPalette, type CommandItem } from "./beui/command-palette";
 
-/** ⌘K 命令面板：页面跳转、书源直达、主题切换。 */
+/** ⌘K 命令面板：页面跳转、漫画源直达。 */
 export function CommandMenu({
     open,
     onOpenChange,
@@ -14,7 +13,6 @@ export function CommandMenu({
     onOpenChange: (open: boolean) => void;
 }) {
     const navigate = useNavigate();
-    const { isDark, setDark } = useTheme();
 
     const items: CommandItem[] = [
         ...NAV.map((entry) => ({
@@ -27,20 +25,12 @@ export function CommandMenu({
         })),
         ...SOURCES.map((source) => ({
             id: `source-${source.id}`,
-            label: `书源：${source.title}`,
-            group: "书源",
+            label: `漫画源：${source.title}`,
+            group: "漫画源",
             icon: Compass,
             keywords: [source.id, "漫画源"],
             onSelect: () => navigate(`/?source=${source.id}`),
         })),
-        {
-            id: "theme",
-            label: isDark ? "切换到浅色主题" : "切换到深色主题",
-            group: "外观",
-            icon: isDark ? Sun : Moon,
-            keywords: ["主题", "夜间", "dark", "light"],
-            onSelect: () => setDark(!isDark),
-        },
     ];
 
     return (
@@ -48,8 +38,8 @@ export function CommandMenu({
             items={items}
             open={open}
             onOpenChange={onOpenChange}
-            placeholder="搜索页面、书源或命令…"
-            emptyMessage="没有匹配的结果"
+            placeholder="搜索页面或漫画源…"
+            emptyMessage="没有找到结果"
         />
     );
 }

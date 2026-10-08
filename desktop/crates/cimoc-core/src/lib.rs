@@ -16,8 +16,21 @@ pub fn cimoc_version() -> String {
 
 /// 爬虫引擎统一入口：返回 JSON 字符串（失败返回空 JSON）。
 /// `script`：该 source 的运行时源脚本（wayfinder #15 契约；缓存类 op 忽略）。
-pub fn crawl(op: &str, source: &str, payload: &str, script: &str) -> String {
-    crawler::crawl(op, source, payload, script)
+/// `cache_dir`：结果缓存目录（空串禁用）；列表/详情类 op 的成功结果写入内存 LRU + 磁盘。
+pub fn crawl(op: &str, source: &str, payload: &str, script: &str, cache_dir: &str) -> String {
+    crawler::crawl(op, source, payload, script, cache_dir)
+}
+
+/// 读取抓取结果缓存（不触发网络）：命中返回 `{"data": <结果>, "fetchedAt": <unix_ms>}`，
+/// 未命中返回 `null`。前端 stale-while-revalidate 的 stale 一侧（先渲染缓存再拉最新）。
+pub fn cached_result(
+    op: &str,
+    source: &str,
+    payload: &str,
+    script: &str,
+    cache_dir: &str,
+) -> String {
+    crawler::cached_result(op, source, payload, script, cache_dir)
 }
 
 /// WebDAV PUT 备份：返回 JSON `{"success","status"}`。
