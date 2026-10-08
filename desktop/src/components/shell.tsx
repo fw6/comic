@@ -1,11 +1,10 @@
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowLeft, BookMarked, PanelLeft, Search } from "lucide-react";
 import { cimocVersion } from "../api";
 import { cn } from "../lib/utils";
 import { SPRING_LAYOUT } from "../lib/ease";
-import { ScrollContainerContext } from "../lib/scroll-container";
 import { NAV, type NavEntry } from "../lib/nav";
 import { ThemeToggle } from "./beui/theme-toggle";
 import { Button } from "./beui/button";
@@ -46,7 +45,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     const location = useLocation();
     const [version, setVersion] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
-    const mainRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         void cimocVersion()
@@ -54,48 +52,37 @@ export function AppShell({ children }: { children: ReactNode }) {
             .catch(() => {});
     }, []);
 
+    // 沉浸模式（阅读器/本地阅读）只摘掉导航壳：页面区保持在树里的同一位置，
+    // 保留的页面不被卸载。滚动容器由每个页面自己提供（见 KeepAliveRoutes）。
     const immersive = isImmersive(location.pathname);
     const isRootTab = NAV.some((n) => isActivePath(location.pathname, n));
 
-    if (immersive) {
-        return (
-            <div className="flex h-full flex-col">
-                <ScrollContainerContext.Provider value={mainRef}>
-                    <main ref={mainRef} className="flex min-h-0 flex-1 overflow-hidden">
-                        {children}
-                    </main>
-                </ScrollContainerContext.Provider>
-            </div>
-        );
-    }
-
     return (
         <AnimatedSidebarProvider className="h-full">
-            <AnimatedSidebar ariaLabel="主导航">
-                <SidebarContent
-                    version={version}
-                    pathname={location.pathname}
-                    onOpenMenu={() => setMenuOpen(true)}
-                />
-            </AnimatedSidebar>
+            {immersive ? null : (
+                <AnimatedSidebar ariaLabel="主导航">
+                    <SidebarContent
+                        version={version}
+                        pathname={location.pathname}
+                        onOpenMenu={() => setMenuOpen(true)}
+                    />
+                </AnimatedSidebar>
+            )}
 
             <AnimatedSidebarInset className="h-full min-h-0">
-                <TopBar
-                    title={pageTitle(location.pathname)}
-                    showBack={!isRootTab}
-                    onOpenMenu={() => setMenuOpen(true)}
-                />
+                {immersive ? null : (
+                    <TopBar
+                        title={pageTitle(location.pathname)}
+                        showBack={!isRootTab}
+                        onOpenMenu={() => setMenuOpen(true)}
+                    />
+                )}
 
-                <ScrollContainerContext.Provider value={mainRef}>
-                    <main
-                        ref={mainRef}
-                        className="min-h-0 flex-1 overflow-y-auto"
-                    >
-                        {children}
-                    </main>
-                </ScrollContainerContext.Provider>
+                <div className="relative flex min-h-0 flex-1 flex-col">
+                    {children}
+                </div>
 
-                <MobileTabBar />
+                {immersive ? null : <MobileTabBar />}
             </AnimatedSidebarInset>
 
             <CommandMenu open={menuOpen} onOpenChange={setMenuOpen} />

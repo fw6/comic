@@ -27,6 +27,18 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 - Tailwind 的 `md:`
 - beui 侧边栏内部的 `MOBILE_QUERY`
 
+## 页面保留（切页不丢状态）
+
+路由切换保留页面状态（等价 Vue 的 `<KeepAlive />`）：`src/components/keep-alive.tsx` 的 `KeepAliveRoutes` + `src/App.tsx` 的 `PAGES` 路由表。
+
+- 每个页面占一个槽位（`[data-page]`）：槽位自己就是滚动容器，并把自己的滚动容器经 `ScrollContainerContext` 给页面用。非当前页用 `display: none` 藏起来——组件状态、DOM、滚动位置都留着，同时移出无障碍树与 Tab 顺序。
+- 实例按完整路径区分（同一路由的不同作品各占一个槽位，各自读自己那次导航的参数）；`keep` 是每个路由的实例上限，按最近使用淘汰：主导航四条各 1 个，详情页 5 个，阅读器 `keep: 0`（图片与虚拟列表占用大，离开即卸载）。
+- 滚动位置在离开的瞬间读一次（浏览器会把隐藏容器的位置归零，滚动事件不一定来得及派发），显示时写回；内容还没铺满时会在随后的帧里补。
+- `AppShell` 只有一棵常驻布局树：沉浸模式（阅读器）只是不渲染导航壳，页面区始终在同一位置，切进切出不会卸载保留的页面。所以滚动容器不再由壳提供，改由每个槽位提供。
+- 页面要能忍受 effect 被重放：React 在开发期（StrictMode）会在隐藏的子树重新显示时销毁并重跑它里面所有 effect。取数据的 effect 不要顺手把用户状态清掉（`src/screens/Sources.tsx` 用 `loadedSource` / `loadedRequest` 记住「这个源/这个请求已经取过」，重放时直接跳过；请求换了新对象才重新取，重试按钮照常工作）。
+
+验证走 `probe-app.mjs`：`[data-page]` 上的 `style.display` 看哪个页面是当前页，`scrollTop` 看位置是否还原，DOM 节点身份可以确认实例有没有被重建。
+
 ## 阅读器的分页策略
 
 `src/screens/Reader.tsx` 里每一页是「先占位、后收缩」：

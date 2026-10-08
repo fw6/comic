@@ -49,9 +49,14 @@ export default function Sources() {
     const [sourceErr, setSourceErr] = useState<string | null>(null);
     // 请求序号：丢弃过期响应，避免分类/搜索竞态
     const listSeq = useRef(0);
+    // 已经建好目录的源 / 已经取到结果的请求：effect 被重放（React 开发期会重跑）时不再
+    // 重复取，也不清掉用户正在看的分类与列表。只在拿到结果后才记，重放时没取完的照常重取。
+    const loadedSource = useRef<string | null>(null);
+    const loadedRequest = useRef<ListRequest | null>(null);
 
     // 切换源：加载分类 tab，默认进第一个分类
     useEffect(() => {
+        if (loadedSource.current === source) return;
         let cancelled = false;
         setCategories([]);
         setInSearch(false);
@@ -61,6 +66,7 @@ export default function Sources() {
                 (): string[] => [],
             );
             if (cancelled) return;
+            loadedSource.current = source;
             setCategories(cats);
             const first = cats[0] ?? null;
             setCategory(first);
@@ -79,6 +85,7 @@ export default function Sources() {
     // 按 request 加载列表（分类浏览或搜索结果）
     useEffect(() => {
         if (request.op === "category" && !request.category) return;
+        if (loadedRequest.current === request) return;
         const seq = ++listSeq.current;
         setLoading(true);
         setSourceErr(null);
@@ -94,6 +101,7 @@ export default function Sources() {
                     payload,
                 );
                 if (seq !== listSeq.current) return;
+                loadedRequest.current = request;
                 setComics(results);
                 if (request.source === "webtoons") void persistWebtoonsCache();
             } catch (e) {

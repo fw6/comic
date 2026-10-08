@@ -126,7 +126,8 @@ describe("Sources 书源 List 页面（tab 切换）", () => {
         fireEvent.change(screen.getByPlaceholderText("搜索漫画标题…"), {
             target: { value: "海贼王" },
         });
-        fireEvent.click(screen.getByRole("button", { name: "搜索" }));
+        // 列表还在取时按钮叫「加载中…」且不可点，等它回到「搜索」
+        fireEvent.click(await screen.findByRole("button", { name: "搜索" }));
         await waitFor(() =>
             expect(mockedCrawl).toHaveBeenCalledWith("search", "mangadex", {
                 keyword: "海贼王",
