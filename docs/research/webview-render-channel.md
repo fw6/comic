@@ -119,6 +119,8 @@ wry 记账的 webview（新建即 `setContentView` 替换整个界面），iOS �
 
 - 离屏 webview 里 Cloudflare / 自建 PoW 挑战能否跑完（定时器节流、Android System WebView 与
   iOS WKWebView 两套内核的通过情况）。
+- 挂载式离屏视图的尺寸风险：Android 按 density 换算出 1280 CSS px 的物理尺寸（3x 屏 = 3840px 宽），
+  真机上要确认没有内存或绘制上的副作用；渲染进程崩溃与超时都有明确 reject 文案可对照。
 - 验收口径与桌面一致：baozimh 搜索 / 分类 / 详情 / 章节图片全通，nnhanman 首话图片可取；
   日志过滤（Android `adb logcat -s CimocRender`）可看到每轮状态与 reject 文案。
 
