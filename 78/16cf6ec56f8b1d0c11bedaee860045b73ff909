@@ -1,0 +1,60 @@
+desktop/src-tauri/icons/icon.manifest.json
+  s_e6886d03d49eab::t_32da1707ac21f8 1-7
+desktop/src-tauri/icons/app-icon.svg
+  s_e6886d03d49eab::t_af4b1941a90b00 20,22-30
+  s_e6886d03d49eab::t_dc7886c6bd19f8 55-56,60,64-65
+  s_e6886d03d49eab::t_9a605f969057ae 4-7,9-17,21,31,37-38,43,45,47-48,50,52-54,66-76,86,90-103,105-107
+  s_e6886d03d49eab::t_a9927140b68ee1 8
+  s_e6886d03d49eab::t_9c8f50ede16ac4 42
+  s_e6886d03d49eab::t_9f20b1e8f407f3 57-59,61-63
+  s_e6886d03d49eab::t_421db75bed751c 77,82-83
+  s_e6886d03d49eab::t_7983f23239d097 18
+  s_e6886d03d49eab::t_88ac609cda7aa3 32-36
+  s_e6886d03d49eab::t_59529020695d52 39,84-85,104
+  s_e6886d03d49eab::t_28646d0fc46c4e 2-3,40,109-110
+  s_e6886d03d49eab::t_7c9f91076e3bf6 78-81
+  s_e6886d03d49eab::t_62b87efda2b344 41
+  s_e6886d03d49eab::t_706dacdec6b13b 87-89
+  s_e6886d03d49eab::t_4a6ba52799d7dc 1
+  s_e6886d03d49eab::t_96efdd691daab2 44,46,49,51
+  s_e6886d03d49eab::t_8963fb59358883 19,108
+PRODUCT.md
+  s_e6886d03d49eab::t_5cbeabf0a91b66 45
+desktop/src-tauri/icons/app-icon-bg.svg
+  s_e6886d03d49eab::t_5154b166863181 1-4
+desktop/src-tauri/icons/app-icon-monochrome.svg
+  s_e6886d03d49eab::t_fa382171431481 1
+  s_e6886d03d49eab::t_cd90ded880e4bc 55-58
+  s_e6886d03d49eab::t_213017b16c018c 3-4,6,30-31
+  s_e6886d03d49eab::t_55dec986054fa9 28-29
+  s_e6886d03d49eab::t_2c14e0918b8830 2,59-60
+  s_e6886d03d49eab::t_990a96b1e9b0aa 5,7-27,32-54
+desktop/index.html
+  s_e6886d03d49eab::t_b1f8f7d09d6bf3 5
+desktop/public/app-icon.svg
+  s_e6886d03d49eab::t_0da2660ee3fefe 1-5,38-39,98-100
+  s_e6886d03d49eab::t_bf27da6a7ac61a 9
+  s_e6886d03d49eab::t_07901a5a235105 6-8,10-37,40-93,95-97
+  s_e6886d03d49eab::t_70124b1304abfd 94
+desktop/src-tauri/icons/app-icon-fg.svg
+  s_e6886d03d49eab::t_8e1a181d5c9096 95
+  s_e6886d03d49eab::t_e7f706a94e458e 10
+  s_e6886d03d49eab::t_1a1e1cacf90f15 1,4-5,7-9,11-38,41-94,96-98
+  s_e6886d03d49eab::t_dec22f4eeb8fea 2-3,6,39-40,99-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "7816cf6ec56f8b1d0c11bedaee860045b73ff909",
+  "prompts": {},
+  "sessions": {
+    "s_e6886d03d49eab": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83070a6b-dcb7-4f4c-be03-b32a069db4ae",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
