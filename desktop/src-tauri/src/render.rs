@@ -12,11 +12,18 @@
 //!    proof-of-work gatekeeper）等待其自动跳转，拒绝页立即报错；
 //! 5. 连续两次干净检查后提取 `document.documentElement.outerHTML` 返回。
 //!
+//! 页面状态脚本与判定（[`cimoc_core::crawler::render`] 的 `STATE_SCRIPT` /
+//! `is_clean` / `is_denied`）、轮询节奏与整体超时都由 cimoc-core 定义：移动端的
+//! 隐藏 webview 插件（`tauri-plugin-cimoc-render`）执行同一套判据。
+//!
 //! HTML 经宿主侧 eval 回调取回（tauri 2.11 的 `eval_with_callback`），远程页面不需要
 //! 任何 IPC 权限——渲染 webview 没有匹配的 capability，页面脚本无法调用应用命令。
 //! 验证通过的 cookie（cf_clearance / gatekeeper ticket）由 WKWebView/WebView2 默认
 //! 持久化数据存储保留，后续渲染与重启应用都能复用。
 
+use cimoc_core::crawler::render::{
+    is_clean, is_denied, HTML_SCRIPT, POLL_INTERVAL, RENDER_TIMEOUT, STATE_SCRIPT,
+};
 use std::sync::{mpsc, Mutex};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
@@ -24,30 +31,13 @@ use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder}
 /// 隐藏渲染 webview 的 label（capability 不覆盖它 = 远程页面无 IPC）。
 pub const RENDER_LABEL: &str = "render";
 
-/// 整体渲染超时（含验证挑战等待与跳转链）。
-const RENDER_TIMEOUT: Duration = Duration::from_secs(60);
-/// 页面状态轮询间隔。
-const POLL_INTERVAL: Duration = Duration::from_millis(500);
-/// 单次 eval 回调等待上限。
-const EVAL_TIMEOUT: Duration = Duration::from_secs(5);
 /// 复位到 about:blank 的等待上限（本地文档，正常一两个轮询即到）。
 const RESET_TIMEOUT: Duration = Duration::from_secs(5);
+/// 单次 eval 回调等待上限。
+const EVAL_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// 单飞：隐藏 webview 单实例，一次只渲染一个页面（crawl 并发调用在此排队）。
 static FLIGHT: Mutex<()> = Mutex::new(());
-
-/// 页面状态探测表达式：ch 覆盖 Cloudflare 挑战（多语言「Just a moment」系标题与
-/// challenge/turnstile 容器）与包子漫画 tw 域自建的 proof-of-work 验证页
-/// （`__gatekeeper_challenge` 资源 + 「正在验证浏览器」标题，JS 算完自动跳转）；
-/// denied 覆盖 Cloudflare 1020 拒绝页（立即失败，不空耗超时）。
-const STATE_EXPR: &str = r#"({
-  rs: document.readyState,
-  href: location.href,
-  ch: !!(document.querySelector('#challenge-form, #challenge-running, #challenge-stage, #turnstile-wrapper, cf-chl-widget, #challenge-turnstile, link[href*="gatekeeper"], script[src*="gatekeeper"]')
-    || /just a moment|only a moment|moment mal|un instant|attendez|请稍候|正在验证|正在驗證|verifying/i.test(document.title)),
-  denied: !!(document.querySelector('.cf-error-details, #cf-error-details')
-    || /attention required|access denied|error 1020/i.test(document.title))
-})"#;
 
 /// 诊断跟踪：设置环境变量 `CIMOC_RENDER_TRACE=1` 时把渲染过程打到 stderr。
 macro_rules! trace {
@@ -91,11 +81,11 @@ pub fn render_sync(app: &AppHandle, url: &str) -> Result<String, String> {
             format!("渲染超时（页面加载未完成或验证未通过）: {url}；最后状态: {last_state}")
         })?;
         std::thread::sleep(POLL_INTERVAL.min(remain));
-        match eval_value(&webview, STATE_EXPR) {
+        match eval_value(&webview, STATE_SCRIPT) {
             Ok(state) => {
                 trace!("状态: {state}");
                 last_state = state.to_string();
-                if truthy(state.get("denied")) {
+                if is_denied(&state) {
                     return Err(format!("Cloudflare 拒绝访问（错误页/访问被拒）: {url}"));
                 }
                 if is_clean(&state) {
@@ -115,7 +105,7 @@ pub fn render_sync(app: &AppHandle, url: &str) -> Result<String, String> {
             }
         }
     }
-    let html = eval_string(&webview, "document.documentElement.outerHTML")
+    let html = eval_string(&webview, HTML_SCRIPT)
         .map_err(|e| format!("渲染结果提取失败: {e}"))?;
     if html.trim().is_empty() {
         return Err(format!("渲染结果为空: {url}"));
@@ -128,7 +118,7 @@ pub fn render_sync(app: &AppHandle, url: &str) -> Result<String, String> {
 fn wait_reset(webview: &WebviewWindow) {
     let deadline = Instant::now() + RESET_TIMEOUT;
     while Instant::now() < deadline {
-        if let Ok(state) = eval_value(webview, STATE_EXPR) {
+        if let Ok(state) = eval_value(webview, STATE_SCRIPT) {
             if state.get("href").and_then(|v| v.as_str()) == Some("about:blank") {
                 return;
             }
@@ -167,26 +157,6 @@ fn ensure_webview(app: &AppHandle) -> Result<WebviewWindow, String> {
     rx.recv_timeout(Duration::from_secs(10))
         .map_err(|e| format!("渲染 webview 创建超时: {e}"))?
         .map_err(|e| format!("渲染 webview 创建失败: {e}"))
-}
-
-/// 状态是否「干净」：目标文档 DOM 解析完成、无验证挑战页、已离开 about:blank。
-/// readyState 接受 interactive：阅读器页有长时间挂起的子资源（统计/广告脚本），
-/// complete 可能永远不来；interactive = 主文档解析完成，outerHTML 已含全部内容，
-/// 解析 HTML 只需要标记结构。
-fn is_clean(state: &serde_json::Value) -> bool {
-    matches!(
-        state.get("rs").and_then(|v| v.as_str()),
-        Some("complete") | Some("interactive")
-    ) && !truthy(state.get("ch"))
-        && !truthy(state.get("denied"))
-        && state
-            .get("href")
-            .and_then(|v| v.as_str())
-            .is_some_and(|h| h.starts_with("http"))
-}
-
-fn truthy(v: Option<&serde_json::Value>) -> bool {
-    v.and_then(|v| v.as_bool()).unwrap_or(false)
 }
 
 /// eval 并把结果 JSON 反序列化（eval_with_callback 的回调收到 JSON 字符串）。

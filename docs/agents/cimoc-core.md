@@ -13,9 +13,13 @@
 
 ## 渲染源（隐藏 webview 通道，2026-09-30 起）
 
-- **JS 挑战 / 客户端环境校验型防护的源**（当前 baozimh）整源改经隐藏 webview 渲染通道取页面：
-  `crawler/render.rs` 的 `needed(source)` 声明、`script.rs::fetch` 分流、宿主（src-tauri）经
-  `render::set_fetcher` 注册实现；取回的渲染后 HTML 走与普通抓取相同的 parse 契约。
+- **JS 挑战 / 客户端环境校验型防护的源**（当前 baozimh、nnhanman）整源改经隐藏 webview 渲染通道取页面：
+  `crawler/render.rs` 的 `needed(source)` 声明、`script.rs::fetch` 分流、宿主经 `render::set_fetcher`
+  注册实现（桌面 = src-tauri 的隐藏窗口，移动 = `tauri-plugin-cimoc-render` 的离屏 webview）；取回的
+  渲染后 HTML 走与普通抓取相同的 parse 契约。
+- 判据的唯一定义处也在 `crawler/render.rs`：`STATE_SCRIPT`（页面状态脚本）、`HTML_SCRIPT`、
+  `is_clean` / `is_denied`、`POLL_INTERVAL`、`RENDER_TIMEOUT`；桌面宿主与移动端原生侧共用，挑战页
+  形态变化只改这里（测试用 QuickJS + 页面桩覆盖各形态）。
 - 未注册宿主（cimoc-core 单独跑测试）时 `fetch` 返回「渲染通道未注册」错误，由 `record_error`
   呈现；`cargo test` 不依赖 webview。
 - baozimh 的章节中转链 URL 经 detail 解析的隐藏字段 `pageUrl` + `script::post_process` 入

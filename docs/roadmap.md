@@ -23,6 +23,7 @@ wayfinder 地图「从 Lynx 迁移到 Tauri」(#2) 已关闭，桌面 v1 功能�
 - 功能集 = 桌面 v1 同一套；验收 = 核心阅读路径真机跑通。
 - FCM 推送 + 后台下载需自定义 Kotlin/Swift 插件（预算 2–4 周）；自动更新走应用商店。
 - **骨架与 spike 完成**（2026-08-15，[wayfinder 地图 #28](https://github.com/fw6/comic/issues/28) 全关）：grilling #29 定案验收仅核心阅读路径（书源→详情→无限滚动→进度）、存储层平台切换（桌面 store / 移动 fs）、图片同一套、下载仅前台、复用现有前端；research #30（fs 替换可行、iOS scheme 零改动/Android 改 URL 形态、init 产物）；task #31——`tauri android/ios init` 骨架 + 三个构建修复（rquickjs 加 bindgen feature 支持 iOS 绑定、Android bindgen 注入 NDK sysroot、`src-tauri/tauri` 软链到 CLI）+ Android 模拟器 spike 验证（app 稳定、Tauri bridge 通、前端完整渲染）。**下一步是真机跑通核心阅读路径端到端**（搜索→详情→无限滚动→进度，storage-fs 平台切换已实现待真机确认）。
+- **移动端渲染通道完成**（2026-10-08）：受防护源（baozimh / nnhanman）在移动端不再报「渲染通道未注册」——自建插件 `crates/tauri-plugin-cimoc-render`（Kotlin `WebView` / Swift `WKWebView` 离屏加载，判据与节奏由 cimoc-core 下发）经 `run_mobile_plugin` 接入，桌面端仍走隐藏窗口实现。Android release APK 构建通过（插件类经 consumer rules 保留、Gradle 模块自动接入），Swift 包与 Rust 的 iOS 目标编译通过；**iOS 应用链接在本机 Xcode 27 下被上游 swift-rs 的符号可见性问题阻断（CI 的 Xcode 26 不受影响，见 `docs/agents/tauri-development.md` 坑 9）**。真机待确认：离屏 webview 里挑战页 JS 能否跑完（定时器节流）与两套内核的通过情况；验收口径与桌面一致，见 `docs/research/webview-render-channel.md`。
 
 ## e2e（tauri-driver）
 
