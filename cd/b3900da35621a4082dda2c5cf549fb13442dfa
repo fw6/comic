@@ -1,0 +1,95 @@
+desktop/crates/tauri-plugin-cimoc-render/Cargo.toml
+  s_1c715c0f12b7db::t_c230ef13e96c2a 20-22
+  s_1c715c0f12b7db::t_826a01bfd7c23d 18
+  s_1c715c0f12b7db::t_a15f0b28d199df 1-17,19,23-24
+desktop/src-tauri/src/lib.rs
+  s_1c715c0f12b7db::t_b7c942d9318fe2 412-413,416-417
+  s_1c715c0f12b7db::t_84dd5f8845588a 15-16
+  s_1c715c0f12b7db::t_3c2e7b032025f1 394
+docs/roadmap.md
+  s_1c715c0f12b7db::t_068231824a23cc 26
+desktop/crates/tauri-plugin-cimoc-render/src/desktop.rs
+  s_1c715c0f12b7db::t_995dff85f696d2 14-16
+  s_1c715c0f12b7db::t_66f6d7905247b8 1-13,17-18
+desktop/crates/tauri-plugin-cimoc-render/.gitignore
+  s_1c715c0f12b7db::t_7963e9c8916745 6-7
+  s_1c715c0f12b7db::t_9dd379215b7e80 1-5,8-9
+desktop/src-tauri/src/render.rs
+  s_1c715c0f12b7db::t_b0ed9e9f4da924 15-18,24-26,36-37,84,88,108,121
+desktop/crates/tauri-plugin-cimoc-render/android/src/main/java/io/github/fw6/cimoc/render/RenderPlugin.kt
+  s_1c715c0f12b7db::t_bb1e9702d2ddfe 39
+  s_1c715c0f12b7db::t_c1716d8310c4cd 24-25
+  s_1c715c0f12b7db::t_60bfa1982e64c2 256
+  s_1c715c0f12b7db::t_95b04930a0dcbe 77,97-101,115-126,128,133,140-145
+  s_1c715c0f12b7db::t_da1fed42c2c0e8 269-271
+  s_1c715c0f12b7db::t_390b3044ef0d9f 66
+  s_1c715c0f12b7db::t_bfe168752382c6 149,152
+  s_1c715c0f12b7db::t_93d4b68440e6ea 1-23,26-38,40-65,67-76,78-96,102-114,127,129-132,134-139,146-148,150-151,153-155,157-255,257-268,272-283
+  s_1c715c0f12b7db::t_0a10f94d906b95 156
+docs/agents/cimoc-core.md
+  s_1c715c0f12b7db::t_fa5c4a73a61c4e 16-22
+desktop/crates/tauri-plugin-cimoc-render/android/.gitignore
+  s_1c715c0f12b7db::t_0b5f283f885969 1-2
+desktop/crates/tauri-plugin-cimoc-render/src/mobile.rs
+  s_1c715c0f12b7db::t_d46b6e78fa7b3b 3,38
+  s_1c715c0f12b7db::t_e929a505fc57cf 13
+  s_1c715c0f12b7db::t_53e506a105952b 1-2,4-12,14-37,39-61
+desktop/crates/tauri-plugin-cimoc-render/src/lib.rs
+  s_1c715c0f12b7db::t_841b1b98084cce 57
+  s_1c715c0f12b7db::t_6960417e06aa2e 58
+  s_1c715c0f12b7db::t_dab184495ba0c4 44
+  s_1c715c0f12b7db::t_efc267d679c64b 78-143
+  s_1c715c0f12b7db::t_49b05fbf98c638 1-25,27-41,63-77
+  s_1c715c0f12b7db::t_ef1522d7e78434 42
+  s_1c715c0f12b7db::t_24ed2fc00f5469 26
+desktop/crates/tauri-plugin-cimoc-render/build.rs
+  s_1c715c0f12b7db::t_7ab53da5acfc3b 1-18
+desktop/crates/tauri-plugin-cimoc-render/android/src/main/AndroidManifest.xml
+  s_1c715c0f12b7db::t_b44c169e094d14 1-3
+desktop/Cargo.toml
+  s_1c715c0f12b7db::t_b55a56a0a6703c 2
+desktop/crates/cimoc-core/src/crawler/render.rs
+  s_1c715c0f12b7db::t_00659da23cb98e 3-6,10-16,19,25-54,61-76,93-125,143-197
+desktop/crates/tauri-plugin-cimoc-render/android/settings.gradle
+  s_1c715c0f12b7db::t_9c7c18209d63c6 1-2
+desktop/crates/tauri-plugin-cimoc-render/android/build.gradle.kts
+  s_1c715c0f12b7db::t_a3204e2973d05b 24,26
+  s_1c715c0f12b7db::t_4adcae05f02c0b 1-23,25,27-28
+desktop/crates/tauri-plugin-cimoc-render/ios/Sources/RenderPlugin.swift
+  s_1c715c0f12b7db::t_0285b79cbafad2 134,137
+  s_1c715c0f12b7db::t_3849d3d1e82a31 158
+  s_1c715c0f12b7db::t_c9ae6a7c600361 42-43,49,52
+  s_1c715c0f12b7db::t_4dc4fa3b6bc446 21
+  s_1c715c0f12b7db::t_e73031986c783d 1-20,22-41,44-48,50-51,53-87,90-101,103-133,135-136,138-157,159-267
+  s_1c715c0f12b7db::t_d72d55ef5c7940 88-89,102
+docs/agents/tauri-development.md
+  s_1c715c0f12b7db::t_1988abdc9f41a3 42-49
+  s_1c715c0f12b7db::t_8f147af6c5e0da 23-25,27,30
+  s_1c715c0f12b7db::t_5f010f40e4fcbc 50-59
+  s_1c715c0f12b7db::t_e7616a9f3f56ff 28-29
+docs/research/webview-render-channel.md
+  s_1c715c0f12b7db::t_bc275f4e07d178 10-18,24-26
+  s_1c715c0f12b7db::t_b152b4a293ea38 75-90,102-103,109-123
+  s_1c715c0f12b7db::t_a5bd3e7be718ea 130-133
+  s_1c715c0f12b7db::t_686cda76b42d39 91-101,104-108
+desktop/crates/tauri-plugin-cimoc-render/ios/Package.swift
+  s_1c715c0f12b7db::t_fc6bcc38b37056 1-29
+desktop/src-tauri/Cargo.toml
+  s_1c715c0f12b7db::t_4e322d7f9eeb23 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "cdb3900da35621a4082dda2c5cf549fb13442dfa",
+  "prompts": {},
+  "sessions": {
+    "s_1c715c0f12b7db": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_96843cae-f9d0-4695-b030-8c54dfe56e20",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
