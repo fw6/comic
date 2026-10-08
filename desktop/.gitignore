@@ -37,3 +37,7 @@ src-tauri/tauri
 
 # 本地中间结果（构建/运行日志等）
 .scratch
+
+# Android release 包（apksigner 签名产物，release.yml 与本地构建同名落在这里）
+cimoc-*-android.apk
+cimoc-*-android.apk.idsig

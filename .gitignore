@@ -14,7 +14,10 @@ dist/
 
 # TypeScript
 *.tsbuildinfo
+
+# 本机工具状态（ZCode 与 video2code 插件缓存）
 .zcode/
+.v2c/
 
 # 探针中间产物（render_probe dump）
 desktop/.probe/
