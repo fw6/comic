@@ -1,0 +1,259 @@
+desktop/crates/cimoc-core/src/lib.rs
+  s_fa02f3ff525597::t_1689b355d751c8 19-33
+desktop/crates/cimoc-core/tests/result_cache_test.rs
+  s_fa02f3ff525597::t_e822d2b59529b1 1-67
+desktop/crates/cimoc-core/tests/live_smoke.rs
+  s_fa02f3ff525597::t_a933a583d7b061 9
+desktop/src/components/ui.tsx
+  s_ff33fffc2fbf28::t_2bac2aa8151369 20-23,34-36
+desktop/src/lib/downloads.test.ts
+  s_be8f29896b6e96::t_aea66dd49308e4 1-86
+desktop/src-tauri/src/lib.rs
+  s_fa02f3ff525597::t_bd39ebb94ba1fa 297-316
+  s_fa02f3ff525597::t_d3db3f428ad4f0 436-445
+  s_fa02f3ff525597::t_2f490b61e386f5 457
+  s_fa02f3ff525597::t_092f0b9a2e1765 474
+  s_fa02f3ff525597::t_72ce3b0a3de4f3 261,273,275
+  s_fa02f3ff525597::t_7b62e92ab4ce2e 20-22
+  s_fa02f3ff525597::t_8a249c50402190 50-52
+desktop/scripts/audit-contrast.mjs
+  s_ff33fffc2fbf28::t_332811a402b915 130-139
+  s_ff33fffc2fbf28::t_f684d0054f2d87 160-161
+docs/agents/cimoc-core.md
+  s_fa02f3ff525597::t_e01b4fbd258270 31-38,40-44
+  s_fa02f3ff525597::t_70bbff26475f1a 39
+desktop/src/components/beui/overflow-actions.tsx
+  s_be8f29896b6e96::t_1d9c98bab51255 1-375
+desktop/src/lib/downloads.ts
+  s_be8f29896b6e96::t_0be629e27fc974 1-74
+desktop/src/api.test.ts
+  s_fa02f3ff525597::t_f75707258ffefd 12
+  s_fa02f3ff525597::t_e45747f558fbab 88-114
+desktop/src/lib/storage.test.ts
+  s_fa02f3ff525597::t_c274c2178bb1c4 351-364
+  s_fa02f3ff525597::t_56e5bbcd2a5652 81
+desktop/src/screens/Settings.tsx
+  s_ff33fffc2fbf28::t_687e497457fd92 362-363,366,376,379,386,397
+  s_ff33fffc2fbf28::t_80c342cbcdc54b 229
+  s_ff33fffc2fbf28::t_c0bfba683c30d2 218
+  s_ff33fffc2fbf28::t_0e2c4b578e45c4 557
+  s_ff33fffc2fbf28::t_0cc0f041cbdaf8 193,195,198
+  s_ff33fffc2fbf28::t_43da75613240aa 426,443
+  s_ff33fffc2fbf28::t_09d6c8d25cede4 539
+  s_ff33fffc2fbf28::t_735e52b1924d04 264
+  s_ff33fffc2fbf28::t_45e57aa39adacd 513,523-524
+  s_ff33fffc2fbf28::t_6b74a280dfae9c 242,245
+  s_ff33fffc2fbf28::t_b84797141c6646 449-450,456,468,485
+  s_ff33fffc2fbf28::t_167ba6068a183c 312
+  s_ff33fffc2fbf28::t_42cebf0a74ce84 314
+  s_ff33fffc2fbf28::t_438ef8ba9689c0 326
+  s_ff33fffc2fbf28::t_c025c8e36f47e4 339
+  s_ff33fffc2fbf28::t_b51fe24939664a 148-151
+  s_ff33fffc2fbf28::t_193f2e13f06c9d 331
+  s_ff33fffc2fbf28::t_a829bac3f75019 501-502
+desktop/src/lib/storage.ts
+  s_fa02f3ff525597::t_acbbac3cda5acf 243-253
+desktop/src-tauri/examples/render_probe.rs
+  s_fa02f3ff525597::t_06be409f205a93 66-67
+  s_fa02f3ff525597::t_f47ce036fd6db6 79
+  s_fa02f3ff525597::t_da818584c2b922 86
+desktop/src/styles/beui.css
+  s_be8f29896b6e96::t_3d556f699b7727 51
+CONTEXT.md
+  s_be8f29896b6e96::t_1ad5db6b1f9b45 21
+  s_fa02f3ff525597::t_45f11bb9d011eb 12
+docs/agents/frontend.md
+  s_be8f29896b6e96::t_a9d7546e460aa3 30-31,35-36
+  s_fa02f3ff525597::t_33278bab494545 53-55,58-66
+  s_fa02f3ff525597::t_7e5a16cfdf67be 56-57
+  s_ff33fffc2fbf28::t_89e7e9a21cc455 32-34
+  s_ff33fffc2fbf28::t_6c301b7c17f732 49
+  s_fa02f3ff525597::t_1677bd3026bed0 50-52
+desktop/crates/cimoc-core/src/crawler/result_cache.rs
+  s_fa02f3ff525597::t_789cf489f7064d 1-48,52,54-75,77,79-234,244-305
+  s_fa02f3ff525597::t_fe387e458a2f0d 235-243
+  s_fa02f3ff525597::t_73bb08dfac9049 76,78
+  s_fa02f3ff525597::t_0d0fe4445100d7 49-51,53
+DESIGN.md
+  s_be8f29896b6e96::t_a876649d3a4e5b 133
+  s_fa02f3ff525597::t_d4d2221f3914f6 294-295
+  s_e6886d03d49eab::t_d3a4947b8d7f37 234,239
+  s_be8f29896b6e96::t_113c0ad8126069 273-274
+  s_be8f29896b6e96::t_b5397aa665e8be 89-98,109
+  s_be8f29896b6e96::t_1af199a0d521c9 285-287
+  s_ff33fffc2fbf28::t_34d6d94798dfea 275
+  s_be8f29896b6e96::t_7f191894fd56c4 279-282
+  s_ff33fffc2fbf28::t_5e1c9a6aeeb1e9 283
+  s_be8f29896b6e96::t_77a726782285b5 157
+  s_ff33fffc2fbf28::t_3c5a7ce640ba8a 291
+  s_e6886d03d49eab::t_887c605e2019e5 228-231,238,240-242
+  s_ff33fffc2fbf28::t_720c806fd910f2 184
+  s_ff33fffc2fbf28::t_9e594ab1444777 293
+  s_ff33fffc2fbf28::t_b32e3b36a03f31 198,200
+  s_e6886d03d49eab::t_4b401f645ac2d3 232-233,235-237
+  s_ff33fffc2fbf28::t_e4232761f05b95 141
+desktop/src/screens/Downloads.tsx
+  s_be8f29896b6e96::t_9ccb4bf4540dda 66-69,75-81,88-91,98-101
+  s_be8f29896b6e96::t_619ef154e680dc 3-4,16-23,63,119,150-155,164-280,292-295,298-305,325-329,331,336
+  s_ff33fffc2fbf28::t_72a1dad4d0fcb0 125
+  s_ff33fffc2fbf28::t_296afffec4c382 141,145-146
+  s_be8f29896b6e96::t_5f0e8f016180c3 1
+desktop/crates/cimoc-core/src/crawler/script.rs
+  s_fa02f3ff525597::t_0cee4b3efb7dd3 47-48,55,62,68,76,80
+desktop/src/screens/Sources.tsx
+  s_fa02f3ff525597::t_d770b1bd3f70e0 72-74
+  s_fa02f3ff525597::t_92c92a42ca3320 6,19-20
+  s_fa02f3ff525597::t_9dc0a1d3fdbf17 3
+  s_fa02f3ff525597::t_23f2f4cd43f15f 30-33
+  s_fa02f3ff525597::t_52cd94fbf431ae 64,75-86,92-97,109-110,118-121,123-136,144-145
+  s_fa02f3ff525597::t_3b84250fa05d9d 60-62
+  s_fa02f3ff525597::t_1ed7315cadeb2e 4
+  s_fa02f3ff525597::t_971eeba9ff3662 189-203,229
+  s_ff33fffc2fbf28::t_d344092f961efa 262,266,269-270
+  s_ff33fffc2fbf28::t_952658f2029d4b 186-187
+  s_fa02f3ff525597::t_674414f52ebd11 309-316
+desktop/src/screens/Sources.test.tsx
+  s_fa02f3ff525597::t_66464750d86fb2 15,26,30
+  s_fa02f3ff525597::t_abe8764f6d18c5 177-239
+  s_fa02f3ff525597::t_231762f3dd77d1 81
+  s_fa02f3ff525597::t_79d905021a6714 114,117-119
+  s_ff33fffc2fbf28::t_e01135aaa46fbb 10
+  s_fa02f3ff525597::t_91aac2376bff13 80,82
+  s_fa02f3ff525597::t_0b08895e8c9642 240-246,248-277
+  s_fa02f3ff525597::t_a04d143b80a203 161-162
+  s_ff33fffc2fbf28::t_f021b46e095510 247
+  s_fa02f3ff525597::t_b0747b075ca088 23
+  s_ff33fffc2fbf28::t_f8ec8d44bc8812 89
+desktop/scripts/fetch-beui.mjs
+  s_fa02f3ff525597::t_caa871b6d934a1 25
+  s_be8f29896b6e96::t_bcf3595ad7ef40 36
+  s_fa02f3ff525597::t_b0c07f825edc29 96-98
+  s_fa02f3ff525597::t_0f0432c2e2b01a 84-85,90-95
+desktop/crates/cimoc-core/tests/source_script_test.rs
+  s_fa02f3ff525597::t_0b224a7c617927 901,906,908,914,921,928,930,932,934,936,938,940,942,944,946-947,953,955-956,958,960,962-963
+  s_fa02f3ff525597::t_d06c1e9683472c 7-8,10-11
+  s_fa02f3ff525597::t_4c40564994f487 9
+desktop/src/screens/Reader.tsx
+  s_ff33fffc2fbf28::t_e7297c4a53676c 399
+  s_be8f29896b6e96::t_dab89584abfe7b 405-412
+  s_ff33fffc2fbf28::t_d7095fa5f58837 435-436
+  s_ff33fffc2fbf28::t_d51a9e2ca23746 506
+  s_be8f29896b6e96::t_b775e28fa3ffc3 170
+  s_ff33fffc2fbf28::t_b195b88fccfa74 500
+desktop/src/test-setup.ts
+  s_fa02f3ff525597::t_7faa24df8f71e6 47-50
+docs/roadmap.md
+  s_be8f29896b6e96::t_1f569ac1fff0f2 34
+desktop/crates/cimoc-core/src/crawler/mod.rs
+  s_fa02f3ff525597::t_c0fb8834a94a39 11-14,26,30-33,36-60,63,65,68-74,76,82,84
+desktop/crates/cimoc-core/src/crawler/mangadex.rs
+  s_fa02f3ff525597::t_eca997ccc7e94f 54-62
+desktop/src/components/command-menu.tsx
+  s_be8f29896b6e96::t_69da932e14e827 2
+  s_ff33fffc2fbf28::t_c0d0a73eb141ec 28-29
+  s_ff33fffc2fbf28::t_df8830b0005476 41-42
+  s_ff33fffc2fbf28::t_28ce6a3f137ce1 7
+desktop/src/api.ts
+  s_fa02f3ff525597::t_36765ed73ca711 38-39,46-62
+desktop/src/components/shell.tsx
+  s_ff33fffc2fbf28::t_ea32c719d8659f 30
+  s_ff33fffc2fbf28::t_1d087a48a9583a 268-269
+  s_be8f29896b6e96::t_18d9eb0cabf79a 226-227,232
+  s_ff33fffc2fbf28::t_84cb3d03e853ba 34
+  s_ff33fffc2fbf28::t_84b9c363dc8c10 94
+  s_ff33fffc2fbf28::t_4346897b24f34d 57-58,75-81
+  s_be8f29896b6e96::t_3ffb62759edf4d 187,189,192-200
+  s_be8f29896b6e96::t_bccf94693df267 241-243,245-249,251-252,272,274
+  s_be8f29896b6e96::t_c85bc4960af6a2 168,173,177-178,180-181
+  s_ff33fffc2fbf28::t_b56c514028e04b 169
+  s_be8f29896b6e96::t_c751f0e1d1d759 218-225,228-229,231,233,235-240,244,253-267,270-271,273,275-278
+  s_be8f29896b6e96::t_10f08678f2b558 72-74,82-83
+  s_ff33fffc2fbf28::t_a37afdb228da7c 179
+  s_be8f29896b6e96::t_faf51894c37b38 1-2,8
+  s_ff33fffc2fbf28::t_28c570826e344b 207
+desktop/src/lib/nav.ts
+  s_ff33fffc2fbf28::t_f73df99a53b317 12
+desktop/src/screens/Detail.tsx
+  s_ff33fffc2fbf28::t_b7d1845d75d2ee 170
+  s_ff33fffc2fbf28::t_c350670fc020b7 143
+  s_fa02f3ff525597::t_1307d4710033fd 7
+  s_ff33fffc2fbf28::t_c84ee02277ad0b 418
+  s_fa02f3ff525597::t_06584ae46d7c67 20
+  s_ff33fffc2fbf28::t_82cf99e64a3d59 242
+  s_ff33fffc2fbf28::t_6b594e19807fbc 458
+  s_be8f29896b6e96::t_ad598056e939c2 459-469,471-485,488-517
+  s_fa02f3ff525597::t_4e915bd4911ed5 78-82,90-93,113-123
+  s_ff33fffc2fbf28::t_ea33a1776561b1 470
+  s_ff33fffc2fbf28::t_5c3948165a54f0 340
+  s_be8f29896b6e96::t_023ffbc635b7e0 4-6,8-13,15-19,21,34,47,55-64,87,96-112,144-163,165-169,171-212,216
+  s_ff33fffc2fbf28::t_3c1edaf89d3bae 129
+  s_ff33fffc2fbf28::t_c229c255d18514 41
+  s_ff33fffc2fbf28::t_25f758a469de77 351
+  s_fa02f3ff525597::t_95d3e7de6691be 75-77
+  s_ff33fffc2fbf28::t_07cf9b26283981 164
+  s_ff33fffc2fbf28::t_2b414f5891fa4b 213-215
+  s_be8f29896b6e96::t_0254953ef2790a 333,344-350,352-353,369-384,389-408,410-417,419-431,438-457,486-487
+  s_ff33fffc2fbf28::t_6d6e689fb1dc04 359-360
+  s_ff33fffc2fbf28::t_e537e7c09c0a9c 409
+desktop/src/App.tsx
+  s_fa02f3ff525597::t_46184002b47c15 40-42
+  s_fa02f3ff525597::t_7499ebc505f49b 9
+desktop/src/screens/Library.tsx
+  s_ff33fffc2fbf28::t_761a289765f410 277
+  s_ff33fffc2fbf28::t_e91b7ef7abc77a 42
+  s_ff33fffc2fbf28::t_4955746a8f9cca 75
+  s_ff33fffc2fbf28::t_e4398e9b43caa4 100,104-105
+  s_ff33fffc2fbf28::t_715707a44661d5 129,133-134
+  s_ff33fffc2fbf28::t_85eb2f6f5120e5 178
+  s_ff33fffc2fbf28::t_e44c6c722c828a 154-155,158,163
+  s_ff33fffc2fbf28::t_98d13145c5ab6b 191-192,194
+  s_be8f29896b6e96::t_2b188ef62f3c6c 112
+desktop/src/components/source-sheet.tsx
+  s_fa02f3ff525597::t_43e8508522cffc 1-55,57-109
+  s_ff33fffc2fbf28::t_e03211b37e95d9 56
+desktop/src/components/beui/bottom-sheet.tsx
+  s_fa02f3ff525597::t_74c35e0d6d8cc1 203
+  s_fa02f3ff525597::t_b0545471e26050 157
+  s_fa02f3ff525597::t_3a80613c6879cf 1-156,158-202,204-222,224-248
+  s_fa02f3ff525597::t_edfd13b0e812bb 223
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "04461b63623c6173c745170f05d6073265aef249",
+  "prompts": {},
+  "sessions": {
+    "s_be8f29896b6e96": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_1f4d2803-5d2e-4fe8-9c2b-eb1793f0cbab",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_e6886d03d49eab": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_83070a6b-dcb7-4f4c-be03-b32a069db4ae",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_fa02f3ff525597": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_2a5eeb27-474e-47b9-9765-67e99051699e",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_ff33fffc2fbf28": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_a0f1a297-683c-4d02-9b09-83bdabe37950",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
