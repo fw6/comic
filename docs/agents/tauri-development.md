@@ -29,6 +29,73 @@
   连续两次干净 → 取 HTML」，不含任何站点选择器。
 - 布局细节、验证页识别、移动端离屏 webview 的取舍与维护注意见 `docs/research/webview-render-channel.md`。
 
+## 自动更新通道（`updater/`）
+
+- 桌面端用官方 tauri-plugin-updater；`plugins.updater.endpoints` 指向
+  `https://cimoc-updater.fengw.site/latest.json`，服务是 `updater/` 里的 Cloudflare Worker。
+- 仓库私有，GitHub Releases 对未登录客户端一律 404，所以清单与制品都由 Worker 用
+  `GITHUB_TOKEN` 从 GitHub Releases 取回后对外提供；只提供 GitHub 判定的「最新已发布
+  版本」，draft release 在人工 publish 之前不对外。
+- `*.workers.dev` 在本机所在网络连不上（实测 443 超时，而 Cloudflare 边缘 IP 与
+  github.com 都通），所以 Worker 挂在自有域名的子域下，与 `blog.fengw.site` 同一做法。
+- 改了 `updater/src/` 或 `updater/wrangler.toml` 要 `cd updater && npx wrangler deploy`；
+  密钥、发布开关与撤掉步骤见 `updater/README.md`。
+
+## Android OTA（应用内升级）
+
+官方 `tauri-plugin-updater` 在移动端是空实现（`package.metadata.platforms.support.android
+= "none"`，`install_inner` 直接返回 `Ok(())`），所以 Android 另走一条：
+
+- 分层：清单拉取 / 版本比对（semver）/ 下载 / sha256 校验在 cimoc-core 的 `native/ota.rs`
+  （与平台无关、可单测）；状态机与命令在 `src-tauri/src/ota.rs`（`ota_check` /
+  `ota_download` / `ota_install` / `ota_can_install` / `ota_open_install_settings`，只在
+  移动端编译并注册，见 `lib.rs` 的 `#[cfg(mobile)]`）；安装是自建插件
+  `crates/tauri-plugin-cimoc-update/`（Android Kotlin `PackageInstaller`，iOS Swift 三个
+  命令都回「不支持」）。
+- 通道地址在 `tauri.conf.json` 的 `plugins.cimoc-update.endpoint`，与桌面端的
+  `plugins.updater.endpoints` 并列；Rust 侧经 `app.config().plugins` 读原始 JSON，不走
+  插件的 `getConfig`。
+- **签名是这条路的前提**：Android 只允许同签名的包覆盖安装，CI 用 secret
+  `ANDROID_KEYSTORE_BASE64` 里的固定密钥签名（`release.yml` 的 sign APK 步骤）。客户端
+  在交出去之前用 `getPackageArchiveInfo(..., GET_SIGNING_CERTIFICATES)` 比一次签名，
+  不一致直接报「需要先卸载再安装」，不让用户走完系统安装器再看一句看不懂的失败。
+- 权限与接收器声明在**插件模块的** `android/src/main/AndroidManifest.xml` 里
+  （`REQUEST_INSTALL_PACKAGES` + `InstallResultReceiver`）：Gradle 合并进应用 manifest，
+  而 `gen/android` 每次 `tauri android init` 都会重建，写在那里会丢。
+- 安装会话的状态经 `PendingIntent` 广播回来，所以接收器要写进 manifest，并由插件模块的
+  `consumer-rules.pro` 保留（类名只出现在 manifest 与 Intent 里，R8 看不到静态引用）；
+  `@TauriPlugin` / `@InvokeArg` 类仍由 tauri-android 的 consumer rules 保留。
+- 建会话要把整个 APK 拷进安装器存储（几十兆），这一步放后台线程；`startActivity` 拉起
+  安装确认界面与 `invoke` 结算回主线程。
+- 本机验证 Android 目标的编译用 `scripts/check-android.sh`（宿主 `cargo check` 看不到
+  `#[cfg(mobile)]` 的代码，`ota.rs` 与插件的 `mobile.rs` 都在其中；CI 的 `cargo test`
+  同样覆盖不到，release.yml 的 build-android 作业才是这道门槛）。
+
+### 端到端验证（模拟器，不需要真机与线上通道）
+
+整条链路在模拟器上跑通过（API 37 arm64），做法如下：
+
+1. 起模拟器（`emulator -avd <名字> -no-window -gpu swiftshader_indirect`），关掉安装校验
+   与动画：`settings put global package_verifier_enable 0`、`verifier_verify_adb_installs 0`。
+2. 在主机上用一个静态 HTTP 服务当更新通道，目录里放 `android.json` 与 APK。**`url` 要写
+   绝对地址**——真实通道里这一步是 Worker 把清单里的文件名改写成自己的 `/dl` 路径，客户端
+   只接受完整 URL。
+3. `adb reverse tcp:<端口> tcp:<端口>`：设备侧的 127.0.0.1 指向主机的这个服务（构建时的
+   `--config` 把 endpoint 指到 `http://127.0.0.1:<端口>/android.json`）。
+4. 构建时用 `--config` 覆盖 `plugins.cimoc-update.endpoint` 与 `version`，**不改任何源码**：
+   `npx tauri android build --apk --debug --target aarch64 --config override.json`。
+5. `adb install` 旧版本（调试包）；再构建新版本的**发布包**并用同一个密钥签名
+   （`apksigner sign --ks ~/.android/debug.keystore --ks-key-alias androiddebugkey`），
+   放进通道目录。调试包有 240 MB 上下，下载会顶到探针超时，发布包只有 20 MB 左右。
+6. 驱动：`adb forward tcp:<主机口> tcp:9223`（注意方向：桥是**设备端**服务，用 forward；
+   本地通道是**主机端**服务，用 reverse），再用 `desktop/scripts/probe-app.mjs` 调 `ota_*`
+   命令；界面路径直接在设置页点「检查新版本 → 下载 → 安装」。
+7. 系统确认界面用 `adb shell uiautomator dump` 取结构化文本找按钮（不要截图）；
+   `adb shell dumpsys package io.github.fw6.cimoc | grep versionName` 核对版本是否变化。
+
+模拟器带 Play 商店时，安装前会弹 Play Protect 的「扫描应用」，挡住系统确认界面；
+`adb shell pm disable-user --user 0 com.android.vending` 关掉它即可（验完 `pm enable` 还原）。
+
 ## 坑（Gotchas）
 
 1. **Tauri 同步命令在主线程执行**：阻塞式 reqwest 必须放 async 命令 + `tauri::async_runtime::spawn_blocking`，否则冻结 UI。
@@ -57,3 +124,11 @@
    Xcode 26 不受影响；另外工程部署目标 14.0 低于 Xcode 27 支持的 15.0，用 27 时需在
    `tauri.conf.json` 的 `bundle > iOS > minimumSystemVersion` 抬高（或 `ios init` 后改
    `gen/apple/project.yml`）。
+10. **自建插件的配置类型必须声明，否则应用启动即 panic**：`tauri::plugin::Builder::new(name)`
+    的配置类型默认是 `()`，而 tauri 在插件初始化时会按这个类型反序列化 `tauri.conf.json` 的
+    `plugins.<name>` 段——只要那里放了一个对象，启动时就报
+    `PluginInitialization(.. invalid type: map, expected unit)` 并直接 abort。要么用
+    `Builder::<R, Config>::new(name)` 声明配置类型（`Config` 的字段加 `#[serde(default)]`），
+    要么别在 `plugins` 下给它写配置。`cargo check` 与 `cargo test` 都发现不了，只有把应用跑起来
+    才会暴露；`crates/tauri-plugin-cimoc-update/src/lib.rs` 里有一个读真实 `tauri.conf.json`
+    的测试，专门盯这条。

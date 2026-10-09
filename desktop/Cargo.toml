@@ -1,3 +1,3 @@
 [workspace]
-members = ["src-tauri", "crates/cimoc-core", "crates/tauri-plugin-cimoc-render"]
+members = ["src-tauri", "crates/cimoc-core", "crates/tauri-plugin-cimoc-render", "crates/tauri-plugin-cimoc-update"]
 resolver = "2"

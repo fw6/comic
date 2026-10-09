@@ -562,6 +562,7 @@ dependencies = [
  "reqwest 0.12.28",
  "rquickjs",
  "scraper",
+ "semver",
  "serde",
  "serde_json",
  "sha2",
@@ -924,6 +925,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-cimoc-render",
+ "tauri-plugin-cimoc-update",
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
  "tauri-plugin-mcp-bridge",
@@ -4628,6 +4630,16 @@ name = "tauri-plugin-cimoc-render"
 version = "0.1.0"
 dependencies = [
  "cimoc-core",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
+]
+
+[[package]]
+name = "tauri-plugin-cimoc-update"
+version = "0.1.0"
+dependencies = [
  "serde",
  "serde_json",
  "tauri",

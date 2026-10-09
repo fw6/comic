@@ -29,9 +29,16 @@ import {
     webdavGet,
     webdavPut,
     cimocVersion,
+    otaCheck,
+    otaDownload,
+    otaInstall,
+    otaCanInstall,
+    otaOpenInstallSettings,
+    type OtaProgress,
     type SourceError,
 } from "../api";
 import { check as checkUpdate, type Update } from "@tauri-apps/plugin-updater";
+import { Channel } from "@tauri-apps/api/core";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { cn } from "../lib/utils";
 import { Button } from "../components/beui/button";
@@ -48,6 +55,15 @@ const BACKUP_FILE = "cimoc-backup.json";
 
 /** macOS 平台检测：ad-hoc 签名无法过 Gatekeeper 整包替换，macOS 不发自动更新（wayfinder #26）。 */
 const IS_MACOS = navigator.userAgent.includes("Mac");
+
+/** iOS 检测：UA 里也带 "Mac OS X"，所以要在 IS_MACOS 之外单独认一次。 */
+const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+/** Android 平台检测：走应用内 OTA——更新通道的 android.json + 系统安装器。 */
+const IS_ANDROID = navigator.userAgent.includes("Android");
+
+/** 没有应用内更新通道的平台：macOS 与 iOS 都只能手动装新版。 */
+const NO_INAPP_UPDATE = IS_MACOS || IS_IOS;
 
 /** 源仓库 index（wayfinder #16：公开单一 JSON，每源条目含内嵌脚本 + 整数版本 + sha256）。 */
 const REPO_INDEX_URL =
@@ -91,6 +107,15 @@ export default function Settings() {
     const [downloadingUpd, setDownloadingUpd] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
     const [updProgress, setUpdProgress] = useState<{
+        done: number;
+        total: number;
+    } | null>(null);
+    // Android OTA 段（移动端：检查 → 下载 → 交给系统安装器）
+    const [otaVersion, setOtaVersion] = useState<string | null>(null);
+    const [otaChecking, setOtaChecking] = useState(false);
+    const [otaDownloading, setOtaDownloading] = useState(false);
+    const [otaReady, setOtaReady] = useState(false);
+    const [otaProgress, setOtaProgress] = useState<{
         done: number;
         total: number;
     } | null>(null);
@@ -327,6 +352,78 @@ export default function Settings() {
         }
     }
 
+    // ---------- Android OTA（移动端：更新通道 → 系统安装器） ----------
+
+    async function otaCheckNow() {
+        setOtaChecking(true);
+        setNotice(null);
+        setOtaVersion(null);
+        setOtaReady(false);
+        setOtaProgress(null);
+        try {
+            const found = await otaCheck();
+            if (found.available) {
+                setOtaVersion(found.version ?? null);
+                setNotice({ kind: "ok", text: `发现新版本 v${found.version}` });
+            } else {
+                setNotice({ kind: "ok", text: "已是最新版本" });
+            }
+        } catch (e) {
+            setNotice({ kind: "err", text: `检查更新失败：${String(e)}` });
+        } finally {
+            setOtaChecking(false);
+        }
+    }
+
+    async function otaDownloadNow() {
+        setOtaDownloading(true);
+        setNotice(null);
+        try {
+            const channel = new Channel<OtaProgress>();
+            channel.onmessage = (event) => {
+                if (event.event === "started") {
+                    setOtaProgress({ done: 0, total: event.total });
+                } else if (event.event === "progress") {
+                    setOtaProgress({ done: event.done, total: event.total });
+                }
+            };
+            const apk = await otaDownload(channel);
+            setOtaProgress(null);
+            setOtaReady(true);
+            setNotice({ kind: "ok", text: `v${apk.version} 已下载，点「安装」交给系统` });
+        } catch (e) {
+            setOtaProgress(null);
+            setNotice({ kind: "err", text: `下载新版本失败：${String(e)}` });
+        } finally {
+            setOtaDownloading(false);
+        }
+    }
+
+    async function otaInstallNow() {
+        setNotice(null);
+        try {
+            // 没授权「安装未知应用」时先跳设置页：直接装只会拿到系统安装器的失败
+            if (!(await otaCanInstall())) {
+                await otaOpenInstallSettings();
+                setNotice({
+                    kind: "ok",
+                    text: "请先允许本应用「安装未知应用」，再回来点安装",
+                });
+                return;
+            }
+            const result = await otaInstall();
+            setNotice({
+                kind: "ok",
+                text:
+                    result.status === "installed"
+                        ? `已安装 v${result.version}，重启后生效`
+                        : `v${result.version} 已交给系统安装，请在系统界面确认`,
+            });
+        } catch (e) {
+            setNotice({ kind: "err", text: `安装失败：${String(e)}` });
+        }
+    }
+
     if (!settings) {
         return <Loading label="正在加载设置" />;
     }
@@ -447,11 +544,58 @@ export default function Settings() {
 
                 <Panel
                     title="软件更新"
-                    desc="检查新版本，下载后重启安装"
+                    desc={
+                        IS_ANDROID
+                            ? "检查新版本，下载后交给系统安装"
+                            : NO_INAPP_UPDATE
+                              ? "本平台不能应用内更新，请到发布页下载新版本"
+                              : "检查新版本，下载后重启安装"
+                    }
                     actions={<Info className="size-4 text-muted-foreground" />}
                 >
-                    {IS_MACOS ? (
-                        <SettingRow label="macOS">
+                    {IS_ANDROID ? (
+                        <SettingRow label="版本">
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => void otaCheckNow()}
+                                disabled={otaChecking || otaDownloading}
+                            >
+                                <RefreshCw className="size-3.5" />
+                                {otaChecking ? "检查中…" : "检查新版本"}
+                            </Button>
+                            {otaVersion && !otaReady && !otaDownloading && (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => void otaDownloadNow()}
+                                >
+                                    下载 v{otaVersion}
+                                </Button>
+                            )}
+                            {otaReady && (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => void otaInstallNow()}
+                                >
+                                    安装
+                                </Button>
+                            )}
+                            {otaProgress && (
+                                <span className="text-xs tabular-nums text-muted-foreground">
+                                    {otaProgress.total > 0
+                                        ? `${Math.round(
+                                              (otaProgress.done / otaProgress.total) * 100,
+                                          )}%`
+                                        : `${Math.round(
+                                              otaProgress.done / 1024 / 1024,
+                                          )} MB`}
+                                </span>
+                            )}
+                        </SettingRow>
+                    ) : NO_INAPP_UPDATE ? (
+                        <SettingRow label={IS_IOS ? "iOS" : "macOS"}>
                             <span className="text-xs text-muted-foreground">
                                 不能自动更新，请到发布页下载新版本
                             </span>

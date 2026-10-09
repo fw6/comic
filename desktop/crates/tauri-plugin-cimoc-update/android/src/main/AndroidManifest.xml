@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 安装未知应用：PackageInstaller 建会话的前提，targetSdk 26 起必须显式声明。
+         这条权限声明在插件模块里，Gradle 合并进应用 manifest——gen/android 每次
+         `tauri android init` 都会重建，写在那里会丢。 -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application>
+        <!-- 安装会话的状态回调入口：commit 交出的 PendingIntent 指向这个接收器。
+             exported=false：广播由本应用自己创建的 PendingIntent 发出，带着本应用的身份。 -->
+        <receiver
+            android:name="io.github.fw6.cimoc.update.InstallResultReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

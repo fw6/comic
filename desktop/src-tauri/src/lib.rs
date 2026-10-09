@@ -17,6 +17,11 @@ mod img_proxy;
 #[cfg(desktop)]
 pub mod render;
 
+/// Android OTA 更新（桌面端走官方 tauri-plugin-updater）。只在移动端编译：
+/// 命令面与状态都是 Android 安装通道专用的。
+#[cfg(mobile)]
+mod ota;
+
 /// 应用缓存目录（setup 时解析 app cache dir 填充，代理线程里拿不到 AppHandle）：
 /// 图片代理缓存与抓取结果缓存共用。
 static APP_CACHE_DIR: OnceLock<String> = OnceLock::new();
@@ -418,6 +423,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_cimoc_render::init())
+        .plugin(tauri_plugin_cimoc_update::init())
         // 主窗口销毁时连带销毁隐藏渲染 webview，保持「关掉全部窗口即退出」的原有行为
         .on_window_event(|window, event| {
             if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
@@ -450,6 +456,9 @@ pub fn run() {
             render::init(app.handle());
             #[cfg(mobile)]
             tauri_plugin_cimoc_render::init_fetcher(app.handle());
+            // Android OTA 状态（移动端才有这条通道）
+            #[cfg(mobile)]
+            ota::init(app.handle());
             // 本机图片代理（research #31 换代理）：绑定 127.0.0.1 随机端口，端口经
             // img_proxy_port 暴露给前端；取代自定义 scheme（Android 30s 拦截上限根因）。
             if let Ok((listener, port)) = img_proxy::bind_img_proxy() {
@@ -488,7 +497,18 @@ pub fn run() {
             enqueue_download,
             cancel_download,
             retry_download,
-            clear_downloads
+            clear_downloads,
+            // Android OTA（桌面端走官方更新器，这条通道只在移动端注册）
+            #[cfg(mobile)]
+            ota::ota_check,
+            #[cfg(mobile)]
+            ota::ota_download,
+            #[cfg(mobile)]
+            ota::ota_install,
+            #[cfg(mobile)]
+            ota::ota_can_install,
+            #[cfg(mobile)]
+            ota::ota_open_install_settings
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

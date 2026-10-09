@@ -260,3 +260,56 @@ export const webdavGet = (
     invoke<string>("webdav_get", { base, user, password, fileName }).then(
         (json) => JSON.parse(json) as WebdavGetResult,
     );
+
+// ---------- Android OTA 更新（桌面端走 @tauri-apps/plugin-updater） ----------
+// 这三步是一个状态机，必须按 check → download → install 的顺序调用：Rust 侧
+// （src-tauri 的 ota 模块）把中间结果存在 State 里，跳步会报「先检查更新」。
+
+/** 检查结果：`available` 为真时 version 是通道给出的新版本号。 */
+export interface OtaCheck {
+    available: boolean;
+    /** 当前安装的版本。 */
+    current: string;
+    /** 通道里的最新版本（没有可发布版本时缺省）。 */
+    version?: string;
+}
+
+/** 下载进度（与 Rust 侧 OtaProgress 的 camelCase 字段一致）。 */
+export interface OtaProgress {
+    event: "started" | "progress" | "finished";
+    done: number;
+    total: number;
+}
+
+/** 已下载待安装的安装包。 */
+export interface OtaDownloaded {
+    version: string;
+    path: string;
+}
+
+/** 安装结果：`confirming` 表示系统安装确认界面已拉起，`installed` 表示已装上。 */
+export interface OtaInstallResult {
+    status: string;
+    version: string;
+}
+
+/** 拉更新通道的 Android 清单，与已安装版本比对。 */
+export const otaCheck = (): Promise<OtaCheck> =>
+    invoke<string>("ota_check").then((json) => JSON.parse(json) as OtaCheck);
+
+/** 下载安装包到缓存目录（进度经 Channel 推送），落盘后校验 sha256。 */
+export const otaDownload = (channel: Channel<OtaProgress>): Promise<OtaDownloaded> =>
+    invoke<string>("ota_download", { channel }).then(
+        (json) => JSON.parse(json) as OtaDownloaded,
+    );
+
+/** 把下载好的安装包交给系统安装器（安装成功后系统会结束本进程）。 */
+export const otaInstall = (): Promise<OtaInstallResult> =>
+    invoke<string>("ota_install").then((json) => JSON.parse(json) as OtaInstallResult);
+
+/** 是否已获得「安装未知应用」授权。 */
+export const otaCanInstall = (): Promise<boolean> => invoke<boolean>("ota_can_install");
+
+/** 跳到系统的「安装未知应用」授权页。 */
+export const otaOpenInstallSettings = (): Promise<void> =>
+    invoke<void>("ota_open_install_settings");
