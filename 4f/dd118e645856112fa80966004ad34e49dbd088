@@ -1,0 +1,77 @@
+desktop/src/screens/Reader.tsx
+  s_04c945ac83b4f1::t_14b0a232fd5514 1-7,9,19,30,33,54-62,84,93-96,112-116,146-155,164,210-226,291-319,321-330,333-336,338-343,351,438-446,458,490,494,496-499,503-504,509,556,568,570,572,578-589,591-632,637-642,644-658,683,702,715
+  s_04c945ac83b4f1::t_adec77a92bf569 8
+  s_04c945ac83b4f1::t_200c1b3da489de 473,480
+  s_04c945ac83b4f1::t_1f9ec9174958b6 590
+  s_04c945ac83b4f1::t_886dbc69406719 643
+  s_04c945ac83b4f1::t_719a3a60187dcb 429-430,435-436
+  s_04c945ac83b4f1::t_348120a545a1b8 453-454,459-462
+DESIGN.md
+  s_04c945ac83b4f1::t_c1b631eb8c4550 326
+  s_04c945ac83b4f1::t_2770ec69a76d76 211
+  s_04c945ac83b4f1::t_2db9e9f88ae4e0 223
+  s_04c945ac83b4f1::t_c093ed3ce77bd1 286-289,292-294
+  s_04c945ac83b4f1::t_1ece8be16ce495 167-173,176
+  s_04c945ac83b4f1::t_a1469ae96acd2e 308-311
+docs/agents/tauri-development.md
+  s_a52b129e49ee2e::t_4b601b5bf35852 21
+  s_a52b129e49ee2e::t_5fffc899cbbe86 28-29
+  s_04c945ac83b4f1::t_c13d16fec765a7 135-139
+desktop/src/lib/scroll.test.ts
+  s_04c945ac83b4f1::t_7756aea432830c 2,4-7,10-12,15-17,21-22
+desktop/src/lib/storage.ts
+  s_04c945ac83b4f1::t_9c41aec8fa04d6 167-176
+  s_04c945ac83b4f1::t_59fc9fa4748aeb 141-142
+  s_04c945ac83b4f1::t_38452020265f73 31-34
+docs/agents/frontend.md
+  s_a52b129e49ee2e::t_6bd073ffb5fcbb 72-73
+  s_04c945ac83b4f1::t_2645c16c567da1 53-54
+  s_04c945ac83b4f1::t_f5bf402467fd86 80,83-84,87-91
+  s_04c945ac83b4f1::t_ee5359fd51859f 55-60
+desktop/src/lib/scroll.ts
+  s_04c945ac83b4f1::t_d97053b64c8b96 3-4,8,11
+desktop/src/styles/beui.css
+  s_04c945ac83b4f1::t_80c3e8f81a7997 64-65
+  s_04c945ac83b4f1::t_62edc24224683b 94-97
+  s_04c945ac83b4f1::t_5775a2c39e4c78 33-38
+desktop/src/screens/Sources.tsx
+  s_04c945ac83b4f1::t_3a5c3aabec925f 360,364-370,374-376
+  s_04c945ac83b4f1::t_56d42299ba3026 4-9,39-46,48-78,81,89,104-105,110-119,126-128,137-139,149-151,216-220,222-223,420
+  s_04c945ac83b4f1::t_5c17cb77c9a42f 25
+  s_04c945ac83b4f1::t_864fab6c9f9081 233,237-238,242-247
+  s_04c945ac83b4f1::t_0712a2bd68799b 298-328,330,343
+desktop/src/lib/storage.test.ts
+  s_04c945ac83b4f1::t_a135589487c0bd 192-193,204-205,208-217
+  s_04c945ac83b4f1::t_49b8e16278c5ca 78
+desktop/src-tauri/capabilities/default.json
+  s_04c945ac83b4f1::t_2093f3c60f5302 8
+desktop/src/screens/Sources.test.tsx
+  s_04c945ac83b4f1::t_56d104fd4c8975 96
+  s_04c945ac83b4f1::t_a1ac589eedae32 24-25,29,34-44
+  s_04c945ac83b4f1::t_60887589de4988 336-390
+  s_04c945ac83b4f1::t_8afadb584eb0f4 292-335
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "4fdd118e645856112fa80966004ad34e49dbd088",
+  "prompts": {},
+  "sessions": {
+    "s_04c945ac83b4f1": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_12f3bffe-352a-4fc2-8ebe-6103e5c1bb81",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_a52b129e49ee2e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_e78ea165-98ec-46ef-89e1-00471f508d05",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
