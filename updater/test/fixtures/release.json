@@ -1,0 +1,26 @@
+{
+  "_comment": "app-v1.4.0 的 GitHub Releases API 响应摘录（id/name/url 为真实值），供清单改写测试用。",
+  "tag_name": "app-v1.4.0",
+  "draft": true,
+  "assets": [
+    { "id": 601290452, "name": "cimoc-1.4.0-1.x86_64.rpm", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290452" },
+    { "id": 601290523, "name": "cimoc-1.4.0-1.x86_64.rpm.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290523" },
+    { "id": 601329752, "name": "cimoc-1.4.0-android.apk", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601329752" },
+    { "id": 601272792, "name": "cimoc-1.4.0-ios-simulator.app.zip", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601272792" },
+    { "id": 601268918, "name": "cimoc_1.4.0_aarch64.app.tar.gz", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601268918" },
+    { "id": 601268948, "name": "cimoc_1.4.0_aarch64.app.tar.gz.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601268948" },
+    { "id": 601268820, "name": "cimoc_1.4.0_aarch64.dmg", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601268820" },
+    { "id": 601290553, "name": "cimoc_1.4.0_amd64.AppImage", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290553" },
+    { "id": 601290654, "name": "cimoc_1.4.0_amd64.AppImage.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290654" },
+    { "id": 601290381, "name": "cimoc_1.4.0_amd64.deb", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290381" },
+    { "id": 601290427, "name": "cimoc_1.4.0_amd64.deb.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290427" },
+    { "id": 601292218, "name": "cimoc_1.4.0_x64-setup.exe", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292218" },
+    { "id": 601292276, "name": "cimoc_1.4.0_x64-setup.exe.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292276" },
+    { "id": 601269261, "name": "cimoc_1.4.0_x64.app.tar.gz", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601269261" },
+    { "id": 601269328, "name": "cimoc_1.4.0_x64.app.tar.gz.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601269328" },
+    { "id": 601269180, "name": "cimoc_1.4.0_x64.dmg", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601269180" },
+    { "id": 601292128, "name": "cimoc_1.4.0_x64_en-US.msi", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292128" },
+    { "id": 601292191, "name": "cimoc_1.4.0_x64_en-US.msi.sig", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292191" },
+    { "id": 601292331, "name": "latest.json", "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292331" }
+  ]
+}

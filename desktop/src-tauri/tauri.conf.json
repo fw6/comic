@@ -41,8 +41,11 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJEQUMwRDVDMkFERTRFRkIKUldUN1R0NHFYQTJzTGErY1Frb0V2U3AyRVNtY21WZ2VtYS90WDl2ay9xME8zSzJpZmtaSHRCRlkK",
       "endpoints": [
-        "https://github.com/fw6/comic/releases/latest/download/latest.json"
+        "https://cimoc-updater.fengw.site/latest.json"
       ]
+    },
+    "cimoc-update": {
+      "endpoint": "https://cimoc-updater.fengw.site/android.json"
     }
   }
 }

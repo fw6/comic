@@ -1,0 +1,51 @@
+{
+  "version": "1.4.0",
+  "notes": "",
+  "pub_date": "2026-09-30T15:56:59.886Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFJjcWFaNERsQWJyajg5cWZGUmFIL0xHci90U2JiVVpEVzFDNHhWRHIyUFlESFN5SkhvMWhKQmxWUS9zY1YwMFFWSnl3elhUVFA3QlVoN1lWRVRza0FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzMTAwCWZpbGU6Y2ltb2MuYXBwLnRhci5negpHajdkV2hKMWI5U0lvbHp2WXh0NjJ2Tld2ZVZ4aFlDamI1MUcrdGppN25ReVJZN0ovbndFZ1QzL3Q4Zm9VU1pYVXZxNGJudmRlcjRPZUxLa2hpMzNCUT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601268918"
+    },
+    "darwin-aarch64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFJjcWFaNERsQWJyajg5cWZGUmFIL0xHci90U2JiVVpEVzFDNHhWRHIyUFlESFN5SkhvMWhKQmxWUS9zY1YwMFFWSnl3elhUVFA3QlVoN1lWRVRza0FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzMTAwCWZpbGU6Y2ltb2MuYXBwLnRhci5negpHajdkV2hKMWI5U0lvbHp2WXh0NjJ2Tld2ZVZ4aFlDamI1MUcrdGppN25ReVJZN0ovbndFZ1QzL3Q4Zm9VU1pYVXZxNGJudmRlcjRPZUxLa2hpMzNCUT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601268918"
+    },
+    "darwin-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFFjS3UwYTViTC84NUtISWdja1hiZjlneXljV2lJVWJ5eVJYWFQ0bmx1aEY1dWtmZTFzSkYydXR4RkVvZ1hDS0ZlTHNuUWNnclVYY2lkbXJteXh1dHdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzMTEyCWZpbGU6Y2ltb2MuYXBwLnRhci5negpKVWVSOUxid2RxN3Q0NDBoNGxNMHBpTi9UT1lDbFludjR3UW9oTWg2OGgrbU9Wd1VBeldXaUJnYWRZemxjc1BnMlptVjQrZVBoTFpVbXZIazdWNWlEQT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601269261"
+    },
+    "darwin-x86_64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFFjS3UwYTViTC84NUtISWdja1hiZjlneXljV2lJVWJ5eVJYWFQ0bmx1aEY1dWtmZTFzSkYydXR4RkVvZ1hDS0ZlTHNuUWNnclVYY2lkbXJteXh1dHdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzMTEyCWZpbGU6Y2ltb2MuYXBwLnRhci5negpKVWVSOUxid2RxN3Q0NDBoNGxNMHBpTi9UT1lDbFludjR3UW9oTWg2OGgrbU9Wd1VBeldXaUJnYWRZemxjc1BnMlptVjQrZVBoTFpVbXZIazdWNWlEQT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601269261"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFRYeHN6WlU3KzJjMllUbW9hSGo5M1h1bU10VVNkQ0pjT1QvYmU1VkthRHpNbFNVcWpzYzhFL1dCTlo1dWRLNUljbWNoTGhiWXJ6QkZtME4zN1hESHdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzODAwCWZpbGU6Y2ltb2NfMS40LjBfeDY0X2VuLVVTLm1zaQpLcEVCQzM1UDN4V2twQ0Z1dGxLMkRpS2E1cUZsSU1vbkhtL1hKaXJzYVdQNmt5MEhMaUNTQ2YvVWJrd3BkOVUxZlhGSDZkUWRYdGJjZUpXSUcyTU5DUT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292128"
+    },
+    "windows-x86_64-msi": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFRYeHN6WlU3KzJjMllUbW9hSGo5M1h1bU10VVNkQ0pjT1QvYmU1VkthRHpNbFNVcWpzYzhFL1dCTlo1dWRLNUljbWNoTGhiWXJ6QkZtME4zN1hESHdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzODAwCWZpbGU6Y2ltb2NfMS40LjBfeDY0X2VuLVVTLm1zaQpLcEVCQzM1UDN4V2twQ0Z1dGxLMkRpS2E1cUZsSU1vbkhtL1hKaXJzYVdQNmt5MEhMaUNTQ2YvVWJrd3BkOVUxZlhGSDZkUWRYdGJjZUpXSUcyTU5DUT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292128"
+    },
+    "windows-x86_64-nsis": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTFN5anpWQTZXblV3WWpmVDgxWEQxc0pySDVFc2k5Q1VKL1lseHZkT3l3NEZMaG5zQ0ZiOXByYzNjWmwvRmVGeC9hTUNqNnErN0U5NU9WWUtFcVhMZndNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzODAwCWZpbGU6Y2ltb2NfMS40LjBfeDY0LXNldHVwLmV4ZQp3Wmo3WkxDWElhMkM5U1FUMGtWREdCalJnNlJwQTlueHg2bHJVTEdCWk80VVFvWnhNSXR6UzZIYUJvOGVwQ2hMbUNialVmSWliSmgxajNTRE5lUkhBUT09Cg==",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601292218"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTGF1T0VkL2thTGpLMnpMTUY0MmNJTmlNZmxSTzFsbnhOTXBTN21uUFBJRStSMzlQcDN6MWZ1VXUraThiUStsK29nWm5ROXlCaGk0ZUdnZEdGWTNIWmcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzNzYzCWZpbGU6Y2ltb2NfMS40LjBfYW1kNjQuQXBwSW1hZ2UKMHRVUG05QVlGVFJCTWI1d0FxMnAvSzhwa0xDS21UNEEyVXgyOVJBMXhPaW9zQmRKV1hGK3F5N0JrYytFRTVQMGdBcTlOKzhaa0paUjhCSUZZZkxQRHc9PQo=",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290553"
+    },
+    "linux-x86_64-appimage": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTGF1T0VkL2thTGpLMnpMTUY0MmNJTmlNZmxSTzFsbnhOTXBTN21uUFBJRStSMzlQcDN6MWZ1VXUraThiUStsK29nWm5ROXlCaGk0ZUdnZEdGWTNIWmcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzNzYzCWZpbGU6Y2ltb2NfMS40LjBfYW1kNjQuQXBwSW1hZ2UKMHRVUG05QVlGVFJCTWI1d0FxMnAvSzhwa0xDS21UNEEyVXgyOVJBMXhPaW9zQmRKV1hGK3F5N0JrYytFRTVQMGdBcTlOKzhaa0paUjhCSUZZZkxQRHc9PQo=",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290553"
+    },
+    "linux-x86_64-deb": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTGRsemVqa0JMWUVKWE5JRHdPTy9JODJvODRjNzhPZytnK1hKYitOeFBhRW0zemRlMkdJU3R2Qkl2RjZld3JSVG9PRWdtV3dpMWQrMzMyOHpLeGhKS0FRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzNzYzCWZpbGU6Y2ltb2NfMS40LjBfYW1kNjQuZGViCkloUkp2cTZzVVN2Rk5FdmQ5WlJvc3hnMFVFaVdDMGs2eERDRXcvREJjOG5ia3dlS3NJQU1nNm5RS1ZCeGt1WGsvc0lqelVpcmlVdEZRV2JjUzVMUkF3PT0K",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290381"
+    },
+    "linux-x86_64-rpm": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN1R0NHFYQTJzTGNZY0FERnF2WGFwRGpVN0toWlp5NXhnQlhBRVhIYnVUalJ6ZS9obHdtOHFMS2p4ekRSQkRCSUZ1MHZUNjhadENCd2VPakxpSFozbGRTaThZWlc2Y0FnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkwNzgzNzYzCWZpbGU6Y2ltb2MtMS40LjAtMS54ODZfNjQucnBtClNodlZRQW54anZVVUhNcXRhSDZQYVVITWEzZEs5TDI3dXViRW9BRWwyRzNGaElDT1JyWmhydVhmcm9ZallpMk5PRDY4RmhDUFdrL1NkbzFZeVdZUUF3PT0K",
+      "url": "https://api.github.com/repos/fw6/comic/releases/assets/601290452"
+    }
+  }
+}

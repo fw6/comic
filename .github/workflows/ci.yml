@@ -1,4 +1,5 @@
-# 独立测试门槛（grilling #10 定案）：PR/push 触发，cargo test + tsc + vitest run。
+# 独立测试门槛（grilling #10 定案）：PR/push 触发，cargo test + tsc + vitest run
+# + 更新通道（updater/）的 node --test。
 # 发布走 release.yml（tag 触发），不在此重复。
 name: CI
 
@@ -38,3 +39,18 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm test
       - run: cargo test
+
+  # 更新通道的 Worker：只依赖 node 内置测试运行器，不需要装依赖
+  updater:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: updater
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+
+      - run: npm test

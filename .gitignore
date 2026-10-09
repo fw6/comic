@@ -21,3 +21,14 @@ dist/
 
 # 探针中间产物（render_probe dump）
 desktop/.probe/
+
+# Cloudflare Worker 更新通道（updater/）
+updater/.dev.vars
+updater/.wrangler/
+
+# Android 发布签名密钥（只留本机一份，口令在 .env.local；丢了就发不出可覆盖安装的更新）
+*.keystore
+*.jks
+
+# 中间结果（探针脚本、构建与运行日志）
+.scratch/
