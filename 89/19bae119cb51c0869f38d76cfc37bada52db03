@@ -1,0 +1,115 @@
+desktop/Cargo.lock
+  s_852fde73b7d53e::t_8b66023ae59de8 565,928,4639-4642
+desktop/crates/tauri-plugin-cimoc-update/android/src/main/java/io/github/fw6/cimoc/update/UpdatePlugin.kt
+  s_852fde73b7d53e::t_93b72d860e7ecb 1-322
+desktop/crates/tauri-plugin-cimoc-update/ios/Sources/UpdatePlugin.swift
+  s_852fde73b7d53e::t_94398aa5abc153 1-36
+desktop/src-tauri/src/lib.rs
+  s_852fde73b7d53e::t_5e8b9e8b70cb8b 20-24
+  s_852fde73b7d53e::t_6730b51ed7f750 500-511
+  s_852fde73b7d53e::t_851c715a4c412d 459-461
+  s_852fde73b7d53e::t_8a3fc63f3ece8a 426
+desktop/src-tauri/src/ota.rs
+  s_852fde73b7d53e::t_ca1cfe14d6c854 132-133
+  s_852fde73b7d53e::t_40fcd2b3d206b4 192-194,196-198,201-209
+  s_852fde73b7d53e::t_1bf1499fe70f6a 69-77,83-88,90
+  s_852fde73b7d53e::t_f263a423931e16 151-152
+  s_852fde73b7d53e::t_239153117abe00 147,150,153,156-157,161,165-166
+  s_852fde73b7d53e::t_b174b4941b713a 1-24,26-68,78-82,89,91-103,107-131,134-146,148-149,154-155,158-160,162-164,167-191,195,199-200,210-219
+  s_852fde73b7d53e::t_a154189bdc8e83 104-106
+  s_852fde73b7d53e::t_2d30921b409ea0 25
+desktop/crates/tauri-plugin-cimoc-update/android/build.gradle.kts
+  s_852fde73b7d53e::t_8d577c4d046bdf 1-30
+desktop/crates/cimoc-core/src/native/mod.rs
+  s_852fde73b7d53e::t_c2aa5851ac0a21 1,6
+desktop/crates/tauri-plugin-cimoc-update/src/desktop.rs
+  s_852fde73b7d53e::t_3b44f144265db8 1-23
+.github/workflows/release.yml
+  s_852fde73b7d53e::t_fcc2661ba99667 4-10
+  s_852fde73b7d53e::t_f7a8856aa50914 147-149,151-155,157-158,161-165,168,171-179,185-187
+docs/roadmap.md
+  s_8a723237994c1c::t_6bd10a74b9fe79 40
+  s_852fde73b7d53e::t_98f973c58e8d3a 27
+  s_852fde73b7d53e::t_f89bfcb9adccaf 24
+desktop/Cargo.toml
+  s_852fde73b7d53e::t_e557fbf73086d1 2
+desktop/src/screens/Settings.tsx
+  s_852fde73b7d53e::t_511ff83a5a6383 550-552,556,596-598
+  s_852fde73b7d53e::t_9d56ca1b41e671 32-37,41
+  s_852fde73b7d53e::t_292e4eebc642a1 113-121
+  s_852fde73b7d53e::t_93e1a22b5414c0 355-426
+  s_852fde73b7d53e::t_f6acf19d3ea89c 59-61,64-66
+  s_852fde73b7d53e::t_62372ba2f9a1f9 62-63,67
+  s_852fde73b7d53e::t_764b0b7aeb0b06 547-549,553,557-595
+desktop/src-tauri/Cargo.toml
+  s_852fde73b7d53e::t_bd33b0c596e4e5 29
+desktop/src/api.ts
+  s_852fde73b7d53e::t_4f40dfb377bd8f 263-315
+desktop/crates/cimoc-core/Cargo.toml
+  s_852fde73b7d53e::t_ea2fd196c744a2 18
+desktop/crates/tauri-plugin-cimoc-update/Cargo.toml
+  s_852fde73b7d53e::t_d494c443be9087 1-23
+docs/agents/tauri-development.md
+  s_852fde73b7d53e::t_9d4933660a2038 127-134
+  s_852fde73b7d53e::t_3435f6b5c536fc 70-72
+  s_852fde73b7d53e::t_d813cb81ac95cf 44-69,73
+  s_852fde73b7d53e::t_e68f4e1a3f9909 74-98
+  s_8a723237994c1c::t_1f5eee0e4b94bf 32-43
+desktop/crates/tauri-plugin-cimoc-update/android/.gitignore
+  s_852fde73b7d53e::t_f53017ff62d8b5 1-2
+desktop/crates/tauri-plugin-cimoc-update/src/mobile.rs
+  s_852fde73b7d53e::t_2cb7525616e31b 54-55,59-61
+  s_852fde73b7d53e::t_7eeffb4fcf8580 1-53,56-58,62-75
+desktop/crates/tauri-plugin-cimoc-update/android/consumer-rules.pro
+  s_852fde73b7d53e::t_aac5c677cee7af 1-5
+desktop/crates/tauri-plugin-cimoc-update/android/src/main/java/io/github/fw6/cimoc/update/InstallResultReceiver.kt
+  s_852fde73b7d53e::t_2f63b4600f64ae 1-26
+desktop/crates/tauri-plugin-cimoc-update/android/settings.gradle
+  s_852fde73b7d53e::t_6baa8aaf1bad9a 1-2
+CONTEXT.md
+  s_8a723237994c1c::t_846e726577137d 24-25
+  s_852fde73b7d53e::t_7d6175b2087906 26
+desktop/crates/tauri-plugin-cimoc-update/build.rs
+  s_852fde73b7d53e::t_0c0b33a39a3478 1-18
+desktop/crates/tauri-plugin-cimoc-update/ios/Package.swift
+  s_852fde73b7d53e::t_fe70f63f11ec71 1-33
+scripts/check-android.sh
+  s_852fde73b7d53e::t_4c7b79a29303d5 1-40
+desktop/crates/tauri-plugin-cimoc-update/src/lib.rs
+  s_852fde73b7d53e::t_a21265b916131c 77
+  s_852fde73b7d53e::t_eb39e8b1d39cee 1-30,44-45,47-76,79-130,161
+  s_852fde73b7d53e::t_c54b44a6cf03b4 131-160
+  s_852fde73b7d53e::t_ffe530b0a781c2 31-43
+  s_852fde73b7d53e::t_083b3ac485da86 78
+  s_852fde73b7d53e::t_e1b6c4a87f1b3e 46
+desktop/crates/tauri-plugin-cimoc-update/android/src/main/AndroidManifest.xml
+  s_852fde73b7d53e::t_f73aa9ad124d45 1-15
+desktop/crates/cimoc-core/src/native/ota.rs
+  s_852fde73b7d53e::t_d813b974abb918 27
+  s_852fde73b7d53e::t_7e93e37fddc79f 1-26,28-103,105,110-183
+  s_852fde73b7d53e::t_e1ade880645b08 104,106-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "8919bae119cb51c0869f38d76cfc37bada52db03",
+  "prompts": {},
+  "sessions": {
+    "s_852fde73b7d53e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_a5464d6d-5522-4e00-869e-9388e0844290",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_8a723237994c1c": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_1e880ae8-aafa-41cd-97d0-41e8ba6864aa",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
