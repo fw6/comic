@@ -555,7 +555,7 @@ dependencies = [
 
 [[package]]
 name = "cimoc-core"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "base64 0.22.1",
  "percent-encoding",
@@ -913,7 +913,7 @@ dependencies = [
 
 [[package]]
 name = "desktop"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "bytes",
  "cimoc-core",
