@@ -1,0 +1,33 @@
+.github/workflows/release.yml
+  s_a52b129e49ee2e::t_c58f54b35c050b 2,4
+  s_a52b129e49ee2e::t_15dedaea4f26bc 184,248
+  s_a52b129e49ee2e::t_238b712e42a470 75
+docs/research/desktop-ci-release.md
+  s_a52b129e49ee2e::t_08d0e86edbdf19 7
+  s_a52b129e49ee2e::t_49390e311a027b 124
+updater/README.md
+  s_a52b129e49ee2e::t_5b49ee5c39333d 147-150
+  s_a52b129e49ee2e::t_b606a58be3871c 33-34
+docs/roadmap.md
+  s_a52b129e49ee2e::t_84a28a252f67dc 40
+updater/src/index.js
+  s_a52b129e49ee2e::t_b9f6c46be95fe3 108
+docs/agents/tauri-development.md
+  s_a52b129e49ee2e::t_2c484c6d81b29c 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "e9fe241c4e83dc00538b948496adbba795a430ee",
+  "prompts": {},
+  "sessions": {
+    "s_a52b129e49ee2e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_e78ea165-98ec-46ef-89e1-00471f508d05",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
