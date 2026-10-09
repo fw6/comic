@@ -21,5 +21,5 @@
 ## 资源
 
 - [docs/](docs/) — wayfinder 决策地图、研究纪要（`docs/research/`）、ADR、issue 追踪约定（`docs/agents/issue-tracker.md`）
-- [CONTEXT.md](CONTEXT.md) — 领域术语表（无限滚动、外链章节过滤、进度自动记录等）
+- [GLOSSARY.md](GLOSSARY.md) — 领域术语表（无限滚动、外链章节过滤、进度自动记录等）
 - [PRODUCT.md](PRODUCT.md) / [DESIGN.md](DESIGN.md) — 产品事实与视觉设计系统（配色/字体/组件规范）

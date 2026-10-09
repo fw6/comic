@@ -46,7 +46,7 @@ adaptive
 
 ## Evidence on Hand
 
-- 领域术语与产品定案：`CONTEXT.md`（术语来源：原 Lynx 产品约定 + wayfinder grilling 定案）。
+- 领域术语与产品定案：`GLOSSARY.md`（术语来源：原 Lynx 产品约定 + wayfinder grilling 定案）。
 - 各源的结构笔记与验证方法：`docs/research/`。
 - 架构与命令约定：`AGENTS.md`、`docs/agents/`。
 

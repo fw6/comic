@@ -1,4 +1,4 @@
-# CONTEXT.md — 墨卷
+# GLOSSARY.md — 墨卷
 
 墨卷 漫画阅读器的领域术语表。桌面 v1（Tauri v2 + React）先落地，移动端（iOS/Android）为后置里程碑，术语跨端共享。术语来源：原 Lynx 产品的 墨卷 约定 + wayfinder grilling #6 / #11 定案（2026-08-15）。
 

@@ -26,4 +26,4 @@ npm run tauri dev
 
 - 骨架原型（wayfinder #5）与 Rust 核心迁移（#7）已完成并通过端到端验证。
 - 桌面 v1 功能集已定案（grilling #6）：无限滚动阅读器（跨话连续、进度自动记录）、搜索、详情、Library（历史/收藏/下载/本地）、Settings 最小集；外链章节过滤。
-- 领域术语表见 `CONTEXT.md`；实现推进中。
+- 领域术语表见 `GLOSSARY.md`；实现推进中。
