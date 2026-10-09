@@ -1,0 +1,19 @@
+docs/agents/frontend.md
+  s_a52b129e49ee2e::t_3ae84943cdd411 72-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "1c78f743ac7ad8e8248b9709d626a1f8d28ed115",
+  "prompts": {},
+  "sessions": {
+    "s_a52b129e49ee2e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_e78ea165-98ec-46ef-89e1-00471f508d05",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
