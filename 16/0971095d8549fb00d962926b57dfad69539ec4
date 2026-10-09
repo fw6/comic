@@ -1,0 +1,89 @@
+desktop/crates/cimoc-core/src/crawler/mod.rs
+  s_a52b129e49ee2e::t_d24897f9a1b659 78
+PRODUCT.md
+  s_a52b129e49ee2e::t_2db69a9ebe2bfe 21
+desktop/crates/cimoc-core/src/crawler/dongman.rs
+  s_a52b129e49ee2e::t_c6047267767a0c 3,6,8,20-34,37,40-41,48-49,136,138,142-161,166-167,172-186
+desktop/crates/tauri-plugin-cimoc-render/src/lib.rs
+  s_a52b129e49ee2e::t_f2e3cc6732805f 71
+  s_a52b129e49ee2e::t_f7b5b6349edbeb 50
+  s_a52b129e49ee2e::t_613c22c3102e01 138
+  s_a52b129e49ee2e::t_dc6f762b238847 5,13-14
+CONTEXT.md
+  s_a52b129e49ee2e::t_73aae5d8ae898e 11
+  s_a52b129e49ee2e::t_5bc3724189b573 7-8
+desktop/crates/cimoc-core/src/crawler/script.rs
+  s_a52b129e49ee2e::t_cd7eb0c3ec1f08 85-131
+  s_a52b129e49ee2e::t_ce6a8613aa1a88 3,6
+  s_a52b129e49ee2e::t_cc330bb276a69f 64
+desktop/crates/cimoc-core/src/js/sources/baozimh.js
+  s_a52b129e49ee2e::t_f80dadf649fae9 9,11
+desktop/crates/cimoc-core/src/crawler/mangadex.rs
+  s_a52b129e49ee2e::t_26eb5d963e3a7b 3-4,6,20-23,25
+desktop/crates/tauri-plugin-cimoc-render/Cargo.toml
+  s_a52b129e49ee2e::t_0ca36bd3fdc40c 4
+desktop/crates/tauri-plugin-cimoc-render/ios/Sources/RenderPlugin.swift
+  s_a52b129e49ee2e::t_e5907012524cb6 5,7,9
+  s_a52b129e49ee2e::t_009d70274c20b8 168
+desktop/src-tauri/examples/render_probe.rs
+  s_a52b129e49ee2e::t_9c0414128dd444 7
+  s_a52b129e49ee2e::t_55e39c55d28942 5
+docs/agents/cimoc-core.md
+  s_a52b129e49ee2e::t_3f3597d0611758 12
+  s_a52b129e49ee2e::t_070d4a2e7f2327 14-24
+desktop/src-tauri/src/render.rs
+  s_a52b129e49ee2e::t_9ca66e71fe74fa 1,13,19
+desktop/crates/cimoc-core/src/crawler/webtoons.rs
+  s_a52b129e49ee2e::t_b9b51b5b41d543 3,12-23,28-30
+docs/research/chinese-sources-landscape.md
+  s_a52b129e49ee2e::t_2015a8e391abfe 32
+  s_a52b129e49ee2e::t_981d8cb932738a 35-38
+docs/agents/tauri-development.md
+  s_a52b129e49ee2e::t_5097ac3e66f273 21
+  s_a52b129e49ee2e::t_43270003066c16 28-29
+docs/research/webview-render-channel.md
+  s_a52b129e49ee2e::t_040bb9847fd27d 10-11,13-14
+  s_a52b129e49ee2e::t_580ac014ce6eb9 1,4-6
+  s_a52b129e49ee2e::t_5353f882aa786a 39
+desktop/crates/cimoc-core/src/crawler/manhuagui.rs
+  s_a52b129e49ee2e::t_c2929516958b59 3,8-22
+desktop/crates/cimoc-core/src/js/sources/nnhanman.js
+  s_a52b129e49ee2e::t_cd4b73fc3b8022 10
+desktop/crates/cimoc-core/tests/live_smoke.rs
+  s_a52b129e49ee2e::t_59826bed80ffe1 208-209
+desktop/crates/cimoc-core/src/crawler/hentara.rs
+  s_a52b129e49ee2e::t_83fd51acc1687d 3,8-22
+desktop/crates/cimoc-core/tests/source_script_test.rs
+  s_a52b129e49ee2e::t_d42953fba3c04b 952,959
+desktop/crates/tauri-plugin-cimoc-render/android/src/main/java/io/github/fw6/cimoc/render/RenderPlugin.kt
+  s_a52b129e49ee2e::t_3d87d2fd93bdad 5,7,9
+  s_a52b129e49ee2e::t_cdbb2e190fb435 185
+desktop/src/screens/Detail.tsx
+  s_a52b129e49ee2e::t_746f1ecb089466 80
+  s_a52b129e49ee2e::t_6368ad946875d1 79
+desktop/crates/cimoc-core/src/crawler/kxmanhua.rs
+  s_a52b129e49ee2e::t_8c6cdfb9144da5 2,7-22
+docs/research/nnhanman-source.md
+  s_a52b129e49ee2e::t_d904ff202aa6ac 32-33
+  s_a52b129e49ee2e::t_94565c09792bf2 9-11,15
+desktop/crates/cimoc-core/src/crawler/render.rs
+  s_a52b129e49ee2e::t_b1a3ac5f78be24 1,4-6,9,38,40,52-53,55-61,82,95,107,113-114,120-123,128-134
+desktop/src-tauri/src/lib.rs
+  s_a52b129e49ee2e::t_dd098249e2ffa1 453
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "160971095d8549fb00d962926b57dfad69539ec4",
+  "prompts": {},
+  "sessions": {
+    "s_a52b129e49ee2e": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_e78ea165-98ec-46ef-89e1-00471f508d05",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
