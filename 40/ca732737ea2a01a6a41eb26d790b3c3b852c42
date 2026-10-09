@@ -1,0 +1,384 @@
+desktop/src-tauri/src/render.rs
+  s_fd21d993503623::t_a6ec538a12c74e 16,51
+  s_fd21d993503623::t_dfb33dd18746c5 17
+  s_fd21d993503623::t_ba088e48b9ebe0 146
+  s_fd21d993503623::t_401f9c58f4ad5f 15,24,54
+  s_fd21d993503623::t_a4c5c0e05d9ea8 42,45
+desktop/Cargo.toml
+  s_fd21d993503623::t_5f0a5cded84395 2
+desktop/crates/tauri-plugin-mojuan-render/src/lib.rs
+  s_fd21d993503623::t_071b2f110af606 22
+  s_fd21d993503623::t_dd1f7b221ccef1 3,21,48,50,83,94-97
+  s_fd21d993503623::t_0b6470ae1a9480 12,15,17,43,79,86
+  s_fd21d993503623::t_ed8676e4ac76bb 1
+  s_fd21d993503623::t_98a3a91257a523 40
+updater/wrangler.toml
+  s_fd21d993503623::t_b558c24abf7fa4 1
+  s_fd21d993503623::t_3fd8d739dfa9dc 13
+  s_fd21d993503623::t_7d1867ac7216ea 8
+docs/research/webview-render-channel.md
+  s_fd21d993503623::t_0d76bb8c7349c7 82,116
+  s_fd21d993503623::t_8cbffa74bd5983 27,134
+  s_fd21d993503623::t_a59669b522623b 79,113
+  s_fd21d993503623::t_a8202fc2920f86 83
+  s_fd21d993503623::t_82d1da8fc6ad66 89
+  s_fd21d993503623::t_1c3497f8c7733b 125
+  s_fd21d993503623::t_4e8e08f399ed39 10,12,18,85,92,132
+docs/research/hentara-source.md
+  s_fd21d993503623::t_008bed9779ad68 22-25,35
+desktop/crates/tauri-plugin-mojuan-render/android/build.gradle.kts
+  s_fd21d993503623::t_59dbcede1ddc6e 7
+desktop/crates/mojuan-core/src/crawler/mod.rs
+  s_fd21d993503623::t_96734f9111b42a 3
+desktop/src/lib/sources.ts
+  s_fd21d993503623::t_1d88895546eaba 1
+updater/test/fixtures/release.json
+  s_fd21d993503623::t_9a50d3a0c1ecc2 6-24
+desktop/crates/mojuan-core/src/js/sources/baozimh.test.js
+  s_fd21d993503623::t_9c955b17f555e1 9-10
+desktop/src-tauri/Cargo.toml
+  s_fd21d993503623::t_07a05a858cd6f1 3
+  s_fd21d993503623::t_9214519d19811b 27-29
+desktop/crates/tauri-plugin-mojuan-render/Cargo.toml
+  s_fd21d993503623::t_7a558fa3b6a637 18
+  s_fd21d993503623::t_34edba2a7b2389 10
+  s_fd21d993503623::t_aac4deb774135d 2,7
+  s_fd21d993503623::t_9f4d9abcd4e6bc 4
+desktop/crates/tauri-plugin-mojuan-update/android/src/main/AndroidManifest.xml
+  s_fd21d993503623::t_f84d1bded2fb00 12
+desktop/src-tauri/icons/app-icon-monochrome.svg
+  s_fd21d993503623::t_5def22e199f995 2
+docs/research/desktop-webview-images.md
+  s_fd21d993503623::t_ec602732cf3372 11
+  s_fd21d993503623::t_3e85900bda5ac7 3
+  s_fd21d993503623::t_58c87b60de78c6 10,51
+docs/research/tauri-progress-push.md
+  s_fd21d993503623::t_2672900bb8d2bc 102,201
+  s_fd21d993503623::t_65db3c2479e691 11,101,106,110,164
+desktop/crates/tauri-plugin-mojuan-render/android/src/main/java/io/github/fw6/mojuan/render/RenderPlugin.kt
+  s_fd21d993503623::t_eb38931933ecec 8
+  s_fd21d993503623::t_b7b01a8985317f 267
+  s_fd21d993503623::t_a3c1ce6853f4db 1
+  s_fd21d993503623::t_f5ad50964b0369 3
+  s_fd21d993503623::t_dd9682e8ba9599 14
+desktop/crates/tauri-plugin-mojuan-update/ios/Package.swift
+  s_fd21d993503623::t_cfc0f07a12f0b8 11,18,20,27
+  s_fd21d993503623::t_ae6c00d36ac88c 2
+desktop/src/components/ProxyImage.test.tsx
+  s_fd21d993503623::t_8a330af21a3bfa 20,23,29
+desktop/crates/mojuan-core/src/js/sources/copymanga.test.js
+  s_fd21d993503623::t_922225677fd2bc 9-10
+desktop/crates/mojuan-core/tests/result_cache_test.rs
+  s_fd21d993503623::t_d15a3da7909035 3
+  s_fd21d993503623::t_b3277da8b46158 18
+desktop/src-tauri/src/lib.rs
+  s_fd21d993503623::t_f5c2d9c082133b 426
+  s_fd21d993503623::t_f6f37162856291 2,97,192,197,280,284,315,326-327,343,358,367,376,384,447
+  s_fd21d993503623::t_1b42f720c9d963 16
+  s_fd21d993503623::t_35e332d30724b0 36,267,453
+  s_fd21d993503623::t_d92292877c0d64 390-391,491
+  s_fd21d993503623::t_6e66421d05edbb 425,458
+DESIGN.md
+  s_fd21d993503623::t_47510d82182ee8 2
+  s_fd21d993503623::t_a990bbfb157fc1 125
+AGENTS.md
+  s_fd21d993503623::t_b4d942a8eb54c6 3
+  s_fd21d993503623::t_5f2a755df00ee0 11
+  s_fd21d993503623::t_ed24663b04b733 17
+updater/test/fixtures/android.json
+  s_fd21d993503623::t_93f8b0c52766e8 4
+.impeccable/design.json
+  s_fd21d993503623::t_21ff7cf18c57c7 4
+docs/research/rquickjs-embedding.md
+  s_fd21d993503623::t_5b680de49daca8 100
+  s_fd21d993503623::t_14911dceda247c 7,284,306
+desktop/crates/tauri-plugin-mojuan-update/android/consumer-rules.pro
+  s_fd21d993503623::t_061103e467c297 2
+desktop/crates/mojuan-core/src/js/sources/hentara.js
+  s_fd21d993503623::t_8340a7c98bb7a2 3
+docs/research/dongman-source.md
+  s_fd21d993503623::t_7b0a94c88e5440 8-10,20
+desktop/src-tauri/src/img_proxy.rs
+  s_fd21d993503623::t_25bfc60138983c 262
+  s_fd21d993503623::t_814e9e5b63c6bc 266
+  s_fd21d993503623::t_02e34f933d285c 6
+  s_fd21d993503623::t_05eda460eb9700 8,179
+  s_fd21d993503623::t_fcd4c0dbedce93 13-14
+desktop/package.json
+  s_fd21d993503623::t_d1484c7592a118 4
+desktop/crates/mojuan-core/src/js/sources/baozimh.js
+  s_fd21d993503623::t_91368a9213e711 3
+desktop/crates/mojuan-core/src/js/sources/webtoons.js
+  s_fd21d993503623::t_4de6a3ba2da8f3 3
+desktop/src/lib/storage-fs.ts
+  s_fd21d993503623::t_6f6ebc9505dc23 46
+desktop/crates/mojuan-core/src/native/ota.rs
+  s_fd21d993503623::t_46e68e4879238e 171
+  s_fd21d993503623::t_45640ba3043a7d 5
+  s_fd21d993503623::t_88af1314d6d9c2 176
+desktop/.gitignore
+  s_fd21d993503623::t_e4698a8b9cb5c4 42-43
+desktop/crates/mojuan-core/src/js/sources/kxmanhua.js
+  s_fd21d993503623::t_3dac66e6c0398a 3
+desktop/scripts/audit-contrast.mjs
+  s_fd21d993503623::t_07541a3c288f81 12
+updater/src/index.js
+  s_fd21d993503623::t_004d804889f49a 2
+  s_fd21d993503623::t_61e82d23475f49 29
+  s_fd21d993503623::t_ee1e90678935af 9
+  s_fd21d993503623::t_49e9255a567124 231
+desktop/src/lib/storage.test.ts
+  s_fd21d993503623::t_d2ccbbed28da13 187,189,201
+  s_fd21d993503623::t_998ae15e7a32c6 304
+desktop/scripts/probe-app.mjs
+  s_fd21d993503623::t_dc678f19a3b5c6 14
+  s_fd21d993503623::t_f56ac14a8cdfbd 3
+README.md
+  s_fd21d993503623::t_dbf93c13f13488 1,3
+  s_fd21d993503623::t_1382b8ce70e6fa 16-17
+  s_fd21d993503623::t_493d7cc9cb568a 5
+  s_fd21d993503623::t_6b0d20dd269325 21
+desktop/crates/mojuan-core/src/js/sources/mangadex.test.js
+  s_fd21d993503623::t_d8303d2609bb4f 9-10
+desktop/src/api.test.ts
+  s_fd21d993503623::t_c4e0ef4d249fb2 16,115,118
+  s_fd21d993503623::t_1c05e4d30d8a08 119
+  s_fd21d993503623::t_c52ea3a4e7bfad 256,264,273,280
+  s_fd21d993503623::t_c8ab6cc3a10318 126
+desktop/crates/mojuan-core/src/native/download_index.rs
+  s_fd21d993503623::t_ea9a06200f96bc 137
+desktop/crates/mojuan-core/src/js/sources/hentara.test.js
+  s_fd21d993503623::t_7e8c81a44983d0 9-10
+CONTEXT.md
+  s_fd21d993503623::t_163bca5677c17f 1,3
+  s_fd21d993503623::t_ff66a7c847f828 11
+  s_fd21d993503623::t_4c41522e0cca19 25
+  s_fd21d993503623::t_c7bfa394fc8404 26
+  s_fd21d993503623::t_99ccd8a638306a 27
+  s_fd21d993503623::t_bb7e8d0a401f67 21
+  s_fd21d993503623::t_f10907b94c19d4 24
+desktop/crates/mojuan-core/src/crawler/http.rs
+  s_fd21d993503623::t_1856a5abc25ea1 18
+desktop/public/app-icon.svg
+  s_fd21d993503623::t_02781921e71fd7 2
+desktop/src/screens/Sources.test.tsx
+  s_fd21d993503623::t_7103a8ba27bb78 16
+desktop/crates/mojuan-core/src/crawler/models.rs
+  s_fd21d993503623::t_201a135c0d90d2 1-2
+desktop/src/screens/Settings.tsx
+  s_fd21d993503623::t_02c5814ca1ba36 54
+  s_fd21d993503623::t_dca6b565999f55 70
+  s_fd21d993503623::t_b72b24b808afb0 701
+  s_fd21d993503623::t_538c5852fd8531 31,124
+desktop/crates/tauri-plugin-mojuan-update/android/src/main/java/io/github/fw6/mojuan/update/UpdatePlugin.kt
+  s_fd21d993503623::t_641bfe9a033e90 3
+  s_fd21d993503623::t_4ecea7ed86ec60 18
+  s_fd21d993503623::t_25e63d8897aa4b 314
+  s_fd21d993503623::t_13409b9cc5026c 317
+  s_fd21d993503623::t_fae83d19cd9ce3 1
+desktop/src-tauri/examples/render_probe.rs
+  s_fd21d993503623::t_72f18eee7d6ec1 1
+  s_fd21d993503623::t_f480102da78934 7,67,69,79-80,86-87,105
+desktop/crates/tauri-plugin-mojuan-render/ios/Package.swift
+  s_fd21d993503623::t_f27804d3133ac3 7,14,16,23
+  s_fd21d993503623::t_bee837958eed2b 2
+desktop/crates/mojuan-core/src/crawler/mangadex.rs
+  s_fd21d993503623::t_40073eaa790b6d 21
+desktop/src/components/shell.tsx
+  s_fd21d993503623::t_fb894865f46c93 35,127
+  s_fd21d993503623::t_5f973a68472e62 4,48
+desktop/crates/mojuan-core/src/js/sources/nnhanman.test.js
+  s_fd21d993503623::t_520536add64701 9-10
+desktop/crates/mojuan-core/src/js/sources/manhuagui.test.js
+  s_fd21d993503623::t_b51c996575ab7c 9-10
+desktop/crates/tauri-plugin-mojuan-update/android/src/main/java/io/github/fw6/mojuan/update/InstallResultReceiver.kt
+  s_fd21d993503623::t_42f837f15cee99 1
+PRODUCT.md
+  s_fd21d993503623::t_c44b12fa064fb1 9
+  s_fd21d993503623::t_c28c78d047e6aa 43
+docs/roadmap.md
+  s_fd21d993503623::t_211c217fe71a07 25
+  s_fd21d993503623::t_c86573da511f4f 35
+  s_fd21d993503623::t_4a1d86198c2d8e 8
+  s_fd21d993503623::t_8d7d3491331ecf 26
+  s_fd21d993503623::t_2cedaa1129c87a 39
+  s_fd21d993503623::t_f525ec92fb3b83 19
+  s_fd21d993503623::t_f5591b102918ae 40
+  s_fd21d993503623::t_deecc20a3e6e2e 27
+docs/research/kxmanhua-source.md
+  s_fd21d993503623::t_b7b363c1db7c85 10-13,22
+desktop/crates/mojuan-core/src/js/sources/dongman.js
+  s_fd21d993503623::t_5bf66b5c14243e 3
+desktop/src-tauri/tauri.conf.json
+  s_fd21d993503623::t_dcf8ebc428f527 3
+  s_fd21d993503623::t_2d6dbbd0f927f5 4
+  s_fd21d993503623::t_ce88ebe851e03e 5
+  s_fd21d993503623::t_81805b7abf02a6 44
+  s_fd21d993503623::t_e03c95380ecc4b 16
+  s_fd21d993503623::t_33a7d0d8bd11ed 47-48
+desktop/crates/tauri-plugin-mojuan-update/src/lib.rs
+  s_fd21d993503623::t_2d2d0d45d2694e 109,118
+  s_fd21d993503623::t_6ef3cec52eda3e 39,135,138,158
+  s_fd21d993503623::t_cd7549c9893c1d 31
+  s_fd21d993503623::t_a37f30e10c47f0 1
+  s_fd21d993503623::t_49f44ba46191ac 13
+  s_fd21d993503623::t_61ca49f93ecedb 29
+desktop/crates/mojuan-core/tests/live_smoke.rs
+  s_fd21d993503623::t_73384f2cd565ea 208
+  s_fd21d993503623::t_5a7dedf4888dc7 142
+  s_fd21d993503623::t_95f7bb3e1ec79e 5
+  s_fd21d993503623::t_efbefb14d7312b 9
+  s_fd21d993503623::t_575091ebf842c5 68
+docs/agents/frontend.md
+  s_fd21d993503623::t_43913e43adfd42 63
+desktop/crates/mojuan-core/Cargo.toml
+  s_fd21d993503623::t_285ddf945856e6 3
+  s_fd21d993503623::t_b6044eccdc431a 2
+  s_fd21d993503623::t_9a99ad867d126f 7
+desktop/crates/mojuan-core/src/js/sources/dongman.test.js
+  s_fd21d993503623::t_fd5fd049a826bd 9-10
+updater/package.json
+  s_fd21d993503623::t_b95fb9f058924e 2
+desktop/crates/mojuan-core/src/crawler/render.rs
+  s_fd21d993503623::t_650ae589b7d18a 8
+desktop/crates/mojuan-core/src/js/sources/copymanga.js
+  s_fd21d993503623::t_7f1bc7c5020bf3 3
+desktop/crates/tauri-plugin-mojuan-render/src/mobile.rs
+  s_fd21d993503623::t_1d4aab68ef67d2 11
+  s_fd21d993503623::t_4b2e0537153099 13,15,31
+desktop/src-tauri/icons/app-icon.svg
+  s_fd21d993503623::t_e2b5ae628e59a1 2
+docs/research/desktop-ci-release.md
+  s_fd21d993503623::t_bbd4e6b5ac55f4 189
+  s_fd21d993503623::t_76035d8ce31446 51
+  s_fd21d993503623::t_66fd57bf123386 3
+  s_fd21d993503623::t_3aadbb795903bd 50,109,210
+  s_fd21d993503623::t_43ee58a034bc55 107,198
+desktop/crates/mojuan-core/src/js/sources/nnhanman.js
+  s_fd21d993503623::t_87258a4ffef854 3
+docs/research/mobile-storage-webview.md
+  s_fd21d993503623::t_57d89aa481e877 227
+  s_fd21d993503623::t_3756421212dbcc 1,12,177,181,191,205-207,218,220,224,289,310
+  s_fd21d993503623::t_1d0271aaa568d4 212,226
+desktop/src/lib/storage.ts
+  s_fd21d993503623::t_12e70187f6f80e 148
+  s_fd21d993503623::t_614d4a31ab71f3 305
+  s_fd21d993503623::t_6267919f777c7a 145
+desktop/crates/mojuan-core/tests/source_script_test.rs
+  s_fd21d993503623::t_147df678b8124b 949
+  s_fd21d993503623::t_4554fbe38b8e1e 965
+  s_fd21d993503623::t_79a55989341a4c 9
+  s_fd21d993503623::t_3c8aea0c5ab1af 5
+desktop/src-tauri/src/ota.rs
+  s_fd21d993503623::t_08752360f3ea77 218
+  s_fd21d993503623::t_af523c5560f69a 10
+  s_fd21d993503623::t_918a48099ca19b 34,64,70,116
+  s_fd21d993503623::t_d9adc978fec0e8 162,174,185,193,196,204
+  s_fd21d993503623::t_79d8b916f0c55a 6,13,191
+desktop/crates/tauri-plugin-mojuan-update/Cargo.toml
+  s_fd21d993503623::t_144665be9baedd 10
+  s_fd21d993503623::t_12157794d5d3fc 4
+  s_fd21d993503623::t_9cb856e906d685 2,7
+docs/agents/mojuan-core.md
+  s_fd21d993503623::t_affa995c44afa8 40
+  s_fd21d993503623::t_e75a41bcc25efb 1,5,23,53
+  s_fd21d993503623::t_0e49fcceaaf570 18
+docs/research/copymanga-source.md
+  s_fd21d993503623::t_709cd2f0905e09 12-14,23,28,43
+  s_fd21d993503623::t_13f556cd7eed13 34,36
+updater/README.md
+  s_fd21d993503623::t_985f6e0ced71ba 109-111,116
+  s_fd21d993503623::t_bb71fcda4b2772 6
+  s_fd21d993503623::t_65a2d4a53db2ee 28,50,63
+  s_fd21d993503623::t_4641de2e6675fa 77,87
+  s_fd21d993503623::t_8ff1ddbad31f32 89
+  s_fd21d993503623::t_e1b60c20438b78 100
+  s_fd21d993503623::t_7ab3ff15056de4 19
+  s_fd21d993503623::t_36dc3d089f122f 78
+  s_fd21d993503623::t_08c4d85fe490c2 3,38,58,138-139,164
+docs/research/nnhanman-source.md
+  s_fd21d993503623::t_d170b9a0234ce9 37
+  s_fd21d993503623::t_ac4c19a40625ed 14-17,32
+desktop/index.html
+  s_fd21d993503623::t_c4358040b64d1c 9
+docs/research/manhuagui-source.md
+  s_fd21d993503623::t_9063a801fbb4d9 11-13,25
+desktop/crates/mojuan-core/src/native/files.rs
+  s_fd21d993503623::t_c257d823dfdc9c 159
+desktop/crates/tauri-plugin-mojuan-update/android/build.gradle.kts
+  s_fd21d993503623::t_262824fd1ead1e 7
+docs/research/source-script-security.md
+  s_fd21d993503623::t_207c88177dc1cf 146
+  s_fd21d993503623::t_d61d3fff5405a3 3,228
+desktop/vite.config.ts
+  s_fd21d993503623::t_be65acfbd80181 41,45
+desktop/crates/mojuan-core/src/crawler/result_cache.rs
+  s_fd21d993503623::t_a8f2ae01a401eb 184
+desktop/src-tauri/icons/app-icon-fg.svg
+  s_fd21d993503623::t_fb007ed2396afa 2
+desktop/crates/mojuan-core/src/cache.rs
+  s_fd21d993503623::t_0c76fa61a0f2bf 3-6
+  s_fd21d993503623::t_1465bcbf43b24e 135
+desktop/src/api.ts
+  s_fd21d993503623::t_0b85725dc97f32 65
+updater/test/manifest.test.js
+  s_fd21d993503623::t_0878440f3cb1a7 6
+  s_fd21d993503623::t_0c18e213d19e4f 97-101,103-104,128-129,262
+  s_fd21d993503623::t_b9a14bc86ef9f3 7,12,118,266
+  s_fd21d993503623::t_66f5a02b7f6d60 102,207,227
+desktop/crates/tauri-plugin-mojuan-update/src/mobile.rs
+  s_fd21d993503623::t_78b93dd9dadbdb 12,14,27
+  s_fd21d993503623::t_b7eae6bca01fbc 10
+desktop/crates/mojuan-core/src/lib.rs
+  s_fd21d993503623::t_86566f3077a33c 13-14
+  s_fd21d993503623::t_cce61e46e41c68 90
+  s_fd21d993503623::t_43ffc8706059ae 1
+docs/agents/tauri-development.md
+  s_fd21d993503623::t_370022cd1a09ce 94
+  s_fd21d993503623::t_f863931363231f 35
+  s_fd21d993503623::t_e04214fd7e57a8 23,49
+  s_fd21d993503623::t_88d9d1f26b118e 27
+  s_fd21d993503623::t_bad285d37d6520 53,55,85,133
+  s_fd21d993503623::t_2bcc23bc9309f4 16,102
+.github/workflows/release.yml
+  s_fd21d993503623::t_42e8d7baf41241 241
+  s_fd21d993503623::t_fe5653fb11142d 9,158,162,166,168,175-176,186,249
+  s_fd21d993503623::t_274ab2835bc4dd 74,183,247
+desktop/crates/tauri-plugin-mojuan-render/ios/Sources/RenderPlugin.swift
+  s_fd21d993503623::t_7be951ec8b6501 225,246
+  s_fd21d993503623::t_8ee76abba08c64 1
+  s_fd21d993503623::t_7653eff49a6213 264
+  s_fd21d993503623::t_f92e5a149f0eec 3
+  s_fd21d993503623::t_b1d7d7358e791a 8
+desktop/crates/mojuan-core/src/js/sources/manhuagui.js
+  s_fd21d993503623::t_14eaec8cc97d8f 3
+desktop/crates/tauri-plugin-mojuan-update/ios/Sources/UpdatePlugin.swift
+  s_fd21d993503623::t_0254379ee85620 20
+  s_fd21d993503623::t_c1b8d31c4ce45d 33
+  s_fd21d993503623::t_fc101887f7800d 3
+  s_fd21d993503623::t_6ac8c7aa13b064 1
+desktop/crates/mojuan-core/src/js/sources/mangadex.js
+  s_fd21d993503623::t_c248d4f250a3eb 3
+desktop/crates/mojuan-core/src/js/sources/webtoons.test.js
+  s_fd21d993503623::t_58c71f59d60bbe 10-11
+desktop/crates/mojuan-core/src/js/sources/kxmanhua.test.js
+  s_fd21d993503623::t_cbd21b4f52ad9d 9-10
+desktop/crates/mojuan-core/src/crawler/copymanga.rs
+  s_fd21d993503623::t_7364fd3d163bba 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "40ca732737ea2a01a6a41eb26d790b3c3b852c42",
+  "prompts": {},
+  "sessions": {
+    "s_fd21d993503623": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_00317174-4f3d-4872-a17f-599c8b8cd52d",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
