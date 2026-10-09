@@ -30,6 +30,12 @@
     --border: oklch(15% 0 0 / 0.08);
     --border-strong: oklch(15% 0 0 / 0.14);
     --ring: oklch(56% 0.15 195);
+    /* 阅读画布：图片之外的底色。阅读页是暗房，两套主题都从这里取暗底，
+       页面与封面才成为画面里唯一有颜色的东西。 */
+    --reader-canvas: oklch(18% 0 0);
+    --reader-foreground: oklch(93% 0 0);
+    --reader-muted: oklch(64% 0 0);
+    --reader-border: rgb(255 255 255 / 0.1);
 }
 
 [data-theme="dark"] {
@@ -55,6 +61,8 @@
     --border: rgb(255 255 255 / 0.07);
     --border-strong: rgb(255 255 255 / 0.14);
     --ring: oklch(80% 0.18 195);
+    /* 夜间阅读用纯黑，把屏幕本身隐掉 */
+    --reader-canvas: #000000;
 }
 
 @theme inline {
@@ -83,6 +91,10 @@
     --color-border: var(--border);
     --color-border-strong: var(--border-strong);
     --color-ring: var(--ring);
+    --color-reader-canvas: var(--reader-canvas);
+    --color-reader-foreground: var(--reader-foreground);
+    --color-reader-muted: var(--reader-muted);
+    --color-reader-border: var(--reader-border);
 
     /* 中文界面用系统字体：PingFang SC / 微软雅黑 接在 Latin 字体之后 */
     --font-sans: ui-sans-serif, system-ui, -apple-system, "PingFang SC",

@@ -50,6 +50,14 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 
 切换源是低频操作：源列表收在页头右侧的「当前源」按钮后，点击打开底部面板（`src/components/source-sheet.tsx`，beui `BottomSheet`；两端同一形态——贴底、居中限宽 672px）。面板里每个源一行，当前项用蓝色 12% 底与勾选标记，该源最近一次抓取失败时行内标出「上次加载失败」（打开面板时经 `sourceErrors()` 取一次）。打开时焦点落在当前源行，关闭（选择 / Escape / 点遮罩）后回到页头按钮。分类 tab 留在页面上：切分类是高频操作。面板组件来自 beui registry（`fetch-beui.mjs` 的 FILES 清单），可访问名已用 PATCHES 改为中文。
 
+浏览位置持久化：选中的源与每个源停留的分类写在 settings 域（`lastSource` / `lastCategory`，经 `rememberDiscovery()` 一次写入，避免两次读改写互相覆盖），重启后恢复。`Sources` 组件分两层——外层先读回这两个值再渲染，免得开局按默认源拉一次列表又立刻切走；内层是原来的 `Discovery`。URL 上的 `?source=`（命令面板跳转）优先级最高，且在页面已挂载时也跟随变化。记忆的分类在该源上已不存在时退回第一个分类。
+
+## 发现页的分类与搜索
+
+分类浏览与搜索是两种模式，同一时刻只有一种在屏上（`Sources.tsx` 的 `inSearch`）：浏览模式渲染分类 tabs（beui Tabs 的 `segment` 变体）与当前分类的列表；搜索模式把 tabs 整块换成搜索头（搜索图标 + 「搜索 “关键词”」+ `N 部作品` + 退出按钮），下面是搜索结果。搜索开始时清空 `comics`——搜索结果与上一个分类的列表不是一回事，不能拿旧数据冒充；`exitSearch()` 回到搜索前停留的分类并清空输入框。切源会退出搜索（新源的分类与旧源的搜索结果无关）。
+
+beui registry 里没有可用于远程搜索的现成组件：`morphing-search` 与 `combobox` 都是「`items` 先给全量、组件内部按关键词过滤」，`infinite-masonry` 是瀑布流，形态与数据流都对不上，所以搜索头是应用自己组装的（`ui.tsx` 之外，直接用 Tailwind 与令牌）。
+
 ## 数据加载与结果缓存（stale-while-revalidate）
 
 列表与详情的抓取结果由 Rust 侧缓存（`crawler/result_cache.rs`，见 `docs/agents/cimoc-core.md`），
@@ -61,18 +69,26 @@ registry 未就绪时脚本源的 op 会返回空结果）：
 
 `Sources.tsx` 的列表加载在缓存命中且 `fetchedAt` 处于新鲜窗口（`LIST_MAX_AGE_MS`，2 分钟）内时
 跳过本次请求（来回切源不重复拉取）；源返回空列表而缓存有数据时保留缓存展示（错误行另经
-`sourceErrors` 呈现）。`Detail.tsx` 只做「先缓存后拉新」、不跳过请求——渲染源的章节中转链依赖
-detail 的 post_process 写入进程内缓存（baozimh 的 images 依赖它）。
+`sourceErrors` 呈现）。`Detail.tsx` 只做「先缓存后拉新」、不跳过请求——baozimh 的章节中转链依赖
+detail 的 post_process 写入进程内缓存（images 依赖它）。
 
 ## 阅读器的分页策略
 
 `src/screens/Reader.tsx` 里每一页是「先占位、后收缩」：
 
 - 未加载页用 `estimatePageHeight()` 预留高度（阅读列宽度 × 该源已加载页面的实测中位宽高比，`ratioSamples` 按源记忆）；比例变化小于 5% 不重建布局。
-- 图片 `width: 100%; height: auto; loading="lazy"`，加载完成后释放预留高度。
+- 图片 `width: 100%; height: auto`，加载完成后释放预留高度。
 - 长列表靠 `@tanstack/react-virtual` 虚拟化，滚到话末自动加载下一话（跨话连续）。
 
+预取：虚拟器的 `overscan` 按**视口上下各两屏**换算成页数（`PREFETCH_SCREENS`，长条漫一页就超过两屏所以下限 1，上限 8）。挂载范围就是预取范围，挂载到的页一律 `loading="eager"`——浏览器自己的 `lazy` 只提前约一屏，会把已经挂载好的后两屏又压回「滚到才取」。下一话的触发同样按两屏算（`nearBottomByPx`，按像素而不是滚动比例，长条漫与常规页才都合适）。
+
 改这里时注意：预留高度参与虚拟器测量，测量值异常会直接表现为滚动跳动；`estimateSize` 与页面单元的 `minHeight` 必须用同一个估算值。
+
+## 阅读器的沉浸层
+
+阅读页是全局唯一一处暗底（DESIGN.md 的「Colors / Reader」）：画布、顶栏、占位、按钮都取 `reader` 令牌，不混用中性令牌。顶栏是浮在画布上的浮层（不占阅读高度），向下滚动时位移 8px 并淡出，向上滚动、回到顶部或点击画面时回来；鼠标静止 2 秒隐去指针。方向判定用 `scrollTop` 的增量加死区（`SCROLL_DIRECTION_SLOP`）。
+
+顶栏位移用的是 Tailwind v4 的 `translate` 工具类，它写的是 CSS `translate` 属性而不是 `transform`——过渡属性要写 `transition-[opacity,translate]`，写成 `transform` 的话位移会瞬间跳变。
 
 ## 验证桌面界面（不使用截图）
 

@@ -21,14 +21,27 @@ vi.mock("../api", () => ({
 vi.mock("../lib/storage", () => ({
     persistWebtoonsCache: vi.fn().mockResolvedValue(undefined),
     whenSourcesReady: vi.fn().mockResolvedValue(undefined),
+    getSettings: vi.fn(),
+    rememberDiscovery: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { crawl, crawlCached, sourceErrors } from "../api";
-import { persistWebtoonsCache } from "../lib/storage";
+import { getSettings, persistWebtoonsCache, rememberDiscovery } from "../lib/storage";
 
 const mockedCrawl = vi.mocked(crawl);
 const mockedCached = vi.mocked(crawlCached);
 const mockedErrors = vi.mocked(sourceErrors);
+const mockedSettings = vi.mocked(getSettings);
+const mockedRemember = vi.mocked(rememberDiscovery);
+
+/** 默认设置：没有记忆的浏览位置 → 发现页从第一个源开始。 */
+const DEFAULT_SETTINGS = {
+    downloadDir: null,
+    darkMode: false,
+    autoTrim: false,
+    lastSource: null as string | null,
+    lastCategory: {} as Record<string, string>,
+};
 
 function comic(over: Partial<Comic> = {}): Comic {
     return {
@@ -80,6 +93,7 @@ beforeEach(() => {
     // 默认无缓存、无源错误：各用例走干净路径，需要的用例自行覆盖实现
     mockedCached.mockResolvedValue(null);
     mockedErrors.mockResolvedValue({});
+    mockedSettings.mockResolvedValue(DEFAULT_SETTINGS);
 });
 
 afterEach(() => {
@@ -274,5 +288,104 @@ describe("Sources 发现 List 页面（tab 切换）", () => {
         await waitFor(() => expect(document.activeElement).toBe(row));
         fireEvent.keyDown(window, { key: "Escape" });
         await waitFor(() => expect(document.activeElement).toBe(trigger));
+    });
+
+    // ---- 浏览位置持久化（重启后回到上次的源与分类）----
+
+    it("重启后回到上次的源与该源记忆的分类", async () => {
+        mockedSettings.mockResolvedValue({
+            ...DEFAULT_SETTINGS,
+            lastSource: "webtoons",
+            lastCategory: { webtoons: "恋爱" },
+        });
+        renderSources();
+        await waitFor(() =>
+            expect(mockedCrawl).toHaveBeenCalledWith("category", "webtoons", {
+                label: "恋爱",
+            }),
+        );
+        expect(await screen.findByText("webtoons-恋爱")).toBeTruthy();
+    });
+
+    it("记忆的分类已不在该源时退回第一个分类", async () => {
+        mockedSettings.mockResolvedValue({
+            ...DEFAULT_SETTINGS,
+            lastSource: "webtoons",
+            lastCategory: { webtoons: "已经下线的分类" },
+        });
+        renderSources();
+        await waitFor(() =>
+            expect(mockedCrawl).toHaveBeenCalledWith("category", "webtoons", {
+                label: "动作",
+            }),
+        );
+    });
+
+    it("切换源与分类写回浏览位置", async () => {
+        renderSources();
+        await screen.findByRole("tab", { name: "动作" });
+        fireEvent.click(screen.getByRole("button", { name: "MangaDex" }));
+        fireEvent.click(await screen.findByRole("button", { name: "Webtoons" }));
+        await waitFor(() => expect(mockedRemember).toHaveBeenCalledWith("webtoons"));
+        await screen.findByRole("tab", { name: "恋爱" });
+        fireEvent.click(screen.getByRole("tab", { name: "恋爱" }));
+        await waitFor(() =>
+            expect(mockedRemember).toHaveBeenCalledWith("webtoons", "恋爱"),
+        );
+    });
+
+    // ---- 搜索是独立区块（不与分类 tabs 同屏）----
+
+    async function searchFor(kw: string) {
+        fireEvent.change(screen.getByPlaceholderText("搜索漫画标题…"), {
+            target: { value: kw },
+        });
+        fireEvent.click(await screen.findByRole("button", { name: "搜索" }));
+    }
+
+    it("搜索时分类 tabs 让位给搜索头", async () => {
+        renderSources();
+        await screen.findByRole("tab", { name: "动作" });
+        await searchFor("海贼王");
+        await waitFor(() => expect(screen.queryByRole("tab")).toBeNull());
+        expect(screen.getByRole("button", { name: "退出搜索" })).toBeTruthy();
+        expect(await screen.findByText("1 部作品")).toBeTruthy();
+    });
+
+    it("搜索无结果时给出搜索自己的空状态", async () => {
+        mockedCrawl.mockImplementation((op: string) => {
+            if (op === "categories") return Promise.resolve(["动作"]);
+            if (op === "category") return Promise.resolve([comic({ id: "c1" })]);
+            return Promise.resolve([]);
+        });
+        renderSources();
+        await screen.findByRole("tab", { name: "动作" });
+        await searchFor("不存在的作品");
+        expect(await screen.findByText("没有找到相关作品")).toBeTruthy();
+        expect(screen.getByText("换个关键词试试")).toBeTruthy();
+    });
+
+    it("退出搜索回到搜索前停留的分类", async () => {
+        renderSources();
+        await screen.findByRole("tab", { name: "恋爱" });
+        fireEvent.click(screen.getByRole("tab", { name: "恋爱" }));
+        await screen.findByText("mangadex-恋爱");
+
+        await searchFor("海贼王");
+        await screen.findByRole("button", { name: "退出搜索" });
+
+        mockedCrawl.mockClear();
+        fireEvent.click(screen.getByRole("button", { name: "退出搜索" }));
+        await waitFor(() =>
+            expect(mockedCrawl).toHaveBeenCalledWith("category", "mangadex", {
+                label: "恋爱",
+            }),
+        );
+        // 分类 tabs 回来，且停在原来的分类上
+        const tab = await screen.findByRole("tab", { name: "恋爱" });
+        expect(
+            tab.getAttribute("aria-selected") === "true" ||
+                tab.dataset.state === "active",
+        ).toBe(true);
     });
 });

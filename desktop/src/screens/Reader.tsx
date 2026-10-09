@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type MouseEvent,
+    type ReactNode,
+} from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -8,6 +16,7 @@ import {
     ArrowLeft,
     BookOpen,
     Maximize,
+    Minimize,
 } from "lucide-react";
 import {
     crawl,
@@ -18,14 +27,14 @@ import {
     type Comic,
 } from "../api";
 import { filterExternalChapters } from "../lib/chapters";
-import { nearBottom, pageIndexAt, positionWithinChapter } from "../lib/scroll";
+import { nearBottomByPx, pageIndexAt, positionWithinChapter } from "../lib/scroll";
 import { getProgress, getSettings, setProgress, touchHistory } from "../lib/storage";
 import { cn } from "../lib/utils";
+import { useHoverCapable } from "../lib/hooks/use-hover-capable";
 import ProxyImage from "../components/ProxyImage";
 import { useToast } from "../components/toast";
 import { Loader } from "../components/beui/loader";
 import { ScrollProgress } from "../components/beui/scroll-progress";
-import { Button } from "../components/beui/button";
 
 interface PageItem {
     /** 在过滤后章节列表中的下标 */
@@ -41,6 +50,15 @@ const DEFAULT_RATIO = 1.4;
 /** 每个源保留的最近样本数。 */
 const RATIO_SAMPLES = 8;
 const ratioSamples = new Map<string, number[]>();
+
+/** 预取范围：视口上下各两屏。挂载与图片请求都按这个范围走。 */
+const PREFETCH_SCREENS = 2;
+/** 预取页数上限（页面很矮时防止一次挂载过多）。 */
+const OVERSCAN_MAX = 8;
+/** 鼠标静止多久后隐去指针。 */
+const CURSOR_IDLE_MS = 2000;
+/** 方向判定死区：小于这个位移不切换顶栏，免得滚动惯性里反复闪。 */
+const SCROLL_DIRECTION_SLOP = 4;
 
 function learnedRatio(source: string | undefined): number {
     const samples = source ? ratioSamples.get(source) : undefined;
@@ -63,6 +81,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const id = comicId ? decodeURIComponent(comicId) : "";
     const navigate = useNavigate();
     const toast = useToast();
+    const canHover = useHoverCapable();
 
     const [comic, setComic] = useState<Comic | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -71,6 +90,10 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const [fullscreen, setFullscreen] = useState(false);
     const [autoTrim, setAutoTrim] = useState(false);
     const [columnWidth, setColumnWidth] = useState(720);
+    const [viewportHeight, setViewportHeight] = useState(0);
+    // 顶栏显隐（滚动方向与点击画面切换）与光标静止隐去，共同构成沉浸阅读
+    const [chromeVisible, setChromeVisible] = useState(true);
+    const [cursorIdle, setCursorIdle] = useState(false);
     const [ratio, setRatio] = useState(
         () => learnedRatio(source) || FALLBACK_RATIO[source ?? ""] || DEFAULT_RATIO,
     );
@@ -86,6 +109,11 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const loadedChaptersRef = useRef<Set<number>>(new Set());
     const restoredRef = useRef(false);
     const progressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const viewportHeightRef = useRef(800);
+    const lastTopRef = useRef(0);
+    const chromeRef = useRef(true);
+    const cursorIdleRef = useRef(false);
+    const cursorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     chaptersRef.current = chapters;
     comicRef.current = comic;
@@ -115,6 +143,16 @@ export default function Reader({ local = false }: { local?: boolean }) {
         [source, ratio],
     );
 
+    /** 挂载范围＝视口上下各两屏换算成的页数（长条漫一页就超过两屏，取 1）。 */
+    const overscanPages = useMemo(() => {
+        const pageHeight = estimatePageHeight(columnWidth);
+        const screens = (viewportHeight || 800) / pageHeight;
+        return Math.min(
+            Math.max(Math.ceil(screens * PREFETCH_SCREENS), 1),
+            OVERSCAN_MAX,
+        );
+    }, [estimatePageHeight, columnWidth, viewportHeight]);
+
     /**
      * 虚拟化渲染：只挂载视口附近页面（含 overscan），页面高度经 ResizeObserver
      * 测量（图片加载后自动重测）；未测页用 estimateSize 撑布局。
@@ -123,7 +161,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
         count: pages.length,
         getScrollElement: () => containerRef.current,
         estimateSize: () => estimatePageHeight(columnWidth),
-        overscan: 3,
+        overscan: overscanPages,
         // 每次虚拟器更新（含测量变化）尝试一次进度恢复；restoredRef 保证只执行一次。
         onChange: () => {
             if (restoredRef.current) return;
@@ -168,6 +206,23 @@ export default function Reader({ local = false }: { local?: boolean }) {
         observer.observe(el);
         return () => observer.disconnect();
     }, [autoTrim]);
+
+    /** 视口高度（决定挂载范围与下一话的提前量）。 */
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const update = (height: number) => {
+            const rounded = Math.round(height);
+            viewportHeightRef.current = rounded;
+            setViewportHeight(rounded);
+        };
+        update(el.getBoundingClientRect().height);
+        const observer = new ResizeObserver(([entry]) =>
+            update(entry.contentRect.height),
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
 
     /** 追加某章图片（幂等：已加载章节跳过；失败可重试）。 */
     const appendChapter = useCallback(
@@ -233,15 +288,59 @@ export default function Reader({ local = false }: { local?: boolean }) {
         if (!local) void touchHistory(c, chs[chapterIdx].index);
     }, [local]);
 
+    /** 顶栏显隐只在值真的变化时写入 state（滚动事件里省掉无谓的重渲染）。 */
+    const setChrome = useCallback((visible: boolean) => {
+        if (chromeRef.current === visible) return;
+        chromeRef.current = visible;
+        setChromeVisible(visible);
+    }, []);
+
+    /** 鼠标一动就唤回指针，静止两秒后隐去。 */
+    const wakeCursor = useCallback(() => {
+        if (!canHover) return;
+        if (cursorIdleRef.current) {
+            cursorIdleRef.current = false;
+            setCursorIdle(false);
+        }
+        if (cursorTimer.current !== null) clearTimeout(cursorTimer.current);
+        cursorTimer.current = setTimeout(() => {
+            cursorIdleRef.current = true;
+            setCursorIdle(true);
+        }, CURSOR_IDLE_MS);
+    }, [canHover]);
+
+    useEffect(() => {
+        if (!canHover) return;
+        wakeCursor();
+        return () => {
+            if (cursorTimer.current !== null) clearTimeout(cursorTimer.current);
+        };
+    }, [canHover, wakeCursor]);
+
     const onScroll = useCallback(() => {
+        const el = containerRef.current;
+        if (el) {
+            const top = el.scrollTop;
+            const delta = top - lastTopRef.current;
+            lastTopRef.current = top;
+            // 向下滚收起顶栏，向上滚或回到顶部唤出
+            if (delta > SCROLL_DIRECTION_SLOP) setChrome(false);
+            else if (delta < -SCROLL_DIRECTION_SLOP || top < 16) setChrome(true);
+            wakeCursor();
+        }
         if (progressTimer.current !== null) clearTimeout(progressTimer.current);
         progressTimer.current = setTimeout(() => {
-            const el = containerRef.current;
-            if (!el) return;
-            const { scrollTop, clientHeight, scrollHeight } = el;
-            // 跨话连续：接近底部且有下一话（至少一页真实测量过，防初始级联）→ 加载下一话
+            const node = containerRef.current;
+            if (!node) return;
+            const { scrollTop, clientHeight, scrollHeight } = node;
+            // 跨话连续：距底不足两屏且有下一话（至少一页真实测量过，防初始级联）→ 预取下一话
             if (
-                nearBottom(scrollTop, clientHeight, scrollHeight) &&
+                nearBottomByPx(
+                    scrollTop,
+                    clientHeight,
+                    scrollHeight,
+                    viewportHeightRef.current * PREFETCH_SCREENS,
+                ) &&
                 currentIdxRef.current < chaptersRef.current.length - 1 &&
                 virtualizer.itemSizeCache.size > 0
             ) {
@@ -249,7 +348,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
             }
             recordProgress();
         }, 250);
-    }, [appendChapter, recordProgress, virtualizer]);
+    }, [appendChapter, recordProgress, virtualizer, setChrome, wakeCursor]);
 
     // 进入：加载详情（漫画 + 过滤后章节）+ 首章图片，并记一条历史
     useEffect(() => {
@@ -327,29 +426,40 @@ export default function Reader({ local = false }: { local?: boolean }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [source, id, chapterIndex, local]);
 
-    // 全屏沉浸（grilling #6）：隐藏顶栏；Esc/点击画面退出；非全屏时 Esc 返回
+    // 全屏（grilling #6）：隐藏窗口边框与标题栏；Esc 退出。
+    // 进全屏即收起顶栏（点画面可唤回），退出全屏把顶栏交还出来。
     const toggleFullscreen = useCallback(async () => {
         const next = !fullscreen;
         await getCurrentWindow().setFullscreen(next);
         setFullscreen(next);
-    }, [fullscreen]);
+        setChrome(!next);
+    }, [fullscreen, setChrome]);
 
-    const onContainerClick = useCallback(() => {
-        if (fullscreen) {
-            void getCurrentWindow().setFullscreen(false);
-            setFullscreen(false);
-        }
-    }, [fullscreen]);
+    /** 点击画面切换顶栏：控件自己的点击与文字拖选不算。 */
+    const onContainerClick = useCallback(
+        (e: MouseEvent<HTMLDivElement>) => {
+            if ((e.target as HTMLElement).closest("a,button")) return;
+            if (window.getSelection()?.toString()) return;
+            setChrome(!chromeRef.current);
+        },
+        [setChrome],
+    );
 
     // 自动裁边（设置项）：页面略放大，裁掉边缘空白
     useEffect(() => {
         void getSettings().then((s) => setAutoTrim(s.autoTrim));
     }, []);
 
-    // 卸载时清掉进度防抖计时器
+    // 卸载时清掉两个防抖计时器，并把窗口还原——否则从全屏的阅读器返回，
+    // 会把全屏状态带到其他页面上
     useEffect(
         () => () => {
             if (progressTimer.current !== null) clearTimeout(progressTimer.current);
+            if (cursorTimer.current !== null) clearTimeout(cursorTimer.current);
+            const win = getCurrentWindow();
+            void win.isFullscreen().then((fs) => {
+                if (fs) void win.setFullscreen(false);
+            });
         },
         [],
     );
@@ -360,13 +470,14 @@ export default function Reader({ local = false }: { local?: boolean }) {
             if (fullscreen) {
                 void getCurrentWindow().setFullscreen(false);
                 setFullscreen(false);
+                setChrome(true);
             } else {
                 navigate(-1);
             }
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [fullscreen, navigate]);
+    }, [fullscreen, navigate, setChrome]);
 
     const lastChapter = currentIdxRef.current >= chapters.length - 1;
     const currentChapter = chapters[currentIdxRef.current];
@@ -376,68 +487,26 @@ export default function Reader({ local = false }: { local?: boolean }) {
         : `/comic/${source}/${encodeURIComponent(id)}`;
 
     return (
-        <div className="flex min-h-0 flex-1 flex-col bg-background">
-            {!fullscreen && (
-                <header className="z-30 flex items-center gap-2 border-b border-border bg-background px-2 py-1.5">
-                    <Link
-                        to={backTo}
-                        aria-label={local ? "返回书架" : "返回章节"}
-                        className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                    </Link>
-                    <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">
-                            {comic?.title ?? "阅读中"}
-                        </div>
-                        {currentChapter && (
-                            <div className="truncate text-[11px] text-muted-foreground">
-                                {currentChapter.title}
-                                {pages.length > 0 && (
-                                    <>
-                                        {" · "}
-                                        已加载 {pages.length} 页
-                                    </>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="全屏"
-                        onClick={() => void toggleFullscreen()}
-                    >
-                        <Maximize className="size-4" />
-                    </Button>
-                </header>
-            )}
-
-            <ScrollProgress
-                progress={scrollYProgress}
-                fixed={false}
-                position="top"
-                height={2}
-                className="bg-primary"
-            />
-
+        <div className="relative flex min-h-0 flex-1 flex-col bg-reader-canvas text-reader-foreground">
             <div
                 ref={containerRef}
                 onScroll={onScroll}
+                onPointerMove={wakeCursor}
                 onClick={onContainerClick}
-                className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+                className={cn(
+                    "min-h-0 flex-1 overflow-y-auto overscroll-contain",
+                    cursorIdle && "cursor-none",
+                )}
             >
                 {chapters.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-3 px-6 py-20 text-center">
-                        <BookOpen className="size-8 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
+                        <BookOpen className="size-8 text-reader-muted" />
+                        <p className="text-sm text-reader-muted">
                             {local
                                 ? "这部作品还没有下载的章节"
                                 : "这部作品只有站外章节，已经隐藏"}
                         </p>
-                        <Button variant="secondary" size="sm" onClick={() => navigate(-1)}>
-                            返回
-                        </Button>
+                        <ReaderButton onClick={() => navigate(-1)}>返回</ReaderButton>
                     </div>
                 ) : (
                     <>
@@ -484,7 +553,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
                         </div>
 
                         {loading && (
-                            <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
+                            <div className="flex items-center justify-center gap-2 py-6 text-xs text-reader-muted">
                                 <Loader
                                     variant="dots"
                                     size={18}
@@ -496,25 +565,97 @@ export default function Reader({ local = false }: { local?: boolean }) {
 
                         {!loading && lastChapter && pages.length > 0 && (
                             <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-                                <BookOpen className="size-8 text-muted-foreground" />
+                                <BookOpen className="size-8 text-reader-muted" />
                                 <p className="text-sm font-medium">已经是最后一话了</p>
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() => navigate(backTo)}
-                                >
+                                <ReaderButton onClick={() => navigate(backTo)}>
                                     回到章节列表
-                                </Button>
+                                </ReaderButton>
                             </div>
                         )}
                     </>
                 )}
             </div>
+
+            <ScrollProgress
+                progress={scrollYProgress}
+                fixed={false}
+                position="top"
+                height={2}
+                className="bg-reader-foreground/60"
+            />
+
+            <header
+                className={cn(
+                    "absolute inset-x-0 top-0 z-30 flex items-center gap-2 border-b border-reader-border bg-reader-canvas/80 px-2 py-1.5 backdrop-blur-md",
+                    "transition-[opacity,translate] duration-200 ease-out",
+                    chromeVisible
+                        ? "translate-y-0 opacity-100"
+                        : "pointer-events-none -translate-y-2 opacity-0",
+                )}
+            >
+                <Link
+                    to={backTo}
+                    aria-label={local ? "返回书架" : "返回章节"}
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-reader-muted transition-colors hover:bg-white/10 hover:text-reader-foreground"
+                >
+                    <ArrowLeft className="size-4" />
+                </Link>
+                <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">
+                        {comic?.title ?? "阅读中"}
+                    </div>
+                    {currentChapter && (
+                        <div className="truncate text-[11px] text-reader-muted">
+                            {currentChapter.title}
+                            {pages.length > 0 && (
+                                <>
+                                    {" · "}
+                                    已加载 {pages.length} 页
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+                <button
+                    type="button"
+                    aria-label={fullscreen ? "退出全屏" : "全屏"}
+                    aria-pressed={fullscreen}
+                    onClick={() => void toggleFullscreen()}
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-reader-muted transition-colors hover:bg-white/10 hover:text-reader-foreground"
+                >
+                    {fullscreen ? (
+                        <Minimize className="size-4" />
+                    ) : (
+                        <Maximize className="size-4" />
+                    )}
+                </button>
+            </header>
         </div>
     );
 }
 
-/** 阅读页图片：宽度 100%、高度自适应；加载完成前用预留高度撑住布局，避免滚动跳动。 */
+/** 阅读器里的文字按钮（暗房底色上的描边药丸）。 */
+function ReaderButton({
+    onClick,
+    children,
+}: {
+    onClick: () => void;
+    children: ReactNode;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className="rounded-full border border-reader-border px-4 py-1.5 text-xs text-reader-muted transition-colors hover:border-reader-foreground/40 hover:text-reader-foreground"
+        >
+            {children}
+        </button>
+    );
+}
+
+/** 阅读页图片：宽度 100%、高度自适应；加载完成前用预留高度撑住布局，避免滚动跳动。
+ * 挂载范围就是预取范围，因此一律 eager——浏览器自己的 lazy 只提前约一屏，
+ * 会把已经挂载好的后两屏又压回"滚到才取"。 */
 function ReaderPage({
     src,
     index,
@@ -539,7 +680,7 @@ function ReaderPage({
                 style={{ minHeight: loaded || failed ? undefined : reserved }}
             >
                 {!loaded && !failed && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-muted/40 text-muted-foreground">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/5 text-reader-muted">
                         <Loader
                             variant="dots"
                             size={18}
@@ -558,7 +699,7 @@ function ReaderPage({
                             setFailed(false);
                             setRetryKey((k) => k + 1);
                         }}
-                        className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card/50 py-10 text-muted-foreground transition-colors hover:text-foreground"
+                        className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-reader-border bg-white/5 py-10 text-reader-muted transition-colors hover:text-reader-foreground"
                         style={{ minHeight: reserved }}
                     >
                         <AlertTriangle className="size-5" />
@@ -571,6 +712,7 @@ function ReaderPage({
                         key={retryKey}
                         src={src}
                         alt={`第 ${index + 1} 页`}
+                        loading="eager"
                         onLoad={(el) => {
                             setLoaded(true);
                             if (el.naturalWidth > 0) {

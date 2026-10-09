@@ -1,14 +1,14 @@
 /** 卷纸流滚动窗口计算（S4 seam，纯函数；jsdom 测不了真实滚动，逻辑抽出来测）。 */
 
-/** 是否接近底部（触发加载下一话）。内容未溢出视口视为在底部。 */
-export function nearBottom(
+/** 距底部不足 marginPx 像素（触发预取下一话）。内容未溢出视口视为在底部。 */
+export function nearBottomByPx(
     scrollTop: number,
     clientHeight: number,
     scrollHeight: number,
-    thresholdRatio = 0.9,
+    marginPx: number,
 ): boolean {
     if (scrollHeight <= clientHeight) return true;
-    return (scrollTop + clientHeight) / scrollHeight >= thresholdRatio;
+    return scrollHeight - (scrollTop + clientHeight) <= marginPx;
 }
 
 /** 视口中心偏移所在页（按已测页面高度累计定位）。heights 为空返回 0。 */

@@ -75,6 +75,7 @@ import {
     toggleFavorite,
     getSettings,
     setSettings,
+    rememberDiscovery,
     comicKey,
     hydrateWebtoonsCache,
     persistWebtoonsCache,
@@ -188,6 +189,8 @@ describe("设置 settings", () => {
             downloadDir: "/mock/Downloads/cimoc",
             darkMode: false,
             autoTrim: false,
+            lastSource: null,
+            lastCategory: {},
         });
     });
 
@@ -198,7 +201,20 @@ describe("设置 settings", () => {
             downloadDir: "/mock/Downloads/cimoc",
             darkMode: true,
             autoTrim: true,
+            lastSource: null,
+            lastCategory: {},
         });
+    });
+
+    it("rememberDiscovery 记住浏览位置，不影响其他设置", async () => {
+        await setSettings({ darkMode: true });
+        await rememberDiscovery("webtoons");
+        await rememberDiscovery("webtoons", "恋爱");
+        await rememberDiscovery("mangadex", "动作");
+        const s = await getSettings();
+        expect(s.lastSource).toBe("mangadex");
+        expect(s.lastCategory).toEqual({ webtoons: "恋爱", mangadex: "动作" });
+        expect(s.darkMode).toBe(true);
     });
 });
 

@@ -1,23 +1,25 @@
 import { describe, it, expect } from "vitest";
-import { nearBottom, pageIndexAt, positionWithinChapter } from "./scroll";
+import { nearBottomByPx, pageIndexAt, positionWithinChapter } from "./scroll";
 
-describe("nearBottom（接近底部触发加载下一话）", () => {
-    it("未接近底部返回 false", () => {
-        expect(nearBottom(100, 800, 4000)).toBe(false); // (100+800)/4000 = 0.225
+describe("nearBottomByPx（距底部不足提前量时预取下一话）", () => {
+    it("距底部超过提前量返回 false", () => {
+        // 4000 - (100 + 800) = 3100 > 1600
+        expect(nearBottomByPx(100, 800, 4000, 1600)).toBe(false);
     });
 
-    it("到达阈值返回 true", () => {
-        expect(nearBottom(2800, 800, 4000)).toBe(true); // (2800+800)/4000 = 0.9
+    it("距底部不足提前量返回 true", () => {
+        // 4000 - (2400 + 800) = 800 <= 1600
+        expect(nearBottomByPx(2400, 800, 4000, 1600)).toBe(true);
     });
 
-    it("自定义阈值", () => {
-        expect(nearBottom(2800, 800, 4000, 0.95)).toBe(false);
-        expect(nearBottom(3000, 800, 4000, 0.95)).toBe(true); // 0.95
+    it("刚好等于提前量返回 true", () => {
+        // 4000 - (1600 + 800) = 1600
+        expect(nearBottomByPx(1600, 800, 4000, 1600)).toBe(true);
     });
 
     it("内容未溢出视口视为在底部", () => {
-        expect(nearBottom(0, 800, 600)).toBe(true);
-        expect(nearBottom(0, 800, 800)).toBe(true);
+        expect(nearBottomByPx(0, 800, 600, 1600)).toBe(true);
+        expect(nearBottomByPx(0, 800, 800, 1600)).toBe(true);
     });
 });
 
