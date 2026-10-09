@@ -30,7 +30,8 @@ Worker 只把 `url` 换成自己的 `/dl` 路径，`version` 与 `sha256` 原样
 Worker 用 `GITHUB_TOKEN` 把清单与制品取回来再对外提供，客户端不需要任何凭据。
 
 只有 GitHub 判定为「最新已发布版本」的那个 release 会被提供：草稿与预发布版本不在
-其中，所以 `release.yml` 建出的 draft release 在人工 publish 之前不会推给任何用户。
+其中。`release.yml` 直接发布（`releaseDraft: false`），所以 workflow 跑完就开始推给
+用户。
 
 ## 域名
 
@@ -143,11 +144,10 @@ curl -i https://cimoc-updater.fengw.site/android.json
 
 ## 发布一个新版本
 
-1. 打 tag 推上去（`app-v<版本>`），`release.yml` 构建并把产物传进 draft release：
-   桌面三个平台由 tauri-action 出 `latest.json`，Android 作业出签名 APK 与
-   `android.json`。
-2. 在 GitHub 上核验产物，然后 **publish** 这个 release——这一步是更新通道的开关，
-   草稿状态不会推给用户。
+1. 打 tag 推上去（`app-v<版本>`），`release.yml` 构建并发布 release：桌面三个平台由
+   tauri-action 出 `latest.json`，Android 作业出签名 APK 与 `android.json`。
+2. workflow 跑完即是对外状态——更新通道立刻开始推给用户，所以推 tag 之前先确认版本
+   与改动；发错了按下面的「撤掉」处理。
 3. 用户端设置页点「检查新版本」即可看到：桌面端走「重启并安装」，Android 走
    「下载 → 安装 → 系统确认」。
 

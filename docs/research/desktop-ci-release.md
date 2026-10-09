@@ -4,7 +4,7 @@ Ticket: https://github.com/fw6/comic/issues/9 · 研究日期：2026-08-15。核
 
 ## 结论与推荐（TL;DR）
 
-**推荐：单 GitHub Actions workflow（仓库根 `.github/workflows/release.yml`）+ `tauri-apps/tauri-action@v1`，四平台矩阵（macOS aarch64 / macOS x86_64 / ubuntu-22.04 / windows-latest）构建并上传到 GitHub Releases。签名策略：macOS 用 ad-hoc 签名不公证、Windows/Linux 不签名；发布渠道走 draft release，人工核验后手动 publish。**
+**推荐：单 GitHub Actions workflow（仓库根 `.github/workflows/release.yml`）+ `tauri-apps/tauri-action@v1`，四平台矩阵（macOS aarch64 / macOS x86_64 / ubuntu-22.04 / windows-latest）构建并上传到 GitHub Releases。签名策略：macOS 用 ad-hoc 签名不公证、Windows/Linux 不签名；发布渠道为直接发布（`releaseDraft: false`），tag 推上去 workflow 跑完即对外。**
 
 1. **tauri-action v1.0.0 是三平台发布的官方推荐路径**：构建后自动创建 GitHub Release、上传产物、用 `__VERSION__` 替换版本号（https://github.com/tauri-apps/tauri-action）。官方 CI 指南的完整发布模板即 `tauri-action@v1` + 上面这个矩阵（https://v2.tauri.app/distribute/pipelines/github/）。
 2. **本仓库的 `desktop/` 子目录布局用 `projectPath: desktop` 即可**：tauri-action 从 projectPath 读 `tauri.conf.json`（含 `beforeBuildCommand`/`beforeDevCommand`）并在该目录执行 `tauri build`，无需任何兼容层（同上链接 + action 的 `action.yml` 输入定义）。
@@ -121,7 +121,7 @@ Ticket: https://github.com/fw6/comic/issues/9 · 研究日期：2026-08-15。核
 
 ## 7. 决策落地：推荐 workflow
 
-触发方式：push 版本 tag（`app-v*`，官方 CI 指南提供的 tag 触发变体）+ `workflow_dispatch` 手动触发。发布渠道：`releaseDraft: true`（草稿 Release）→ 人工检查产物后手动 publish，避免误发；tag/标题由 action 用 `__VERSION__` 自动生成。
+触发方式：push 版本 tag（`app-v*`，官方 CI 指南提供的 tag 触发变体）+ `workflow_dispatch` 手动触发。发布渠道：`releaseDraft: false`（直接发布，tag 推上去 workflow 跑完即对外）；tag/标题由 action 用 `__VERSION__` 自动生成。
 
 ```yaml
 name: 'release'

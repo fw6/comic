@@ -35,7 +35,7 @@
   `https://cimoc-updater.fengw.site/latest.json`，服务是 `updater/` 里的 Cloudflare Worker。
 - 仓库私有，GitHub Releases 对未登录客户端一律 404，所以清单与制品都由 Worker 用
   `GITHUB_TOKEN` 从 GitHub Releases 取回后对外提供；只提供 GitHub 判定的「最新已发布
-  版本」，draft release 在人工 publish 之前不对外。
+  版本」。`release.yml` 直接发布（`releaseDraft: false`），workflow 跑完即开始推送。
 - `*.workers.dev` 在本机所在网络连不上（实测 443 超时，而 Cloudflare 边缘 IP 与
   github.com 都通），所以 Worker 挂在自有域名的子域下，与 `blog.fengw.site` 同一做法。
 - 改了 `updater/src/` 或 `updater/wrangler.toml` 要 `cd updater && npx wrangler deploy`；

@@ -105,7 +105,7 @@ async function latestManifest(env, origin) {
  * Android OTA 的清单：版本、APK 的 sha256、APK 的下载地址。
  *
  * `android.json` 资产由 release.yml 的 Android 作业生成（APK 一起传进同一个
- * draft release）。桌面端升级器不认识这个出口，两条通道互不影响。
+ * release）。桌面端升级器不认识这个出口，两条通道互不影响。
  */
 async function androidManifest(env, origin) {
     const release = await latestRelease(env);
