@@ -18,15 +18,15 @@
 - 原因：macOS/Linux 无法给 `<img>` 注入 Referer，只能走代理。
 - 详见 `docs/research/desktop-webview-images.md`。
 
-## 隐藏 webview 渲染通道（爬取链路的取数路径）
+## 隐藏 webview 渲染通道（Cloudflare / 自建验证防护源）
 
 - 判据在 cimoc-core（`crawler/render.rs`）：`STATE_SCRIPT` / `HTML_SCRIPT` / `is_clean` / `is_denied`
   与 `POLL_INTERVAL` / `RENDER_TIMEOUT`。挑战页形态变化只改这里，桌面与移动端同时生效。
 - 桌面端：`src-tauri/src/render.rs`，单例不可见窗口（label `render`）+ Rust 侧轮询；远程页面
   零 IPC 权限（capability 不覆盖 render 窗口），HTML 经宿主侧 `eval_with_callback` 取回。
 - 移动端：`crates/tauri-plugin-cimoc-render/`（自建 tauri 插件，Kotlin `WebView` / Swift `WKWebView`
-  离屏加载）。状态脚本 / 取内容的脚本 / 轮询间隔 / 整体超时随请求下发，原生侧只做「加载 → 轮询 →
-  连续两次干净 → 取内容」，不含任何站点选择器。
+  离屏加载）。状态脚本 / 取 HTML 脚本 / 轮询间隔 / 整体超时随请求下发，原生侧只做「加载 → 轮询 →
+  连续两次干净 → 取 HTML」，不含任何站点选择器。
 - 布局细节、验证页识别、移动端离屏 webview 的取舍与维护注意见 `docs/research/webview-render-channel.md`。
 
 ## 自动更新通道（`updater/`）

@@ -29,14 +29,13 @@
    `eval(function(p,a,c,k,e,d){…})` 里）。已在 `manhuagui.js` 实现**无正则解包器**（QuickJS 白名单无
    RegExp，`unpackPacker` 用字符扫描令牌替换），用真实生成的包验证通过——后续加 DM5 等可复用。
 3. **可重建 URL 优先于需 Rust 缓存**：咚漫 viewer URL 含不可重建的中文 slug → Rust 缓存；
-   漫画柜章节号即 URL 的 cid（可重建）→ 纯脚本侧。
+   漫画柜章节号即 URL 的 cid（可重建）→ 纯脚本侧，Rust 只留请求头。
 4. 加源时先探测「目标端点是否对本机 IP 剥离内容」——剥离的源（manhuaren/dm5）无法本机验证，
    只能在有住宅 IP 配合时接入。
-5. **取数走隐藏 webview 渲染通道**（2026-09-30 起，见 `docs/research/webview-render-channel.md`）：
-   不可见 webview 加载页面、等验证自动完成、取回页面内容走原有 parse 契约；该通道是爬取链路的默认
-   取数路径（唯一例外是 API 要求导航无法携带的请求头的 copymanga）。包子漫画按此方案接入并经真网
-   验证；此前因 Cloudflare 放弃的候选源可重新评估。纯 IP 信誉封锁（copymanga 详情/漫画柜）不受
-   影响，这类源仍看住宅 IP。
+5. **「JS 挑战 / 客户端环境校验」型防护的源走隐藏 webview 渲染通道**（2026-09-30 起，见
+   `docs/research/webview-render-channel.md`）：不可见 webview 加载页面、等验证自动完成、取回
+   渲染后 HTML 走原有 parse 契约。包子漫画按此方案接入并经真网验证；此前因 Cloudflare 放弃的
+   候选源可重新评估。纯 IP 信誉封锁（copymanga 详情/漫画柜）不受影响，这类源仍看住宅 IP。
 
 ## 新增源清单（本次）
 

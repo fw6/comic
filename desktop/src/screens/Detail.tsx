@@ -76,8 +76,8 @@ export default function Detail() {
                 await whenSourcesReady();
                 if (cancelled) return;
                 // SWR：先渲染缓存的详情与章节（立即），随后 crawl 拉最新覆盖。
-                // detail 每次都拉网络：baozimh 的章节中转链经 post_process 写入进程内缓存
-                // （images 依赖它），跳过抓取会让章节打不开。
+                // detail 每次都拉网络：渲染源的章节中转链经 post_process 写入进程内缓存
+                // （baozimh 的 images 依赖它），跳过抓取会让章节打不开。
                 const [cached, fav, prog, settings] = await Promise.all([
                     crawlCached<{ comic: Comic; chapters: Chapter[] }>("detail", source!, {
                         comicId: id,

@@ -2,7 +2,7 @@
 //!
 //! 移动端需要与桌面端等价的渲染通道（`cimoc_core::crawler::render` 的契约）：受
 //! 防护的源（Cloudflare 验证、TLS 被重置）拿不到页面，只能让真正的浏览器加载页面、
-//! 等 JS 挑战跑完再取回页面内容。tauri/wry 的 `WebviewWindow` 在移动端做不到这件事
+//! 等 JS 挑战跑完再取回 HTML。tauri/wry 的 `WebviewWindow` 在移动端做不到这件事
 //! （Android 每个 activity 只有一个受 wry 记账的 webview，iOS 创建窗口即显示），
 //! 所以这里由插件自带原生代码：Android 用不进入可见视图的 `WebView`（Kotlin），
 //! iOS 用不加入任何窗口的 `WKWebView`（Swift），Rust 侧经
@@ -10,8 +10,8 @@
 //! `spawn_blocking` 线程，阻塞等待正好对上）。
 //!
 //! 判定与节奏都在 cimoc-core：状态脚本 [`cimoc_core::crawler::render::STATE_SCRIPT`]、
-//! 取内容的脚本、轮询间隔与整体超时随请求下发给原生侧。原生侧只做循环——加载、
-//! 按间隔评估状态脚本、连续两次「干净」后取内容、拒绝页与超时 reject。挑战页的
+//! 取 HTML 的脚本、轮询间隔与整体超时随请求下发给原生侧。原生侧只做循环——加载、
+//! 按间隔评估状态脚本、连续两次「干净」后取 HTML、拒绝页与超时 reject。挑战页的
 //! 容器与标题随站点改版变动，改 cimoc-core 一处即可两端生效。
 //!
 //! 宿主在 setup 里把 [`render`] 注册给 cimoc-core（桌面端注册的是隐藏窗口实现）：
@@ -47,7 +47,7 @@ pub(crate) struct RenderRequest<'a> {
     pub url: &'a str,
     /// 页面状态脚本（`cimoc_core::crawler::render::STATE_SCRIPT`）。
     pub state_script: &'a str,
-    /// 取回页面内容的脚本（`cimoc_core::crawler::render::HTML_SCRIPT`）。
+    /// 取回 HTML 的脚本（`cimoc_core::crawler::render::HTML_SCRIPT`）。
     pub html_script: &'a str,
     pub poll_ms: u64,
     pub timeout_ms: u64,
@@ -68,7 +68,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
         .build()
 }
 
-/// 渲染一个页面 URL，返回渲染后的页面内容。
+/// 渲染一个页面 URL，返回渲染后的完整 HTML。
 ///
 /// 只接受 http(s)；移动端经原生离屏 webview，桌面端返回「由 src-tauri 的隐藏窗口
 /// 实现」错误。调用方在阻塞线程上使用（同步等待原生侧结果，原生侧自带整体超时）。
@@ -135,11 +135,7 @@ mod tests {
         assert_eq!(json["pollMs"], 500);
         assert_eq!(json["timeoutMs"], 60_000);
         assert!(json["stateScript"].as_str().unwrap().contains("readyState"));
-        // 提取脚本按响应类型分支：HTML 取标记结构，JSON/纯文本取 body.textContent
-        let html_script = json["htmlScript"].as_str().unwrap();
-        assert!(html_script.contains("contentType"), "htmlScript = {html_script}");
-        assert!(html_script.contains("outerHTML"), "htmlScript = {html_script}");
-        assert!(html_script.contains("textContent"), "htmlScript = {html_script}");
+        assert_eq!(json["htmlScript"], "document.documentElement.outerHTML");
 
         let response: RenderResponse = serde_json::from_str(r#"{"html":"<html></html>"}"#).unwrap();
         assert_eq!(response.html, "<html></html>");

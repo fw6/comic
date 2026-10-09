@@ -2,10 +2,6 @@
 //! 解析与 op URL 构造在源脚本 `js/sources/copymanga.js`；本模块保留 Rust 侧职责：
 //! 网络请求头、章节 feed（detail 的 ctx 与 images 的 chapterUuid 共用）。
 //! 章节在 `/group/{group}/chapters` 独立端点（不在 comic2 响应里），取默认「正序」组。
-//!
-//! 本源的页面与 feed 取数都走共享 HTTP 客户端：API 要求 `platform` / `version` /
-//! `hc-lang` 客户端标识，而 webview 导航无法附加自定义请求头（`crawler::fetch` 的
-//! 唯一例外）。
 
 use crate::crawler::http;
 use serde_json::Value;

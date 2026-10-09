@@ -1,9 +1,9 @@
 //! MangaDex 图源（脚本源，wayfinder #11/#15/#16 定案）。
 //! 解析与 op URL 构造在源脚本 `js/sources/mangadex.js`；本模块保留 Rust 侧职责：
-//! 标签缓存（categories 实现 + category 的 tagId）、章节 id 缓存（images 的
-//! chapterId 解析，复用详情 feed）。feed/tags 的抓取 URL 属缓存层，留 Rust，
-//! 取数经 `crawler::fetch`（JSON 接口取原始文本，见 `render::HTML_SCRIPT`）。
+//! 网络请求头、标签缓存（categories 实现 + category 的 tagId）、章节 id 缓存（images 的
+//! chapterId 解析，复用详情 feed）。feed/tags 的抓取 URL 属缓存层，留 Rust。
 
+use crate::crawler::http;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
@@ -17,9 +17,12 @@ static TAGS_CACHE: Mutex<Vec<(String, String)>> = Mutex::new(Vec::new());
 static CHAPTER_ID_CACHE: LazyLock<Mutex<HashMap<String, Vec<(f64, String)>>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
+pub fn headers() -> Vec<(&'static str, &'static str)> {
+    vec![("User-Agent", "Cimoc/1.0"), ("Accept", "application/json")]
+}
+
 fn get_json(url: &str) -> Result<Value, String> {
-    let body = super::fetch("mangadex", url)?;
-    serde_json::from_str(&body).map_err(|e| e.to_string())
+    http::get_json(url, &headers())
 }
 
 fn load_tags() -> Result<(), String> {

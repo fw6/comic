@@ -7,7 +7,7 @@
 // 不用正则/Map（research #14 修订基线，RegExp 后置）。
 //
 // 本机（数据中心 IP）对该站整站 TLS 连接被重置（curl 与 reqwest 均不通，非内容剥离），
-// 故取数走隐藏 webview 渲染通道（爬取链路的默认取数路径，与 baozimh 同路）；
+// 故整源走隐藏 webview 渲染通道（`crawler/render.rs` 的 needed 声明，与 baozimh 同路）；
 // 图片 CDN（new.niaopic.com / thumb.niaopic.com）无热链校验，由阅读器直接加载。
 //
 // 结构已在本环境实测验证（2026-09-30）：

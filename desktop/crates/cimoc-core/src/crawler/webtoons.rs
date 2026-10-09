@@ -1,6 +1,6 @@
 //! Webtoons 图源（脚本源，wayfinder #11/#15/#16 定案）。
 //! 解析与 op URL 构造在源脚本 `js/sources/webtoons.js`；本模块保留 Rust 侧职责：
-//! 系列 URL 缓存（含 cache_dump/cache_hydrate 持久化，grilling #6）。取数经渲染通道。
+//! 网络请求头、系列 URL 缓存（含 cache_dump/cache_hydrate 持久化，grilling #6）。
 
 use serde_json::Value;
 use std::collections::HashMap;
@@ -9,9 +9,25 @@ use std::sync::{LazyLock, Mutex};
 pub const BASE: &str = "https://www.webtoons.com/en";
 pub const WEBTOONS_PREFIX: &str = "webtoons-";
 
+const UA_HEADERS: [(&str, &str); 3] = [
+    (
+        "User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+    ),
+    (
+        "Accept",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    ),
+    ("Accept-Language", "en-US,en;q=0.9"),
+];
+
 /// 系列 URL 缓存（含 genre slug）：titleNo -> 详情页 URL，跨会话经 cache_dump/hydrate 持久化。
 static SERIES_URL_CACHE: LazyLock<Mutex<HashMap<String, String>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
+
+pub fn headers() -> Vec<(&'static str, &'static str)> {
+    UA_HEADERS.to_vec()
+}
 
 /// 读取缓存的系列 URL（detail/images 的 ctx，脚本据此构造请求 URL）。
 pub fn cached_series_url(title_no: &str) -> Option<String> {
