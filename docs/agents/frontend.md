@@ -69,8 +69,8 @@ registry 未就绪时脚本源的 op 会返回空结果）：
 
 `Sources.tsx` 的列表加载在缓存命中且 `fetchedAt` 处于新鲜窗口（`LIST_MAX_AGE_MS`，2 分钟）内时
 跳过本次请求（来回切源不重复拉取）；源返回空列表而缓存有数据时保留缓存展示（错误行另经
-`sourceErrors` 呈现）。`Detail.tsx` 只做「先缓存后拉新」、不跳过请求——baozimh 的章节中转链依赖
-detail 的 post_process 写入进程内缓存（images 依赖它）。
+`sourceErrors` 呈现）。`Detail.tsx` 只做「先缓存后拉新」、不跳过请求——渲染源的章节中转链依赖
+detail 的 post_process 写入进程内缓存（baozimh 的 images 依赖它）。
 
 ## 阅读器的分页策略
 
