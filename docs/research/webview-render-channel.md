@@ -1,19 +1,25 @@
-# 隐藏 webview 渲染通道（Cloudflare / 自建验证防护源，2026-09-30）
+# 隐藏 webview 渲染通道（爬取链路的取数路径，2026-09-30 起）
 
 背景：包子漫画（baozimh）在 2026-08 的加源调研里被放弃——`cn.baozimh.com` 的 search/classify/详情
-301 到 `tw.baozimh.com`，普通 HTTP 客户端过不了验证页。本次为这类「JS 挑战 / 客户端环境校验」
-防护源新增**隐藏 webview 渲染通道**：不可见 webview 加载目标 URL，等验证自动完成、页面渲染好后
-取回完整 HTML，交给与普通抓取完全相同的源脚本 parse 契约。
+301 到 `tw.baozimh.com`，普通 HTTP 客户端过不了验证页。为此新增**隐藏 webview 渲染通道**：不可见
+webview 加载目标 URL，等验证自动完成、页面渲染好后取回页面内容，交给与普通抓取完全相同的源脚本
+parse 契约。该通道此后成为**爬取链路的唯一取数路径**，所有源默认经它取数。
 
 ## 方案
 
-- **cimoc-core**（`crawler/render.rs`）：注册式渲染钩子 + 判据的唯一定义处。`render::needed(source)`
-  声明按源走渲染（当前 baozimh / nnhanman）；`script.rs::fetch` 对渲染源整源改经 `render::fetch`。
+- **cimoc-core**（`crawler/render.rs`）：注册式渲染钩子 + 判据的唯一定义处。取数通道的选择在
+  `crawler/mod.rs` 的 `fetch(source, url)`——默认全部源经渲染通道，唯一例外是 copymanga（API 要求
+  `platform` / `version` / `hc-lang` 客户端标识，而 webview 导航无法附加自定义请求头），仍走共享
+  HTTP 客户端。源的 op 取数与 `crawler/{mangadex,dongman}.rs` 的辅助取数都经这个入口。
   宿主未注册时返回「渲染通道未注册」错误，由 `record_error` 呈现到前端错误行（cimoc-core 单独跑
-  测试不依赖 webview）。判据与节奏都在这里：`STATE_SCRIPT`（状态探测脚本，返回
-  `{rs, href, ch, denied, clean}`）、`HTML_SCRIPT`（取 `document.documentElement.outerHTML`）、
+  测试不依赖 webview；需要真网的 `tests/live_smoke.rs` 注册明文 HTTP 取数器）。判据与节奏都在这里：
+  `STATE_SCRIPT`（状态探测脚本，返回 `{rs, href, ch, denied, clean}`）、`HTML_SCRIPT`、
   `is_clean` / `is_denied`、`POLL_INTERVAL`（500ms）、`RENDER_TIMEOUT`（60s）。挑战页容器与标题
   随站点改版变动，改这一处两端（桌面 / 移动）同时生效。
+  - `HTML_SCRIPT` 按响应类型取内容：HTML 文档取 `document.documentElement.outerHTML`（源脚本
+    `parse` 需要标记结构）；JSON / 纯文本接口（mangadex、hentara 的静态 JSON）取 `body.textContent`
+    ——浏览器把这类响应渲染进 `<pre>`，`outerHTML` 会把引号等转义成 HTML 实体，原始文本只能从
+    `textContent` 取。
 - **src-tauri**（`src/render.rs`）：桌面端隐藏 webview 渲染服务，setup 时经 `render::init` 注册进
   cimoc-core。
   - 单例不可见窗口（label `render`，1280x800，`visible(false)`），懒创建；主窗口销毁时连带销毁，
@@ -36,7 +42,7 @@
    一条 Finished 事件都不发（带 JS 挑战的多文档流程正常）。导航就绪判定不能依赖该事件，改用
    `location.href` 变化 + `about:blank` 复位。
 2. **`readyState` 可能永远不到 `complete`**：阅读器页有挂起的统计/广告子资源。判据接受
-   `interactive`（主文档解析完成，outerHTML 已含全部内容，解析 HTML 只需标记结构）。
+   `interactive`（主文档解析完成，内容已可取）。
 3. **`eval` 在未提交的文档上会延迟执行**：早期「给旧文档打 stale 标记再导航」的做法里，标记
    迟到落到了新文档上，永远清不掉。复位 + href 判定替代此方案。
 4. **爬虫侧的两类验证页**：Cloudflare 挑战（多语言标题 + `#challenge-form`/turnstile 容器）与

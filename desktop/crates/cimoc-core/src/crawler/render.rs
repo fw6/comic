@@ -1,12 +1,15 @@
-//! 隐藏 webview 渲染通道（Cloudflare 防护源用）。
+//! 隐藏 webview 渲染通道 —— 爬取链路的取数路径。
 //!
 //! 宿主在 setup 时经 [`set_fetcher`] 注册渲染实现：不可见 webview 加载目标 URL，
-//! 等待 Cloudflare 验证与页面渲染完成后取回完整 HTML。渲染源的 `fetch()`（见
-//! `script.rs`）经本通道拿到的 HTML 走与普通抓取完全相同的 parse 契约，与
-//! rquickjs 管道并存。
+//! 等待 Cloudflare 验证与页面渲染完成后取回页面内容（HTML 取标记结构，JSON /
+//! 纯文本接口取原始文本，见 [`HTML_SCRIPT`]）。经本通道拿到的内容交给 rquickjs
+//! 的源脚本 `parse`，契约与脚本函数本身完全一致。
+//!
+//! 取数通道的选择（哪些源经本通道、哪些走共享 HTTP 客户端）在 `crawler::fetch`。
 //!
 //! 未注册宿主（cimoc-core 单独跑测试、无 webview 的进程）时 [`fetch`] 返回明确
-//! 错误，由 `record_error` 呈现到前端错误行。
+//! 错误，由 `record_error` 呈现到前端错误行；`tests/live_smoke.rs` 因此注册一个
+//! 明文 HTTP 取数器，让源结构验证不依赖界面。
 //!
 //! 渲染实现的「判据」集中在本模块：[`STATE_SCRIPT`] 返回页面状态，
 //! [`is_clean`] 判定是否可提取，[`POLL_INTERVAL`] / [`RENDER_TIMEOUT`] 给出轮询
@@ -35,9 +38,9 @@ pub const POLL_INTERVAL: Duration = Duration::from_millis(500);
 ///   `__gatekeeper_challenge` 资源 +「正在验证浏览器」标题，JS 算完自动跳转）；
 /// - `denied`：Cloudflare 1020 拒绝页（立即失败，不空耗超时）；
 /// - `clean`：目标文档 DOM 解析完成、无挑战、无拒绝、已离开 about:blank，
-///   即可以提取 HTML。`readyState` 接受 `interactive`：阅读器页有长时间挂起的
+///   即可以提取内容。`readyState` 接受 `interactive`：阅读器页有长时间挂起的
 ///   子资源（统计/广告脚本），`complete` 可能永远不来；`interactive` = 主文档
-///   解析完成，`outerHTML` 已含全部内容，解析 HTML 只需要标记结构。
+///   解析完成，内容已可取。
 pub const STATE_SCRIPT: &str = r#"(function () {
   var rs = document.readyState;
   var href = location.href;
@@ -49,16 +52,23 @@ pub const STATE_SCRIPT: &str = r#"(function () {
   return { rs: rs, href: href, ch: ch, denied: denied, clean: clean };
 })()"#;
 
-/// 取回渲染结果的脚本（在页面稳定后评估）。
-pub const HTML_SCRIPT: &str = "document.documentElement.outerHTML";
+/// 取回页面内容的脚本（在页面稳定后评估）。
+///
+/// HTML 文档取 `documentElement.outerHTML`：源脚本 `parse` 需要标记结构。
+/// 非 HTML 响应（JSON / 纯文本接口，如 mangadex、hentara 的静态 JSON）取
+/// `body.textContent`：浏览器把这类响应渲染进 `<pre>`，`outerHTML` 会把引号等
+/// 转义成 HTML 实体，原始文本只能从 `textContent` 取。`document.contentType`
+/// 缺失时按 HTML 处理（默认值取 `text/html`）。
+pub const HTML_SCRIPT: &str = r#"(function () {
+  var ct = document.contentType || 'text/html';
+  if (ct.indexOf('html') >= 0) {
+    return document.documentElement.outerHTML;
+  }
+  var b = document.body;
+  return b ? b.textContent : (document.documentElement ? document.documentElement.textContent : '');
+})()"#;
 
-/// 该源是否整源经渲染通道抓取页面（按源声明；baozimh —— Cloudflare 防护；
-/// nnhanman —— 整站 TLS 连接对本机重置，普通 HTTP 客户端拿不到页面）。
-pub fn needed(source: &str) -> bool {
-    matches!(source, "baozimh" | "nnhanman")
-}
-
-/// [`STATE_SCRIPT`] 的结果是否「干净」（可以提取 HTML）。
+/// [`STATE_SCRIPT`] 的结果是否「干净」（可以提取内容）。
 pub fn is_clean(state: &serde_json::Value) -> bool {
     state
         .get("clean")
@@ -79,7 +89,7 @@ pub fn set_fetcher(f: impl Fn(&str) -> Result<String, String> + Send + Sync + 's
     let _ = FETCHER.set(Box::new(f));
 }
 
-/// 渲染一个页面 URL，返回渲染后的完整 HTML。
+/// 渲染一个页面 URL，返回渲染后的页面内容（HTML 标记结构或接口的原始文本）。
 pub fn fetch(url: &str) -> Result<String, String> {
     match FETCHER.get() {
         Some(f) => f(url),
@@ -92,7 +102,7 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    /// 页面桩：给 `document` / `location` 装上状态脚本需要的字段。
+    /// 页面桩：给 `document` / `location` 装上状态脚本与提取脚本需要的字段。
     /// `hit` 是「页面里命中的元素选择器片段」，querySelector 命中它即返回节点。
     const PAGE_STUB: &str = r#"
     function page(opts) {
@@ -103,35 +113,56 @@ mod tests {
       globalThis.document = {
         readyState: rs,
         title: title,
+        contentType: opts.ct,
         querySelector: function (sel) { return hit && sel.indexOf(hit) >= 0 ? { nodeType: 1 } : null; },
-        documentElement: { outerHTML: '<html></html>' }
+        body: { textContent: opts.text || '' },
+        documentElement: { outerHTML: opts.html || '<html></html>', textContent: opts.text || '' }
       };
       globalThis.location = { href: href };
     }
     "#;
 
-    /// 在 QuickJS 里跑一遍 [`STATE_SCRIPT`]，返回脚本结果。
-    fn run_state_script(opts: &str) -> serde_json::Value {
+    /// 在 QuickJS 里加载页面桩后求值 `expr`，返回字符串结果。
+    fn eval_in_page(opts: &str, expr: &str) -> String {
         let runtime = rquickjs::Runtime::new().expect("Runtime");
         let context = rquickjs::Context::full(&runtime).expect("Context");
         context.with(|cx| {
             cx.eval::<(), _>(PAGE_STUB).expect("页面桩");
             cx.eval::<(), _>(format!("page({opts})")).expect("页面");
-            let out: String = cx
-                .eval::<String, _>(format!("JSON.stringify({STATE_SCRIPT})"))
-                .expect("状态脚本");
-            serde_json::from_str(&out).expect("状态脚本返回 JSON")
+            cx.eval::<String, _>(expr).expect("脚本")
         })
     }
 
+    /// 跑一遍 [`STATE_SCRIPT`]，返回脚本结果。
+    fn run_state_script(opts: &str) -> serde_json::Value {
+        let out = eval_in_page(opts, &format!("JSON.stringify({STATE_SCRIPT})"));
+        serde_json::from_str(&out).expect("状态脚本返回 JSON")
+    }
+
+    /// 跑一遍 [`HTML_SCRIPT`]，返回提取到的文本。
+    fn run_html_script(opts: &str) -> String {
+        eval_in_page(opts, HTML_SCRIPT)
+    }
+
     #[test]
-    fn render_sources_declared() {
-        assert!(needed("baozimh"));
-        assert!(needed("nnhanman"));
-        assert!(!needed("manhuagui"));
-        assert!(!needed("kxmanhua"));
-        assert!(!needed("hentara"));
-        assert!(!needed("webtoons"));
+    fn html_script_extracts_markup_for_html_documents() {
+        // 显式 text/html 与 contentType 缺失（按 HTML 处理）都取标记结构
+        for opts in [
+            r#"{ ct: 'text/html', html: '<html><body><a href="/x">A</a></body></html>' }"#,
+            r#"{ html: '<html><body>B</body></html>' }"#,
+        ] {
+            let out = run_html_script(opts);
+            assert!(out.starts_with("<html>"), "opts = {opts}: {out}");
+        }
+    }
+
+    #[test]
+    fn html_script_extracts_raw_text_for_non_html_documents() {
+        // JSON 接口：浏览器渲染进 <pre>，原始文本从 body.textContent 取（引号不转义）
+        let json = run_html_script(r#"{ ct: 'application/json', text: '{"data":["a","b"]}' }"#);
+        assert_eq!(json, r#"{"data":["a","b"]}"#);
+        let plain = run_html_script("{ ct: 'text/plain', text: 'hello' }");
+        assert_eq!(plain, "hello");
     }
 
     #[test]

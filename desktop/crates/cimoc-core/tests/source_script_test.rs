@@ -949,14 +949,22 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     let (msg, _) = cimoc_core::crawler::script::last_error("baozimh").expect("应记录源错误");
     assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
 
-    // kxmanhua / hentara：普通抓取源，categories 静态输出走脚本
+    // kxmanhua / hentara：categories 静态输出走脚本；需抓取的 op 与 baozimh 同路（渲染通道）
     let cats = crawl("categories", "kxmanhua", "{}", KXMANHUA_JS);
     assert!(cats.contains("韩漫"));
     assert_eq!(crawl("search", "kxmanhua", "{}", ""), "[]");
+    let out = crawl("search", "kxmanhua", r#"{"keyword":"韩漫"}"#, KXMANHUA_JS);
+    assert_eq!(out, "[]");
+    let (msg, _) = cimoc_core::crawler::script::last_error("kxmanhua").expect("应记录源错误");
+    assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
     let cats = crawl("categories", "hentara", "{}", HENTARA_JS);
     assert!(cats.contains("全部"));
     assert_eq!(crawl("search", "hentara", "{}", ""), "[]");
-    // nnhanman：渲染源，需抓取的 op 在无渲染通道宿主下报错并返回空结果
+    let out = crawl("search", "hentara", r#"{"keyword":"harem"}"#, HENTARA_JS);
+    assert_eq!(out, "[]");
+    let (msg, _) = cimoc_core::crawler::script::last_error("hentara").expect("应记录源错误");
+    assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
+    // nnhanman：categories 静态输出走脚本；需抓取的 op 在无渲染通道宿主下报错并返回空结果
     let cats = crawl("categories", "nnhanman", "{}", NNHANMAN_JS);
     assert!(cats.contains("热门"));
     assert_eq!(crawl("search", "nnhanman", "{}", ""), "[]");

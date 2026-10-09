@@ -6,9 +6,9 @@
 // 运行环境：QuickJS（rquickjs 0.12.2），白名单 Date/Json/Eval —— 只用字符串方法，
 // 不用正则/Map（research #14 修订基线）。
 //
-// 抓取走隐藏 webview 渲染通道（crawler/render.rs，整源声明见 render::needed）：
+// 取数走隐藏 webview 渲染通道（爬取链路的默认取数路径）：
 // tw 域章节中转链带自建 proof-of-work 验证页（__gatekeeper_challenge），渲染通道
-// 等验证自动完成后取回 HTML；搜索/详情/分类页在 cn 域直接可得。
+// 等验证自动完成后取回页面内容；搜索/详情/分类页在 cn 域直接可得。
 //
 // 页面为 AMP 服务端渲染（2026-09-30 实测转储验证）：
 // - 搜索/分类卡片：<a href="/comic/{slug}" title="{标题}" class="comics-card__poster">

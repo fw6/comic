@@ -450,7 +450,7 @@ pub fn run() {
                     );
                 });
             }
-            // 渲染通道注册（cimoc-core 的渲染源 fetch 经隐藏 webview 取页面）：
+            // 渲染通道注册（cimoc-core 的爬取取数经隐藏 webview 取页面）：
             // 桌面端是隐藏副窗口，移动端是插件的离屏 webview
             #[cfg(desktop)]
             render::init(app.handle());

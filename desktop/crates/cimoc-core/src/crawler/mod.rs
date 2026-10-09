@@ -9,6 +9,9 @@
 //! 运行时脚本）；webtoons 的 cache_dump/cache_hydrate 与 mangadex 的 categories 为 Rust 侧
 //! 缓存/网络实现（不经脚本）。
 //!
+//! 取数统一经隐藏 webview 渲染通道（`render.rs`）：源的 op 取数与辅助取数都走 [`fetch`]，
+//! 它也是取数通道的唯一定义处（唯一例外是 API 要求导航无法携带的请求头的 copymanga）。
+//!
 //! 结果缓存（`result_cache`）：列表/详情类 op 的成功结果写入内存 LRU + 磁盘
 //! （cache_dir 为空表示禁用），供 `cached_result` 读取（前端 stale-while-revalidate 的
 //! stale 一侧）；失败结果不写入。
@@ -55,6 +58,19 @@ pub fn cached_result(op: &str, source: &str, payload: &str, script: &str, cache_
     serde_json::json!({ "data": value, "fetchedAt": at }).to_string()
 }
 
+/// 取数入口（取数通道的唯一定义处）：源页面与接口统一经隐藏 webview 渲染通道，
+/// 只有 API 要求「导航无法携带的请求头」的源例外。
+///
+/// 例外只有 copymanga：它的接口要求 `platform` / `version` / `hc-lang` 客户端标识
+/// （见 `crawler/copymanga.rs::headers`），而 webview 导航无法附加自定义请求头，
+/// 只能仍走共享 HTTP 客户端。
+pub fn fetch(source: &str, url: &str) -> Result<String, String> {
+    match source {
+        "copymanga" => http::get_text(url, &copymanga::headers()),
+        _ => render::fetch(url),
+    }
+}
+
 /// 分派到各源实现。第二个返回值表示本次结果是否成功（供结果缓存判定；空 URL / 未知
 /// source 等不可缓存的情况返回 false）。
 fn dispatch(op: &str, source: &str, payload: &str, script: &str) -> (String, bool) {
@@ -75,12 +91,43 @@ fn dispatch(op: &str, source: &str, payload: &str, script: &str) -> (String, boo
             _ if !script.is_empty() => script::run(op, source, payload, script),
             _ => ("[]".into(), false),
         },
-        // 纯脚本源：op 全交运行时脚本（nnhanman 的抓取经渲染通道，见 script::fetch）
+        // 纯脚本源：op 全交运行时脚本（取数经 `fetch`，copymanga 例外）
         "copymanga" | "dongman" | "manhuagui" | "baozimh" | "nnhanman" | "kxmanhua"
         | "hentara" => match op {
             _ if !script.is_empty() => script::run(op, source, payload, script),
             _ => ("[]".into(), false),
         },
         _ => ("[]".into(), false),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// 默认全部源经渲染通道：无渲染通道宿主下返回「渲染通道未注册」。
+    #[test]
+    fn fetch_routes_sources_to_render_channel() {
+        for source in [
+            "webtoons",
+            "mangadex",
+            "dongman",
+            "manhuagui",
+            "kxmanhua",
+            "hentara",
+            "baozimh",
+            "nnhanman",
+        ] {
+            let err = fetch(source, "https://example.com/x").unwrap_err();
+            assert!(err.contains("渲染通道未注册"), "{source}: {err}");
+        }
+    }
+
+    /// copymanga 是唯一例外：走共享 HTTP 客户端（本地未监听端口 → 连接类错误，
+    /// 而不是「渲染通道未注册」）。
+    #[test]
+    fn fetch_routes_header_bound_api_to_http_client() {
+        let err = fetch("copymanga", "http://127.0.0.1:1/x").unwrap_err();
+        assert!(!err.contains("渲染通道未注册"), "err = {err}");
     }
 }

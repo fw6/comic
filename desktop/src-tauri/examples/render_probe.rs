@@ -2,9 +2,9 @@
 //!
 //! 用法（在 `desktop/src-tauri` 下）：
 //!   cargo run --example render_probe -- dump <url> <outfile>
-//!       经隐藏 webview 渲染单个页面，把渲染后 HTML 写入 outfile（fixture 采集）。
+//!       经隐藏 webview 渲染单个页面，把页面内容写入 outfile（fixture 采集）。
 //!   cargo run --example render_probe -- crawl <source> <op> <payload-json>
-//!       走 `cimoc_core::crawl` 全链路（渲染源），结果 JSON 打印到 stdout。
+//!       走 `cimoc_core::crawl` 全链路（取数经隐藏 webview），结果 JSON 打印到 stdout。
 //!   cargo run --example render_probe -- chain <source> <comicId> <chapterIndex>
 //!       同进程跑 detail → images（验证进程内章节 URL 缓存与全链路），打印摘要。
 //!

@@ -2,11 +2,11 @@
 //
 // Rust 侧（tauri-plugin-cimoc-render 的 mobile.rs）经 JNI 调 `render` 命令，把目标 URL
 // 与判定脚本一起送进来；这里用一个「离屏 webview」加载页面，等 JS 挑战跑完、页面稳定
-// 后取回 outerHTML，经 invoke.resolve 交回 Rust。
+// 后取回页面内容（脚本按响应类型取 HTML 标记或接口原始文本），经 invoke.resolve 交回 Rust。
 //
-// - 判定与节奏全部来自 Rust 侧请求：状态脚本、取 HTML 的脚本、轮询间隔、整体超时
+// - 判定与节奏全部来自 Rust 侧请求：状态脚本、取内容的脚本、轮询间隔、整体超时
 //   （cimoc_core::crawler::render），这里只负责「加载 → 按间隔评估 → 连续两次干净 →
-//   取 HTML」，与桌面端 render.rs 同判据。
+//   取内容」，与桌面端 render.rs 同判据。
 // - 单实例复用：验证 cookie（cf_clearance / gatekeeper ticket）由 WebView 的持久化
 //   cookie 存储保留，后续渲染与重启应用都能复用。
 // - 不用导航回调做门控（桌面端实测跨站重定向会丢事件），页面就绪以轮询为准。
@@ -182,7 +182,7 @@ class RenderPlugin(private val activity: Activity) : Plugin(activity) {
     }
   }
 
-  /** 目标页面轮询：拒绝页立即失败，连续两次「干净」后取 HTML，其余等下一轮。 */
+  /** 目标页面轮询：拒绝页立即失败，连续两次「干净」后取内容，其余等下一轮。 */
   private fun pollTarget(view: WebView, state: PendingRender) {
     if (state.settled) return
     evalState(view, state) { snapshot ->

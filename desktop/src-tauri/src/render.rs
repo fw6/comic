@@ -1,4 +1,4 @@
-//! 隐藏 webview 渲染通道（Cloudflare / 自建验证防护源，如 baozimh）。
+//! 隐藏 webview 渲染通道（爬取链路的取数路径）。
 //!
 //! 单例不可见 webview + Rust 侧轮询：
 //! 1. `render_sync`（阻塞线程调用，来自 `crawl` 命令的 spawn_blocking）经单飞互斥串行化；
@@ -10,13 +10,13 @@
 //!    不可用作门控）；
 //! 4. 每 500ms eval 页面状态：验证挑战页（Cloudflare / 包子漫画 tw 域自建的
 //!    proof-of-work gatekeeper）等待其自动跳转，拒绝页立即报错；
-//! 5. 连续两次干净检查后提取 `document.documentElement.outerHTML` 返回。
+//! 5. 连续两次干净检查后按响应类型提取页面内容（[`HTML_SCRIPT`]）返回。
 //!
 //! 页面状态脚本与判定（[`cimoc_core::crawler::render`] 的 `STATE_SCRIPT` /
 //! `is_clean` / `is_denied`）、轮询节奏与整体超时都由 cimoc-core 定义：移动端的
 //! 隐藏 webview 插件（`tauri-plugin-cimoc-render`）执行同一套判据。
 //!
-//! HTML 经宿主侧 eval 回调取回（tauri 2.11 的 `eval_with_callback`），远程页面不需要
+//! 页面内容经宿主侧 eval 回调取回（tauri 2.11 的 `eval_with_callback`），远程页面不需要
 //! 任何 IPC 权限——渲染 webview 没有匹配的 capability，页面脚本无法调用应用命令。
 //! 验证通过的 cookie（cf_clearance / gatekeeper ticket）由 WKWebView/WebView2 默认
 //! 持久化数据存储保留，后续渲染与重启应用都能复用。

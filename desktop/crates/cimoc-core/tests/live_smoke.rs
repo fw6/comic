@@ -1,10 +1,25 @@
 //! 真网冒烟（wayfinder #17 双轨之外的手动验证）：默认忽略，`cargo test -- --ignored` 手动跑。
 //! 用真实网络验证脚本源全链路（buildUrl → 抓取 → parse → 输出非空）。
 //! CI 不跑：依赖外网站点，易受网络/反爬波动影响。
+//!
+//! 取数：生产经 `crawler::fetch`（默认渲染通道），本测试进程没有 webview，因此注册一个
+//! 明文 HTTP 取数器，让源结构验证不依赖界面。这里验证的是解析与链路接线；渲染通道本身
+//! 由 `src-tauri/examples/render_probe.rs` 真网验证。
 
 use cimoc_core::js;
 
+/// 明文取数器的请求头：浏览器 UA（生产经渲染通道时由 webview 自带）。
+const UA: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+
+/// 注册明文 HTTP 取数器（进程内一次；重复调用被忽略）。
+fn ensure_fetcher() {
+    cimoc_core::crawler::render::set_fetcher(|url| {
+        cimoc_core::crawler::http::get_text(url, &[("User-Agent", UA)])
+    });
+}
+
 fn live_crawl(source: &str, op: &str, payload: &str) -> serde_json::Value {
+    ensure_fetcher();
     let script = js::sources::load(source).expect("内置脚本");
     let out = cimoc_core::crawl(op, source, payload, &script, "");
     serde_json::from_str(&out).expect("输出应为合法 JSON")
@@ -205,7 +220,7 @@ fn hentara_live_detail_and_images() {
     println!("hentara detail: {} 章；首章 {} 张图", chapters.len(), imgs_arr.len());
 }
 
-// nnhanman 是渲染源：页面抓取经隐藏 webview 渲染通道，cimoc-core 单进程没有宿主，
-// 真网验证走 src-tauri 的渲染通道探针（见 docs/research/nnhanman-source.md）：
+// nnhanman：整站 TLS 连接被重置，明文取数器取不到页面，真网验证走 src-tauri 的渲染通道探针
+// （见 docs/research/nnhanman-source.md）：
 //   cd desktop/src-tauri
 //   cargo run --example render_probe -- chain nnhanman nnhanman-zui-bang-de-ta 85989

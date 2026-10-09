@@ -18,7 +18,7 @@ Cimoc 的主形态是 Tauri v2 桌面应用（macOS / Windows / Linux），移�
 
 ## Positioning
 
-源（source）是一份运行时可更新的爬虫脚本，与 app 本体分离分发：站点改版时更新脚本即可，不必重新发布应用。带 JS 挑战或 TLS 拦截的源通过宿主侧不可见 webview 的渲染通道取页面，因此能覆盖普通 HTTP 客户端取不到的站点。
+源（source）是一份运行时可更新的爬虫脚本，与 app 本体分离分发：站点改版时更新脚本即可，不必重新发布应用。取数经宿主侧不可见 webview 的渲染通道，因此能覆盖带 JS 挑战或 TLS 拦截、普通 HTTP 客户端取不到的站点。
 
 ## Operating Context
 

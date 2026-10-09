@@ -1,9 +1,8 @@
 //! 脚本源执行器：buildUrl → 抓取 → parse → 后处理（wayfinder #15/#16/#17 定案）。
 //!
-//! 网络/请求头/缓存驻留 Rust（grilling #11）：脚本只负责 URL 构造与解析；
+//! 取数经 [`crawler::fetch`](super::fetch)（默认渲染通道），脚本只负责 URL 构造与解析；
 //! Rust 侧经 ctx 提供缓存派生值（webtoons seriesUrl、mangadex tagId/chapterId/feed）。
 
-use crate::crawler::{http, render};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
@@ -61,7 +60,7 @@ pub fn run(op: &str, source: &str, payload: &str, script: &str) -> (String, bool
     } else if url.is_empty() {
         return (empty_for(op), false);
     } else {
-        match fetch(source, op, &url, &ctx) {
+        match super::fetch(source, &url) {
             Ok(s) => s,
             Err(e) => {
                 record_error(source, &format!("fetch({op}): {e}"));
@@ -79,53 +78,6 @@ pub fn run(op: &str, source: &str, payload: &str, script: &str) -> (String, bool
             record_error(source, &format!("parse({op}): {e}"));
             (empty_for(op), false)
         }
-    }
-}
-
-/// 抓取原始响应体（HTML 或 JSON 文本）；请求头按源/op（图片 op 带 Referer）。
-/// 渲染源（Cloudflare 防护，见 `render::needed`）整源改经隐藏 webview 渲染通道。
-fn fetch(source: &str, op: &str, url: &str, ctx: &str) -> Result<String, String> {
-    if render::needed(source) {
-        return render::fetch(url);
-    }
-    match source {
-        "webtoons" => {
-            let base: Vec<(&str, &str)> = crate::crawler::webtoons::headers();
-            if op != "images" {
-                return http::get_text(url, &base);
-            }
-            let c: Value = serde_json::from_str(ctx).unwrap_or(Value::Null);
-            let title_no = c
-                .get("titleNo")
-                .and_then(|v| v.as_str())
-                .unwrap_or("")
-                .to_string();
-            let referer: String = match c
-                .get("seriesUrl")
-                .and_then(|v| v.as_str())
-                .filter(|s| !s.is_empty())
-            {
-                Some(s) => s.to_string(),
-                None => format!(
-                    "{}/any/list?title_no={}",
-                    crate::crawler::webtoons::BASE,
-                    title_no
-                ),
-            };
-            let mut hs = Vec::with_capacity(base.len() + 1);
-            for (k, v) in base {
-                hs.push((k, v));
-            }
-            hs.push(("Referer", referer.as_str()));
-            http::get_text(url, &hs)
-        }
-        "mangadex" => http::get_text(url, &crate::crawler::mangadex::headers()),
-        "copymanga" => http::get_text(url, &crate::crawler::copymanga::headers()),
-        "dongman" => http::get_text(url, &crate::crawler::dongman::headers()),
-        "manhuagui" => http::get_text(url, &crate::crawler::manhuagui::headers()),
-        "kxmanhua" => http::get_text(url, &crate::crawler::kxmanhua::headers()),
-        "hentara" => http::get_text(url, &crate::crawler::hentara::headers()),
-        _ => Err("未知 source".into()),
     }
 }
 

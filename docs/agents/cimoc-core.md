@@ -9,19 +9,24 @@
 
 - 解析与 URL 构造由**运行时源脚本**完成：`src/js/sources/`，rquickjs 0.12.2 执行。
 - 契约：`buildUrl(op,payload,ctx)` / `parse(op,input,ctx)` → JSON 字符串（见 `src/js/mod.rs`）。
-- Rust 侧保留网络/请求头/缓存（webtoons series URL、mangadex tags/章节 id、copymanga 章节 uuid、dongman viewer URL、manhuagui 仅请求头）与命令层。
+- Rust 侧保留取数（渲染通道）、缓存（webtoons series URL、mangadex tags/章节 id、copymanga 章节 uuid、dongman viewer URL）与命令层。
 
-## 渲染源（隐藏 webview 通道，2026-09-30 起）
+## 取数：隐藏 webview 渲染通道（2026-09-30 起）
 
-- **JS 挑战 / 客户端环境校验型防护的源**（当前 baozimh、nnhanman）整源改经隐藏 webview 渲染通道取页面：
-  `crawler/render.rs` 的 `needed(source)` 声明、`script.rs::fetch` 分流、宿主经 `render::set_fetcher`
-  注册实现（桌面 = src-tauri 的隐藏窗口，移动 = `tauri-plugin-cimoc-render` 的离屏 webview）；取回的
-  渲染后 HTML 走与普通抓取相同的 parse 契约。
-- 判据的唯一定义处也在 `crawler/render.rs`：`STATE_SCRIPT`（页面状态脚本）、`HTML_SCRIPT`、
-  `is_clean` / `is_denied`、`POLL_INTERVAL`、`RENDER_TIMEOUT`；桌面宿主与移动端原生侧共用，挑战页
-  形态变化只改这里（测试用 QuickJS + 页面桩覆盖各形态）。
-- 未注册宿主（cimoc-core 单独跑测试）时 `fetch` 返回「渲染通道未注册」错误，由 `record_error`
-  呈现；`cargo test` 不依赖 webview。
+- **爬取链路的取数统一经隐藏 webview 渲染通道**：`crawler/mod.rs` 的 `fetch(source, url)` 是取数通道的
+  唯一定义处（默认全部源），源的 op 取数与 `crawler/{mangadex,dongman}.rs` 的辅助取数都经它；宿主经
+  `render::set_fetcher` 注册渲染实现（桌面 = src-tauri 的隐藏窗口，移动 =
+  `tauri-plugin-cimoc-render` 的离屏 webview）。取回的内容走与脚本 `parse` 相同的契约。
+- 唯一例外是 copymanga：API 要求 `platform` / `version` / `hc-lang` 客户端标识，webview 导航无法
+  附加自定义请求头，其页面与章节 feed 取数仍走共享 HTTP 客户端（`crawler/copymanga.rs::headers`）。
+- `HTML_SCRIPT` 按响应类型取内容：HTML 文档取 `documentElement.outerHTML`（parse 需要标记结构），
+  JSON / 纯文本接口取 `body.textContent`（浏览器把这类响应渲染进 `<pre>`，`outerHTML` 会转义引号）。
+- 判据的唯一定义处也在 `crawler/render.rs`：`STATE_SCRIPT`（页面状态脚本）、`is_clean` / `is_denied`、
+  `POLL_INTERVAL`、`RENDER_TIMEOUT`；桌面宿主与移动端原生侧共用，挑战页形态变化只改这里（测试用
+  QuickJS + 页面桩覆盖各形态）。
+- 未注册宿主（cimoc-core 单独跑测试）时取数返回「渲染通道未注册」错误，由 `record_error` 呈现；
+  不发起网络的单测不受影响，需要真网的 `tests/live_smoke.rs`（`--ignored` 手动跑）注册明文 HTTP
+  取数器，让源结构验证不依赖界面。
 - baozimh 的章节中转链 URL 经 detail 解析的隐藏字段 `pageUrl` + `script::post_process` 入
   `crawler/baozimh.rs` 进程内缓存（同 webtoons seriesUrl / dongman viewerUrl 形状），images 的
   `build_ctx` 从缓存取；缓存未命中按空结果返回。

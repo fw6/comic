@@ -4,11 +4,11 @@ Cimoc 漫画阅读器的领域术语表。桌面 v1（Tauri v2 + React）先落�
 
 ## 术语
 
-- **漫画源（source）**：提供漫画内容的站点（如 webtoons、mangadex、copymanga、dongman、manhuagui、baozimh、nnhanman、kxmanhua、hentara）。每个源 = 一个运行时加载的爬虫脚本模块（执行于 Rust 核心的嵌入 JS 运行时），定义 URL 构造、解析规则、请求头与热链域名，以 sourceId 标识，经源仓库分发更新（grilling #11 定案）。
-- **渲染源（render source）**：带 JS 挑战 / 客户端环境校验防护、普通 HTTP 客户端过不去的源（baozimh —— Cloudflare 防护；nnhanman —— 整站 TLS 连接被重置）。页面经**渲染通道（render channel）**取：宿主（桌面端 src-tauri）用不可见 webview 加载目标 URL，等验证自动完成后取回渲染好的 HTML，再走与普通源完全相同的 parse 契约；无 webview 宿主（core 测试）下渲染源返回「渲染通道未注册」。设计见 `docs/research/webview-render-channel.md`。
+- **漫画源（source）**：提供漫画内容的站点（如 webtoons、mangadex、copymanga、dongman、manhuagui、baozimh、nnhanman、kxmanhua、hentara）。每个源 = 一个运行时加载的爬虫脚本模块（执行于 Rust 核心的嵌入 JS 运行时），定义 URL 构造、解析规则与热链域名，以 sourceId 标识，经源仓库分发更新（grilling #11 定案）。
+- **渲染通道（render channel）**：爬取链路的取数路径——宿主（桌面端 src-tauri 的不可见 webview，移动端 `tauri-plugin-cimoc-render` 的离屏 webview）加载目标 URL，等 JS 挑战 / 客户端环境校验跑完后取回页面内容（HTML 取标记结构，JSON / 纯文本接口取原始文本），再走源脚本的 parse 契约。所有源默认经它取数；唯一例外是 copymanga（API 要求导航无法携带的请求头）。无 webview 宿主（core 测试）下取数返回「渲染通道未注册」。设计见 `docs/research/webview-render-channel.md`。
 - **源仓库（source repository）**：分发源脚本的公开远程索引——单一 index.json，每个源条目内嵌脚本源码 + 元数据 + 递增整数版本 + sha256 校验；app 内手动检查更新（版本对比、sha256 校验通过后原子替换已装源）。签名体系后置（grilling #16 定案）。
 - **已装源（installed source）**：app 内已安装、可用的源；内置源（webtoons/mangadex/copymanga/dongman/manhuagui/baozimh/nnhanman/kxmanhua/hentara）随 app 内置，版本独立于 app 版本，经源仓库手动更新。源管理入口在设置（列表 / 检查更新 / 应用更新；grilling #16 定案）。
-- **爬虫（crawl）**：按源规则抓取列表 / 详情 / 章节 / 图片的引擎。网络取数（文本/JSON/字节，带 Referer/UA）、磁盘缓存与热链图片代理驻留 Rust 核心（cimoc-core）；解析规则在源脚本中（v1 后按 grilling #11 迁移，v1 期间解析暂留 Rust）。
+- **爬虫（crawl）**：按源规则抓取列表 / 详情 / 章节 / 图片的引擎。页面与接口取数经渲染通道；图片字节与需要自定义请求头的源（copymanga）走 Rust 核心的 HTTP 客户端；磁盘缓存与热链图片代理驻留 Rust 核心（cimoc-core）；解析规则在源脚本中（grilling #11 定案）。
 - **结果缓存（result cache）**：列表 / 详情类抓取（categories / category / search / detail）成功结果的缓存——内存 LRU + 磁盘（`<appCacheDir>/results/`），键含源脚本哈希（源脚本更新即自然失效），失败结果不写入；前端加载先渲染缓存、再拉最新（stale-while-revalidate），新鲜窗口（2 分钟）内切换源 / 分类不发请求。图片地址（images）不缓存。
 - **漫画（comic）**：一部作品，以（source, comicId）唯一标识。
 - **章节（chapter）**：漫画的一个话。源内以序号 chapterIndex 标识；同一作品的章节按章序排列。
