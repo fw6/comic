@@ -62,7 +62,7 @@ export function crawlCached<T>(
         .catch(() => null);
 }
 
-export const cimocVersion = () => invoke<string>("cimoc_version");
+export const mojuanVersion = () => invoke<string>("mojuan_version");
 
 /** 扫描下载目录/本地文件夹：`[{source, comicId, chapterCount}]`。 */
 export const scanLocal = (dir: string) =>

@@ -1,6 +1,6 @@
 # Desktop CI/发布方案（wayfinder #9）
 
-Ticket: https://github.com/fw6/comic/issues/9 · 研究日期：2026-08-15。核验对象：tauri-action **v1.0.0**（GitHub Release tag `action-v1.0.0`，发布于 2026-06-29，见 GitHub API `repos/tauri-apps/tauri-action/releases/latest`；README/官方示例/官方 CI 指南统一用 `tauri-apps/tauri-action@v1` 引用）、Tauri v2 官方文档、Apple notarization 文档。旧 release.yml（移动端 APK 发布）已在 big-bang 提交 `843d417` 中随 sparkling-cimoc 一起删除（`git log --diff-filter=D` 核验），本方案为桌面端全新搭建。
+Ticket: https://github.com/fw6/mojuan/issues/9 · 研究日期：2026-08-15。核验对象：tauri-action **v1.0.0**（GitHub Release tag `action-v1.0.0`，发布于 2026-06-29，见 GitHub API `repos/tauri-apps/tauri-action/releases/latest`；README/官方示例/官方 CI 指南统一用 `tauri-apps/tauri-action@v1` 引用）、Tauri v2 官方文档、Apple notarization 文档。旧 release.yml（移动端 APK 发布）已在 big-bang 提交 `843d417` 中随 sparkling-cimoc 一起删除（`git log --diff-filter=D` 核验），本方案为桌面端全新搭建。
 
 ## 结论与推荐（TL;DR）
 
@@ -47,8 +47,8 @@ Ticket: https://github.com/fw6/comic/issues/9 · 研究日期：2026-08-15。核
 
 - README：「When your Tauri app is not in the root of the repo, use the `projectPath` input」；官方 CI 指南：「When your app is not on the root of the repository, use the `projectPath` input」。https://v2.tauri.app/distribute/pipelines/github/
 - `beforeBuildCommand`/`beforeDevCommand`（本项目已配置：`npm run build` / `npm run dev`）在 projectPath 内由 tauri CLI 执行；CI 指南明确 workflow 仍需先装前端依赖（「Install the frontend dependencies and, if not configured as `beforeBuildCommand`, run the web app's build script」）。即：workflow 里 `npm install` 必须在 tauri-action 之前，`npm run build` 不用手动跑。
-- cargo workspace（`desktop/Cargo.toml` 虚拟 workspace：`src-tauri` + `crates/cimoc-core`）对 action 透明——action 在 projectPath 内跑 `cargo build`，workspace 成员照常编译；只有 rust-cache 的目录映射需要按本仓库布局调（见 1.4）。
-- 注：action 官方示例里 macOS 双 job 各自 `--target aarch64/x86_64-apple-darwin`，Tauri 为 macOS 产物文件名追加架构后缀（`cimoc_0.1.0_aarch64.dmg` 等），两个 job 的产物可共存同一 Release。
+- cargo workspace（`desktop/Cargo.toml` 虚拟 workspace：`src-tauri` + `crates/mojuan-core`）对 action 透明——action 在 projectPath 内跑 `cargo build`，workspace 成员照常编译；只有 rust-cache 的目录映射需要按本仓库布局调（见 1.4）。
+- 注：action 官方示例里 macOS 双 job 各自 `--target aarch64/x86_64-apple-darwin`，Tauri 为 macOS 产物文件名追加架构后缀（`mojuan_0.1.0_aarch64.dmg` 等），两个 job 的产物可共存同一 Release。
 
 ### 1.4 依赖缓存
 
@@ -104,9 +104,9 @@ Ticket: https://github.com/fw6/comic/issues/9 · 研究日期：2026-08-15。核
 ## 5. 仓库特定约束
 
 - **`.cargo/config.toml`（crates-io → rsproxy.cn）**：已 `git ls-files` 确认纳入版本库、未被 ignore。cargo 配置发现规则是「从当前工作目录向上逐级查找」直到文件系统根（https://doc.rust-lang.org/cargo/reference/config.html），`actions/checkout` 把整个仓库检出到 `$GITHUB_WORKSPACE` 后，仓库内任何 `cargo` 调用都会命中根目录这份配置——**CI 自动继承 rsproxy 镜像，无需额外配置**。风险点：GitHub 托管 runner 在微软 Azure 机房，到 rsproxy.cn 的连通性/稳定性未验证（本机无法模拟），首次 CI 运行须确认能拉到 crate；如遇问题再评估（按 AGENTS.md 约定不改镜像配置本身）。rustup 装工具链不走 cargo 配置，不受影响。
-- **项目版本与元数据**（`desktop/src-tauri/tauri.conf.json`）：`productName: cimoc`、`version: 0.1.0`、`identifier: com.example.cimoc`（仍是脚手架占位符——建议首次对外发布前改成正式 identifier，因为它参与 macOS 公证的有效 bundle id、且是长期身份标识，发布后再改会造成版本断裂）、`bundle.targets: "all"`、`beforeBuildCommand: "npm run build"`、`beforeDevCommand: "npm run dev"`、`frontendDist: "../dist"`、`app.withGlobalTauri: true`。
+- **项目版本与元数据**（`desktop/src-tauri/tauri.conf.json`）：`productName: mojuan`、`version: 0.1.0`、`identifier: com.example.mojuan`（仍是脚手架占位符——建议首次对外发布前改成正式 identifier，因为它参与 macOS 公证的有效 bundle id、且是长期身份标识，发布后再改会造成版本断裂）、`bundle.targets: "all"`、`beforeBuildCommand: "npm run build"`、`beforeDevCommand: "npm run dev"`、`frontendDist: "../dist"`、`app.withGlobalTauri: true`。
 - **前端**（`desktop/package.json`）：`version 0.1.0`，无 `engines` 字段；`@tauri-apps/api ^2`、`@tauri-apps/plugin-opener ^2`、React `^19.1`、Vite `^7`（npm 最新 7.x = 7.3.1，`engines: node ^20.19.0 || >=22.12.0`）、TypeScript `~5.8.3`。CI 用 `node-version: lts/*` 满足。
-- **Rust**（`desktop/Cargo.toml` 虚拟 workspace：`src-tauri` + `crates/cimoc-core`，resolver 2，均 edition 2021；`desktop/src-tauri/Cargo.toml` 依赖 tauri 2 / tauri-plugin-opener 2 / tauri-plugin-mcp-bridge 0.12 / 本地 `cimoc-core`）。工具链：`dtolnay/rust-toolchain@stable` 即可（当前 stable 远高于 Tauri v2 MSRV）。Tauri v2 当前 workspace `rust-version = "1.90"`（核验自 tauri 仓库 dev 分支根 `Cargo.toml`，tauri crate 版本 2.11.5）。`@tauri-apps/cli` npm 最新 2.11.4。
+- **Rust**（`desktop/Cargo.toml` 虚拟 workspace：`src-tauri` + `crates/mojuan-core`，resolver 2，均 edition 2021；`desktop/src-tauri/Cargo.toml` 依赖 tauri 2 / tauri-plugin-opener 2 / tauri-plugin-mcp-bridge 0.12 / 本地 `mojuan-core`）。工具链：`dtolnay/rust-toolchain@stable` 即可（当前 stable 远高于 Tauri v2 MSRV）。Tauri v2 当前 workspace `rust-version = "1.90"`（核验自 tauri 仓库 dev 分支根 `Cargo.toml`，tauri crate 版本 2.11.5）。`@tauri-apps/cli` npm 最新 2.11.4。
 - **历史 workflow**：仓库 `.github/workflows/` 下已无文件；此前全部 CI 均为已删除的移动端 APK 发布（big-bang 提交 `843d417` 移除），桌面端为全新开始。
 
 ## 6. auto-update（更新器）对签名/CI 的隐含要求
@@ -186,7 +186,7 @@ jobs:
         with:
           projectPath: desktop
           tagName: app-v__VERSION__
-          releaseName: 'Cimoc v__VERSION__'
+          releaseName: 'Mojuan v__VERSION__'
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
@@ -195,7 +195,7 @@ jobs:
 配套动作（两处小改动）：
 
 1. `desktop/src-tauri/tauri.conf.json` 的 `bundle` 增加 `"macOS": { "signingIdentity": "-" }`（ad-hoc 签名，避免 Apple Silicon 上 dmg 被标记 damaged）。
-2. 把 `identifier` 从脚手架占位 `com.example.cimoc` 改为正式值（发布后再改会破坏版本身份连续性）。
+2. 把 `identifier` 从脚手架占位 `com.example.mojuan` 改为正式值（发布后再改会破坏版本身份连续性）。
 
 前置验证：首次 CI 跑通前先确认 GitHub runner 能访问 rsproxy.cn（`cargo` 拉依赖）与 npm registry。
 
@@ -207,6 +207,6 @@ jobs:
 - Rust：`reference/config.html`（cargo 配置向上查找）—— doc.rust-lang.org
 - Tauri 源码（dev 分支，2026-08-15 核验）：`crates/tauri-utils/src/config.rs`（`BundleType::all()`）、`crates/tauri-bundler/src/bundle.rs`（`#[cfg(target_os)]` 分派）、根 `Cargo.toml`（`rust-version = "1.90"`）—— github.com/tauri-apps/tauri
 - npm registry：`vite@7` engines（Node `^20.19.0 || >=22.12.0`）、`@tauri-apps/cli` 最新 2.11.4
-- 本仓库：`desktop/package.json`、`desktop/src-tauri/tauri.conf.json`、`desktop/src-tauri/Cargo.toml`、`desktop/Cargo.toml`、`desktop/crates/cimoc-core/Cargo.toml`、`.cargo/config.toml`、git 历史（big-bang `843d417` 删除旧 workflow）
+- 本仓库：`desktop/package.json`、`desktop/src-tauri/tauri.conf.json`、`desktop/src-tauri/Cargo.toml`、`desktop/Cargo.toml`、`desktop/crates/mojuan-core/Cargo.toml`、`.cargo/config.toml`、git 历史（big-bang `843d417` 删除旧 workflow）
 
 未验证项：GitHub 托管 runner → rsproxy.cn 的实际连通性/稳定性（本机无法模拟 GitHub runner 网络环境）；`swatinem/rust-cache` 的 `./desktop -> target` 映射为基于官方示例的推导，非官方原文。

@@ -8,7 +8,7 @@
 
 1. **推送通道：IPC `Channel`（`tauri::ipc::Channel` + 前端 `@tauri-apps/api/core` 的 `Channel`）为主**。官方文档把「download progress」直接列为 Channel 的典型用途（「Channels are designed to be fast and deliver ordered data. They are used internally for streaming operations such as download progress, child process output and WebSocket messages.」），并在 calling-rust 页称其为 streaming 的推荐机制。事件（`emit`/`listen`）是可接受的备选（官方自己的事件示例就是下载进度，但随后明确说「把下载示例改成用 Channel」）；**轮询不推荐**（每轮一次 IPC round-trip + 全量 JSON 序列化）。单主窗口下 Channel 绑定主窗口 webview，随窗口常驻，正好匹配常驻队列的生命周期。
 2. **Worker 结构：队列放 `tauri::State`（`Mutex<...>` 包裹），`setup` 里 `tauri::async_runtime::spawn` 启动 worker 循环；worker 持有 `AppHandle` clone（官方称「deliberately cheap to clone」），跨线程改状态用 std `Mutex`（短临界区足够），推送用 State 里存的 `Channel` clone 或 `app.emit`。** 这是官方 State 文档给的「在命令外/线程内访问 State」的标准形态，也是官方插件（tauri-plugin-store）内部的实际写法。
-3. **并发下载：每个下载项在 worker 内包一层 `tauri::async_runtime::spawn_blocking` 调 `cimoc_core::download_image`，用 `tokio::sync::Semaphore` 限并发。** AGENTS.md 坑 #1 的约束在后台任务里**同样成立**：`cimoc_core::download_image` 走 `reqwest::blocking`（自带内部 tokio 运行时），worker 是 tokio 异步任务，直接在任务体里同步调用会占死一个 tokio worker 线程、卡住同 runtime 上所有异步命令与其他任务，所以必须 `spawn_blocking`。每个进行中的下载占一个 blocking 池线程（Tokio 阻塞池自动扩容，默认上限 512）。
+3. **并发下载：每个下载项在 worker 内包一层 `tauri::async_runtime::spawn_blocking` 调 `mojuan_core::download_image`，用 `tokio::sync::Semaphore` 限并发。** AGENTS.md 坑 #1 的约束在后台任务里**同样成立**：`mojuan_core::download_image` 走 `reqwest::blocking`（自带内部 tokio 运行时），worker 是 tokio 异步任务，直接在任务体里同步调用会占死一个 tokio worker 线程、卡住同 runtime 上所有异步命令与其他任务，所以必须 `spawn_blocking`。每个进行中的下载占一个 blocking 池线程（Tokio 阻塞池自动扩容，默认上限 512）。
 
 ---
 
@@ -98,16 +98,16 @@ Rust 命令参数接收 `on_event: Channel<DownloadEvent>`；前端 `new Channel
 ## 3. 与 AGENTS.md 坑 #1 的核对：后台 worker 里跑阻塞 reqwest
 
 **现状（本仓库）**：
-- `desktop/src-tauri/src/lib.rs` 的 `download_image` 命令：`async fn` + `tauri::async_runtime::spawn_blocking(move || cimoc_core::download_image(...)).await`（AGENTS.md 坑 #1 的标准解法）。
-- `cimoc_core::download_image`（`desktop/crates/cimoc-core/src/native/files.rs:49`）调 `http::get_bytes`；`crawler/http.rs` 用 `reqwest::blocking::Client`，文件头注释明确：「reqwest blocking 内部自带 tokio 运行时，可直接在方法层后台线程同步调用」——即它是**同步阻塞调用**（阻塞调用线程），但自带运行时，可从任意后台线程调用。
+- `desktop/src-tauri/src/lib.rs` 的 `download_image` 命令：`async fn` + `tauri::async_runtime::spawn_blocking(move || mojuan_core::download_image(...)).await`（AGENTS.md 坑 #1 的标准解法）。
+- `mojuan_core::download_image`（`desktop/crates/mojuan-core/src/native/files.rs:49`）调 `http::get_bytes`；`crawler/http.rs` 用 `reqwest::blocking::Client`，文件头注释明确：「reqwest blocking 内部自带 tokio 运行时，可直接在方法层后台线程同步调用」——即它是**同步阻塞调用**（阻塞调用线程），但自带运行时，可从任意后台线程调用。
 
 **约束在后台 worker 里怎么适用**：
 
-- worker 是 `tauri::async_runtime::spawn` 起的 **tokio 异步任务**，跑在 tokio 的 async worker 线程上。若在任务体里**直接**同步调用 `cimoc_core::download_image`，会占住该 tokio worker 线程直到请求结束——同 runtime 上的**所有其他异步任务（含异步命令、其它 worker、Channel 分发）全部卡住**，与坑 #1 在主线程调用阻塞 reqwest 是同一类问题（只是把「主线程」换成了「tokio worker 线程」）。
+- worker 是 `tauri::async_runtime::spawn` 起的 **tokio 异步任务**，跑在 tokio 的 async worker 线程上。若在任务体里**直接**同步调用 `mojuan_core::download_image`，会占住该 tokio worker 线程直到请求结束——同 runtime 上的**所有其他异步任务（含异步命令、其它 worker、Channel 分发）全部卡住**，与坑 #1 在主线程调用阻塞 reqwest 是同一类问题（只是把「主线程」换成了「tokio worker 线程」）。
 - 因此**即使 worker 是后台任务，每个下载项仍必须包 `tauri::async_runtime::spawn_blocking`**：
   ```rust
   let out = tauri::async_runtime::spawn_blocking(move || {
-      cimoc_core::download_image(&task.url, &task.dir, &task.source, &task.comic_id,
+      mojuan_core::download_image(&task.url, &task.dir, &task.source, &task.comic_id,
                                  task.chapter_index, task.page_index, &task.referer)
   }).await.unwrap_or_default();
   ```
@@ -161,7 +161,7 @@ async fn worker_loop(app: tauri::AppHandle) {
         let app2 = app.clone();
         tauri::async_runtime::spawn(async move {
             let out = tauri::async_runtime::spawn_blocking(move || {
-                cimoc_core::download_image(&task.url, &task.dir, &task.source,
+                mojuan_core::download_image(&task.url, &task.dir, &task.source,
                     &task.comic_id, task.chapter_index, task.page_index, &task.referer)
             }).await;
             // 进度/完成：优先走 State 里的 Channel；Channel 无/失效则回退 emit
@@ -198,4 +198,4 @@ await invoke('start_download', { url, dir, source, comicId, chapterIndex, pageIn
 - Tauri 2.11.5 源码（本地 cargo registry）：`~/.cargo/registry/src/rsproxy.cn-*/tauri-2.11.5/src/ipc/channel.rs`（Channel=Arc<ChannelInner>、send→webview.eval、`channel_on` 的 on_drop→前端 `{end:true}`、eval/fetch 阈值常量）；`src/event/listener.rs`（emit→按 webview 查 JS listener，无 listener 即不投递）
 - 官方插件样板：`tauri-plugin-store-2.4.4/src/store.rs:582`（`tauri::async_runtime::spawn(async move { ... })` 起后台任务）
 - 前端 API：本仓库 `desktop/node_modules/@tauri-apps/api/core.d.ts`（`Channel` class：`constructor(onmessage?)` / `set onmessage` / `toJSON`；`@tauri-apps/api` **2.11.1**）
-- 本仓库代码：`desktop/src-tauri/src/lib.rs`（`download_image` 命令 = async + `spawn_blocking`）、`desktop/crates/cimoc-core/src/native/files.rs:49`（`download_image`）、`desktop/crates/cimoc-core/src/crawler/http.rs`（`reqwest::blocking::Client`，头注释「blocking 内部自带 tokio 运行时」）
+- 本仓库代码：`desktop/src-tauri/src/lib.rs`（`download_image` 命令 = async + `spawn_blocking`）、`desktop/crates/mojuan-core/src/native/files.rs:49`（`download_image`）、`desktop/crates/mojuan-core/src/crawler/http.rs`（`reqwest::blocking::Client`，头注释「blocking 内部自带 tokio 运行时」）

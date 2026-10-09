@@ -43,7 +43,7 @@ function load(file: string): Promise<Record<string, unknown>> {
 /** 幂等确保 appDataDir 存在（移动端默认不存在，研究 #29 #1.3）。fs scope 只放行
  * appDataDir 的子路径（`$APPDATA/**`），`mkdir(".")` 落在根目录会被拒；用 recursive
  * mkdir 建一个子目录，顺带创建 appDataDir 本身。 */
-const BOOTSTRAP_DIR = "cimoc";
+const BOOTSTRAP_DIR = "mojuan";
 
 function persist(file: string): Promise<void> {
     const prev = writeQueue.get(file) ?? Promise.resolve();

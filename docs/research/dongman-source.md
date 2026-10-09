@@ -5,9 +5,9 @@
 咚漫（中文 Webtoon 官方站）已作为内置源接入源脚本系统。**全链路（搜索 → 详情 → 章节 → viewer → 图片）已在本环境真网验证通过**——咚漫不做 IP 风控，数据中心 IP 可正常访问。
 
 实现文件：
-- `desktop/crates/cimoc-core/src/js/sources/dongman.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/cimoc-core/src/crawler/dongman.rs` — 请求头、章节 viewer URL 缓存（images 的 ctx）
-- `desktop/crates/cimoc-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
+- `desktop/crates/mojuan-core/src/js/sources/dongman.js` — 源脚本（buildUrl/parse，五 op）
+- `desktop/crates/mojuan-core/src/crawler/dongman.rs` — 请求头、章节 viewer URL 缓存（images 的 ctx）
+- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
 - `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts`、`src/api.ts` — 书源 tab、SOURCE_NAMES、imgSrc 热链代理
 - fixture：`tests/fixtures/dongman-{search,detail,viewer}.html`
 
@@ -17,7 +17,7 @@
 
 ```bash
 cd desktop
-cargo test -p cimoc-core --test live_smoke -- --ignored dongman
+cargo test -p mojuan-core --test live_smoke -- --ignored dongman
 ```
 
 **预期**：`dongman_live_search` 与 `dongman_live_detail_and_images` 都通过，打印

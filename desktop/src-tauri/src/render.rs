@@ -12,16 +12,16 @@
 //!    proof-of-work gatekeeper）等待其自动跳转，拒绝页立即报错；
 //! 5. 连续两次干净检查后提取 `document.documentElement.outerHTML` 返回。
 //!
-//! 页面状态脚本与判定（[`cimoc_core::crawler::render`] 的 `STATE_SCRIPT` /
-//! `is_clean` / `is_denied`）、轮询节奏与整体超时都由 cimoc-core 定义：移动端的
-//! 隐藏 webview 插件（`tauri-plugin-cimoc-render`）执行同一套判据。
+//! 页面状态脚本与判定（[`mojuan_core::crawler::render`] 的 `STATE_SCRIPT` /
+//! `is_clean` / `is_denied`）、轮询节奏与整体超时都由 mojuan-core 定义：移动端的
+//! 隐藏 webview 插件（`tauri-plugin-mojuan-render`）执行同一套判据。
 //!
 //! HTML 经宿主侧 eval 回调取回（tauri 2.11 的 `eval_with_callback`），远程页面不需要
 //! 任何 IPC 权限——渲染 webview 没有匹配的 capability，页面脚本无法调用应用命令。
 //! 验证通过的 cookie（cf_clearance / gatekeeper ticket）由 WKWebView/WebView2 默认
 //! 持久化数据存储保留，后续渲染与重启应用都能复用。
 
-use cimoc_core::crawler::render::{
+use mojuan_core::crawler::render::{
     is_clean, is_denied, HTML_SCRIPT, POLL_INTERVAL, RENDER_TIMEOUT, STATE_SCRIPT,
 };
 use std::sync::{mpsc, Mutex};
@@ -39,19 +39,19 @@ const EVAL_TIMEOUT: Duration = Duration::from_secs(5);
 /// 单飞：隐藏 webview 单实例，一次只渲染一个页面（crawl 并发调用在此排队）。
 static FLIGHT: Mutex<()> = Mutex::new(());
 
-/// 诊断跟踪：设置环境变量 `CIMOC_RENDER_TRACE=1` 时把渲染过程打到 stderr。
+/// 诊断跟踪：设置环境变量 `MOJUAN_RENDER_TRACE=1` 时把渲染过程打到 stderr。
 macro_rules! trace {
     ($($arg:tt)*) => {
-        if std::env::var_os("CIMOC_RENDER_TRACE").is_some() {
+        if std::env::var_os("MOJUAN_RENDER_TRACE").is_some() {
             eprintln!("[render] {}", format_args!($($arg)*));
         }
     };
 }
 
-/// 把渲染通道注册进 cimoc-core（setup 时调用一次）。
+/// 把渲染通道注册进 mojuan-core（setup 时调用一次）。
 pub fn init(app: &AppHandle) {
     let handle = app.clone();
-    cimoc_core::crawler::render::set_fetcher(move |url: &str| render_sync(&handle, url));
+    mojuan_core::crawler::render::set_fetcher(move |url: &str| render_sync(&handle, url));
 }
 
 /// 渲染一个 URL，返回渲染后的完整 HTML。供 render fetcher 与探针 example 调用。
@@ -143,7 +143,7 @@ fn ensure_webview(app: &AppHandle) -> Result<WebviewWindow, String> {
             RENDER_LABEL,
             WebviewUrl::External("about:blank".parse().unwrap()),
         )
-        .title("cimoc-render")
+        .title("mojuan-render")
         .inner_size(1280.0, 800.0)
         .visible(false)
         .skip_taskbar(true)

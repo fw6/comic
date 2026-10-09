@@ -554,21 +554,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cimoc-core"
-version = "1.5.2"
-dependencies = [
- "base64 0.22.1",
- "percent-encoding",
- "reqwest 0.12.28",
- "rquickjs",
- "scraper",
- "semver",
- "serde",
- "serde_json",
- "sha2",
-]
-
-[[package]]
 name = "clang-sys"
 version = "1.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -913,22 +898,22 @@ dependencies = [
 
 [[package]]
 name = "desktop"
-version = "1.5.2"
+version = "1.6.0"
 dependencies = [
  "bytes",
- "cimoc-core",
  "http-body-util",
  "hyper",
  "hyper-util",
+ "mojuan-core",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
- "tauri-plugin-cimoc-render",
- "tauri-plugin-cimoc-update",
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
  "tauri-plugin-mcp-bridge",
+ "tauri-plugin-mojuan-render",
+ "tauri-plugin-mojuan-update",
  "tauri-plugin-opener",
  "tauri-plugin-store",
  "tauri-plugin-updater",
@@ -2440,6 +2425,21 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "mojuan-core"
+version = "1.6.0"
+dependencies = [
+ "base64 0.22.1",
+ "percent-encoding",
+ "reqwest 0.12.28",
+ "rquickjs",
+ "scraper",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -4626,27 +4626,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tauri-plugin-cimoc-render"
-version = "0.1.0"
-dependencies = [
- "cimoc-core",
- "serde",
- "serde_json",
- "tauri",
- "tauri-plugin",
-]
-
-[[package]]
-name = "tauri-plugin-cimoc-update"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-plugin",
-]
-
-[[package]]
 name = "tauri-plugin-dialog"
 version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4715,6 +4694,27 @@ dependencies = [
  "webview2-com",
  "windows",
  "windows-core 0.61.2",
+]
+
+[[package]]
+name = "tauri-plugin-mojuan-render"
+version = "0.1.0"
+dependencies = [
+ "mojuan-core",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
+]
+
+[[package]]
+name = "tauri-plugin-mojuan-update"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
 ]
 
 [[package]]

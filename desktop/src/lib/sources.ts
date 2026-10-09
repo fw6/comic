@@ -1,4 +1,4 @@
-/** 已接入的漫画源（与 cimoc-core 的源脚本 id 对应）。 */
+/** 已接入的漫画源（与 mojuan-core 的源脚本 id 对应）。 */
 export interface SourceEntry {
     id: string;
     title: string;

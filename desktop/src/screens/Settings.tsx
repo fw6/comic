@@ -28,7 +28,7 @@ import {
     sourceErrors,
     webdavGet,
     webdavPut,
-    cimocVersion,
+    mojuanVersion,
     otaCheck,
     otaDownload,
     otaInstall,
@@ -51,7 +51,7 @@ import {
 import { Loading, PageHeader, Panel, SettingRow, Tag } from "../components/ui";
 
 /** 备份文件名（grilling #25 #2：单文件聚合）。 */
-const BACKUP_FILE = "cimoc-backup.json";
+const BACKUP_FILE = "mojuan-backup.json";
 
 /** macOS 平台检测：ad-hoc 签名无法过 Gatekeeper 整包替换，macOS 不发自动更新（wayfinder #26）。 */
 const IS_MACOS = navigator.userAgent.includes("Mac");
@@ -67,7 +67,7 @@ const NO_INAPP_UPDATE = IS_MACOS || IS_IOS;
 
 /** 源仓库 index（wayfinder #16：公开单一 JSON，每源条目含内嵌脚本 + 整数版本 + sha256）。 */
 const REPO_INDEX_URL =
-    "https://raw.githubusercontent.com/fw6/cimoc-sources/main/sources.json";
+    "https://raw.githubusercontent.com/fw6/mojuan-sources/main/sources.json";
 
 interface RepoEntry {
     name: string;
@@ -121,7 +121,7 @@ export default function Settings() {
     } | null>(null);
 
     useEffect(() => {
-        void cimocVersion()
+        void mojuanVersion()
             .then(setVersion)
             .catch(() => {});
         void getSettings().then((s) => {
@@ -698,7 +698,7 @@ export default function Settings() {
                 </Panel>
 
                 <footer className="pb-2 text-center text-xs text-muted-foreground">
-                    Cimoc · 版本{" "}
+                    墨卷 · 版本{" "}
                     <code className="font-mono">{version || "…"}</code>
                     <span className="mx-1.5">·</span>
                     <a

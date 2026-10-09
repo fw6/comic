@@ -8,9 +8,9 @@
 对数据中心 IP 直接剥离（返回无 eval 的壳页）。
 
 实现文件：
-- `desktop/crates/cimoc-core/src/js/sources/manhuagui.js` — 源脚本（buildUrl/parse，五 op；含 p.a.c.k.e.r 解包）
-- `desktop/crates/cimoc-core/src/crawler/manhuagui.rs` — 请求头（薄文件；图片 URL 全在脚本侧）
-- `desktop/crates/cimoc-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
+- `desktop/crates/mojuan-core/src/js/sources/manhuagui.js` — 源脚本（buildUrl/parse，五 op；含 p.a.c.k.e.r 解包）
+- `desktop/crates/mojuan-core/src/crawler/manhuagui.rs` — 请求头（薄文件；图片 URL 全在脚本侧）
+- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
 - `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts`、`src/api.ts` — 书源 tab、SOURCE_NAMES、imgSrc 热链代理
 - fixture：`tests/fixtures/manhuagui-{search,detail,chapter}.html`（chapter fixture 是**真实生成的 p.a.c.k.e.r 包**）
 
@@ -22,7 +22,7 @@
 
 ```bash
 cd desktop
-cargo test -p cimoc-core --test live_smoke -- --ignored manhuagui
+cargo test -p mojuan-core --test live_smoke -- --ignored manhuagui
 ```
 
 **预期**：`manhuagui_live_search` 通过（打印条数与首条）；`manhuagui_live_detail_and_images`

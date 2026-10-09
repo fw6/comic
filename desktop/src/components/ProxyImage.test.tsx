@@ -17,16 +17,16 @@ function advance(ms: number) {
     });
 }
 
-describe("ProxyImage（移动端 cimoc-img 代理图失败重试，research #31）", () => {
+describe("ProxyImage（移动端 mojuan-img 代理图失败重试，research #31）", () => {
     it("加载失败后按退避重建 <img> 重试同一 src", () => {
         vi.useFakeTimers();
-        render(<ProxyImage src="cimoc-img://localhost/img?url=x" alt="p1" />);
+        render(<ProxyImage src="mojuan-img://localhost/img?url=x" alt="p1" />);
         const first = screen.getByAltText("p1");
         fireEvent.error(first);
         advance(300); // 首次退避 300ms
         const second = screen.getByAltText("p1");
         expect(second).not.toBe(first); // key 变化 → 新元素重建请求
-        expect(second.getAttribute("src")).toBe("cimoc-img://localhost/img?url=x");
+        expect(second.getAttribute("src")).toBe("mojuan-img://localhost/img?url=x");
     });
 
     it("达到最大尝试次数后停止重试", () => {

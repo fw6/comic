@@ -13,18 +13,18 @@
 
 ## 图片加载（热链域必须走代理）
 
-- 热链域（如 Webtoons pstatic.net）必须走 `cimoc-img://` 自定义 scheme 代理（Rust 加 Referer + 磁盘缓存/LRU）。
+- 热链域（如 Webtoons pstatic.net）必须走 `mojuan-img://` 自定义 scheme 代理（Rust 加 Referer + 磁盘缓存/LRU）。
 - 其余域 `<img>` 直连，吃 webview HTTP 缓存。
 - 原因：macOS/Linux 无法给 `<img>` 注入 Referer，只能走代理。
 - 详见 `docs/research/desktop-webview-images.md`。
 
 ## 隐藏 webview 渲染通道（Cloudflare / 自建验证防护源）
 
-- 判据在 cimoc-core（`crawler/render.rs`）：`STATE_SCRIPT` / `HTML_SCRIPT` / `is_clean` / `is_denied`
+- 判据在 mojuan-core（`crawler/render.rs`）：`STATE_SCRIPT` / `HTML_SCRIPT` / `is_clean` / `is_denied`
   与 `POLL_INTERVAL` / `RENDER_TIMEOUT`。挑战页形态变化只改这里，桌面与移动端同时生效。
 - 桌面端：`src-tauri/src/render.rs`，单例不可见窗口（label `render`）+ Rust 侧轮询；远程页面
   零 IPC 权限（capability 不覆盖 render 窗口），HTML 经宿主侧 `eval_with_callback` 取回。
-- 移动端：`crates/tauri-plugin-cimoc-render/`（自建 tauri 插件，Kotlin `WebView` / Swift `WKWebView`
+- 移动端：`crates/tauri-plugin-mojuan-render/`（自建 tauri 插件，Kotlin `WebView` / Swift `WKWebView`
   离屏加载）。状态脚本 / 取 HTML 脚本 / 轮询间隔 / 整体超时随请求下发，原生侧只做「加载 → 轮询 →
   连续两次干净 → 取 HTML」，不含任何站点选择器。
 - 布局细节、验证页识别、移动端离屏 webview 的取舍与维护注意见 `docs/research/webview-render-channel.md`。
@@ -32,7 +32,7 @@
 ## 自动更新通道（`updater/`）
 
 - 桌面端用官方 tauri-plugin-updater；`plugins.updater.endpoints` 指向
-  `https://cimoc-updater.fengw.site/latest.json`，服务是 `updater/` 里的 Cloudflare Worker。
+  `https://mojuan.fengw.site/latest.json`，服务是 `updater/` 里的 Cloudflare Worker。
 - 仓库私有，GitHub Releases 对未登录客户端一律 404，所以清单与制品都由 Worker 用
   `GITHUB_TOKEN` 从 GitHub Releases 取回后对外提供；只提供 GitHub 判定的「最新已发布
   版本」。`release.yml` 直接发布（`releaseDraft: false`），workflow 跑完即开始推送。
@@ -46,13 +46,13 @@
 官方 `tauri-plugin-updater` 在移动端是空实现（`package.metadata.platforms.support.android
 = "none"`，`install_inner` 直接返回 `Ok(())`），所以 Android 另走一条：
 
-- 分层：清单拉取 / 版本比对（semver）/ 下载 / sha256 校验在 cimoc-core 的 `native/ota.rs`
+- 分层：清单拉取 / 版本比对（semver）/ 下载 / sha256 校验在 mojuan-core 的 `native/ota.rs`
   （与平台无关、可单测）；状态机与命令在 `src-tauri/src/ota.rs`（`ota_check` /
   `ota_download` / `ota_install` / `ota_can_install` / `ota_open_install_settings`，只在
   移动端编译并注册，见 `lib.rs` 的 `#[cfg(mobile)]`）；安装是自建插件
-  `crates/tauri-plugin-cimoc-update/`（Android Kotlin `PackageInstaller`，iOS Swift 三个
+  `crates/tauri-plugin-mojuan-update/`（Android Kotlin `PackageInstaller`，iOS Swift 三个
   命令都回「不支持」）。
-- 通道地址在 `tauri.conf.json` 的 `plugins.cimoc-update.endpoint`，与桌面端的
+- 通道地址在 `tauri.conf.json` 的 `plugins.mojuan-update.endpoint`，与桌面端的
   `plugins.updater.endpoints` 并列；Rust 侧经 `app.config().plugins` 读原始 JSON，不走
   插件的 `getConfig`。
 - **签名是这条路的前提**：Android 只允许同签名的包覆盖安装，CI 用 secret
@@ -82,7 +82,7 @@
    只接受完整 URL。
 3. `adb reverse tcp:<端口> tcp:<端口>`：设备侧的 127.0.0.1 指向主机的这个服务（构建时的
    `--config` 把 endpoint 指到 `http://127.0.0.1:<端口>/android.json`）。
-4. 构建时用 `--config` 覆盖 `plugins.cimoc-update.endpoint` 与 `version`，**不改任何源码**：
+4. 构建时用 `--config` 覆盖 `plugins.mojuan-update.endpoint` 与 `version`，**不改任何源码**：
    `npx tauri android build --apk --debug --target aarch64 --config override.json`。
 5. `adb install` 旧版本（调试包）；再构建新版本的**发布包**并用同一个密钥签名
    （`apksigner sign --ks ~/.android/debug.keystore --ks-key-alias androiddebugkey`），
@@ -91,7 +91,7 @@
    本地通道是**主机端**服务，用 reverse），再用 `desktop/scripts/probe-app.mjs` 调 `ota_*`
    命令；界面路径直接在设置页点「检查新版本 → 下载 → 安装」。
 7. 系统确认界面用 `adb shell uiautomator dump` 取结构化文本找按钮（不要截图）；
-   `adb shell dumpsys package io.github.fw6.cimoc | grep versionName` 核对版本是否变化。
+   `adb shell dumpsys package io.github.fw6.mojuan | grep versionName` 核对版本是否变化。
 
 模拟器带 Play 商店时，安装前会弹 Play Protect 的「扫描应用」，挡住系统确认界面；
 `adb shell pm disable-user --user 0 com.android.vending` 关掉它即可（验完 `pm enable` 还原）。
@@ -99,7 +99,7 @@
 ## 坑（Gotchas）
 
 1. **Tauri 同步命令在主线程执行**：阻塞式 reqwest 必须放 async 命令 + `tauri::async_runtime::spawn_blocking`，否则冻结 UI。
-2. **自定义 scheme 回调（cimoc-img://）**：macOS WKURLSchemeHandler 回调跑在主线程，同样需要 spawn_blocking。
+2. **自定义 scheme 回调（mojuan-img://）**：macOS WKURLSchemeHandler 回调跑在主线程，同样需要 spawn_blocking。
 3. **`withGlobalTauri` 必须放 `tauri.conf.json` 的 `app` 段**（不在 `security` 段；`app.withGlobalTauri: true`）。
 4. **`on_page_load` 事件在 macOS 跨站重定向时会丢失**（纯 302 链一条 Finished 都不发）：页面就绪
    判定不要用它，改用 `eval_with_callback` 轮询 `location.href` + `readyState`（渲染通道的做法）。
@@ -130,7 +130,7 @@
     `PluginInitialization(.. invalid type: map, expected unit)` 并直接 abort。要么用
     `Builder::<R, Config>::new(name)` 声明配置类型（`Config` 的字段加 `#[serde(default)]`），
     要么别在 `plugins` 下给它写配置。`cargo check` 与 `cargo test` 都发现不了，只有把应用跑起来
-    才会暴露；`crates/tauri-plugin-cimoc-update/src/lib.rs` 里有一个读真实 `tauri.conf.json`
+    才会暴露；`crates/tauri-plugin-mojuan-update/src/lib.rs` 里有一个读真实 `tauri.conf.json`
     的测试，专门盯这条。
 11. **`core:default` 不含改窗口状态的命令**：`core:window:default` 只覆盖读取类（`is_fullscreen`、
     `inner_size`、`title` 等），写入类要逐个列进 `src-tauri/capabilities/default.json`。阅读器的

@@ -13,7 +13,7 @@ import type { Comic } from "../api";
 vi.mock("../api", () => ({
     crawl: vi.fn(),
     crawlCached: vi.fn(),
-    cimocVersion: vi.fn().mockResolvedValue("test"),
+    mojuanVersion: vi.fn().mockResolvedValue("test"),
     sourceErrors: vi.fn().mockResolvedValue({}),
     imgSrc: (url: string) => url,
 }));

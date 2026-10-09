@@ -1,5 +1,5 @@
 ---
-name: Cimoc
+name: 墨卷
 description: 中文漫画阅读器桌面应用——中性底色、单一蓝色强调、弹簧动效
 colors:
   background: "oklch(99% 0 0)"
@@ -122,7 +122,7 @@ components:
     padding: "12px 16px"
 ---
 
-# Design System: Cimoc
+# Design System: Mojuan
 
 ## Overview
 

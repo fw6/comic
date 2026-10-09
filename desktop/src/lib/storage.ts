@@ -142,10 +142,10 @@ const DEFAULT_SETTINGS: Settings = {
     lastCategory: {},
 };
 
-/** 下载目录默认值（grilling #6：~/Downloads/cimoc）。 */
+/** 下载目录默认值（grilling #6：~/Downloads/mojuan）。 */
 export async function defaultDownloadDir(): Promise<string> {
     const base = await downloadDir();
-    return `${base}/cimoc`;
+    return `${base}/mojuan`;
 }
 
 export async function getSettings(): Promise<Settings> {
@@ -302,7 +302,7 @@ export interface BackupData {
     progress: Record<string, ProgressRecord>;
 }
 
-/** 收集三域为备份 JSON 字符串（单文件 cimoc-backup.json 内容，grilling #25 #2）。 */
+/** 收集三域为备份 JSON 字符串（单文件 mojuan-backup.json 内容，grilling #25 #2）。 */
 export async function exportBackupJson(): Promise<string> {
     const [favStore, hisStore, proStore] = await Promise.all([
         getStore(FILES.favorites),

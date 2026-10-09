@@ -3,13 +3,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import worker, { assetRefFromUrl, buildAndroidManifest, buildManifest } from "../src/index.js";
 
-const ORIGIN = "https://cimoc-updater.example.workers.dev";
-const REPO = "fw6/comic";
+const ORIGIN = "https://mojuan.example.workers.dev";
+const REPO = "fw6/mojuan";
 const REPO_URL = `https://api.github.com/repos/${REPO}`;
 const LATEST_URL = `${REPO_URL}/releases/latest`;
 const MANIFEST_URL = `${REPO_URL}/releases/assets/601292331`;
 const ANDROID_MANIFEST_URL = `${REPO_URL}/releases/assets/601399999`;
-const ANDROID_APK_URL = "https://api.github.com/repos/fw6/comic/releases/assets/601329752";
+const ANDROID_APK_URL = "https://api.github.com/repos/fw6/mojuan/releases/assets/601329752";
 
 /** 固定装置取自 app-v1.4.0 的真实产物：清单、API 资产列表、各制品的 .sig 文件。 */
 const fixture = (name) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url));
@@ -94,14 +94,14 @@ test("平台与制品的对应关系没有串位", () => {
     const out = buildManifest(manifest, release, ORIGIN);
     const nameOf = (p) => assetName(out.platforms[p].url);
 
-    assert.equal(nameOf("windows-x86_64"), "cimoc_1.4.0_x64_en-US.msi");
-    assert.equal(nameOf("windows-x86_64-msi"), "cimoc_1.4.0_x64_en-US.msi");
-    assert.equal(nameOf("windows-x86_64-nsis"), "cimoc_1.4.0_x64-setup.exe");
-    assert.equal(nameOf("linux-x86_64"), "cimoc_1.4.0_amd64.AppImage");
-    assert.equal(nameOf("linux-x86_64-deb"), "cimoc_1.4.0_amd64.deb");
-    assert.equal(nameOf("linux-x86_64-rpm"), "cimoc-1.4.0-1.x86_64.rpm");
-    assert.equal(nameOf("darwin-aarch64"), "cimoc_1.4.0_aarch64.app.tar.gz");
-    assert.equal(nameOf("darwin-x86_64"), "cimoc_1.4.0_x64.app.tar.gz");
+    assert.equal(nameOf("windows-x86_64"), "mojuan_1.4.0_x64_en-US.msi");
+    assert.equal(nameOf("windows-x86_64-msi"), "mojuan_1.4.0_x64_en-US.msi");
+    assert.equal(nameOf("windows-x86_64-nsis"), "mojuan_1.4.0_x64-setup.exe");
+    assert.equal(nameOf("linux-x86_64"), "mojuan_1.4.0_amd64.AppImage");
+    assert.equal(nameOf("linux-x86_64-deb"), "mojuan_1.4.0_amd64.deb");
+    assert.equal(nameOf("linux-x86_64-rpm"), "mojuan-1.4.0-1.x86_64.rpm");
+    assert.equal(nameOf("darwin-aarch64"), "mojuan_1.4.0_aarch64.app.tar.gz");
+    assert.equal(nameOf("darwin-x86_64"), "mojuan_1.4.0_x64.app.tar.gz");
 });
 
 test("每个平台的签名就是它指向的那个制品的 .sig 文件内容", () => {
@@ -115,7 +115,7 @@ test("每个平台的签名就是它指向的那个制品的 .sig 文件内容",
 test("清单指向该版本没有的制品时抛出错误", () => {
     const broken = {
         ...manifest,
-        platforms: { ...manifest.platforms, "windows-x86_64": { signature: "x", url: "https://api.github.com/repos/fw6/comic/releases/assets/1" } },
+        platforms: { ...manifest.platforms, "windows-x86_64": { signature: "x", url: "https://api.github.com/repos/fw6/mojuan/releases/assets/1" } },
     };
     assert.throws(() => buildManifest(broken, release, ORIGIN), /windows-x86_64/);
 });
@@ -125,8 +125,8 @@ test("制品地址认 API 资产地址与 Releases 直链两种形态", () => {
         id: "601292128",
     });
     assert.deepEqual(
-        assetRefFromUrl(`https://github.com/${REPO}/releases/download/app-v1.4.0/cimoc_1.4.0_x64-setup.exe`),
-        { name: "cimoc_1.4.0_x64-setup.exe" },
+        assetRefFromUrl(`https://github.com/${REPO}/releases/download/app-v1.4.0/mojuan_1.4.0_x64-setup.exe`),
+        { name: "mojuan_1.4.0_x64-setup.exe" },
     );
     assert.equal(assetRefFromUrl(undefined), null);
     assert.equal(assetRefFromUrl("https://example.com/whatever"), null);
@@ -204,7 +204,7 @@ test("Android 清单只改写 APK 地址，版本与 sha256 原样透传", async
     const body = await res.json();
     assert.equal(body.version, android.version);
     assert.equal(body.sha256, android.sha256);
-    assert.equal(body.url, `${ORIGIN}/dl/app-v1.4.0/cimoc-1.4.0-android.apk`);
+    assert.equal(body.url, `${ORIGIN}/dl/app-v1.4.0/mojuan-1.4.0-android.apk`);
 });
 
 test("Android 清单里的地址能直接取到该版本的 APK", async () => {
@@ -224,7 +224,7 @@ test("Android 清单里的地址能直接取到该版本的 APK", async () => {
 });
 
 test("Android 清单指向该版本没有的制品时抛出错误", () => {
-    const broken = { ...android, url: "cimoc-1.4.0-android-debug.apk" };
+    const broken = { ...android, url: "mojuan-1.4.0-android-debug.apk" };
     assert.throws(() => buildAndroidManifest(broken, releaseWithAndroid, ORIGIN), /android/);
 });
 
@@ -259,11 +259,11 @@ test("桌面清单不含 Android 条目，两条通道互不影响", async () =>
 
 test("下载代理把上游响应体与 Range 转交出去", async () => {
     let seen = null;
-    const res = await callWorker("/dl/app-v1.4.0/cimoc_1.4.0_x64-setup.exe", {
+    const res = await callWorker("/dl/app-v1.4.0/mojuan_1.4.0_x64-setup.exe", {
         headers: { Range: "bytes=0-9" },
         routes: {
             [`https://api.github.com/repos/${REPO}/releases/tags/app-v1.4.0`]: jsonRoute(release),
-            "https://api.github.com/repos/fw6/comic/releases/assets/601292218": (init) => {
+            "https://api.github.com/repos/fw6/mojuan/releases/assets/601292218": (init) => {
                 seen = init;
                 return new Response("0123456789", {
                     status: 206,

@@ -7,10 +7,10 @@
 普通 HTTP 客户端即可抓取（服务端渲染的 PHP 站，不依赖 JS）。
 
 实现文件：
-- `desktop/crates/cimoc-core/src/js/sources/kxmanhua.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/cimoc-core/src/crawler/kxmanhua.rs` — 请求头（薄文件）
-- `desktop/crates/cimoc-core/src/crawler/script.rs` — detail 的 ctx（comicId，用于过滤本作章节）
-- `desktop/crates/cimoc-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
+- `desktop/crates/mojuan-core/src/js/sources/kxmanhua.js` — 源脚本（buildUrl/parse，五 op）
+- `desktop/crates/mojuan-core/src/crawler/kxmanhua.rs` — 请求头（薄文件）
+- `desktop/crates/mojuan-core/src/crawler/script.rs` — detail 的 ctx（comicId，用于过滤本作章节）
+- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
 - `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES
 - fixture：`tests/fixtures/kxmanhua-{search,detail,chapter}.html`（真网转储裁剪）
 
@@ -19,7 +19,7 @@
 
 ```bash
 cd desktop
-cargo test -p cimoc-core --test live_smoke -- --ignored kxmanhua
+cargo test -p mojuan-core --test live_smoke -- --ignored kxmanhua
 # kxmanhua detail: N 章；首章 M 张图
 ```
 

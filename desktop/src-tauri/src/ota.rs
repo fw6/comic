@@ -3,14 +3,14 @@
 //! 五步状态机，由前端按顺序调用：
 //!   ota_check                  拉更新通道的 Android 清单，与已安装版本比对，结果存进 state
 //!   ota_download               下载清单里的 APK 到缓存目录，边下边报进度，落盘后校验 sha256
-//!   ota_install                把下载结果交给系统安装器（插件 tauri-plugin-cimoc-update）
+//!   ota_install                把下载结果交给系统安装器（插件 tauri-plugin-mojuan-update）
 //!   ota_can_install            「安装未知应用」授权查询
 //!   ota_open_install_settings  跳到该授权页
 //!
-//! 清单拉取、版本比对、下载与校验都在 cimoc-core 的 `native::ota`（与平台无关）；
+//! 清单拉取、版本比对、下载与校验都在 mojuan-core 的 `native::ota`（与平台无关）；
 //! 这里只做状态管理、通道地址读取与原生安装调用。
 //!
-//! 通道地址取自 tauri.conf.json 的 `plugins.cimoc-update.endpoint`，与桌面端
+//! 通道地址取自 tauri.conf.json 的 `plugins.mojuan-update.endpoint`，与桌面端
 //! `plugins.updater.endpoints` 并列，都是 `updater/` 那个 Cloudflare Worker。
 
 use std::path::PathBuf;
@@ -31,7 +31,7 @@ pub struct OtaProgress {
 
 /// 已检查到的可用更新。
 struct Pending {
-    manifest: cimoc_core::native::ota::AndroidManifest,
+    manifest: mojuan_core::native::ota::AndroidManifest,
     /// 下载目标（缓存目录下按版本命名）。
     target: PathBuf,
 }
@@ -61,13 +61,13 @@ pub async fn ota_check(app: tauri::AppHandle) -> Result<String, String> {
     // package_info 的版本就是 tauri.conf.json 的 version，与 Android 的 versionName 同源
     let current = app.package_info().version.to_string();
     let fetched = tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::native::ota::fetch_manifest(&endpoint)
+        mojuan_core::native::ota::fetch_manifest(&endpoint)
     })
     .await
     .map_err(|e| format!("检查更新无法调度到后台线程：{e}"))??;
 
     let available = match &fetched {
-        Some(manifest) => cimoc_core::native::ota::is_newer(&manifest.version, &current)?,
+        Some(manifest) => mojuan_core::native::ota::is_newer(&manifest.version, &current)?,
         None => false,
     };
 
@@ -113,7 +113,7 @@ pub async fn ota_download(
     let progress = channel.clone();
     let (url, sha256, path) = (manifest.url.clone(), manifest.sha256.clone(), target.clone());
     tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::native::ota::download_apk(&url, &sha256, &path, |done, total| {
+        mojuan_core::native::ota::download_apk(&url, &sha256, &path, |done, total| {
             let event = if done == 0 { "started" } else { "progress" };
             let _ = progress.send(OtaProgress { event, done, total });
         })
@@ -159,7 +159,7 @@ pub async fn ota_install(app: tauri::AppHandle) -> Result<String, String> {
     let handle = app.clone();
     let path = apk.to_string_lossy().into_owned();
     let status = tauri::async_runtime::spawn_blocking(move || {
-        tauri_plugin_cimoc_update::install(&handle, &path)
+        tauri_plugin_mojuan_update::install(&handle, &path)
     })
     .await
     .map_err(|e| format!("安装无法调度到后台线程：{e}"))??;
@@ -171,7 +171,7 @@ pub async fn ota_install(app: tauri::AppHandle) -> Result<String, String> {
 pub async fn ota_can_install(app: tauri::AppHandle) -> Result<bool, String> {
     let handle = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        tauri_plugin_cimoc_update::can_install(&handle)
+        tauri_plugin_mojuan_update::can_install(&handle)
     })
     .await
     .map_err(|e| format!("查询安装授权无法调度到后台线程：{e}"))?
@@ -182,18 +182,18 @@ pub async fn ota_can_install(app: tauri::AppHandle) -> Result<bool, String> {
 pub async fn ota_open_install_settings(app: tauri::AppHandle) -> Result<(), String> {
     let handle = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
-        tauri_plugin_cimoc_update::open_install_settings(&handle)
+        tauri_plugin_mojuan_update::open_install_settings(&handle)
     })
     .await
     .map_err(|e| format!("打开安装授权页无法调度到后台线程：{e}"))?
 }
 
-/// 更新通道的 Android 清单地址（tauri.conf.json 的 `plugins.cimoc-update.endpoint`）。
+/// 更新通道的 Android 清单地址（tauri.conf.json 的 `plugins.mojuan-update.endpoint`）。
 ///
-/// 配置的形态由插件声明（`tauri_plugin_cimoc_update::Config`）——tauri 在插件初始化
+/// 配置的形态由插件声明（`tauri_plugin_mojuan_update::Config`）——tauri 在插件初始化
 /// 时按那个类型反序列化这段配置，这里读同一份原始 JSON 再解一次，两处不会走偏。
 fn endpoint(app: &tauri::AppHandle) -> Result<String, String> {
-    let name = tauri_plugin_cimoc_update::PLUGIN_NAME;
+    let name = tauri_plugin_mojuan_update::PLUGIN_NAME;
     let raw = app
         .config()
         .plugins
@@ -201,7 +201,7 @@ fn endpoint(app: &tauri::AppHandle) -> Result<String, String> {
         .get(name)
         .cloned()
         .unwrap_or(serde_json::Value::Null);
-    let cfg: tauri_plugin_cimoc_update::Config = serde_json::from_value(raw)
+    let cfg: tauri_plugin_mojuan_update::Config = serde_json::from_value(raw)
         .map_err(|e| format!("tauri.conf.json 的 plugins.{name} 无法解析：{e}"))?;
     if cfg.endpoint.is_empty() {
         return Err(format!("tauri.conf.json 里没有配 plugins.{name}.endpoint"));
@@ -215,5 +215,5 @@ fn apk_path(app: &tauri::AppHandle, version: &str) -> Result<PathBuf, String> {
         .path()
         .app_cache_dir()
         .map_err(|e| format!("取应用缓存目录失败：{e}"))?;
-    Ok(dir.join("ota").join(format!("cimoc-{version}.apk")))
+    Ok(dir.join("ota").join(format!("mojuan-{version}.apk")))
 }

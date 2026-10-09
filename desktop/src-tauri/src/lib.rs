@@ -1,5 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use cimoc_core::native::queue::{DownloadProgress, DownloadQueue, DownloadTask, TaskStatus};
+use mojuan_core::native::queue::{DownloadProgress, DownloadQueue, DownloadTask, TaskStatus};
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 use std::time::Duration;
@@ -13,7 +13,7 @@ mod img_proxy;
 ///
 /// 仅桌面端：隐藏副窗口用到的 `skip_taskbar` / `decorations` / `focused` 在 tauri 里
 /// 属于 `#[cfg(desktop)]` 的构建器方法，iOS / Android 上不存在；移动端的渲染通道
-/// 由 `tauri-plugin-cimoc-render` 的离屏 webview 提供（见 setup 里的注册）。
+/// 由 `tauri-plugin-mojuan-render` 的离屏 webview 提供（见 setup 里的注册）。
 #[cfg(desktop)]
 pub mod render;
 
@@ -33,7 +33,7 @@ static IMG_PROXY_PORT: OnceLock<u16> = OnceLock::new();
 static DOWNLOAD_DIR: OnceLock<String> = OnceLock::new();
 
 /// 源脚本运行时 registry：sourceId -> script（前端从 sources.json 同步进来；
-/// 未同步的源 crawl 返回空结果，见 cimoc-core 分发保护）。
+/// 未同步的源 crawl 返回空结果，见 mojuan-core 分发保护）。
 struct SourceRegistry(Mutex<HashMap<String, String>>);
 
 /// 下载队列状态（wayfinder #20/#22）：任务队列 + 前端订阅的进度 Channel。
@@ -94,7 +94,7 @@ async fn run_download_task(app: tauri::AppHandle, task: DownloadTask) {
         for _ in 0..PAGE_RETRIES {
             let (u, t) = (url.clone(), task.clone());
             let out = tauri::async_runtime::spawn_blocking(move || {
-                cimoc_core::download_image(
+                mojuan_core::download_image(
                     &u,
                     &t.dir,
                     &t.source,
@@ -189,12 +189,12 @@ async fn enqueue_download(
 ) -> String {
     let (s, c, d) = (source.clone(), comic_id.clone(), dir.clone());
     let already = tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::chapter_downloaded(&d, &s, &c, chapter_index)
+        mojuan_core::chapter_downloaded(&d, &s, &c, chapter_index)
     })
     .await
     .unwrap_or(false);
     let task = DownloadTask {
-        task_id: cimoc_core::task_id(&source, &comic_id, chapter_index),
+        task_id: mojuan_core::task_id(&source, &comic_id, chapter_index),
         source,
         comic_id,
         comic_title,
@@ -264,7 +264,7 @@ fn clear_downloads(state: tauri::State<'_, Mutex<DownloadState>>) -> usize {
 /// 爬虫引擎统一入口（转发 Rust core，返回 JSON 字符串）。
 /// 阻塞式 reqwest 放入 spawn_blocking：同步命令在主线程执行，直接调用会卡死 UI。
 /// 成功结果由 core 写入结果缓存（cache_dir），供 crawl_cached 读取。
-/// 源脚本错误（#17 呈现）经 cimoc-core 错误 registry 记录，这里追加到 app 日志目录。
+/// 源脚本错误（#17 呈现）经 mojuan-core 错误 registry 记录，这里追加到 app 日志目录。
 #[tauri::command]
 async fn crawl(
     app: tauri::AppHandle,
@@ -277,11 +277,11 @@ async fn crawl(
     let script = state.0.lock().unwrap().get(&source).cloned().unwrap_or_default();
     let cache_dir = APP_CACHE_DIR.get().cloned().unwrap_or_default();
     let out = tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::crawl(&op, &src, &payload, &script, &cache_dir)
+        mojuan_core::crawl(&op, &src, &payload, &script, &cache_dir)
     })
     .await
     .unwrap_or_default();
-    if let Some((msg, at)) = cimoc_core::crawler::script::last_error(&source) {
+    if let Some((msg, at)) = mojuan_core::crawler::script::last_error(&source) {
         if let Ok(log_dir) = app.path().app_log_dir() {
             let _ = std::fs::create_dir_all(&log_dir);
             let line = format!("[{at}] {source}: {msg}\n");
@@ -312,7 +312,7 @@ async fn crawl_cached(
     let script = state.0.lock().unwrap().get(&source).cloned().unwrap_or_default();
     let cache_dir = APP_CACHE_DIR.get().cloned().unwrap_or_default();
     let out = tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::cached_result(&op, &source, &payload, &script, &cache_dir)
+        mojuan_core::cached_result(&op, &source, &payload, &script, &cache_dir)
     })
     .await
     .unwrap_or_default();
@@ -323,8 +323,8 @@ async fn crawl_cached(
 #[tauri::command]
 fn bundled_sources() -> HashMap<String, String> {
     let mut m = HashMap::new();
-    for (id, _) in cimoc_core::js::sources::bundled() {
-        if let Some(script) = cimoc_core::js::sources::load(id) {
+    for (id, _) in mojuan_core::js::sources::bundled() {
+        if let Some(script) = mojuan_core::js::sources::load(id) {
             m.insert(id.to_string(), script);
         }
     }
@@ -340,7 +340,7 @@ fn sync_sources(state: tauri::State<'_, SourceRegistry>, entries: HashMap<String
 /// 各源最近一次错误（Sources 错误行 / Settings 源区展示，wayfinder #17）。
 #[tauri::command]
 fn source_errors() -> HashMap<String, serde_json::Value> {
-    cimoc_core::crawler::script::all_errors()
+    mojuan_core::crawler::script::all_errors()
         .into_iter()
         .map(|(source, (message, at))| (source, serde_json::json!({ "message": message, "at": at })))
         .collect()
@@ -355,7 +355,7 @@ async fn webdav_put(
     content: String,
 ) -> String {
     tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::webdav_put(&base, &user, &password, &file_name, &content)
+        mojuan_core::webdav_put(&base, &user, &password, &file_name, &content)
     })
     .await
     .unwrap_or_default()
@@ -364,7 +364,7 @@ async fn webdav_put(
 #[tauri::command]
 async fn webdav_get(base: String, user: String, password: String, file_name: String) -> String {
     tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::webdav_get(&base, &user, &password, &file_name)
+        mojuan_core::webdav_get(&base, &user, &password, &file_name)
     })
     .await
     .unwrap_or_default()
@@ -373,7 +373,7 @@ async fn webdav_get(base: String, user: String, password: String, file_name: Str
 #[tauri::command]
 async fn list_downloaded(dir: String, source: String, comic_id: String) -> String {
     tauri::async_runtime::spawn_blocking(move || {
-        cimoc_core::list_downloaded(&dir, &source, &comic_id)
+        mojuan_core::list_downloaded(&dir, &source, &comic_id)
     })
     .await
     .unwrap_or_default()
@@ -381,14 +381,14 @@ async fn list_downloaded(dir: String, source: String, comic_id: String) -> Strin
 
 #[tauri::command]
 async fn scan_local(dir: String) -> String {
-    tauri::async_runtime::spawn_blocking(move || cimoc_core::scan_local(&dir))
+    tauri::async_runtime::spawn_blocking(move || mojuan_core::scan_local(&dir))
         .await
         .unwrap_or_default()
 }
 
 #[tauri::command]
-fn cimoc_version() -> String {
-    cimoc_core::cimoc_version()
+fn mojuan_version() -> String {
+    mojuan_core::mojuan_version()
 }
 
 /// 本机图片代理端口（setup 时绑定后填充；前端启动时调用，用于拼图片 URL）。
@@ -422,8 +422,8 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_cimoc_render::init())
-        .plugin(tauri_plugin_cimoc_update::init())
+        .plugin(tauri_plugin_mojuan_render::init())
+        .plugin(tauri_plugin_mojuan_update::init())
         // 主窗口销毁时连带销毁隐藏渲染 webview，保持「关掉全部窗口即退出」的原有行为
         .on_window_event(|window, event| {
             if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
@@ -444,18 +444,18 @@ pub fn run() {
             // 结果缓存清理：删除超过保留期未更新的条目（常用条目每次抓取都刷新修改时间）
             if let Some(cache_dir) = APP_CACHE_DIR.get().cloned() {
                 tauri::async_runtime::spawn_blocking(move || {
-                    cimoc_core::crawler::result_cache::prune(
+                    mojuan_core::crawler::result_cache::prune(
                         &cache_dir,
                         Duration::from_secs(RESULT_CACHE_MAX_AGE_SECS),
                     );
                 });
             }
-            // 渲染通道注册（cimoc-core 的渲染源 fetch 经隐藏 webview 取页面）：
+            // 渲染通道注册（mojuan-core 的渲染源 fetch 经隐藏 webview 取页面）：
             // 桌面端是隐藏副窗口，移动端是插件的离屏 webview
             #[cfg(desktop)]
             render::init(app.handle());
             #[cfg(mobile)]
-            tauri_plugin_cimoc_render::init_fetcher(app.handle());
+            tauri_plugin_mojuan_render::init_fetcher(app.handle());
             // Android OTA 状态（移动端才有这条通道）
             #[cfg(mobile)]
             ota::init(app.handle());
@@ -488,7 +488,7 @@ pub fn run() {
             webdav_get,
             list_downloaded,
             scan_local,
-            cimoc_version,
+            mojuan_version,
             img_proxy_port,
             img_proxy_set_download_dir,
             subscribe_downloads,

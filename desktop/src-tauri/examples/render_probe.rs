@@ -1,10 +1,10 @@
-//! 渲染通道真网探针（live 验证与 fixture 采集工具，Tauri 侧等价于 cimoc-core 的 live_smoke）。
+//! 渲染通道真网探针（live 验证与 fixture 采集工具，Tauri 侧等价于 mojuan-core 的 live_smoke）。
 //!
 //! 用法（在 `desktop/src-tauri` 下）：
 //!   cargo run --example render_probe -- dump <url> <outfile>
 //!       经隐藏 webview 渲染单个页面，把渲染后 HTML 写入 outfile（fixture 采集）。
 //!   cargo run --example render_probe -- crawl <source> <op> <payload-json>
-//!       走 `cimoc_core::crawl` 全链路（渲染源），结果 JSON 打印到 stdout。
+//!       走 `mojuan_core::crawl` 全链路（渲染源），结果 JSON 打印到 stdout。
 //!   cargo run --example render_probe -- chain <source> <comicId> <chapterIndex>
 //!       同进程跑 detail → images（验证进程内章节 URL 缓存与全链路），打印摘要。
 //!
@@ -64,9 +64,9 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
                 return 2;
             };
             // 禁用结果缓存（空 cache_dir）：探针每次走真实链路
-            let out = cimoc_core::crawl(op, source, payload, &script, "");
+            let out = mojuan_core::crawl(op, source, payload, &script, "");
             println!("{out}");
-            if let Some((msg, _)) = cimoc_core::crawler::script::last_error(source) {
+            if let Some((msg, _)) = mojuan_core::crawler::script::last_error(source) {
                 eprintln!("源错误: {msg}");
             }
             0
@@ -76,15 +76,15 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
                 return 2;
             };
             let payload = format!(r#"{{"comicId":"{comic_id}"}}"#);
-            let detail = cimoc_core::crawl("detail", source, &payload, &script, "");
-            if let Some((msg, _)) = cimoc_core::crawler::script::last_error(source) {
+            let detail = mojuan_core::crawl("detail", source, &payload, &script, "");
+            if let Some((msg, _)) = mojuan_core::crawler::script::last_error(source) {
                 eprintln!("detail 源错误: {msg}");
                 return 1;
             }
             println!("detail: {}", summarize_detail(&detail));
             let payload = format!(r#"{{"comicId":"{comic_id}","chapterIndex":{chapter_index}}}"#);
-            let images = cimoc_core::crawl("images", source, &payload, &script, "");
-            if let Some((msg, _)) = cimoc_core::crawler::script::last_error(source) {
+            let images = mojuan_core::crawl("images", source, &payload, &script, "");
+            if let Some((msg, _)) = mojuan_core::crawler::script::last_error(source) {
                 eprintln!("images 源错误: {msg}");
                 return 1;
             }
@@ -102,7 +102,7 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
 }
 
 fn load_script(source: &str) -> Option<String> {
-    let script = cimoc_core::js::sources::load(source).unwrap_or_default();
+    let script = mojuan_core::js::sources::load(source).unwrap_or_default();
     if script.is_empty() {
         eprintln!("源脚本不存在: {source}");
         return None;

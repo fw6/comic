@@ -11,10 +11,10 @@
 `new.niaopic.com` / `thumb.niaopic.com` / `img.nnpic.xyz` 在 webview 里都能出图）。
 
 实现文件：
-- `desktop/crates/cimoc-core/src/js/sources/nnhanman.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/cimoc-core/src/crawler/render.rs` — 渲染源声明（`needed`）
-- `desktop/crates/cimoc-core/src/crawler/script.rs` — detail 的 ctx（comicId，用于过滤本作章节）
-- `desktop/crates/cimoc-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
+- `desktop/crates/mojuan-core/src/js/sources/nnhanman.js` — 源脚本（buildUrl/parse，五 op）
+- `desktop/crates/mojuan-core/src/crawler/render.rs` — 渲染源声明（`needed`）
+- `desktop/crates/mojuan-core/src/crawler/script.rs` — detail 的 ctx（comicId，用于过滤本作章节）
+- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
 - `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES
 - fixture：`tests/fixtures/nnhanman-{search,detail,chapter}.html`（真网渲染转储裁剪）
 
@@ -29,12 +29,12 @@ cargo run --example render_probe -- chain nnhanman nnhanman-zui-bang-de-ta 85989
 # detail: 5 话（第1話…第5話）；images: 262 张
 ```
 
-> cimoc-core 单进程没有 webview 宿主，`cargo test --test live_smoke` 里的渲染源会返回
+> mojuan-core 单进程没有 webview 宿主，`cargo test --test live_smoke` 里的渲染源会返回
 > 「渲染通道未注册」——该源的真网验证只能走上面的渲染通道探针，与包子漫画相同。
 
 ## 已知限制：该源的「下载本话」不可用
 
-站点的 Cloudflare 对非浏览器客户端是 TLS 层拦截（实测 `cimoc_core::crawler::http` 的
+站点的 Cloudflare 对非浏览器客户端是 TLS 层拦截（实测 `mojuan_core::crawler::http` 的
 reqwest 对 `nnhanman.xyz` 与三个图片域名 `new.niaopic.com` / `thumb.niaopic.com` /
 `img.nnpic.xyz` 全部连接失败），而隐藏 webview 是真实浏览器内核、可以正常取图。因此：
 

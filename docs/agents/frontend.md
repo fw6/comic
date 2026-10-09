@@ -60,7 +60,7 @@ beui registry 里没有可用于远程搜索的现成组件：`morphing-search` 
 
 ## 数据加载与结果缓存（stale-while-revalidate）
 
-列表与详情的抓取结果由 Rust 侧缓存（`crawler/result_cache.rs`，见 `docs/agents/cimoc-core.md`），
+列表与详情的抓取结果由 Rust 侧缓存（`crawler/result_cache.rs`，见 `docs/agents/mojuan-core.md`），
 前端加载一律两段式，并先 `await whenSourcesReady()`（`lib/storage.ts` 的源脚本同步单例，
 registry 未就绪时脚本源的 op 会返回空结果）：
 

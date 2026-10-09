@@ -1,12 +1,12 @@
 /**
- * cimoc 更新通道（Cloudflare Worker）。
+ * mojuan 更新通道（Cloudflare Worker）。
  *
  * 两个客户端从三个出口取东西：
  *   GET /latest.json       桌面端 tauri-plugin-updater 的更新清单（没有可发布版本时回 204）
  *   GET /android.json      Android OTA 的清单：版本 + APK 的 sha256 + 下载地址（同上）
  *   GET /dl/<tag>/<文件名>  该版本制品的下载代理
  *
- * 仓库 fw6/comic 是私有的，GitHub Releases 对未登录客户端一律返回 404，所以清单
+ * 仓库 fw6/mojuan 是私有的，GitHub Releases 对未登录客户端一律返回 404，所以清单
  * 与制品都由这个 Worker 用 GITHUB_TOKEN 取回后对外提供。
  */
 
@@ -26,7 +26,7 @@ export default {
         if (url.pathname === "/") {
             return text(
                 200,
-                "cimoc 更新通道：/latest.json 取桌面清单，/android.json 取 Android 清单，/dl/<tag>/<文件名> 取制品",
+                "mojuan 更新通道：/latest.json 取桌面清单，/android.json 取 Android 清单，/dl/<tag>/<文件名> 取制品",
             );
         }
         const isManifest = url.pathname === "/latest.json";
@@ -228,7 +228,7 @@ function githubHeaders(env) {
         Authorization: `Bearer ${env.GITHUB_TOKEN}`,
         Accept: "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "cimoc-updater",
+        "User-Agent": "mojuan",
     };
 }
 

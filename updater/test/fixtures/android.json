@@ -1,6 +1,6 @@
 {
   "_comment": "release.yml 的 Android 作业生成的清单资产：版本、APK 的文件名、APK 的 sha256。Worker 只改写 url（换成自己的 /dl 路径），其余字段透传给客户端。sha256 取自 2026-10-08 的 1.4.0 本机构建产物。",
   "version": "1.4.0",
-  "url": "cimoc-1.4.0-android.apk",
+  "url": "mojuan-1.4.0-android.apk",
   "sha256": "70331586199badaac04ffc5b119e42c5815516a9e4fb5fdfc65fa8e8c14f3d70"
 }

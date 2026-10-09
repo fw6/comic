@@ -19,10 +19,10 @@ Hentara（英文成人韩漫站）已作为内置源接入源脚本系统，**�
 直接加载，无需 img 代理。
 
 实现文件：
-- `desktop/crates/cimoc-core/src/js/sources/hentara.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/cimoc-core/src/crawler/hentara.rs` — 请求头（薄文件）
-- `desktop/crates/cimoc-core/src/crawler/script.rs` — search 的 ctx（keyword，脚本内过滤用）
-- `desktop/crates/cimoc-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
+- `desktop/crates/mojuan-core/src/js/sources/hentara.js` — 源脚本（buildUrl/parse，五 op）
+- `desktop/crates/mojuan-core/src/crawler/hentara.rs` — 请求头（薄文件）
+- `desktop/crates/mojuan-core/src/crawler/script.rs` — search 的 ctx（keyword，脚本内过滤用）
+- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
 - `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES
 - fixture：`tests/fixtures/hentara-{index.json,browse.html,genre.html,detail.json,episode.json}`
   （目录 fixture 是从真网 110KB 的 index.json 裁剪出的 3 部样本）
@@ -32,7 +32,7 @@ Hentara（英文成人韩漫站）已作为内置源接入源脚本系统，**�
 
 ```bash
 cd desktop
-cargo test -p cimoc-core --test live_smoke -- --ignored hentara
+cargo test -p mojuan-core --test live_smoke -- --ignored hentara
 # hentara detail: N 章；首章 M 张图
 ```
 

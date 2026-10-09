@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 在运行中的 Cimoc 应用里执行一段 JS，并把结果打印出来。
+ * 在运行中的墨卷应用里执行一段 JS，并把结果打印出来。
  *
  * 用法：
  *   npm run tauri dev            # 先跑起应用（tauri-plugin-mcp-bridge 会在 9223 起 WebSocket）
@@ -11,7 +11,7 @@
  */
 import { readFile } from "node:fs/promises";
 
-const PORT = process.env.CIMOC_MCP_PORT ?? "9223";
+const PORT = process.env.MOJUAN_MCP_PORT ?? "9223";
 
 const args = process.argv.slice(2);
 const resizeAt = args.indexOf("--resize");

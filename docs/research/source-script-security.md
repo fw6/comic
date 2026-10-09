@@ -1,6 +1,6 @@
 # 源脚本在 QuickJS/rquickjs 中的安全边界（wayfinder #11）
 
-背景：产品决策（wayfinder grilling #11）已定——漫画「源」迁为运行时加载的 JS 脚本，在 cimoc-core 里用 rquickjs（QuickJS）执行；脚本从远程源仓库分发（未签名、社区可投稿），只做解析（HTML/JSON → 结构化 JSON），网络/文件系统留在 Rust 原生层。本调研回答：不暴露任何宿主 API 时脚本能干什么、需要哪些资源限制、同类产品怎么做的、以及 v1 的默认安全基线。
+背景：产品决策（wayfinder grilling #11）已定——漫画「源」迁为运行时加载的 JS 脚本，在 mojuan-core 里用 rquickjs（QuickJS）执行；脚本从远程源仓库分发（未签名、社区可投稿），只做解析（HTML/JSON → 结构化 JSON），网络/文件系统留在 Rust 原生层。本调研回答：不暴露任何宿主 API 时脚本能干什么、需要哪些资源限制、同类产品怎么做的、以及 v1 的默认安全基线。
 
 核心判断：**脚本跑在进程内、无任何宿主绑定时，残余攻击面只有「自 DoS」（CPU/内存/卡死），没有数据窃取与代码逃逸。用 rquickjs 自带的 memory limit + interrupt handler（墙钟超时）+ 栈上限 + 脚本体积检查四个旋钮即可封住 DoS，不需要子进程/虚拟机等重型沙箱。**
 
@@ -143,7 +143,7 @@ qjs.c（quickjs-ng/quickjs master）的用法文本：
 | 油猴类用户脚本 | 脚本自身声明 + 用户安装 | 无 | 用户安装动作 |
 | qjs 官方 shell | `--std` 显式挂宿主模块 | memory-limit + stack-size（可设，默认不限） | 本地执行者 |
 | Cloudflare Workers | 平台账号 + 部署审核 | CPU 时间 + 128 MB/isolate | 平台 |
-| **cimoc 源脚本（本方案）** | **不挂宿主 API + 源仓库审核（社区）** | **memory + 时间 + stack + 体积** | 源仓库分发渠道 |
+| **mojuan 源脚本（本方案）** | **不挂宿主 API + 源仓库审核（社区）** | **memory + 时间 + stack + 体积** | 源仓库分发渠道 |
 
 社区源仓库分发（未签名）+ 运行时限额，正好落在「商店审核 + 运行时资源兜底」的惯例组合里。
 
@@ -225,4 +225,4 @@ let result: String = ctx.with(|ctx| ctx.eval(source)).map_err(|e| e.to_string())
 - Chrome 扩展文档（content scripts / isolated world）：https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts
 - Greasemonkey wiki Sandbox 页：https://wiki.greasespot.net/Sandbox（"isolates trusted user script code from potentially malicious web page code"）
 - Cloudflare Workers limits：https://developers.cloudflare.com/workers/platform/limits/（CPU per request Free 10 ms / Paid 默认 30 s 上限 5 min；Memory per isolate 128 MB）
-- 本仓库现状：`desktop/crates/cimoc-core/src/crawler/mod.rs`（`crawl(op, source, payload)` 分派协议，op：categories/search/category/detail/images/cache_dump/cache_hydrate）、`crawler/models.rs`（`Comic`/`Chapter`/`Detail` JSON 契约）、`crawler/webtoons.rs`（HTML 爬虫，scraper + 选择器）、`Cargo.toml`（当前无 rquickjs 依赖）
+- 本仓库现状：`desktop/crates/mojuan-core/src/crawler/mod.rs`（`crawl(op, source, payload)` 分派协议，op：categories/search/category/detail/images/cache_dump/cache_hydrate）、`crawler/models.rs`（`Comic`/`Chapter`/`Detail` JSON 契约）、`crawler/webtoons.rs`（HTML 爬虫，scraper + 选择器）、`Cargo.toml`（当前无 rquickjs 依赖）

@@ -13,7 +13,7 @@ import {
     imgSrc,
     localSrc,
     initImgProxy,
-    cimocVersion,
+    mojuanVersion,
     scanLocal,
     listDownloaded,
     enqueueDownload,
@@ -112,18 +112,18 @@ describe("crawlCached（结果缓存读取：stale-while-revalidate 的 stale �
     });
 });
 
-describe("cimocVersion", () => {
+describe("mojuanVersion", () => {
     it("透传 invoke 返回值", async () => {
         mockedInvoke.mockResolvedValue("0.1.0");
-        await expect(cimocVersion()).resolves.toBe("0.1.0");
-        expect(mockedInvoke).toHaveBeenCalledWith("cimoc_version");
+        await expect(mojuanVersion()).resolves.toBe("0.1.0");
+        expect(mockedInvoke).toHaveBeenCalledWith("mojuan_version");
     });
 });
 
 describe("localSrc（离线页 → 本机代理 /img；wayfinder #31 离线也传 url）", () => {
     it("本地路径（旧数据）→ /img?path=…", async () => {
         await setProxyPort(16320);
-        const p = "/Users/me/Downloads/cimoc/webtoons/c1/chapter_1/0.jpg";
+        const p = "/Users/me/Downloads/mojuan/webtoons/c1/chapter_1/0.jpg";
         expect(localSrc(p)).toBe(
             `http://127.0.0.1:16320/img?path=${encodeURIComponent(p)}`,
         );
@@ -253,7 +253,7 @@ describe("WebDAV 备份/恢复 API（wayfinder #24）", () => {
                 "https://dav.example.com/dav/",
                 "u",
                 "p",
-                "cimoc-backup.json",
+                "mojuan-backup.json",
                 "{}",
             ),
         ).resolves.toEqual({ success: true, status: 201 });
@@ -261,7 +261,7 @@ describe("WebDAV 备份/恢复 API（wayfinder #24）", () => {
             base: "https://dav.example.com/dav/",
             user: "u",
             password: "p",
-            fileName: "cimoc-backup.json",
+            fileName: "mojuan-backup.json",
             content: "{}",
         });
     });
@@ -270,14 +270,14 @@ describe("WebDAV 备份/恢复 API（wayfinder #24）", () => {
         mockedInvoke.mockResolvedValue(
             JSON.stringify({ ok: true, content: '{"version":1}' }),
         );
-        await expect(webdavGet("https://dav.example.com/", "u", "p", "cimoc-backup.json")).resolves.toEqual(
+        await expect(webdavGet("https://dav.example.com/", "u", "p", "mojuan-backup.json")).resolves.toEqual(
             { ok: true, content: '{"version":1}' },
         );
         expect(mockedInvoke).toHaveBeenCalledWith("webdav_get", {
             base: "https://dav.example.com/",
             user: "u",
             password: "p",
-            fileName: "cimoc-backup.json",
+            fileName: "mojuan-backup.json",
         });
         mockedInvoke.mockResolvedValue(JSON.stringify({ ok: false, status: 404 }));
         await expect(webdavGet("https://dav.example.com/", "u", "p", "x.json")).resolves.toEqual(

@@ -3,15 +3,15 @@
 //! 前端把热链域图片 src 重写为 `http://127.0.0.1:<port>/img?url=..&ref=..`，本地下载
 //! 文件路径重写为 `http://127.0.0.1:<port>/img?path=..`；本模块在 127.0.0.1 起 hyper
 //! HTTP 服务。**单端点**：有 `path` 先读本地文件（不存在则回落到 url），否则走 url 的
-//! 缓存取图（LRU + 磁盘缓存，Referer 由 cimoc-core 补）——调用方无需区分本地/缓存。
+//! 缓存取图（LRU + 磁盘缓存，Referer 由 mojuan-core 补）——调用方无需区分本地/缓存。
 //!
-//! 相比自定义 scheme（`cimoc-img://`）：绕过 wry `shouldInterceptRequest` 的 30s 响应上限
+//! 相比自定义 scheme（`mojuan-img://`）：绕过 wry `shouldInterceptRequest` 的 30s 响应上限
 //! （Android 图片首次下载慢即超时落空的根因，wry#1551）；请求是普通 HTTP，走真实 socket。
 //! iOS 元素卸载仍会 abort 请求 → 前端 ProxyImage 失败重试兜底。
 
 use bytes::Bytes;
-use cimoc_core::cache;
-use cimoc_core::native::download_index;
+use mojuan_core::cache;
+use mojuan_core::native::download_index;
 use http_body_util::Full;
 use hyper::body::Incoming;
 use hyper::server::conn::http1;
@@ -176,7 +176,7 @@ mod tests {
 
     fn temp_cache_dir(tag: &str) -> std::path::PathBuf {
         let dir = std::env::temp_dir().join(format!(
-            "cimoc-img-proxy-test-{}-{}",
+            "mojuan-img-proxy-test-{}-{}",
             tag,
             std::process::id()
         ));
@@ -259,11 +259,11 @@ mod tests {
 
     #[test]
     fn parse_img_query_extracts_local_path() {
-        let uri = "/img?path=%2FUsers%2Fme%2FDownloads%2Fcimoc%2Fwebtoons%2Fc1%2Fchapter_1%2F0.jpg";
+        let uri = "/img?path=%2FUsers%2Fme%2FDownloads%2Fmojuan%2Fwebtoons%2Fc1%2Fchapter_1%2F0.jpg";
         let (url, referer, path, source, comic_id) = parse_img_query(uri);
         assert_eq!(url, "");
         assert_eq!(referer, "");
-        assert_eq!(path, "/Users/me/Downloads/cimoc/webtoons/c1/chapter_1/0.jpg");
+        assert_eq!(path, "/Users/me/Downloads/mojuan/webtoons/c1/chapter_1/0.jpg");
         assert_eq!(source, "");
         assert_eq!(comic_id, "");
     }

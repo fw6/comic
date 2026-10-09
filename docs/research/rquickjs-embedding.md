@@ -4,7 +4,7 @@
 
 ## 结论与推荐（TL;DR）
 
-**推荐：在 cimoc-core 加一个 JS 执行层，走「JSON 字符串中转」协议，每源一个 (Runtime + Context)（每调用新建也够用），在现有 `spawn_blocking` 线程里同步调用。**
+**推荐：在 mojuan-core 加一个 JS 执行层，走「JSON 字符串中转」协议，每源一个 (Runtime + Context)（每调用新建也够用），在现有 `spawn_blocking` 线程里同步调用。**
 
 1. **features 用默认 `std` 就够**。解析场景是「eval 脚本 → 调函数 → 返回 JSON 字符串」，不需要 `futures`（不直接 async 调用）、不需要 `macro`（不用 derive）、不需要 `loader`（脚本不用 `import/export`）。别开 `rust-alloc`——它会令 `set_memory_limit` 失效（custom allocator 下是 no-op）。
 2. **Runtime/Context 创建是微秒级**（QuickJS README：runtime 实例完整生命周期 < 300 微秒）。网络为主、单次调用几百 ms 起的爬虫负载下，每调用新建都是可接受的；要省掉每次脚本解析，可以预热（每源建好后 eval 脚本一次，函数存 globals 复用）。
@@ -97,7 +97,7 @@ Context::builder()          // ContextBuilder，自定义 intrinsics 集合
 
 ```rust
 async fn crawl(op: String, source: String, payload: String) -> String {
-    tauri::async_runtime::spawn_blocking(move || cimoc_core::crawl(&op, &source, &payload))
+    tauri::async_runtime::spawn_blocking(move || mojuan_core::crawl(&op, &source, &payload))
 }
 ```
 
@@ -281,7 +281,7 @@ fn run_parse(html: &str, timeout: Duration) -> Result<String, String> {
 
 - **入口不动**：`crawler/mod.rs::crawl(op, source, payload) -> String` 保持对外协议；把 `webtoons`/`mangadex` 的 `match source` 改为「按 source 查运行时脚本，没有则回退原生实现或报错」。
 - **网络不动**：HTML/JSON 抓取继续走 `crawler/http.rs` 的 blocking client（Referer/UA/重定向/gzip 不变），JS 只收到纯 HTML/JSON 字符串、只吐 JSON 字符串。热链/图片缓存/代理与本决策正交。
-- **线程模型不动**：`src-tauri` 的 `spawn_blocking` 已就位；JS 执行与 HTTP 阻塞调用在同一 blocking 线程，语义一致，`cimoc-core` 保持无 tauri 依赖。
+- **线程模型不动**：`src-tauri` 的 `spawn_blocking` 已就位；JS 执行与 HTTP 阻塞调用在同一 blocking 线程，语义一致，`mojuan-core` 保持无 tauri 依赖。
 - **脚本契约**：`parseList(html) -> string`、`parseDetail(html) -> string`、`parseImages(html) -> string`（JSON 源则传 JSON 字符串）——与现有 parse 函数一一对应；返回结构对齐 `models.rs` 的 `Comic`/`Chapter`/`Detail`（camelCase）。
 - **落地顺序**：先「每调用新建 Runtime+Context」最小闭环（§6 代码形态），稳定后再做「每源 warm 池 + 每次调用前刷 deadline」的优化；源脚本体积在 Rust 侧加载时设上限。
 
@@ -303,4 +303,4 @@ fn run_parse(html: &str, timeout: Duration) -> Result<String, String> {
 - GitHub DelSkayn/rquickjs：README（QuickJS-NG 绑定、features 一览、300µs 生命周期引述、Supported platforms）、rquickjs 0.12.2 Cargo.toml（facade features / workspace / MSRV）、rquickjs-sys README（内置补丁说明）——经 raw.githubusercontent.com 获取
 - 本仓库：
   - `desktop/src-tauri/src/lib.rs`（`crawl` command 的 `spawn_blocking` 接线）
-  - `desktop/crates/cimoc-core/src/crawler/mod.rs`（`crawl` 分发）、`webtoons.rs`（HTML 解析函数形状）、`mangadex.rs`（JSON 解析函数形状）、`http.rs`（blocking 网络层）、`models.rs`（Comic/Chapter/Detail）
+  - `desktop/crates/mojuan-core/src/crawler/mod.rs`（`crawl` 分发）、`webtoons.rs`（HTML 解析函数形状）、`mangadex.rs`（JSON 解析函数形状）、`http.rs`（blocking 网络层）、`models.rs`（Comic/Chapter/Detail）

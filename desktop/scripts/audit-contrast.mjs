@@ -9,7 +9,7 @@
  * 说明：只看文字对比度（正文 4.5:1、大字 3:1），用 DOM 与计算样式判断，
  * 不截图。主题通过 html[data-theme] 临时切换，不会写入用户设置。
  */
-const PORT = process.env.CIMOC_MCP_PORT ?? "9223";
+const PORT = process.env.MOJUAN_MCP_PORT ?? "9223";
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
     const i = args.indexOf(name);

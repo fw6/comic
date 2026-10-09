@@ -184,9 +184,9 @@ describe("收藏 favorites", () => {
 });
 
 describe("设置 settings", () => {
-    it("未设置时返回默认值（下载目录 = ~/Downloads/cimoc）", async () => {
+    it("未设置时返回默认值（下载目录 = ~/Downloads/mojuan）", async () => {
         await expect(getSettings()).resolves.toEqual({
-            downloadDir: "/mock/Downloads/cimoc",
+            downloadDir: "/mock/Downloads/mojuan",
             darkMode: false,
             autoTrim: false,
             lastSource: null,
@@ -198,7 +198,7 @@ describe("设置 settings", () => {
         await setSettings({ darkMode: true });
         await setSettings({ autoTrim: true });
         await expect(getSettings()).resolves.toEqual({
-            downloadDir: "/mock/Downloads/cimoc",
+            downloadDir: "/mock/Downloads/mojuan",
             darkMode: true,
             autoTrim: true,
             lastSource: null,
@@ -301,7 +301,7 @@ describe("storage-fs（移动端存储层，wayfinder #31）", () => {
         await expect(s.has("k")).resolves.toBe(true);
         await expect(s.entries()).resolves.toEqual([["k", { v: 1 }]]);
         // 写盘调用：recursive mkdir 建 bootstrap 子目录（顺带建 appDataDir，fs scope 只放行子路径）+ writeTextFile 落盘
-        expect(fsMocks.mkdir).toHaveBeenCalledWith("cimoc", expect.objectContaining({ recursive: true }));
+        expect(fsMocks.mkdir).toHaveBeenCalledWith("mojuan", expect.objectContaining({ recursive: true }));
         expect(fsMocks.writeTextFile).toHaveBeenCalledWith(
             "progress.json",
             JSON.stringify({ k: { v: 1 } }),

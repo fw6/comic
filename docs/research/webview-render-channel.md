@@ -7,15 +7,15 @@
 
 ## 方案
 
-- **cimoc-core**（`crawler/render.rs`）：注册式渲染钩子 + 判据的唯一定义处。`render::needed(source)`
+- **mojuan-core**（`crawler/render.rs`）：注册式渲染钩子 + 判据的唯一定义处。`render::needed(source)`
   声明按源走渲染（当前 baozimh / nnhanman）；`script.rs::fetch` 对渲染源整源改经 `render::fetch`。
-  宿主未注册时返回「渲染通道未注册」错误，由 `record_error` 呈现到前端错误行（cimoc-core 单独跑
+  宿主未注册时返回「渲染通道未注册」错误，由 `record_error` 呈现到前端错误行（mojuan-core 单独跑
   测试不依赖 webview）。判据与节奏都在这里：`STATE_SCRIPT`（状态探测脚本，返回
   `{rs, href, ch, denied, clean}`）、`HTML_SCRIPT`（取 `document.documentElement.outerHTML`）、
   `is_clean` / `is_denied`、`POLL_INTERVAL`（500ms）、`RENDER_TIMEOUT`（60s）。挑战页容器与标题
   随站点改版变动，改这一处两端（桌面 / 移动）同时生效。
 - **src-tauri**（`src/render.rs`）：桌面端隐藏 webview 渲染服务，setup 时经 `render::init` 注册进
-  cimoc-core。
+  mojuan-core。
   - 单例不可见窗口（label `render`，1280x800，`visible(false)`），懒创建；主窗口销毁时连带销毁，
     保持「关掉全部窗口即退出」的原有行为。
   - 每次渲染先导航回 `about:blank` 再导航目标：目标加载恒为全新跨文档导航，页面就绪判定用
@@ -24,7 +24,7 @@
   - 验证页等待：按 `POLL_INTERVAL` 探测 `STATE_SCRIPT`，Challenge 页（Cloudflare「Just a moment」/
     turnstile 容器，以及 baozimh tw 域自建的 proof-of-work `__gatekeeper_challenge`）等其自动跳转；
     Cloudflare 1020 拒绝页立即报错；连续两次干净检查后取 `HTML_SCRIPT`。
-  - 诊断：`CIMOC_RENDER_TRACE=1` 环境变量把每轮状态与 eval 结果打到 stderr。
+  - 诊断：`MOJUAN_RENDER_TRACE=1` 环境变量把每轮状态与 eval 结果打到 stderr。
 - **探针**（`src-tauri/examples/render_probe.rs`）：live 验证与 fixture 采集。
   - `dump <url> <outfile>` 渲染单页写文件；
   - `crawl <source> <op> <payload>` 走 crawl 全链路；
@@ -76,20 +76,20 @@ cargo run --example render_probe -- chain baozimh baozimh-haizeiwang-weitianrong
 
 tauri/wry 的 `WebviewWindow` 在移动端做不到「隐藏 webview」：Android 每个 activity 只有一个受
 wry 记账的 webview（新建即 `setContentView` 替换整个界面），iOS 创建窗口即显示。所以移动端由
-**自建 tauri 插件**（`desktop/crates/tauri-plugin-cimoc-render/`）自带原生代码实现：
+**自建 tauri 插件**（`desktop/crates/tauri-plugin-mojuan-render/`）自带原生代码实现：
 
 - **Rust 侧**（`src/{lib,mobile,desktop}.rs`）：`init()` 注册插件（Android 经
-  `register_android_plugin("io.github.fw6.cimoc.render", "RenderPlugin")`，iOS 经 `register_ios_plugin`
-  绑定 Swift 的 `init_plugin_cimoc_render`）；`render(app, url)` 走 `run_mobile_plugin("render", ..)`
+  `register_android_plugin("io.github.fw6.mojuan.render", "RenderPlugin")`，iOS 经 `register_ios_plugin`
+  绑定 Swift 的 `init_plugin_mojuan_render`）；`render(app, url)` 走 `run_mobile_plugin("render", ..)`
   同步调用（调用方是 `crawl` 命令的 `spawn_blocking` 线程），static `FLIGHT` 互斥串行化。
-  宿主 setup 里 `init_fetcher(app.handle())` 把它注册给 cimoc-core。
+  宿主 setup 里 `init_fetcher(app.handle())` 把它注册给 mojuan-core。
 - **请求/响应**：请求 `{url, stateScript, htmlScript, pollMs, timeoutMs}`（camelCase，与 Kotlin
   `@InvokeArg` / Swift `Decodable` 字段名严格对齐，`lib.rs` 的 `wire_contract_field_names` 测试固定
   契约）；响应 `{html}`；失败 `reject(可读文案)`，Rust 侧原样呈现。
-- **原生侧**（`android/src/main/java/io/github/fw6/cimoc/render/RenderPlugin.kt`、
+- **原生侧**（`android/src/main/java/io/github/fw6/mojuan/render/RenderPlugin.kt`、
   `ios/Sources/RenderPlugin.swift`）：只做「加载 → 按 `pollMs` 评估 `stateScript` → 拒绝页立即
   reject → 连续两次 `clean` 后取 `htmlScript` → 超时 reject」。挑战页的选择器与标题正则只存在于
-  cimoc-core 的 `STATE_SCRIPT`，原生侧不含任何站点知识；平台差异只留循环细节（复位 about:blank
+  mojuan-core 的 `STATE_SCRIPT`，原生侧不含任何站点知识；平台差异只留循环细节（复位 about:blank
   的等待上限、连续两次干净的次数、视口尺寸）。
   - 离屏 webview 懒创建、单例复用：Android `WebView(activity)` 加进 decorView 后整体位移出可见
     区域；iOS `WKWebView` 插到主视图最底层并位移。**完全不进视图树/窗口的 webview 会被系统当作
@@ -110,10 +110,10 @@ wry 记账的 webview（新建即 `setContentView` 替换整个界面），iOS �
     `WKWebsiteDataStore.default()`），重启应用后仍是已验证状态。
 - **Android 接入细节**：插件 `build.rs` 的 `android_path("android")` 让构建脚本输出
   `cargo:android_library_path`，app 的 `tauri-build` 据此重新生成
-  `gen/android/tauri.settings.gradle`（`include ':tauri-plugin-cimoc-render'`）与
+  `gen/android/tauri.settings.gradle`（`include ':tauri-plugin-mojuan-render'`）与
   `app/tauri.build.gradle.kts`，无需手工改 Gradle。release 混淆下插件类能存活是因为
   tauri-android 的 consumer rules 里 `-keep @app.tauri.annotation.TauriPlugin public class *`
-  与 `@InvokeArg` 两条（R8 mapping 可核对：`io.github.fw6.cimoc.render.RenderPlugin` 保留原名）。
+  与 `@InvokeArg` 两条（R8 mapping 可核对：`io.github.fw6.mojuan.render.RenderPlugin` 保留原名）。
 
 ## 待真机确认（移动端）
 
@@ -122,14 +122,14 @@ wry 记账的 webview（新建即 `setContentView` 替换整个界面），iOS �
 - 挂载式离屏视图的尺寸风险：Android 按 density 换算出 1280 CSS px 的物理尺寸（3x 屏 = 3840px 宽），
   真机上要确认没有内存或绘制上的副作用；渲染进程崩溃与超时都有明确 reject 文案可对照。
 - 验收口径与桌面一致：baozimh 搜索 / 分类 / 详情 / 章节图片全通，nnhanman 首话图片可取；
-  日志过滤（Android `adb logcat -s CimocRender`）可看到每轮状态与 reject 文案。
+  日志过滤（Android `adb logcat -s MojuanRender`）可看到每轮状态与 reject 文案。
 
 ## 维护注意
 
 - 镜像域轮换（cn.baozimh.com → twmanga.com / cn.twbzmg.com 等）由 `page_direct` 中转自动跟随，
   脚本里不硬编码镜像域；只有 `cn.baozimh.com` 是稳定入口。
 - 站点改版时优先跑探针 dump 重新核对结构（搜索卡片 / 详情信息区 / 章节锚 / 阅读页 amp-img）。
-- 验证页形态变化（新挑战标记）时更新 cimoc-core `crawler/render.rs` 的 `STATE_SCRIPT`（桌面与
+- 验证页形态变化（新挑战标记）时更新 mojuan-core `crawler/render.rs` 的 `STATE_SCRIPT`（桌面与
   移动端共用；`crawler/render.rs` 的 QuickJS 测试用页面桩覆盖各形态）；桌面端
-  `CIMOC_RENDER_TRACE=1` 可看到每轮状态，移动端看 logcat / os_log 的 `CimocRender` 标签。
+  `MOJUAN_RENDER_TRACE=1` 可看到每轮状态，移动端看 logcat / os_log 的 `MojuanRender` 标签。
 - 渲染通道是单飞（一次一个页面）：crawl 并发调用在互斥锁排队，整体超时 60 秒。

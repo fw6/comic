@@ -6,7 +6,7 @@
 
 adaptive
 
-Cimoc 的主形态是 Tauri v2 桌面应用（macOS / Windows / Linux），移动端（iOS / Android）为后置里程碑，两者共享同一套 React 前端与 Rust 核心；窄屏（<768px）走移动端布局。
+墨卷的主形态是 Tauri v2 桌面应用（macOS / Windows / Linux），移动端（iOS / Android）为后置里程碑，两者共享同一套 React 前端与 Rust 核心；窄屏（<768px）走移动端布局。
 
 ## Users
 
@@ -40,7 +40,7 @@ Cimoc 的主形态是 Tauri v2 桌面应用（macOS / Windows / Linux），移�
 
 ## Brand Commitments
 
-- 产品名 Cimoc，署名 "Created by Deerflow"。
+- 产品名 墨卷，署名 "Created by Deerflow"。
 - 界面语言为中文。
 - 应用图标是一张水墨侧脸（江南女子的形态：柳叶眉、低垂的杏眼、挽起的髻），通体只有墨与纸；源文件 `desktop/src-tauri/icons/app-icon.svg`，规范见 `DESIGN.md` 的「App Icon」。
 

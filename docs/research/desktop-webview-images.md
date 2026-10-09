@@ -1,14 +1,14 @@
 # Desktop webview 图片加载架构（wayfinder #4）
 
-Ticket: https://github.com/fw6/comic/issues/4 · 迁移背景：mobile Lynx → Tauri 桌面（macOS WKWebView / Windows WebView2 / Linux WebKitGTK）。pstatic.net 有热链保护，图片请求必须带 `Referer`（Android 现状：OkHttp interceptor 补 `https://www.webtoons.com/`，见 `sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingApplication.kt`）。
+Ticket: https://github.com/fw6/mojuan/issues/4 · 迁移背景：mobile Lynx → Tauri 桌面（macOS WKWebView / Windows WebView2 / Linux WebKitGTK）。pstatic.net 有热链保护，图片请求必须带 `Referer`（Android 现状：OkHttp interceptor 补 `https://www.webtoons.com/`，见 `sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingApplication.kt`）。
 
 ## 结论与推荐（TL;DR）
 
 **推荐：混合方案 —— 热链保护来源（pstatic.net）走 Rust 自定义 URI scheme 代理，其余来源保持 `<img>` 直连。**
 
 1. **三平台都无法用同一套 API 给 `<img>` 注入 Referer**：macOS 无任何公开 header 注入 API；Linux 只能通过 WebKitWebProcessExtension 的 `send-request`；仅 Windows WebView2 原生可注入。因此「webview 直连 + 原生注入」做不成跨平台主路径。
-2. **Tauri 的 `register_asynchronous_uri_scheme_protocol` 是唯一三平台一致、且能完全控制请求头的路径**——macOS 走 `setURLSchemeHandler`，Windows 走 `AddWebResourceRequestedFilter`，Linux 走 `webkit_web_context_register_uri_scheme`（Tauri Builder 文档明确注明）。代理里用现有 cimoc-core 的 blocking reqwest（带 Referer）取图，可复用现有磁盘缓存。
-3. **前端只需把热链保护域的图片 `src` 重写为自定义 scheme**（`cimoc-img://pstatic/<原URL>`；Windows 上为 `http://cimoc-img.localhost/<原URL>`），非保护域保持 `https://` 直连，继续享受 webview 自己的 HTTP 缓存。
+2. **Tauri 的 `register_asynchronous_uri_scheme_protocol` 是唯一三平台一致、且能完全控制请求头的路径**——macOS 走 `setURLSchemeHandler`，Windows 走 `AddWebResourceRequestedFilter`，Linux 走 `webkit_web_context_register_uri_scheme`（Tauri Builder 文档明确注明）。代理里用现有 mojuan-core 的 blocking reqwest（带 Referer）取图，可复用现有磁盘缓存。
+3. **前端只需把热链保护域的图片 `src` 重写为自定义 scheme**（`mojuan-img://pstatic/<原URL>`；Windows 上为 `http://mojuan-img.localhost/<原URL>`），非保护域保持 `https://` 直连，继续享受 webview 自己的 HTTP 缓存。
 4. **不要用 base64 IPC**（33% 体积膨胀）；自定义 scheme 返回二进制天然干净，IPC 兜底用 `tauri::ipc::Response` + `InvokeResponseBody::Raw(Vec<u8>)`（JS 侧 ArrayBuffer）。`tauri-plugin-http` 的 JS `fetch` 对 Referer 是 forbidden header，需 `unsafe-headers` feature，且无缓存，只作备选。
 5. 图片格式：WebP 全平台 OK；AVIF 在 macOS 需 Safari 16+（16.4 覆盖 Monterey/Big Sur）、Windows WebView2 为 Chromium（Chrome 85+）、Linux 取决于发行版是否编入 libavif。超长条图需按段切片渲染（解码内存与 GPU 纹理上限约束），Webtoon 页图本就是逐页长条。
 
@@ -48,7 +48,7 @@ Ticket: https://github.com/fw6/comic/issues/4 · 迁移背景：mobile Lynx → 
 - 处理函数签名 `Fn(&str, http::Request<Vec<u8>>) -> http::Response<T>`，响应体为单块 `Cow<'static,[u8]>`；图片体积有界（每页数 MB），单块返回可行；超大图不追求流式。同上链接。
 - **二进制 IPC 而非 base64**：`tauri::ipc::Response` + `InvokeResponseBody::Raw(Vec<u8>)`（"Bytes payload"），JS 侧收 ArrayBuffer，再 `URL.createObjectURL` 喂给 `<img>`。https://docs.rs/tauri/latest/tauri/ipc/enum.InvokeResponseBody.html
 - **流式备选**：官方 Channels 机制（`tauri::ipc::Channel<&[u8]>`，文档示例即「流式 HTTP 响应」），适合分块喂长图。https://v2.tauri.app/develop/calling-rust/（Channels 一节）
-- **HTTP 缓存语义**：自定义 scheme 响应不经过 webview 的 HTTP 缓存，命中/过期语义要由 Rust 侧自己实现——正好复用 cimoc-core 现有 `download_image`（按 `dir/<comicId>/chapter_<n>/<page>.<ext>` 落盘，见 `sparkling-cimoc-bridge/rust/src/native/files.rs`）与 blocking `http::get_bytes`。读多写少：加一层按 URL 的 LRU 内存缓存即可。
+- **HTTP 缓存语义**：自定义 scheme 响应不经过 webview 的 HTTP 缓存，命中/过期语义要由 Rust 侧自己实现——正好复用 mojuan-core 现有 `download_image`（按 `dir/<comicId>/chapter_<n>/<page>.<ext>` 落盘，见 `sparkling-cimoc-bridge/rust/src/native/files.rs`）与 blocking `http::get_bytes`。读多写少：加一层按 URL 的 LRU 内存缓存即可。
 - `tauri-plugin-http`（JS fetch）：Referer 属 Fetch 规范 forbidden header，默认被忽略，须开 `unsafe-headers` feature；且该路径无 webview 缓存、需手动管理 blob 生命周期。可作备选，不作主方案。https://v2.tauri.app/plugin/http-client/
 
 ## 3. 图片格式支持（WebP / AVIF / 超长图）

@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, BookMarked, PanelLeft, Search } from "lucide-react";
-import { cimocVersion } from "../api";
+import { mojuanVersion } from "../api";
 import { cn } from "../lib/utils";
 import { NAV, type NavEntry } from "../lib/nav";
 import { Button } from "./beui/button";
@@ -32,7 +32,7 @@ function pageTitle(pathname: string): string {
     if (pathname.startsWith("/downloads")) return "下载";
     if (pathname.startsWith("/settings")) return "设置";
     if (pathname.startsWith("/comic/")) return "作品详情";
-    return "Cimoc";
+    return "墨卷";
 }
 
 function isActivePath(pathname: string, entry: NavEntry): boolean {
@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
-        void cimocVersion()
+        void mojuanVersion()
             .then(setVersion)
             .catch(() => {});
     }, []);
@@ -124,7 +124,7 @@ function SidebarContent({
                     )}
                 >
                     <div className="truncate text-sm font-semibold leading-tight">
-                        Cimoc
+                        墨卷
                     </div>
                     <div className="truncate text-[11px] text-muted-foreground">
                         漫画阅读器
