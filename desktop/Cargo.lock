@@ -898,7 +898,7 @@ dependencies = [
 
 [[package]]
 name = "desktop"
-version = "1.6.1"
+version = "1.6.2"
 dependencies = [
  "bytes",
  "http-body-util",
@@ -2429,7 +2429,7 @@ dependencies = [
 
 [[package]]
 name = "mojuan-core"
-version = "1.6.1"
+version = "1.6.2"
 dependencies = [
  "base64 0.22.1",
  "percent-encoding",
