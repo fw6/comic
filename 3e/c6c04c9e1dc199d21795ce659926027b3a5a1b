@@ -1,0 +1,21 @@
+docs/agents/tauri-development.md
+  s_2c8205eb720f03::t_3bcdba8e6e54e8 30-32
+docs/roadmap.md
+  s_2c8205eb720f03::t_d70838bdd50043 26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "3ec6c04c9e1dc199d21795ce659926027b3a5a1b",
+  "prompts": {},
+  "sessions": {
+    "s_2c8205eb720f03": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_16151bfe-dfc5-4c29-b6fb-b4364b746c30",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
