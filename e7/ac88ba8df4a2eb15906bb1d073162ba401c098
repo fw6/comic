@@ -1,0 +1,39 @@
+docs/roadmap.md
+  s_2c83af591d91d8::t_6fe86c4b3d6703 40
+  s_2c83af591d91d8::t_d08d819f6f363e 19
+docs/agents/tauri-development.md
+  s_2c83af591d91d8::t_127121bfadb772 43-47
+  s_2c83af591d91d8::t_be0e3e05abf7d0 87-90
+  s_2c83af591d91d8::t_a8e52439e20237 133-135
+  s_2c83af591d91d8::t_d1a7583ff0233e 16-21,23-26
+docs/agents/issue-tracker.md
+  s_2c83af591d91d8::t_5a439bc1dad134 3
+  s_2c83af591d91d8::t_7bc7e95a34de49 20
+updater/README.md
+  s_2c83af591d91d8::t_49c836859566d5 51
+  s_2c83af591d91d8::t_948540eadc7eb4 28-35
+AGENTS.md
+  s_2c83af591d91d8::t_89a42a7c9473b8 15
+docs/research/desktop-webview-images.md
+  s_2c83af591d91d8::t_5e1a93a7d50275 3-7
+desktop/src/components/ProxyImage.test.tsx
+  s_2c83af591d91d8::t_6421231c29f0c9 20,23-24,30
+updater/src/index.js
+  s_2c83af591d91d8::t_06535343d1cffd 9-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "e7ac88ba8df4a2eb15906bb1d073162ba401c098",
+  "prompts": {},
+  "sessions": {
+    "s_2c83af591d91d8": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_489a0504-0445-4521-8829-d8959b18313e",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
