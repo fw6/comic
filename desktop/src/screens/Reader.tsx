@@ -28,12 +28,13 @@ import {
 } from "../api";
 import { filterExternalChapters } from "../lib/chapters";
 import { windowChrome } from "../lib/chrome";
-import { nearBottomByPx, offsetWithinPage, pageIndexAt } from "../lib/scroll";
+import { nearBottomByPx } from "../lib/scroll";
 import { touchHistory } from "../lib/storage/history";
-import { getProgress, setProgress } from "../lib/storage/progress";
 import { getSettings } from "../lib/storage/settings";
 import { cn } from "../lib/utils";
 import { useHoverCapable } from "../lib/hooks/use-hover-capable";
+import { useReaderPosition } from "../lib/hooks/use-reader-position";
+import { virtualizerAdapter } from "../lib/reader-virtualizer";
 import ProxyImage from "../components/ProxyImage";
 import { useToast } from "../components/toast";
 import { Loader } from "../components/beui/loader";
@@ -112,10 +113,10 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const comicRef = useRef<Comic | null>(null);
     const pagesRef = useRef<PageItem[]>([]);
     const currentIdxRef = useRef(0);
-    const chapterIndexRef = useRef(0);
     const loadingRef = useRef(false);
     const loadedChaptersRef = useRef<Set<number>>(new Set());
-    const restoredRef = useRef(false);
+    /** 至少有一张图真的加载过（跨话预取的守卫：初始级联时先别预取下一话）。 */
+    const imageLoadedRef = useRef(false);
     const progressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const viewportHeightRef = useRef(800);
     const lastTopRef = useRef(0);
@@ -127,12 +128,8 @@ export default function Reader({ local = false }: { local?: boolean }) {
     comicRef.current = comic;
     pagesRef.current = pages;
     loadingRef.current = loading;
-    chapterIndexRef.current = Number(chapterIndex);
 
     const { scrollYProgress } = useScroll({ container: containerRef });
-
-    /** 虚拟器测量的页尺寸数组（与 pages 平行；未测/异常的项按 0，与旧 heights 语义一致）。 */
-    const pageSizesRef = useRef<() => number[]>(() => []);
 
     /** 未加载页的预留高度：列宽 × 该源实测中位宽高比。 */
     const estimatePageHeight = useCallback(
@@ -143,6 +140,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
     /** 图片给出真实大小时记录比例，后续未加载页的预留高度随之收敛。 */
     const onNaturalSize = useCallback(
         (width: number, height: number) => {
+            imageLoadedRef.current = true;
             if (!rememberRatio(source, height / width)) return;
             const next = learnedRatio(source);
             // 变化小于 5% 不重建布局，避免边读边抖
@@ -172,65 +170,17 @@ export default function Reader({ local = false }: { local?: boolean }) {
         overscan: overscanPages,
     });
 
-    pageSizesRef.current = () => {
-        // measurementsCache 是稀疏数组（重建期有空洞）；.map 会跳过空洞，
-        // 用 for 循环显式取每项并把空洞/非数值归 0（稠密化），防止 sum 累加 undefined 得 NaN。
-        const cache = virtualizer.measurementsCache;
-        const sizes: number[] = new Array(cache.length);
-        for (let i = 0; i < cache.length; i++) {
-            const s = cache[i]?.size;
-            sizes[i] = typeof s === "number" && Number.isFinite(s) ? s : 0;
-        }
-        return sizes;
-    };
-
-    /**
-     * 恢复上次阅读位置：页面列表就绪后按记录的那一处滚一次。
-     * restoredRef 保证每个实例只恢复一次——跨话连读时追加下一话也会让 pages 变长，
-     * 那时不该把读者拽回旧位置。
-     */
-    useEffect(() => {
-        if (restoredRef.current || pages.length === 0) return;
-        const c = comicRef.current;
-        if (!c) return;
-        let cancelled = false;
-        let raf = 0;
-        let frames = 0;
-        void (async () => {
-            const prog = await getProgress(c.source, c.id);
-            if (cancelled) return;
-            restoredRef.current = true;
-            // 记录的位置属于别的话（从章节列表点进另一话）时不套用
-            if (!prog || prog.chapterIndex !== Number(chapterIndexRef.current)) return;
-            /** 记录点在内容里的像素位置；量不到（内容还没铺开）时返回 null。 */
-            const point = (): number | null => {
-                const chapterIdx = chaptersRef.current.findIndex(
-                    (ch) => ch.index === prog.chapterIndex,
-                );
-                const from = pagesRef.current.findIndex(
-                    (p) => p.chapterIdx === chapterIdx,
-                );
-                const page = virtualizer.measurementsCache[from + prog.pageIndex];
-                if (!page) return null;
-                return page.start + prog.offsetInPage * page.size;
-            };
-            const place = () => {
-                const at = point();
-                if (at === null) {
-                    if (++frames < 30) raf = requestAnimationFrame(place);
-                    return;
-                }
-                // 记录的是视口中心看到的那一处，恢复也把它放回视口中心
-                const half = (containerRef.current?.clientHeight ?? 0) / 2;
-                virtualizer.scrollToOffset(at - half);
-            };
-            place();
-        })();
-        return () => {
-            cancelled = true;
-            cancelAnimationFrame(raf);
-        };
-    }, [pages.length, virtualizer]);
+    // 位置模型：视口中心 ⇄（话序号, 话内页码, 页内位置）。虚拟器经适配面交进去
+    // （measurementsCache 的稀疏稠密化在 reader-virtualizer.ts）。
+    const positionAdapter = useMemo(() => virtualizerAdapter(virtualizer), [virtualizer]);
+    const { record } = useReaderPosition({
+        container: containerRef,
+        virtualizer: positionAdapter,
+        pages,
+        chapters,
+        comic,
+        chapterIndex: Number(chapterIndex),
+    });
 
     /** 阅读列宽度（决定估算高度与最小高度）。 */
     useEffect(() => {
@@ -307,29 +257,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
         [source, id, local, toast],
     );
 
-    /** 按视口中心计算（章节, 话内页码, 页内位置）并写入进度 + 历史。 */
-    const recordProgress = useCallback(() => {
-        const el = containerRef.current;
-        const c = comicRef.current;
-        const chs = chaptersRef.current;
-        const pgs = pagesRef.current;
-        const sizes = pageSizesRef.current();
-        if (!el || !c || chs.length === 0 || pgs.length === 0 || sizes.length === 0)
-            return;
-        const center = el.scrollTop + el.clientHeight / 2;
-        const pageIdx = Math.min(pageIndexAt(center, sizes), pgs.length - 1);
-        const chapterIdx = pgs[pageIdx].chapterIdx;
-        const from = pgs.findIndex((p) => p.chapterIdx === chapterIdx);
-        void setProgress(c.source, c.id, {
-            chapterIndex: chs[chapterIdx].index,
-            pageIndex: pageIdx - from,
-            offsetInPage: offsetWithinPage(center, sizes, pageIdx),
-            updatedAt: Date.now(),
-        });
-        // 本地阅读不写历史（#19：离线拿不到真实标题，历史 tab 保持链在线 reader）
-        if (!local) void touchHistory(c, chs[chapterIdx].index);
-    }, [local]);
-
     /** 顶栏显隐只在值真的变化时写入 state（滚动事件里省掉无谓的重渲染）。 */
     const setChrome = useCallback((visible: boolean) => {
         if (chromeRef.current === visible) return;
@@ -375,7 +302,8 @@ export default function Reader({ local = false }: { local?: boolean }) {
             const node = containerRef.current;
             if (!node) return;
             const { scrollTop, clientHeight, scrollHeight } = node;
-            // 跨话连续：距底不足两屏且有下一话（至少一页真实测量过，防初始级联）→ 预取下一话
+            // 跨话连续：距底不足两屏且有下一话（至少一张图加载过，防初始级联）→ 预取下一话。
+            // 判据用图片加载而不是虚拟器的 itemSizeCache：实测高度与估算相等时那个 Map 不会写入。
             if (
                 nearBottomByPx(
                     scrollTop,
@@ -384,13 +312,16 @@ export default function Reader({ local = false }: { local?: boolean }) {
                     viewportHeightRef.current * PREFETCH_SCREENS,
                 ) &&
                 currentIdxRef.current < chaptersRef.current.length - 1 &&
-                virtualizer.itemSizeCache.size > 0
+                imageLoadedRef.current
             ) {
                 void appendChapter(currentIdxRef.current + 1);
             }
-            recordProgress();
+            const at = record();
+            const c = comicRef.current;
+            // 本地阅读不写历史（#19：离线拿不到真实标题，历史 tab 保持链在线 reader）
+            if (at && c && !local) void touchHistory(c, at.chapterIndex);
         }, 250);
-    }, [appendChapter, recordProgress, virtualizer, setChrome, wakeCursor]);
+    }, [appendChapter, record, local, setChrome, wakeCursor]);
 
     // 进入：加载详情（漫画 + 过滤后章节）+ 首章图片，并记一条历史
     // 换话时这个 effect 会重跑（chapterIndex 在依赖里），但不重置 ready：
