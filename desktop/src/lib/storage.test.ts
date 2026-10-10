@@ -118,12 +118,14 @@ describe("进度 progress", () => {
     it("setProgress 后 getProgress 可读回，键按 source:comicId 隔离", async () => {
         await setProgress("mangadex", "c1", {
             chapterIndex: 3,
-            position: 0.5,
+            pageIndex: 4,
+            offsetInPage: 0.5,
             updatedAt: 1000,
         });
         await expect(getProgress("mangadex", "c1")).resolves.toEqual({
             chapterIndex: 3,
-            position: 0.5,
+            pageIndex: 4,
+            offsetInPage: 0.5,
             updatedAt: 1000,
         });
         await expect(getProgress("mangadex", "c2")).resolves.toBeNull();
@@ -133,17 +135,20 @@ describe("进度 progress", () => {
     it("重读覆盖旧进度", async () => {
         await setProgress("mangadex", "c1", {
             chapterIndex: 1,
-            position: 0.2,
+            pageIndex: 0,
+            offsetInPage: 0.2,
             updatedAt: 100,
         });
         await setProgress("mangadex", "c1", {
             chapterIndex: 2,
-            position: 0.8,
+            pageIndex: 7,
+            offsetInPage: 0.8,
             updatedAt: 200,
         });
         await expect(getProgress("mangadex", "c1")).resolves.toMatchObject({
             chapterIndex: 2,
-            position: 0.8,
+            pageIndex: 7,
+            offsetInPage: 0.8,
         });
     });
 });
@@ -228,7 +233,8 @@ describe("WebDAV 备份/恢复（wayfinder #24/#25）", () => {
         await touchHistory(comic("b", "webtoons"), 2);
         await setProgress("mangadex", "a", {
             chapterIndex: 3,
-            position: 0.5,
+            pageIndex: 4,
+            offsetInPage: 0.5,
             updatedAt: 1000,
         });
         const json = await exportBackupJson();
@@ -237,7 +243,10 @@ describe("WebDAV 备份/恢复（wayfinder #24/#25）", () => {
         expect(typeof data.exportedAt).toBe("number");
         expect(data.favorites[comicKey("mangadex", "a")].title).toBe("作品 a");
         expect(data.history[comicKey("webtoons", "b")].chapterIndex).toBe(2);
-        expect(data.progress[comicKey("mangadex", "a")].position).toBe(0.5);
+        expect(data.progress[comicKey("mangadex", "a")]).toMatchObject({
+            pageIndex: 4,
+            offsetInPage: 0.5,
+        });
     });
 
     it("parseBackupJson 接受当前版本、拒绝其他版本", () => {
@@ -269,7 +278,8 @@ describe("WebDAV 备份/恢复（wayfinder #24/#25）", () => {
             progress: {
                 [comicKey("mangadex", "new")]: {
                     chapterIndex: 7,
-                    position: 0.9,
+                    pageIndex: 3,
+                    offsetInPage: 0.9,
                     updatedAt: 3000,
                 },
             },

@@ -89,7 +89,13 @@ function effBg(el) {
     }
     n = n.parentElement;
   }
-  let out = { r: 255, g: 255, b: 255, a: 1 };
+  // 一路找到顶都没有不透明底色时用主题底色兜底：有窗口材质的平台上侧边栏是透明的，它下面那层
+  // 系统材质按窗口外观取明暗，与主题底色同一明暗档（见 DESIGN.md 的「窗口材质」）；
+  // 假定白色会在深色主题下把浅色文字算成 1.1:1 的假阳性。
+  const themeBg = getComputedStyle(document.documentElement)
+    .getPropertyValue("--background")
+    .trim();
+  let out = { ...toRgb(themeBg), a: 1 };
   for (let i = layers.length - 1; i >= 0; i--) out = over(layers[i], out);
   return out;
 }

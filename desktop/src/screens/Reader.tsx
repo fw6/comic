@@ -27,7 +27,8 @@ import {
     type Comic,
 } from "../api";
 import { filterExternalChapters } from "../lib/chapters";
-import { nearBottomByPx, pageIndexAt, positionWithinChapter } from "../lib/scroll";
+import { windowChrome } from "../lib/chrome";
+import { nearBottomByPx, offsetWithinPage, pageIndexAt } from "../lib/scroll";
 import { getProgress, getSettings, setProgress, touchHistory } from "../lib/storage";
 import { cn } from "../lib/utils";
 import { useHoverCapable } from "../lib/hooks/use-hover-capable";
@@ -87,6 +88,11 @@ export default function Reader({ local = false }: { local?: boolean }) {
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [pages, setPages] = useState<PageItem[]>([]);
     const [loading, setLoading] = useState(false);
+    // 首次进入的加载：ready 之前连章节列表都还没有，画布上没有任何页面；
+    // bootFailed 覆盖详情与首章图片两处失败（都要给得出重试，否则只剩一个空画布）
+    const [ready, setReady] = useState(false);
+    const [bootFailed, setBootFailed] = useState(false);
+    const [retryKey, setRetryKey] = useState(0);
     const [fullscreen, setFullscreen] = useState(false);
     const [autoTrim, setAutoTrim] = useState(false);
     const [columnWidth, setColumnWidth] = useState(720);
@@ -162,24 +168,6 @@ export default function Reader({ local = false }: { local?: boolean }) {
         getScrollElement: () => containerRef.current,
         estimateSize: () => estimatePageHeight(columnWidth),
         overscan: overscanPages,
-        // 每次虚拟器更新（含测量变化）尝试一次进度恢复；restoredRef 保证只执行一次。
-        onChange: () => {
-            if (restoredRef.current) return;
-            const c = comicRef.current;
-            const pgs = pagesRef.current;
-            if (!c || pgs.length === 0) return;
-            // 等虚拟器至少对一页完成真实测量（图片加载前高度为预留值）
-            if (virtualizer.itemSizeCache.size === 0) return;
-            void (async () => {
-                const prog = await getProgress(c.source, c.id);
-                if (!prog) return;
-                if (prog.chapterIndex !== Number(chapterIndexRef.current)) return; // 换章不套用旧进度
-                const total = pageSizesRef.current().reduce((a, b) => a + b, 0);
-                if (total <= 0) return;
-                restoredRef.current = true;
-                virtualizer.scrollToOffset(Math.min(total, prog.position * total));
-            })();
-        },
     });
 
     pageSizesRef.current = () => {
@@ -193,6 +181,54 @@ export default function Reader({ local = false }: { local?: boolean }) {
         }
         return sizes;
     };
+
+    /**
+     * 恢复上次阅读位置：页面列表就绪后按记录的那一处滚一次。
+     * restoredRef 保证每个实例只恢复一次——跨话连读时追加下一话也会让 pages 变长，
+     * 那时不该把读者拽回旧位置。
+     */
+    useEffect(() => {
+        if (restoredRef.current || pages.length === 0) return;
+        const c = comicRef.current;
+        if (!c) return;
+        let cancelled = false;
+        let raf = 0;
+        let frames = 0;
+        void (async () => {
+            const prog = await getProgress(c.source, c.id);
+            if (cancelled) return;
+            restoredRef.current = true;
+            // 记录的位置属于别的话（从章节列表点进另一话）时不套用
+            if (!prog || prog.chapterIndex !== Number(chapterIndexRef.current)) return;
+            /** 记录点在内容里的像素位置；量不到（内容还没铺开）时返回 null。 */
+            const point = (): number | null => {
+                const chapterIdx = chaptersRef.current.findIndex(
+                    (ch) => ch.index === prog.chapterIndex,
+                );
+                const from = pagesRef.current.findIndex(
+                    (p) => p.chapterIdx === chapterIdx,
+                );
+                const page = virtualizer.measurementsCache[from + prog.pageIndex];
+                if (!page) return null;
+                return page.start + prog.offsetInPage * page.size;
+            };
+            const place = () => {
+                const at = point();
+                if (at === null) {
+                    if (++frames < 30) raf = requestAnimationFrame(place);
+                    return;
+                }
+                // 记录的是视口中心看到的那一处，恢复也把它放回视口中心
+                const half = (containerRef.current?.clientHeight ?? 0) / 2;
+                virtualizer.scrollToOffset(at - half);
+            };
+            place();
+        })();
+        return () => {
+            cancelled = true;
+            cancelAnimationFrame(raf);
+        };
+    }, [pages.length, virtualizer]);
 
     /** 阅读列宽度（决定估算高度与最小高度）。 */
     useEffect(() => {
@@ -251,10 +287,16 @@ export default function Reader({ local = false }: { local?: boolean }) {
                 pagesRef.current = next;
                 setPages(next);
                 currentIdxRef.current = chapterIdx;
+                setBootFailed(false);
             } catch (err) {
                 loadedChaptersRef.current.delete(chapterIdx);
                 console.error(err);
-                toast.show("这一话加载失败，滚动到底部可重试", "error");
+                // 首章失败：画布上还没有任何页面，只弹 toast 给不出能点的重试
+                if (pagesRef.current.length === 0) {
+                    setBootFailed(true);
+                } else {
+                    toast.show("这一话加载失败，滚动到底部可重试", "error");
+                }
             } finally {
                 loadingRef.current = false;
                 setLoading(false);
@@ -263,7 +305,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
         [source, id, local, toast],
     );
 
-    /** 按视口中心计算（章节, 话内位置）并写入进度 + 历史。 */
+    /** 按视口中心计算（章节, 话内页码, 页内位置）并写入进度 + 历史。 */
     const recordProgress = useCallback(() => {
         const el = containerRef.current;
         const c = comicRef.current;
@@ -276,12 +318,10 @@ export default function Reader({ local = false }: { local?: boolean }) {
         const pageIdx = Math.min(pageIndexAt(center, sizes), pgs.length - 1);
         const chapterIdx = pgs[pageIdx].chapterIdx;
         const from = pgs.findIndex((p) => p.chapterIdx === chapterIdx);
-        let to = from;
-        while (to < pgs.length && pgs[to].chapterIdx === chapterIdx) to++;
-        const position = positionWithinChapter(center, sizes, from, to);
         void setProgress(c.source, c.id, {
             chapterIndex: chs[chapterIdx].index,
-            position,
+            pageIndex: pageIdx - from,
+            offsetInPage: offsetWithinPage(center, sizes, pageIdx),
             updatedAt: Date.now(),
         });
         // 本地阅读不写历史（#19：离线拿不到真实标题，历史 tab 保持链在线 reader）
@@ -351,14 +391,21 @@ export default function Reader({ local = false }: { local?: boolean }) {
     }, [appendChapter, recordProgress, virtualizer, setChrome, wakeCursor]);
 
     // 进入：加载详情（漫画 + 过滤后章节）+ 首章图片，并记一条历史
+    // 换话时这个 effect 会重跑（chapterIndex 在依赖里），但不重置 ready：
+    // 那时画面上已有上一话的页面，回到加载态反而会把读着的内容换成加载动画
     useEffect(() => {
         let cancelled = false;
-        (async () => {
+        setBootFailed(false);
+        /** 首次加载：详情（或本地目录清单）+ 首章图片。失败记进 bootFailed，界面给重试。 */
+        const boot = async () => {
             if (local) {
                 // 本地模式：不联网，章节与页面来自下载目录（wayfinder #19）
                 const settings = await getSettings();
                 const dir = settings.downloadDir;
-                if (!dir) return;
+                if (!dir) {
+                    if (!cancelled) setReady(true);
+                    return;
+                }
                 const listed = await listDownloaded(dir, source!, id);
                 const chs: Chapter[] = Object.entries(listed)
                     .map(([idx, pages]) => ({
@@ -395,6 +442,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
                 chaptersRef.current = chs;
                 setComic(comic);
                 setChapters(chs);
+                setReady(true);
                 currentIdxRef.current = target;
                 loadingRef.current = false;
                 await appendChapter(target);
@@ -415,16 +463,21 @@ export default function Reader({ local = false }: { local?: boolean }) {
             chaptersRef.current = chs;
             setComic(d.comic);
             setChapters(chs);
+            setReady(true);
             currentIdxRef.current = target;
             void touchHistory(d.comic, chs[target]?.index ?? 0);
             loadingRef.current = false;
             await appendChapter(target);
-        })();
+        };
+        void boot().catch((err) => {
+            console.error(err);
+            if (!cancelled) setBootFailed(true);
+        });
         return () => {
             cancelled = true;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [source, id, chapterIndex, local]);
+    }, [source, id, chapterIndex, local, retryKey]);
 
     // 全屏（grilling #6）：隐藏窗口边框与标题栏；Esc 退出。
     // 进全屏即收起顶栏（点画面可唤回），退出全屏把顶栏交还出来。
@@ -448,6 +501,13 @@ export default function Reader({ local = false }: { local?: boolean }) {
     // 自动裁边（设置项）：页面略放大，裁掉边缘空白
     useEffect(() => {
         void getSettings().then((s) => setAutoTrim(s.autoTrim));
+    }, []);
+
+    /** 首次加载失败后的重试：清掉失败标记、让加载 effect 重跑一遍。 */
+    const retryBoot = useCallback(() => {
+        setBootFailed(false);
+        setReady(false);
+        setRetryKey((k) => k + 1);
     }, []);
 
     // 卸载时清掉两个防抖计时器，并把窗口还原——否则从全屏的阅读器返回，
@@ -498,7 +558,26 @@ export default function Reader({ local = false }: { local?: boolean }) {
                     cursorIdle && "cursor-none",
                 )}
             >
-                {chapters.length === 0 ? (
+                {bootFailed ? (
+                    <div className="flex flex-col items-center justify-center gap-3 px-6 py-20 text-center">
+                        <AlertTriangle className="size-8 text-reader-muted" />
+                        <p className="text-sm text-reader-muted">
+                            章节加载失败，检查网络后重试
+                        </p>
+                        <ReaderButton onClick={retryBoot}>重试</ReaderButton>
+                    </div>
+                ) : !ready || (pages.length === 0 && loading) ? (
+                    // 首次进入：详情与首章图片都还没到，画布上还没有任何页面
+                    <div className="flex flex-col items-center justify-center gap-3 px-6 py-24 text-center">
+                        <Loader
+                            variant="dots"
+                            size={22}
+                            label="正在加载章节"
+                            className="text-reader-muted"
+                        />
+                        <p className="text-sm text-reader-muted">正在加载章节…</p>
+                    </div>
+                ) : chapters.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-3 px-6 py-20 text-center">
                         <BookOpen className="size-8 text-reader-muted" />
                         <p className="text-sm text-reader-muted">
@@ -558,6 +637,7 @@ export default function Reader({ local = false }: { local?: boolean }) {
                                     variant="dots"
                                     size={18}
                                     label="正在加载下一话"
+                                    className="text-reader-muted"
                                 />
                                 正在加载下一话…
                             </div>
@@ -587,6 +667,9 @@ export default function Reader({ local = false }: { local?: boolean }) {
             <header
                 className={cn(
                     "absolute inset-x-0 top-0 z-30 flex items-center gap-2 border-b border-reader-border bg-reader-canvas/80 px-2 py-1.5 backdrop-blur-md",
+                    // macOS 的红黄绿浮在 webview 上（titleBarStyle: Overlay），占 x 9–68.5，
+                    // 阅读器没有侧边栏、顶栏从窗口左边缘开始，返回按钮与作品名会压在按钮组底下
+                    windowChrome() === "macos" && "pl-19",
                     "transition-[opacity,translate] duration-200 ease-out",
                     chromeVisible
                         ? "translate-y-0 opacity-100"
@@ -685,6 +768,7 @@ function ReaderPage({
                             variant="dots"
                             size={18}
                             label={`第 ${index + 1} 页加载中`}
+                            className="text-reader-muted"
                         />
                         <span className="text-[11px] tabular-nums">
                             第 {index + 1} 页

@@ -36,6 +36,24 @@
     --reader-foreground: oklch(93% 0 0);
     --reader-muted: oklch(64% 0 0);
     --reader-border: rgb(255 255 255 / 0.1);
+    /* 应用标记的纸：标记通体只有墨与纸两色，纸色是标记自身的一部分，两套主题共用 */
+    --paper: #f6f3ec;
+    /* 侧边栏面板的底色：默认与页面底色一致；有窗口材质的平台改由系统材质承担（见下方 data-chrome） */
+    --sidebar: var(--background);
+}
+
+/* 有窗口材质的平台（macOS 的 vibrancy / Windows 的 acrylic，见 src-tauri/tauri.macos.conf.json
+   与 tauri.windows.conf.json）：窗口背景交给系统材质，页面与侧边栏面板都不再铺底色，
+   材质从下面透出来；内容区（AnimatedSidebarInset）照旧实底，漫画与文字不落在材质上。
+   平台由 index.html 在首帧之前写到 html[data-chrome] 上。 */
+html[data-chrome="macos"],
+html[data-chrome="windows"] {
+    --sidebar: transparent;
+}
+
+html[data-chrome="macos"] body,
+html[data-chrome="windows"] body {
+    background: transparent;
 }
 
 [data-theme="dark"] {
@@ -95,6 +113,8 @@
     --color-reader-foreground: var(--reader-foreground);
     --color-reader-muted: var(--reader-muted);
     --color-reader-border: var(--reader-border);
+    --color-paper: var(--paper);
+    --color-sidebar: var(--sidebar);
 
     /* 中文界面用系统字体：PingFang SC / 微软雅黑 接在 Latin 字体之后 */
     --font-sans: ui-sans-serif, system-ui, -apple-system, "PingFang SC",

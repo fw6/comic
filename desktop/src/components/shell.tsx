@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookMarked, PanelLeft, Search } from "lucide-react";
+import { ArrowLeft, PanelLeft, Search } from "lucide-react";
 import { mojuanVersion } from "../api";
+import { windowChrome } from "../lib/chrome";
 import { cn } from "../lib/utils";
 import { NAV, type NavEntry } from "../lib/nav";
 import { Button } from "./beui/button";
@@ -59,6 +60,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
     return (
         <AnimatedSidebarProvider className="h-full">
+            {/* macOS 的标题栏让给了界面（titleBarStyle: Overlay），系统不再提供拖拽区，
+                所以自己铺一条：整窗宽、28px 高，正好是红黄绿那一行。
+                红黄绿是原生按钮、在 webview 之上，落在这一条里仍然点得到。 */}
+            {!immersive && windowChrome() === "macos" ? (
+                <div data-tauri-drag-region className="fixed inset-x-0 top-0 z-20 h-7" />
+            ) : null}
+
             {immersive ? null : (
                 <AnimatedSidebar ariaLabel="主导航">
                     <SidebarContent
@@ -113,14 +121,29 @@ function SidebarContent({
     const { open } = useAnimatedSidebar();
     return (
         <>
-            <AnimatedSidebarHeader className="flex-row items-center gap-2 p-2.5">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                    <BookMarked className="size-4.5" />
-                </span>
+            <AnimatedSidebarHeader
+                className={cn(
+                    "gap-2 p-2.5",
+                    // 展开时一行：[标记][名称][收起按钮]，标记的左边缘与导航项的图标同一列（20px）；
+                    // 折叠成图标轨道时改成一列居中：标记下面就是展开按钮，轨道里才有入口
+                    open ? "flex-row items-center pl-5" : "flex-col items-center",
+                    // macOS 的红黄绿浮在 webview 上（titleBarStyle: Overlay），
+                    // 侧边栏顶部要让出这一条，品牌行才不压在按钮底下
+                    windowChrome() === "macos" && "pt-9.5",
+                )}
+            >
+                {/* 品牌标记就是应用图标本身，放在纸色方块上：标记是墨与纸，纸不能随主题走，
+                    否则深色底上纸色的脸会盖过墨（见 DESIGN.md 的 App Icon）。 */}
+                <img
+                    src="/app-icon.svg"
+                    alt=""
+                    className="size-9 shrink-0 rounded-xl bg-paper"
+                />
                 <div
                     className={cn(
                         "min-w-0 flex-1 overflow-hidden transition-opacity duration-200",
-                        open ? "opacity-100" : "opacity-0",
+                        // 折叠时移出布局：留着宽度会把标记和按钮挤偏，居中就落不到轨道中心
+                        open ? "opacity-100" : "hidden",
                     )}
                 >
                     <div className="truncate text-sm font-semibold leading-tight">
@@ -132,7 +155,12 @@ function SidebarContent({
                 </div>
                 <AnimatedSidebarTrigger
                     aria-label="收起/展开侧边栏"
-                    className="ml-auto text-muted-foreground hover:text-foreground"
+                    className={cn(
+                        // 折叠后这是轨道里唯一的开关，按 DESIGN.md 的 Ghost 给一个悬停底色，
+                        // 否则一个只有描边没有底色的图标看起来不像是能点的
+                        "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                        open && "ml-auto",
+                    )}
                 >
                     <PanelLeft className="size-4" />
                 </AnimatedSidebarTrigger>
@@ -143,9 +171,12 @@ function SidebarContent({
                     {NAV.map((entry) => (
                         <AnimatedSidebarMenuItem key={entry.to}>
                             <AnimatedSidebarMenuButton
-                                icon={<entry.icon />}
+                                // lucide 默认 24px，会撑破侧边栏 16px 的图标位并压低 2px（DESIGN.md 的 Navigation）
+                                icon={<entry.icon className="size-4" />}
                                 href={`#${entry.to}`}
                                 isActive={isActivePath(pathname, entry)}
+                                // 折叠轨道里只有图标，居中落在轨道中心（与红黄绿同一轴）
+                                className={cn(!open && "justify-center")}
                             >
                                 {entry.label}
                             </AnimatedSidebarMenuButton>

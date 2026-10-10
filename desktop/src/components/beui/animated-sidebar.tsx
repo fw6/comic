@@ -284,7 +284,7 @@ export function AnimatedSidebarProvider({
         data-state={desktopOpen ? "expanded" : "collapsed"}
         style={{
           "--sidebar-width": "16rem",
-          "--sidebar-width-icon": "4.25rem",
+          "--sidebar-width-icon": "4.875rem",
           "--sidebar-width-mobile": "18rem",
           ...style,
         }}
@@ -562,7 +562,7 @@ export const AnimatedSidebar = forwardRef<HTMLElement, AnimatedSidebarProps>(
             context.reduce ? REDUCED_TRANSITION : PANEL_TRANSITION
           }
           className={cn(
-            "sticky top-0 flex h-svh w-full flex-col overflow-hidden bg-background",
+            "sticky top-0 flex h-svh w-full flex-col overflow-hidden bg-sidebar",
             collapsible === "offcanvas" && "w-[var(--sidebar-width)]",
             variant === "sidebar" &&
               (side === "left" ? "border-border border-r" : "border-border border-l"),
@@ -1074,7 +1074,7 @@ export function AnimatedSidebarMenuButton({
       {icon ? (
         <span
           aria-hidden="true"
-          className="relative z-10 grid size-5 shrink-0 place-items-center"
+          className="relative z-10 grid size-4 shrink-0 place-items-center"
         >
           {icon}
         </span>
@@ -1095,7 +1095,7 @@ export function AnimatedSidebarMenuButton({
         aria-hidden={panel.collapsed}
         className={cn(
           "relative z-10 min-w-0 flex-1 truncate",
-          panel.collapsed && "pointer-events-none",
+          panel.collapsed && "hidden",
         )}
       >
         {children}

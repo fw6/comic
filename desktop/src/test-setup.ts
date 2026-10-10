@@ -48,3 +48,15 @@ if (typeof globalThis.ResizeObserver === "undefined") {
 /** jsdom 的 window.scrollTo 是「未实现」占位（调用只打警告）；BottomSheet 的滚动锁
  * 在关闭时调用它恢复位置，这里换成空实现。 */
 window.scrollTo = (() => {}) as typeof window.scrollTo;
+
+/** jsdom 也没有 Element.scrollTo（虚拟列表用它滚动、阅读器恢复阅读位置也走它）。
+ * 补成「写 scrollTop」——浏览器里这一步就是滚动容器，读 scrollTop 即可观察。 */
+Element.prototype.scrollTo = function (
+    this: Element,
+    optionsOrX?: ScrollToOptions | number,
+    y?: number,
+): void {
+    const top =
+        typeof optionsOrX === "object" ? optionsOrX?.top : y;
+    if (typeof top === "number") this.scrollTop = top;
+} as typeof Element.prototype.scrollTo;

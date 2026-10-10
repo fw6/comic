@@ -84,7 +84,7 @@
 ### 1.6 性能评估：移动端 JSON 每次落盘可接受
 
 - **写频次**：progress 滚动防抖 250ms（`desktop/src/screens/Reader.tsx` `onScroll`），最坏 4 次/秒；favorites/history/settings 均为低频操作。桌面现状 store 是 100ms debounce，量级相当。
-- **文件大小**：progress.json = 每个漫画一条 `{chapterIndex, position, updatedAt}` ≈ 80–150 B/条；收藏 1000 部 ≈ 200–400 KB；全量 `JSON.stringify` + 写盘在移动端 <1ms 级（内存序列化 + 单次小文件写）。每次 `set` 都是全文件重写，但文件小、频次低，无压力。
+- **文件大小**：progress.json = 每个漫画一条 `{chapterIndex, pageIndex, offsetInPage, updatedAt}` ≈ 80–150 B/条；收藏 1000 部 ≈ 200–400 KB；全量 `JSON.stringify` + 写盘在移动端 <1ms 级（内存序列化 + 单次小文件写）。每次 `set` 都是全文件重写，但文件小、频次低，无压力。
 - **写串行化**：同一域多 `set` 并发时需排队（防止读-改-写交错丢数据），§1.7 骨架用 per-file Promise 链实现。
 - **SQLite vs JSON**：grilling #29 已定 JSON；数据模型（每域扁平 key-value、全量导出备份）不需要关系查询，引 SQLite 反而引入新依赖与移动端原生编译成本。JSON 方案保持与桌面备份/恢复逻辑（`exportBackupJson`/`importBackupData`）完全复用。
 

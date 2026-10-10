@@ -7,6 +7,16 @@
     <meta name="theme-color" content="#fcfcfc" />
     <meta name="theme-color" content="#151515" media="(prefers-color-scheme: dark)" />
     <title>墨卷 漫画阅读器</title>
+    <script>
+      // 窗口材质（macOS 的 vibrancy / Windows 的 acrylic）由平台配置打开，窗口背景交给系统。
+      // 这里在首帧之前定下平台，界面据此决定谁铺底色——放到模块里跑会先渲染一帧实底再变透明。
+      // iOS 的 user agent 里是 "Mac OS X" 而不是 "Macintosh"，所以这条不会把 iPad 认成桌面端。
+      document.documentElement.dataset.chrome = navigator.userAgent.includes("Macintosh")
+        ? "macos"
+        : navigator.userAgent.includes("Windows NT")
+          ? "windows"
+          : "none";
+    </script>
   </head>
 
   <body>

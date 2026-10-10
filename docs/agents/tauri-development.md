@@ -96,6 +96,26 @@
 模拟器带 Play 商店时，安装前会弹 Play Protect 的「扫描应用」，挡住系统确认界面；
 `adb shell pm disable-user --user 0 com.android.vending` 关掉它即可（验完 `pm enable` 还原）。
 
+## 窗口外壳（窗口材质 / 透明 titlebar）
+
+窗口的透明与材质按平台分开配：`tauri.conf.json` 里那份窗口定义是不带材质的兜底（Linux、Android、
+iOS 用它），材质写在平台配置里。
+
+- `tauri.macos.conf.json`：`titleBarStyle: "Overlay"` + `transparent: true` +
+  `windowEffects.effects: ["sidebar"]`（vibrancy，状态 `followsWindowActiveState`）。
+- `tauri.windows.conf.json`：`transparent: true` + `windowEffects.effects: ["acrylic"]`。
+
+`app.macOSPrivateApi: true` 必须写在**基座**配置里：macOS 上的 `transparent` 要求
+`macos-private-api` 这个 cargo feature，而它是构建脚本按配置里这个字段打开的
+（tauri-utils 的 `AppConfig::features()`），写在平台配置里构建脚本读不到。tauri CLI 会顺带把
+`features = ["macos-private-api"]` 写进 `src-tauri/Cargo.toml`（跑一次 `tauri dev` 就会出现），
+两边同时在是正常状态。该 feature 只是打开 `wry/transparent` 与 `wry/fullscreen`，这两个都是空
+feature 且只在 `wkwebview`（macOS）里用到，在别的平台上不产生代码。
+
+前端配合：`index.html` 在首帧之前把平台写到 `html[data-chrome]`（macos / windows / none），
+`src/styles/beui.css` 的 `data-chrome` 段据此让 `--sidebar` 与 `body` 透明，`src/lib/chrome.ts`
+给组件读这个标记。谁透明谁实底、材质怎么跟随主题，见 `DESIGN.md` 的「窗口材质」。
+
 ## 坑（Gotchas）
 
 1. **Tauri 同步命令在主线程执行**：阻塞式 reqwest 必须放 async 命令 + `tauri::async_runtime::spawn_blocking`，否则冻结 UI。
@@ -137,3 +157,28 @@
     全屏按钮走 `getCurrentWindow().setFullscreen()`，缺 `core:window:allow-set-fullscreen` 时
     前端只收到 `window.set_fullscreen not allowed`，按钮点了没有任何反应，错误也只在 webview
     控制台里出现。
+12. **平台配置是 JSON Merge Patch，数组整体替换**：`tauri.macos.conf.json` 与
+    `tauri.windows.conf.json` 里的 `app.windows` 会整段换掉基座里的那份（tauri-utils 用
+    `json_patch::merge`），所以平台文件要把 `title` / `width` / `height` 一起写全；改窗口尺寸是
+    三处一起改。漏改的表现是某个平台上窗口尺寸悄悄停在旧值。
+13. **`windowEffects` 只在 macOS 与 Windows 有实现**：tauri 的 `vibrancy` 模块只有 `macos.rs` 与
+    `windows.rs`，别的平台上 `set_window_effects` 什么都不做；而效果要求窗口 `transparent: true`，
+    所以在没有实现的平台开透明，等于把窗口背景直接交给桌面（露出未模糊的桌面）。效果失败的报错
+    也被吞掉（`apply_effects` 返回 `()`），只有跑起来才看得出来。
+14. **`titleBarStyle: "Overlay"` 才会让 webview 铺满整窗**：默认的 `Visible` 同样是
+    `fullsizeContentView`，但 webview 仍让出 32px 给标题栏（`innerHeight` 比窗口高度少 32），
+    实测方式是对比 `getCurrentWindow().innerSize()` 与 `window.innerHeight`。Overlay 之后红黄绿浮在
+    界面左上角，侧边栏顶部要让位（`shell.tsx` 的 `pt-9.5`）；代价是 Overlay 下未获得焦点的窗口
+    拖不动（<https://github.com/tauri-apps/tauri/issues/4316>）。
+15. **系统材质按窗口外观取明暗，不跟 `html[data-theme]`**：应用自己的深浅色设置改了窗口外观
+    不会跟着变，要显式 `getCurrentWindow().setTheme(...)`（权限
+    `core:window:allow-set-theme`），否则深色界面会配上一块浅色材质。
+16. **`Overlay` 既不隐藏标题，也不给拖拽区**：tao 的 `titlebar_transparent` 与 `title_hidden`
+    是两个开关，tauri 的 `TitleBarStyle::Overlay` 只设前者，所以窗口标题照旧画在红黄绿旁边——
+    要在平台配置里写 `"hiddenTitle": true`（`WindowConfig` 是
+    `rename_all = "camelCase", deny_unknown_fields`，键名写错启动就报错；`gen/schemas` 里
+    没有这个键，别拿那份 schema 当依据）。拖拽同理：Overlay 之后 webview 铺满整窗，系统标题栏
+    的拖拽没了，界面要自己铺一条 `data-tauri-drag-region`（`shell.tsx` 里整窗宽 28px 的那条），
+    并给 `core:window:allow-start-dragging` 权限（`core:window:default` 里没有）。注意这个属性
+    **只作用在挂它的元素上**，子元素要各自挂；红黄绿是原生按钮、在 webview 之上，压在拖拽条上
+    仍然点得到。

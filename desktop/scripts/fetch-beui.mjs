@@ -106,6 +106,27 @@ const PATCHES = {
                 'className={cn(\n          "relative z-10 inline-flex items-center justify-center whitespace-nowrap bg-transparent px-3.5 py-1.5 text-sm font-medium outline-none",',
                 'className={cn(\n          "relative z-10 inline-flex items-center justify-center whitespace-nowrap bg-transparent px-3.5 py-1.5 text-sm font-medium outline-none",\n          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",',
             ),
+    // 侧边栏按本项目的设计系统改写（DESIGN.md 的 Navigation）：
+    // 面板底色走 --sidebar 令牌——有窗口材质的平台（macOS vibrancy / Windows acrylic）把面板交给
+    // 系统材质，其余平台该令牌等于 --background，外观不变（见 src/styles/beui.css 的 data-chrome 段）；
+    // 图标位 16px，与导航项「图标 16px 加 10px 文字」对齐（上游是 20px，配 24px 的图标会撑破）；
+    // 折叠轨道的宽度取 4.875rem：macOS 的红黄绿占 9..68.5（逻辑像素，实测），78px 才让它们两侧
+    // 各留 9px、轨道的中心与按钮组的中心重合；折叠时把文字标签移出布局，图标才能真正居中。
+    "components/motion/animated-sidebar.tsx": (src) =>
+        src
+            .replace(
+                '"sticky top-0 flex h-svh w-full flex-col overflow-hidden bg-background"',
+                '"sticky top-0 flex h-svh w-full flex-col overflow-hidden bg-sidebar"',
+            )
+            .replace(
+                '"relative z-10 grid size-5 shrink-0 place-items-center"',
+                '"relative z-10 grid size-4 shrink-0 place-items-center"',
+            )
+            .replace('"--sidebar-width-icon": "4.25rem",', '"--sidebar-width-icon": "4.875rem",')
+            .replace(
+                'panel.collapsed && "pointer-events-none",',
+                'panel.collapsed && "hidden",',
+            ),
 };
 
 async function collect() {

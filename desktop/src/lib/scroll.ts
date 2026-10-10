@@ -22,18 +22,17 @@ export function pageIndexAt(centerOffset: number, heights: number[]): number {
     return heights.length - 1;
 }
 
-/** 在 [from, to) 页范围内的话内位置 0..1（按已测高度）。 */
-export function positionWithinChapter(
+/** 视口中心在该页内的位置 0..1（长条漫一页好几屏，只记页码不够）。
+ * 页高为 0（还没测出高度）时返回 0。 */
+export function offsetWithinPage(
     centerOffset: number,
     heights: number[],
-    from: number,
-    to: number,
+    index: number,
 ): number {
-    const before = sum(heights, 0, from);
-    const total = sum(heights, from, to);
-    if (total <= 0) return 0;
-    const within = Math.min(total, Math.max(0, centerOffset - before));
-    return within / total;
+    const size = heights[index] ?? 0;
+    if (size <= 0) return 0;
+    const within = Math.min(size, Math.max(0, centerOffset - sum(heights, 0, index)));
+    return within / size;
 }
 
 function sum(heights: number[], from: number, to: number): number {

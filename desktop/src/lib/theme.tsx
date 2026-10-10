@@ -7,11 +7,19 @@ import {
     useState,
     type ReactNode,
 } from "react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getSettings, setSettings } from "./storage";
+import { windowChrome } from "./chrome";
 
-/** 主题写入 html[data-theme]，index.css 的深浅两套令牌由此切换。 */
+/** 主题写入 html[data-theme]，beui.css 的深浅两套令牌由此切换。
+ *  有窗口材质的平台还要把窗口外观一起改掉：系统材质（vibrancy / acrylic）按窗口外观取明暗，
+ *  只改界面不改窗口的话，深色界面会配上一块浅色材质（见 src-tauri/tauri.*.conf.json）。 */
 export function applyTheme(dark: boolean): void {
     document.documentElement.dataset.theme = dark ? "dark" : "light";
+    if (windowChrome() === "none") return;
+    void getCurrentWindow()
+        .setTheme(dark ? "dark" : "light")
+        .catch((err) => console.error("setTheme failed", err));
 }
 
 interface ThemeContextValue {
