@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { crawl, crawlCached, sourceErrors, type SourceError } from "../../api";
 import { errorFirstLine } from "../errors";
-import { persistSourceCache, whenSourcesReady } from "../storage";
+import { persistSourceCache, whenSourcesReady } from "../storage/sources";
 
 /** 缓存新鲜窗口的缺省值：0 表示每次都拉最新，缓存只用于首屏渲染。 */
 const DEFAULT_MAX_AGE_MS = 0;

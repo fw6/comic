@@ -8,7 +8,7 @@ import {
     type ReactNode,
 } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { getSettings, setSettings } from "./storage";
+import { getSettings, setSettings } from "./storage/settings";
 import { windowChrome } from "./chrome";
 
 /** 主题写入 html[data-theme]，beui.css 的深浅两套令牌由此切换。

@@ -19,11 +19,20 @@ vi.mock("../api", () => ({
     imgSrc: (url: string) => url,
 }));
 
-vi.mock("../lib/storage", () => ({
-    getProgress: vi.fn().mockResolvedValue(null),
-    getSettings: vi.fn().mockResolvedValue({ downloadDir: null }),
+vi.mock("../lib/storage/favorites", () => ({
     isFavorite: vi.fn().mockResolvedValue(false),
     toggleFavorite: vi.fn(),
+}));
+
+vi.mock("../lib/storage/progress", () => ({
+    getProgress: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("../lib/storage/settings", () => ({
+    getSettings: vi.fn().mockResolvedValue({ downloadDir: null }),
+}));
+
+vi.mock("../lib/storage/sources", () => ({
     whenSourcesReady: vi.fn().mockResolvedValue(undefined),
     persistSourceCache: vi.fn().mockResolvedValue(undefined),
 }));

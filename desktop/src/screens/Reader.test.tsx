@@ -3,7 +3,7 @@ import { render, waitFor, act, cleanup, fireEvent } from "@testing-library/react
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import Reader from "./Reader";
 import type { Chapter, Comic } from "../api";
-import type { ProgressRecord } from "../lib/storage";
+import type { ProgressRecord } from "../lib/storage/progress";
 
 // S4 seam：阅读器的阅读位置。记录的是「话内第几张图 + 图内位置」，进入时按它恢复，
 // 不依赖虚拟器「测量值有变化」。
@@ -15,11 +15,17 @@ vi.mock("../api", () => ({
     listDownloaded: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("../lib/storage", () => ({
+vi.mock("../lib/storage/history", () => ({
+    touchHistory: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("../lib/storage/progress", () => ({
     getProgress: vi.fn(),
     setProgress: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("../lib/storage/settings", () => ({
     getSettings: vi.fn().mockResolvedValue({ autoTrim: false, downloadDir: null }),
-    touchHistory: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@tauri-apps/api/window", () => ({
@@ -30,7 +36,7 @@ vi.mock("@tauri-apps/api/window", () => ({
 }));
 
 import { crawl } from "../api";
-import { getProgress, setProgress } from "../lib/storage";
+import { getProgress, setProgress } from "../lib/storage/progress";
 import { ToastProvider } from "../components/toast";
 
 const mockedCrawl = vi.mocked(crawl);

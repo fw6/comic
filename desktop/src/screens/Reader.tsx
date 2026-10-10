@@ -29,7 +29,9 @@ import {
 import { filterExternalChapters } from "../lib/chapters";
 import { windowChrome } from "../lib/chrome";
 import { nearBottomByPx, offsetWithinPage, pageIndexAt } from "../lib/scroll";
-import { getProgress, getSettings, setProgress, touchHistory } from "../lib/storage";
+import { touchHistory } from "../lib/storage/history";
+import { getProgress, setProgress } from "../lib/storage/progress";
+import { getSettings } from "../lib/storage/settings";
 import { cn } from "../lib/utils";
 import { useHoverCapable } from "../lib/hooks/use-hover-capable";
 import ProxyImage from "../components/ProxyImage";

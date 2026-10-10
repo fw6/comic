@@ -12,16 +12,16 @@ import {
     TriangleAlert,
 } from "lucide-react";
 import {
+    exportBackupJson,
+    importBackupData,
+    parseBackupJson,
+} from "../lib/storage/backup";
+import {
     getSettings,
     setSettings,
-    exportBackupJson,
-    parseBackupJson,
-    importBackupData,
-    getSources,
-    setSources,
     type Settings as SettingsT,
-    type SourceEntry,
-} from "../lib/storage";
+} from "../lib/storage/settings";
+import { getSources, setSources, type SourceEntry } from "../lib/storage/sources";
 import { useTheme } from "../lib/theme";
 import { errorFirstLine } from "../lib/errors";
 import {

@@ -1,5 +1,10 @@
 # 移动端存储层替换（tauri-plugin-fs）与 mojuan-img scheme / android·ios init 调研
 
+> **后续变更**：这份调研里的 `storage.ts` / `storage-fs.ts` 在 2026-10 按存储域拆进
+> `desktop/src/lib/storage/`：平台切换与 Store 单例在 `store.ts`，移动端 fs 版在 `fs.ts`，
+> 进度/历史/收藏/设置/已装源/备份各一个文件。平台切换的做法、fs 版的最小形态与「每次
+> get/set 都写入磁盘」的结论都不变，只是文件位置与模块边界按域分开了。
+
 - 背景：移动里程碑（iOS/Android）的存储层替换与去风险 spike 前置调研。上游定案见 research #3（`tauri-mobile-maturity.md`）与 grilling #29（移动端存储层用 tauri-plugin-fs 读写 `appDataDir` 下 JSON，桌面保持 tauri-plugin-store 不动）。
 - 调研日期：2026-08-15。所有结论基于官方一手资料：Tauri v2 官方文档（入口 https://tauri.app/llms.txt → 各 guide/plugin/reference 页）+ 本机 cargo registry 源码（`tauri-2.11.5`、`wry-0.55.1`、`tauri-plugin-fs-2.5.1`、`tauri-plugin-store-2.4.4`）+ 本机 `node_modules/@tauri-apps/plugin-store` 类型定义。每个论断标注来源 URL（或本地源码路径）。
 

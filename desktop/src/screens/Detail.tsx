@@ -12,12 +12,9 @@ import {
 } from "../api";
 import { useCrawl } from "../lib/hooks/use-crawl";
 import { filterExternalChapters } from "../lib/chapters";
-import {
-    getProgress,
-    getSettings,
-    isFavorite,
-    toggleFavorite,
-} from "../lib/storage";
+import { isFavorite, toggleFavorite } from "../lib/storage/favorites";
+import { getProgress } from "../lib/storage/progress";
+import { getSettings } from "../lib/storage/settings";
 import { cn } from "../lib/utils";
 import { sourceReferer, sourceTitle } from "../lib/sources";
 import { useScrollContainerRef } from "../lib/scroll-container";

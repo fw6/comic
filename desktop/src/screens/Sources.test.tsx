@@ -18,15 +18,19 @@ vi.mock("../api", () => ({
     imgSrc: (url: string) => url,
 }));
 
-vi.mock("../lib/storage", () => ({
-    persistSourceCache: vi.fn().mockResolvedValue(undefined),
-    whenSourcesReady: vi.fn().mockResolvedValue(undefined),
+vi.mock("../lib/storage/settings", () => ({
     getSettings: vi.fn(),
     rememberDiscovery: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("../lib/storage/sources", () => ({
+    persistSourceCache: vi.fn().mockResolvedValue(undefined),
+    whenSourcesReady: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { crawl, crawlCached, sourceErrors } from "../api";
-import { getSettings, persistSourceCache, rememberDiscovery } from "../lib/storage";
+import { getSettings, rememberDiscovery } from "../lib/storage/settings";
+import { persistSourceCache } from "../lib/storage/sources";
 import { applyBundledSources } from "../lib/sources";
 
 const mockedCrawl = vi.mocked(crawl);

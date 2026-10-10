@@ -18,13 +18,10 @@ import {
     type LocalComic,
     type DownloadedPage,
 } from "../api";
-import {
-    comicKey,
-    getFavorites,
-    getHistory,
-    getSettings,
-    type HistoryRecord,
-} from "../lib/storage";
+import { getFavorites } from "../lib/storage/favorites";
+import { getHistory, type HistoryRecord } from "../lib/storage/history";
+import { getSettings } from "../lib/storage/settings";
+import { comicKey } from "../lib/storage/store";
 import { cn } from "../lib/utils";
 import { EASE_OUT, SPRING_PANEL } from "../lib/ease";
 import { sourceTitle } from "../lib/sources";

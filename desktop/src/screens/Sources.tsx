@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Comic } from "../api";
-import { getSettings, rememberDiscovery, whenSourcesReady } from "../lib/storage";
+import { getSettings, rememberDiscovery } from "../lib/storage/settings";
+import { whenSourcesReady } from "../lib/storage/sources";
 import { useCrawl } from "../lib/hooks/use-crawl";
 import { useIsMobile } from "../lib/platform";
 import { SOURCES, sourceTitle } from "../lib/sources";

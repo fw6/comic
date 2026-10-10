@@ -68,6 +68,10 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 
 beui registry 里没有可用于远程搜索的现成组件：`morphing-search` 与 `combobox` 都是「`items` 先给全量、组件内部按关键词过滤」，`infinite-masonry` 是瀑布流，形态与数据流都对不上，所以搜索头是应用自己组装的（`ui.tsx` 之外，直接用 Tailwind 与令牌）。
 
+## 存储层（`src/lib/storage/`）
+
+按存储域一个文件：`store.ts` 是底层（桌面 store 插件与移动端 fs 的平台切换、每文件一个 Store 实例、跨域键规则 `comicKey`），`fs.ts` 是移动端实现（接口与 `@tauri-apps/plugin-store` 的 IStore 一致），上面是 `progress.ts`、`history.ts`、`favorites.ts`、`settings.ts`、`sources.ts`（已装源 + 源脚本同步单例 `whenSourcesReady` + 源进程内缓存的持久化）、`backup.ts`（WebDAV 备份/恢复，跨收藏、历史、进度三域读）。每个域一个 JSON 文件（`store.ts` 的 `FILES`），消费方按域直接导入，没有统一出口。
+
 ## 数据加载与结果缓存（stale-while-revalidate）
 
 列表与详情的抓取结果由 Rust 侧缓存（`crawler/result_cache.rs`，见 `docs/agents/mojuan-core.md`），
@@ -75,7 +79,7 @@ beui registry 里没有可用于远程搜索的现成组件：`morphing-search` 
 新鲜窗口、空结果保留、错误呈现与源进程内缓存的回灌都收在这一个 module 里，页面只拿
 `{data, loading, stale, error, reload}`。它按顺序做三件事：
 
-- 先 `await whenSourcesReady()`（`lib/storage.ts` 的源脚本同步单例，registry 未就绪时脚本源的
+- 先 `await whenSourcesReady()`（`lib/storage/sources.ts` 的源脚本同步单例，registry 未就绪时脚本源的
   op 会返回空结果）；
 - 再 `crawlCached(op, source, payload)` 读缓存（不触发网络，未命中返回 `null`），有就立即渲染；
 - 最后 `crawl(op, source, payload)` 拉最新并覆盖，Rust 侧把成功结果写回缓存。

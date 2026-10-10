@@ -6,7 +6,7 @@ import Reader from "./screens/Reader";
 import Library from "./screens/Library";
 import Settings from "./screens/Settings";
 import Downloads from "./screens/Downloads";
-import { hydrateSourceCaches, whenSourcesReady } from "./lib/storage";
+import { hydrateSourceCaches, whenSourcesReady } from "./lib/storage/sources";
 import { ThemeProvider } from "./lib/theme";
 import { ToastProvider } from "./components/toast";
 import { AppShell } from "./components/shell";

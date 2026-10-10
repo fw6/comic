@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { initImgProxy, setImgProxyDownloadDir } from "./api";
-import { getSettings } from "./lib/storage";
+import { getSettings } from "./lib/storage/settings";
 import "./styles/beui.css";
 
 // 图片代理端口在渲染前取到：避免首屏封面/阅读页图片 URL 落在兜底值

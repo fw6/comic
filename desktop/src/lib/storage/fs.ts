@@ -1,7 +1,7 @@
 // 移动端存储层（wayfinder #29/#30：tauri-plugin-store 不支持移动端，
-// 改用 tauri-plugin-fs 读写 appDataDir 下 JSON，每次 get/set 落盘）。
-// 接口对齐 @tauri-apps/plugin-store 的 IStore（get/set/has/delete/entries/clear/save），
-// storage.ts 其余逻辑零改动；桌面保持 store 版不变，按平台在 storage.ts 切换。
+// 改用 tauri-plugin-fs 读写 appDataDir 下 JSON，每次 get/set 都写入磁盘）。
+// 接口与 @tauri-apps/plugin-store 的 IStore 一致（get/set/has/delete/entries/clear/save），
+// 各域 module 零改动；桌面保持 store 版不变，按平台在 store.ts 切换。
 
 import { BaseDirectory, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
@@ -12,7 +12,7 @@ export interface FsStore {
     delete(key: string): Promise<boolean>;
     entries<T>(): Promise<Array<[string, T]>>;
     clear(): Promise<void>;
-    /** 兼容占位（fs 已即时落盘，无独立 save 语义）。 */
+    /** 兼容占位（fs 已即时写入磁盘，无独立 save 语义）。 */
     save(): Promise<void>;
 }
 
@@ -82,6 +82,6 @@ export function getStore(file: string): FsStore {
             for (const k of Object.keys(data)) delete data[k];
             await persist(file);
         },
-        async save(): Promise<void> {}, // fs 已即时落盘，占位保持接口一致
+        async save(): Promise<void> {}, // fs 已即时写入磁盘，占位保持接口一致
     };
 }

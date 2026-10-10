@@ -13,13 +13,13 @@ vi.mock("../../api", () => ({
     sourceErrors: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("../storage", () => ({
+vi.mock("../storage/sources", () => ({
     persistSourceCache: vi.fn().mockResolvedValue(undefined),
     whenSourcesReady: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { crawl, crawlCached, sourceErrors } from "../../api";
-import { persistSourceCache, whenSourcesReady } from "../storage";
+import { persistSourceCache, whenSourcesReady } from "../storage/sources";
 import { useCrawl } from "./use-crawl";
 
 const mockedCrawl = vi.mocked(crawl);
