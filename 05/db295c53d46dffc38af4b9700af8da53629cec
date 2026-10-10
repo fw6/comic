@@ -1,0 +1,118 @@
+desktop/crates/mojuan-core/src/crawler/sources/kxmanhua.rs
+  s_2c83af591d91d8::t_175bc87cba1b14 1-4,6-12,15,29-75
+desktop/src/api.ts
+  s_2c83af591d91d8::t_48ea1d2db582ab 2
+  s_2c83af591d91d8::t_552757313ad9cb 195-196,200-202
+  s_2c83af591d91d8::t_f10014c437f52e 162-168
+desktop/src/lib/storage.test.ts
+  s_2c83af591d91d8::t_df99994538c7c4 344,349,351-355,364,368,372-375,378-384,390-399
+  s_2c83af591d91d8::t_b621dfb8ab651d 80-81
+desktop/crates/mojuan-core/src/crawler/sources/hentara.rs
+  s_2c83af591d91d8::t_528417b490d63d 1-2,4-5,7-13,16,29-79
+desktop/src/App.tsx
+  s_2c83af591d91d8::t_f3286b35b4231e 9
+  s_2c83af591d91d8::t_1aa17a060e628a 43-44
+desktop/crates/mojuan-core/src/crawler/sources/webtoons.rs
+  s_2c83af591d91d8::t_adafc52bc72892 7
+  s_2c83af591d91d8::t_392d82fbd05dca 1-5,8,12-15,29-33,39,44,51-52,71-192,194-253
+  s_2c83af591d91d8::t_704a6743e082fd 193
+docs/research/webview-render-channel.md
+  s_2c83af591d91d8::t_ca181e6d3f66fd 10-14
+desktop/crates/mojuan-core/src/js/sources.rs
+  s_2c83af591d91d8::t_8b17de269ea320 1-2,4,23
+  s_2c83af591d91d8::t_4d536b3bf09bb0 31-33,35
+desktop/src-tauri/src/lib.rs
+  s_2c83af591d91d8::t_c9c0997978d529 322-324,326-341
+  s_2c83af591d91d8::t_4c2576fbe6fa66 353
+  s_2c83af591d91d8::t_7dbe5af82878bb 284
+docs/research/kxmanhua-source.md
+  s_2c83af591d91d8::t_eba3134d42767e 11-12
+desktop/src/lib/sources.ts
+  s_2c83af591d91d8::t_fcd9ad65723986 1-4,10-45,50-61
+desktop/crates/mojuan-core/src/crawler/mod.rs
+  s_2c83af591d91d8::t_6c3410398bc147 1,8-10,21,26,45,49-50,52-102
+desktop/crates/mojuan-core/src/crawler/sources/mangadex.rs
+  s_2c83af591d91d8::t_518ff8ddaae3b6 230,233,236-239
+  s_2c83af591d91d8::t_9d6aaf3557abf5 1-5,7,9,14-20,28,63,74,85,125,146-148,167-229,231-232,234-235,240-283
+desktop/crates/mojuan-core/src/crawler/script.rs
+  s_2c83af591d91d8::t_1164d728a15631 1,3-5,7,12,14-15,19,29,32,39-40,44,50-53,56-58,61,73,75,77-90,93,95-105
+desktop/src/screens/Detail.tsx
+  s_2c83af591d91d8::t_b5bedfaadc092c 23
+  s_2c83af591d91d8::t_ae3608ec1e8895 174
+docs/research/dongman-source.md
+  s_2c83af591d91d8::t_70fd2636270741 9-10
+docs/research/manhuagui-source.md
+  s_2c83af591d91d8::t_e2bab3cf28259c 12-13
+desktop/src/lib/storage.ts
+  s_2c83af591d91d8::t_3dd90548bd76a5 224,240
+  s_2c83af591d91d8::t_838bef62116cb3 268,270-277,281-288
+  s_2c83af591d91d8::t_6fd7a5a870e438 50
+  s_2c83af591d91d8::t_4c1edc41cce613 208,210-211,217,221-223,226,236-239,242,254
+  s_2c83af591d91d8::t_1e18a3f9c52740 4
+docs/agents/mojuan-core.md
+  s_2c83af591d91d8::t_79aeee26522e35 12-26,31,37-41
+desktop/crates/mojuan-core/tests/live_smoke.rs
+  s_2c83af591d91d8::t_65b62e32e43268 68
+  s_2c83af591d91d8::t_af0712e37ee4b4 142
+desktop/crates/mojuan-core/src/crawler/sources/copymanga.rs
+  s_2c83af591d91d8::t_e0da6b1545109b 1-5,7,9,13-15,19-23,29,44,50-51,86,107-139,174-197,217-220,228-231,235-261
+docs/research/nnhanman-source.md
+  s_2c83af591d91d8::t_4b447003669b57 9-10,15-16
+desktop/src/api.test.ts
+  s_2c83af591d91d8::t_2995d1bc432ca8 43-58
+  s_2c83af591d91d8::t_22172b153965fa 10
+desktop/src/screens/Sources.test.tsx
+  s_2c83af591d91d8::t_b2904ad6d867fe 22,29-30
+  s_2c83af591d91d8::t_90cdf2bb7fbc9b 161,174-175,178,193
+  s_2c83af591d91d8::t_a08358faf766c2 100-105
+  s_2c83af591d91d8::t_67b3a7fd4e16ae 94-99,106-108
+desktop/src/lib/sources.test.ts
+  s_2c83af591d91d8::t_89c2e9c007a8ab 1-72
+desktop/crates/mojuan-core/src/crawler/sources/dongman.rs
+  s_2c83af591d91d8::t_f9c52b15ab0b9d 1-6,8,11,15-22,29,44,101,105-143,232-258
+desktop/src-tauri/examples/render_probe.rs
+  s_2c83af591d91d8::t_9eebc200735735 69,80,87
+docs/research/hentara-source.md
+  s_2c83af591d91d8::t_a5dc792b61d0f5 23-24
+desktop/crates/mojuan-core/src/crawler/sources/baozimh.rs
+  s_2c83af591d91d8::t_572f16c682b5d1 1-4,8-9,11,13-14,18-21,28,37,46-112,117-157,180-192
+desktop/src/screens/Sources.tsx
+  s_2c83af591d91d8::t_5e236b74d36d15 6
+  s_2c83af591d91d8::t_dfee590542ea44 54-55,59
+  s_2c83af591d91d8::t_3f32763f9107a1 203
+desktop/crates/mojuan-core/src/crawler/sources/nnhanman.rs
+  s_2c83af591d91d8::t_e9f4daba4648ad 1-51
+desktop/crates/mojuan-core/src/crawler/sources/mod.rs
+  s_2c83af591d91d8::t_bc934f2cd0f434 103,116
+  s_2c83af591d91d8::t_3029f9a0b0cf55 1-33,40-102,104-115,117-223
+  s_2c83af591d91d8::t_dd6f455edac780 34-39
+desktop/crates/mojuan-core/tests/source_script_test.rs
+  s_2c83af591d91d8::t_182e02a12ba333 949
+  s_2c83af591d91d8::t_07683483a31396 965
+docs/agents/frontend.md
+  s_2c83af591d91d8::t_fd3bb7ff74f5c1 53-61
+GLOSSARY.md
+  s_2c83af591d91d8::t_f72802d7ed5a59 22
+  s_2c83af591d91d8::t_8dc66035233d35 7-8
+desktop/crates/mojuan-core/src/crawler/sources/manhuagui.rs
+  s_2c83af591d91d8::t_f5e929982abb2a 1-5,7-16,19,32-89
+docs/research/copymanga-source.md
+  s_2c83af591d91d8::t_e5879abded1466 13-14
+  s_2c83af591d91d8::t_998dabd0172aea 50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "05db295c53d46dffc38af4b9700af8da53629cec",
+  "prompts": {},
+  "sessions": {
+    "s_2c83af591d91d8": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_489a0504-0445-4521-8829-d8959b18313e",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
