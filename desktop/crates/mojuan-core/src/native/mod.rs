@@ -7,3 +7,5 @@ pub mod files;
 pub mod ota;
 pub mod queue;
 pub mod webdav;
+
+mod paths;

@@ -6,9 +6,10 @@
 //! 代理响应不经过 webview HTTP 缓存，命中/落盘语义由本模块自行承担。
 
 use crate::crawler::http;
+use crate::util::Lru;
 use base64::Engine;
 use sha2::{Digest, Sha256};
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, LazyLock, Mutex};
 
@@ -17,13 +18,7 @@ const LRU_CAP: usize = 128;
 
 type Entry = (Vec<u8>, String); // (bytes, content_type)
 
-#[derive(Default)]
-struct Lru {
-    map: HashMap<String, Entry>,
-    order: VecDeque<String>,
-}
-
-static LRU: LazyLock<Mutex<Lru>> = LazyLock::new(|| Mutex::new(Lru::default()));
+static LRU: LazyLock<Lru<String, Entry>> = LazyLock::new(|| Lru::new(LRU_CAP));
 
 /// 并发去重槽 + 在途表：同一 URL 的下载只发起一次，其余调用方（并发请求 / 前端
 /// 失败重试）在槽上等待同一结果。移动端 webview 对慢速自定义 scheme 请求有硬性
@@ -35,7 +30,7 @@ static IN_FLIGHT: LazyLock<Mutex<HashMap<String, Slot>>> =
 
 /// 热链图片取图：内存 LRU → 磁盘缓存 → 网络（带 Referer），命中网络后写回缓存。
 pub fn fetch_image(url: &str, referer: &str, cache_dir: &str) -> Result<Entry, String> {
-    if let Some(entry) = lru_get(url) {
+    if let Some(entry) = LRU.get(url) {
         return Ok(entry);
     }
     let (img_path, meta_path) = cache_paths(cache_dir, url);
@@ -43,7 +38,7 @@ pub fn fetch_image(url: &str, referer: &str, cache_dir: &str) -> Result<Entry, S
         (std::fs::read(&img_path), std::fs::read_to_string(&meta_path))
     {
         let entry = (bytes, content_type);
-        lru_put(url, entry.clone());
+        LRU.put(url.to_string(), entry.clone());
         return Ok(entry);
     }
     let slot = {
@@ -85,31 +80,8 @@ fn download_and_cache(
         let _ = std::fs::write(img_path, &entry.0);
         let _ = std::fs::write(meta_path, &entry.1);
     }
-    lru_put(url, entry.clone());
+    LRU.put(url.to_string(), entry.clone());
     Ok(entry)
-}
-
-fn lru_get(url: &str) -> Option<Entry> {
-    let mut lru = LRU.lock().unwrap();
-    let entry = lru.map.get(url).cloned()?;
-    if let Some(pos) = lru.order.iter().position(|u| u == url) {
-        lru.order.remove(pos);
-    }
-    lru.order.push_back(url.to_string());
-    Some(entry)
-}
-
-fn lru_put(url: &str, entry: Entry) {
-    let mut lru = LRU.lock().unwrap();
-    if !lru.map.contains_key(url) {
-        lru.order.push_back(url.to_string());
-    }
-    lru.map.insert(url.to_string(), entry);
-    while lru.order.len() > LRU_CAP {
-        if let Some(oldest) = lru.order.pop_front() {
-            lru.map.remove(&oldest);
-        }
-    }
 }
 
 fn cache_paths(cache_dir: &str, url: &str) -> (PathBuf, PathBuf) {
@@ -207,8 +179,7 @@ mod tests {
         let dir = temp_cache_dir("disk");
         fetch_image(&url, "ref", dir.to_str().unwrap()).unwrap();
         // 清空进程内 LRU，验证回落到磁盘缓存而不走网络
-        LRU.lock().unwrap().map.clear();
-        LRU.lock().unwrap().order.clear();
+        LRU.clear();
         let (bytes, _) = fetch_image(&url, "ref", dir.to_str().unwrap()).unwrap();
         assert_eq!(bytes, BODY);
         assert_eq!(requests.lock().unwrap().len(), 1);

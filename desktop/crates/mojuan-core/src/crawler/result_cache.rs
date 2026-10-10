@@ -6,12 +6,12 @@
 //! 磁盘布局照 `cache.rs` 的图片缓存：`<cache_dir>/results/<sha256>.json`，内容
 //! `{"at": <unix_ms>, "data": "<结果 JSON 字符串>"}`（data 以字符串保存，读取原样返回）。
 
+use crate::util::{hex, now_ms, Lru};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
-use std::sync::{LazyLock, Mutex};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::sync::LazyLock;
+use std::time::{Duration, SystemTime};
 
 /// 内存 LRU 上限（条数；逐出后回落到磁盘）。
 const LRU_CAP: usize = 128;
@@ -31,20 +31,7 @@ struct CacheFile {
 
 type Entry = (String, u64); // (结果 JSON, 抓取时刻)
 
-#[derive(Default)]
-struct Lru {
-    map: HashMap<String, Entry>,
-    order: VecDeque<String>,
-}
-
-static LRU: LazyLock<Mutex<Lru>> = LazyLock::new(|| Mutex::new(Lru::default()));
-
-fn now_ms() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
-}
+static LRU: LazyLock<Lru<String, Entry>> = LazyLock::new(|| Lru::new(LRU_CAP));
 
 /// 读缓存：内存 LRU → 磁盘。空 cache_dir 表示禁用缓存。
 /// script 为空（源脚本尚未同步进 registry）时同样禁用：缓存键含脚本，脚本未就绪时
@@ -54,7 +41,7 @@ pub fn get(cache_dir: &str, source: &str, op: &str, payload: &str, script: &str)
         return None;
     }
     let key = cache_key(source, op, payload, script);
-    if let Some(entry) = lru_get(&key) {
+    if let Some(entry) = LRU.get(&key) {
         return Some(entry);
     }
     let path = cache_path(cache_dir, &key);
@@ -68,7 +55,7 @@ pub fn get(cache_dir: &str, source: &str, op: &str, payload: &str, script: &str)
         }
     };
     let entry = (file.data, file.at);
-    lru_put(key, entry.clone());
+    LRU.put(key, entry.clone());
     Some(entry)
 }
 
@@ -80,7 +67,7 @@ pub fn put(cache_dir: &str, source: &str, op: &str, payload: &str, script: &str,
     }
     let key = cache_key(source, op, payload, script);
     let at = now_ms();
-    lru_put(key.clone(), (data.to_string(), at));
+    LRU.put(key.clone(), (data.to_string(), at));
     let path = cache_path(cache_dir, &key);
     if let Some(dir) = path.parent() {
         let _ = std::fs::create_dir_all(dir);
@@ -148,33 +135,6 @@ fn cache_path(cache_dir: &str, key: &str) -> PathBuf {
     results_dir(cache_dir).join(format!("{key}.json"))
 }
 
-fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|b| format!("{b:02x}")).collect()
-}
-
-fn lru_get(key: &str) -> Option<Entry> {
-    let mut lru = LRU.lock().unwrap();
-    let entry = lru.map.get(key).cloned()?;
-    if let Some(pos) = lru.order.iter().position(|k| k == key) {
-        lru.order.remove(pos);
-    }
-    lru.order.push_back(key.to_string());
-    Some(entry)
-}
-
-fn lru_put(key: String, entry: Entry) {
-    let mut lru = LRU.lock().unwrap();
-    if !lru.map.contains_key(&key) {
-        lru.order.push_back(key.clone());
-    }
-    lru.map.insert(key, entry);
-    while lru.order.len() > LRU_CAP {
-        if let Some(oldest) = lru.order.pop_front() {
-            lru.map.remove(&oldest);
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -190,9 +150,7 @@ mod tests {
     }
 
     fn clear_lru() {
-        let mut lru = LRU.lock().unwrap();
-        lru.map.clear();
-        lru.order.clear();
+        LRU.clear();
     }
 
     #[test]

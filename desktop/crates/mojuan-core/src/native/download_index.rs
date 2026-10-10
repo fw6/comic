@@ -3,6 +3,7 @@
 //! 下载落盘时记录；img_proxy 端点凭 url 先查此索引（命中读下载文件），否则回落到
 //! fetch_image 缓存。索引按漫画命名空间分层：`<dir>/<source>/<comicId>/download_index.json`。
 
+use crate::native::paths::comic_dir;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -36,16 +37,6 @@ impl DownloadIndex {
 
     pub fn insert(&mut self, url: String, rel_path: String) {
         self.map.insert(url, rel_path);
-    }
-}
-
-/// 解析漫画根目录（复用 native/files 的命名空间布局）。
-fn comic_dir(dir: &str, source: &str, comic_id: &str) -> PathBuf {
-    let flat = source == "local";
-    if flat {
-        Path::new(dir).join(comic_id)
-    } else {
-        Path::new(dir).join(source).join(comic_id)
     }
 }
 

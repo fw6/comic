@@ -7,6 +7,7 @@
 //! 与平台无关，也不依赖 Tauri：应用层（src-tauri 的 ota 模块）传入通道地址与落盘
 //! 路径，拿到结果后再交给系统安装器。
 
+use crate::util::hex;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::fs::File;
@@ -142,10 +143,6 @@ fn client() -> Result<reqwest::blocking::Client, String> {
         .map_err(|e| format!("HTTP 客户端创建失败：{e}"))
 }
 
-fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|b| format!("{b:02x}")).collect()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -174,10 +171,5 @@ mod tests {
         assert_eq!(manifest.version, "1.5.0");
         assert_eq!(manifest.sha256, "AB12");
         assert!(manifest.url.ends_with("mojuan-1.5.0-android.apk"));
-    }
-
-    #[test]
-    fn hex_is_lowercase_padded() {
-        assert_eq!(hex(&[0x00, 0x0f, 0xff]), "000fff");
     }
 }

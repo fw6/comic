@@ -5,14 +5,12 @@
 
 use crate::crawler::http;
 use crate::native::download_index;
+use crate::native::paths::{comic_dir, FLAT_SOURCE};
 use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 
 const CHROME_UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
-
-/// 扁平布局（旧数据/导入文件夹）的伪 source。
-const FLAT_SOURCE: &str = "local";
 
 fn chapter_dir_name(index: i64) -> String {
     format!("chapter_{}", index)
@@ -33,15 +31,6 @@ fn extension_from_url(url: &str) -> String {
         "jpg".to_string()
     } else {
         taken
-    }
-}
-
-/// 某漫画的根目录：命名空间布局 `dir/<source>/<comicId>`，扁平布局（source = "local"）`dir/<comicId>`。
-fn comic_dir(dir: &str, source: &str, comic_id: &str) -> std::path::PathBuf {
-    if source == FLAT_SOURCE {
-        Path::new(dir).join(comic_id)
-    } else {
-        Path::new(dir).join(source).join(comic_id)
     }
 }
 

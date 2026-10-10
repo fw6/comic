@@ -4,6 +4,7 @@
 
 - `desktop/crates/mojuan-core/` — 跨端共享的爬虫引擎与 WebDAV/下载/本地文件 IO/图片缓存（`cache::fetch_image`）。
 - `src-tauri` 经 tauri command 接线；核心本身无绑定层、不重写。
+- 跨模块共用的小工具在 `src/util.rs`：有界 LRU（图片缓存与抓取结果缓存共用同一个 `util::Lru`，容量由调用点传入）、`hex`、`now_ms`；下载目录布局（`<dir>/<source>/<comicId>`，扁平布局 `<dir>/<comicId>`）在 `src/native/paths.rs`。
 
 ## 爬虫解析：运行时源脚本（2026-08-15 起）
 

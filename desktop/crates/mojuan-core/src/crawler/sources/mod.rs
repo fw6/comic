@@ -17,10 +17,10 @@ mod manhuagui;
 mod nnhanman;
 mod webtoons;
 
+use crate::util::now_ms;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 use std::sync::Mutex;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// 图片热链对：CDN 域名 → 需带上的 Referer（图片代理与下载共用）。
 pub struct HotlinkReferer {
@@ -56,13 +56,6 @@ impl ErrorSlot {
     pub fn get(&self) -> Option<(String, u64)> {
         self.0.lock().unwrap().clone()
     }
-}
-
-fn now_ms() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
 }
 
 /// 一个漫画源在 Rust 侧的知识。方法都有默认实现，源只覆盖自己需要的那几个。

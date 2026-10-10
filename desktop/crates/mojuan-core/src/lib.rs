@@ -8,6 +8,7 @@ pub mod cache;
 pub mod crawler;
 pub mod js;
 pub mod native;
+mod util;
 
 /// 核心版本字符串。
 pub fn mojuan_version() -> String {
