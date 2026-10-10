@@ -1,0 +1,34 @@
+desktop/package.json
+  s_a88828b11b3016::t_2978e5b4a0cdb0 4
+desktop/src-tauri/Cargo.toml
+  s_a88828b11b3016::t_aacb2d943bb67e 3
+desktop/src-tauri/tauri.conf.json
+  s_098a955ce525b4::t_6a8b93dbfe8977 14
+  s_a88828b11b3016::t_8a9ef15b73217a 4
+desktop/crates/mojuan-core/Cargo.toml
+  s_a88828b11b3016::t_c2b2c3c1e8c5f3 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "fa02b4d13c3ce34988ace53f04c0ef54cad33f84",
+  "prompts": {},
+  "sessions": {
+    "s_098a955ce525b4": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_5661c020-311f-4629-bafd-7a31d2adf47f",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    },
+    "s_a88828b11b3016": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_5c91c558-c3a9-4b86-8ee1-081d3ea5540c",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
