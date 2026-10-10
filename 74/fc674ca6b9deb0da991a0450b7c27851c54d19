@@ -1,0 +1,93 @@
+desktop/src/lib/storage/test-doubles.ts
+  s_2c8205eb720f03::t_5ebba904bf9774 9-10
+  s_2c8205eb720f03::t_27a5f69de12bb5 1-8,11-83
+desktop/src/lib/storage/backup.test.ts
+  s_2c8205eb720f03::t_7fc5c6790fea9d 1-84
+desktop/src/lib/storage/store.ts
+  s_2c8205eb720f03::t_dfec09c979b8cf 1-39
+desktop/src/lib/storage/progress.ts
+  s_2c8205eb720f03::t_595c83c0efb027 1-30
+desktop/src/screens/Reader.tsx
+  s_2c8205eb720f03::t_c3e304c643c1e5 32-34
+desktop/src/lib/storage/favorites.test.ts
+  s_2c8205eb720f03::t_d2c07bca79f08d 1-29
+desktop/src/lib/storage/fs.test.ts
+  s_2c8205eb720f03::t_ea5692a8dbab53 1-21,23-49,51-54
+  s_2c8205eb720f03::t_87acc50dae48e2 22
+  s_2c8205eb720f03::t_e1121b28e8ea06 50
+desktop/src/screens/Detail.tsx
+  s_2c8205eb720f03::t_9875eddb53fa0e 15-17
+desktop/src/lib/hooks/use-crawl.test.ts
+  s_2c8205eb720f03::t_239e7bf80d53da 16,22
+desktop/src/main.tsx
+  s_2c8205eb720f03::t_433322fd37d08c 5
+desktop/src/lib/storage/progress.test.ts
+  s_2c8205eb720f03::t_86e0110bb8a262 1-51
+desktop/src/lib/storage/favorites.ts
+  s_2c8205eb720f03::t_d87a937de7a386 1-26
+desktop/src/lib/hooks/use-crawl.ts
+  s_2c8205eb720f03::t_a1051a5adf836a 4
+desktop/src/lib/storage/settings.ts
+  s_2c8205eb720f03::t_ddcbb1a959773d 1-55
+desktop/src/lib/storage/history.test.ts
+  s_2c8205eb720f03::t_0205c7ae814d47 1-30
+docs/agents/frontend.md
+  s_2c8205eb720f03::t_69b1f378682bed 71-72,74
+  s_2c8205eb720f03::t_c6ba068be59e0e 82
+  s_2c8205eb720f03::t_6ba316139e99ef 73
+desktop/src/lib/storage/sources.ts
+  s_2c8205eb720f03::t_232f745711766c 1-3,5
+desktop/src/lib/storage/backup.ts
+  s_2c8205eb720f03::t_ecf0753d0cc989 1-62
+desktop/src/screens/Reader.test.tsx
+  s_2c8205eb720f03::t_0eb9bd009fdf44 39
+  s_2c8205eb720f03::t_199a004d5f0717 18-22,25-27
+  s_2c8205eb720f03::t_766a438dd2ff25 6
+desktop/src/screens/Detail.test.tsx
+  s_2c8205eb720f03::t_5c3f91554d8640 22,25-35
+desktop/src/lib/storage/settings.test.ts
+  s_2c8205eb720f03::t_2d921dee7ddf94 1-48
+desktop/src/lib/storage/store.test.ts
+  s_2c8205eb720f03::t_29afe597fd69ff 1,3-6,8,10-34,36-37
+  s_2c8205eb720f03::t_4dc3d3453298cb 2,7,9,35,38-40
+desktop/src/lib/storage/history.ts
+  s_2c8205eb720f03::t_6af4cc577291f0 1-34
+desktop/src/lib/storage/fs.ts
+  s_2c8205eb720f03::t_f6610fcf132069 2-3
+  s_2c8205eb720f03::t_e4e73c88b794c3 15
+  s_2c8205eb720f03::t_4e5b62d6585f5e 4
+  s_2c8205eb720f03::t_d78d9cbc0b456d 85
+desktop/src/lib/theme.tsx
+  s_2c8205eb720f03::t_8bbd1344cc5d71 11
+desktop/src/screens/Library.tsx
+  s_2c8205eb720f03::t_fd199f8d3feeab 21-24
+docs/research/mobile-storage-webview.md
+  s_2c8205eb720f03::t_510211ef0c77df 5-6
+  s_2c8205eb720f03::t_68862e1609cbea 3-4,7
+desktop/src/App.tsx
+  s_2c8205eb720f03::t_988c85344318b2 9
+desktop/src/screens/Sources.tsx
+  s_2c8205eb720f03::t_61614a97565deb 4-5
+desktop/src/lib/storage/sources.test.ts
+  s_2c8205eb720f03::t_22654aa59f4a1e 3,5-7,14-15,18,24,46,55
+desktop/src/screens/Sources.test.tsx
+  s_2c8205eb720f03::t_8ce09a825a65ad 21,26-30,32-33
+desktop/src/screens/Settings.tsx
+  s_2c8205eb720f03::t_7326852e14aa54 17-21,23-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "74fc674ca6b9deb0da991a0450b7c27851c54d19",
+  "prompts": {},
+  "sessions": {
+    "s_2c8205eb720f03": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_16151bfe-dfc5-4c29-b6fb-b4364b746c30",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
