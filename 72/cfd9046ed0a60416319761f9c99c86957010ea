@@ -1,0 +1,38 @@
+desktop/src/lib/reader-virtualizer.test.ts
+  s_2c8205eb720f03::t_72902701dbfe18 1-43
+docs/agents/frontend.md
+  s_2c8205eb720f03::t_011c03cb16d047 107,109
+desktop/src/lib/hooks/use-reader-position.ts
+  s_2c8205eb720f03::t_ff952e7b6fc907 2-21,24-41,47-58,61,65-81,83-98,100-107,112,115,119-139
+  s_2c8205eb720f03::t_4a4ebde4babbee 1,22-23,42-46,59-60,62-64,82,99,108-111,113-114,116-118
+desktop/src/screens/Reader.tsx
+  s_2c8205eb720f03::t_9f6c2b1459870e 173-175
+  s_2c8205eb720f03::t_220fc78823bc67 37
+  s_2c8205eb720f03::t_25d74eee327f40 31,36
+  s_2c8205eb720f03::t_1c067cd45b3bb9 176-183
+  s_2c8205eb720f03::t_35b00992cc1d8c 305-306,315,319,321,324
+  s_2c8205eb720f03::t_cbe0249ccbf990 143
+  s_2c8205eb720f03::t_b0f8d0aebc6cfc 320,322
+  s_2c8205eb720f03::t_c8dbbb86ec04d6 118-119
+desktop/src/lib/reader-virtualizer.ts
+  s_2c8205eb720f03::t_b7ed12362a90c7 1-32
+desktop/src/lib/hooks/use-reader-position.test.ts
+  s_2c8205eb720f03::t_0fe66ce5b8574d 1-41,43-44,46,48-185
+  s_2c8205eb720f03::t_0bde7d4a40a3fb 42,45,47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "72cfd9046ed0a60416319761f9c99c86957010ea",
+  "prompts": {},
+  "sessions": {
+    "s_2c8205eb720f03": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_16151bfe-dfc5-4c29-b6fb-b4364b746c30",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
