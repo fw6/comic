@@ -1,0 +1,25 @@
+desktop/src-tauri/tauri.conf.json
+  s_48fdc8a27f557a::t_8cf11472901be4 4
+desktop/crates/mojuan-core/Cargo.toml
+  s_48fdc8a27f557a::t_2171b93262c224 3
+desktop/src-tauri/Cargo.toml
+  s_48fdc8a27f557a::t_599dc58f5e69ca 3
+desktop/package.json
+  s_48fdc8a27f557a::t_11994c8f653d41 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "a00b0cf75bbd1c115ace40014f72e713c9cb4be4",
+  "prompts": {},
+  "sessions": {
+    "s_48fdc8a27f557a": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_97791c34-d7c7-491a-aaf4-c997d80f0889",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
