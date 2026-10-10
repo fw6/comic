@@ -1,13 +1,13 @@
 //! 应用装配：插件注册、窗口生命周期、缓存清理与各运行时（渲染通道、图片代理、下载）的启动。
 
-use crate::{
-    commands, downloads, img_proxy, APP_CACHE_DIR, DOWNLOAD_DIR, IMG_PROXY_PORT,
-    RESULT_CACHE_MAX_AGE_SECS,
-};
 #[cfg(mobile)]
 use crate::ota;
 #[cfg(desktop)]
 use crate::render;
+use crate::{
+    commands, downloads, img_proxy, APP_CACHE_DIR, DOWNLOAD_DIR, IMG_PROXY_PORT,
+    RESULT_CACHE_MAX_AGE_SECS,
+};
 use std::time::Duration;
 use tauri::Manager;
 

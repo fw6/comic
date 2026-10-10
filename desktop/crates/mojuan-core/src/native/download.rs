@@ -70,12 +70,8 @@ impl DownloadRuntime {
     /// 入队一话：已在磁盘 → 标 done 不入队；taskId 已在队列 → 不重复入队。
     /// 返回入队结果与该任务此刻的进度。
     pub fn enqueue(&self, task: DownloadTask) -> (EnqueueResult, DownloadProgress) {
-        let already = files::chapter_downloaded(
-            &task.dir,
-            &task.source,
-            &task.comic_id,
-            task.chapter_index,
-        );
+        let already =
+            files::chapter_downloaded(&task.dir, &task.source, &task.comic_id, task.chapter_index);
         let (result, progress) = self.inner.queue.lock().unwrap().enqueue(task, already);
         self.emit(progress.clone());
         (result, progress)

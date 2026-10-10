@@ -73,7 +73,8 @@ pub fn download_image(
     }
     let bytes = http::get_bytes(url, &headers)?;
     let chapter_dir = comic_dir(dir, source, comic_id).join(chapter_dir_name(chapter_index));
-    fs::create_dir_all(&chapter_dir).map_err(|e| format!("创建 {} 失败: {e}", chapter_dir.display()))?;
+    fs::create_dir_all(&chapter_dir)
+        .map_err(|e| format!("创建 {} 失败: {e}", chapter_dir.display()))?;
     let file = chapter_dir.join(format!("{}.{}", page_index, extension_from_url(url)));
     fs::write(&file, bytes).map_err(|e| format!("写入 {} 失败: {e}", file.display()))?;
     // 记录下载索引（相对路径：chapter_<n>/<file>）

@@ -141,7 +141,11 @@ pub async fn webdav_get(
 }
 
 #[tauri::command]
-pub async fn list_downloaded(dir: String, source: String, comic_id: String) -> Result<String, String> {
+pub async fn list_downloaded(
+    dir: String,
+    source: String,
+    comic_id: String,
+) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || {
         mojuan_core::list_downloaded(&dir, &source, &comic_id)
     })
