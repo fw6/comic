@@ -56,6 +56,20 @@
 - 条目保留期 7 天（src-tauri setup 启动时 `result_cache::prune` 清理）；新鲜度判定在前端
   （`fetchedAt` 与本地时钟比较），Rust 侧不设 TTL。
 
+## 下载运行时（2026-10-10 起）
+
+- `native/download.rs` 的 `DownloadRuntime`：队列状态机（`queue.rs`）与下载策略同处一层——
+  常驻 worker（`std::thread`，数量 = 全局页并发 `DEFAULT_WORKERS`）、章内顺序、单页最多
+  `DEFAULT_PAGE_ATTEMPTS` 次尝试、每页开始前检查取消、每次任务状态变化推一条进度。
+- 宿主（src-tauri 的 `downloads`）只接两件事：页面下载（生产实现是 core 的
+  `files::download_image`，`with_downloader` 是测试的替换口）与进度出口（构造时传入的回调，
+  宿主把它接到 IPC Channel 上）。运行时不认识 Tauri：`cargo test` 里换一个假 downloader
+  就能跑同一份策略代码，`run_task` 是测试面（worker 循环之外直接驱动，不依赖线程与等待）。
+- 入队的磁盘去重（`files::chapter_downloaded`）在运行时内部；`enqueue` 返回入队结果与该任务
+  此刻的进度，`cancel`/`retry` 返回最新进度。`DownloadTask::new` 由队列层派生 taskId。
+- `files::download_image` 返回 `Result<(), String>`（失败原因来自 HTTP 状态与写盘错误）；
+  整话失败时原因写进进度事件的 `error`（`第 N 页下载失败：<原因>`）。
+
 ## 命令 API 约定
 
 - 公开函数接收 `&str`、返回 JSON 字符串，无 uniffi 包装。

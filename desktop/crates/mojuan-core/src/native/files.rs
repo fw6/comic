@@ -55,8 +55,8 @@ pub fn chapter_downloaded(dir: &str, source: &str, comic_id: &str, chapter_index
     }
 }
 
-/// 下载单张图片到 `<dir>/<source>/<comicId>/chapter_<n>/<page>.<ext>`，返回 `"true"`/`"false"`。
-/// referer 非空时带上（热链域如 pstatic.net 需要，research #4）。
+/// 下载单张图片到 `<dir>/<source>/<comicId>/chapter_<n>/<page>.<ext>`。
+/// referer 非空时带上（热链域如 pstatic.net 需要，research #4）；失败返回原因（HTTP 状态、写盘错误）。
 /// 成功后记录 url → 相对路径到下载索引（wayfinder #31：离线也传 url）。
 pub fn download_image(
     url: &str,
@@ -66,29 +66,20 @@ pub fn download_image(
     chapter_index: i64,
     page_index: i64,
     referer: &str,
-) -> String {
+) -> Result<(), String> {
     let mut headers: Vec<(&str, &str)> = vec![("User-Agent", CHROME_UA)];
     if !referer.is_empty() {
         headers.push(("Referer", referer));
     }
-    let bytes = match http::get_bytes(url, &headers) {
-        Ok(b) => b,
-        Err(_) => return "false".to_string(),
-    };
+    let bytes = http::get_bytes(url, &headers)?;
     let chapter_dir = comic_dir(dir, source, comic_id).join(chapter_dir_name(chapter_index));
-    if fs::create_dir_all(&chapter_dir).is_err() {
-        return "false".to_string();
-    }
+    fs::create_dir_all(&chapter_dir).map_err(|e| format!("创建 {} 失败: {e}", chapter_dir.display()))?;
     let file = chapter_dir.join(format!("{}.{}", page_index, extension_from_url(url)));
-    match fs::write(&file, bytes) {
-        Ok(_) => {
-            // 记录下载索引（相对路径：chapter_<n>/<file>）
-            let rel = format!("{}/{}", chapter_dir_name(chapter_index), file.file_name().unwrap().to_string_lossy());
-            let _ = download_index::record_download(dir, source, comic_id, url, &rel);
-            "true".to_string()
-        }
-        Err(_) => "false".to_string(),
-    }
+    fs::write(&file, bytes).map_err(|e| format!("写入 {} 失败: {e}", file.display()))?;
+    // 记录下载索引（相对路径：chapter_<n>/<file>）
+    let rel = format!("{}/{}", chapter_dir_name(chapter_index), file.file_name().unwrap().to_string_lossy());
+    let _ = download_index::record_download(dir, source, comic_id, url, &rel);
+    Ok(())
 }
 
 /// 已下载章节文件列表：`{chapterIndex: [{"url": "...", "path": "relative/path"}]}`（按文件名排序）。

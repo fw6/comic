@@ -28,7 +28,8 @@ import {
 import { cn } from "../lib/utils";
 import { EASE_OUT, SPRING_PANEL } from "../lib/ease";
 import { sourceTitle } from "../lib/sources";
-import { ComicRow, EmptyState, Loading, PageHeader, Tag } from "../components/ui";
+import { ComicRow, Banner, EmptyState, Loading, PageHeader, Tag } from "../components/ui";
+import { useToast } from "../components/toast";
 import { Button } from "../components/beui/button";
 import { Tabs, TabsList, TabsTrigger } from "../components/beui/tabs";
 import { AnimatedBadge } from "../components/beui/animated-badge";
@@ -43,6 +44,7 @@ const TABS: { id: Tab; label: string; icon: typeof Clock }[] = [
 ];
 
 export default function Library() {
+    const toast = useToast();
     const [tab, setTab] = useState<Tab>("history");
     const [history, setHistory] = useState<HistoryRecord[] | null>(null);
     const [favorites, setFavorites] = useState<Comic[] | null>(null);
@@ -50,13 +52,23 @@ export default function Library() {
     const [local, setLocal] = useState<LocalComic[]>([]);
     const [downloadDir, setDownloadDir] = useState<string | null>(null);
     const [lastScanDir, setLastScanDir] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const refresh = useCallback(async () => {
-        setHistory(await getHistory());
-        setFavorites(await getFavorites());
-        const s = await getSettings();
-        setDownloadDir(s.downloadDir);
-        setDownloads(s.downloadDir ? await scanLocal(s.downloadDir) : []);
+        setError(null);
+        try {
+            setHistory(await getHistory());
+            setFavorites(await getFavorites());
+            const s = await getSettings();
+            setDownloadDir(s.downloadDir);
+            setDownloads(s.downloadDir ? await scanLocal(s.downloadDir) : []);
+        } catch (e) {
+            setError(errorText(e));
+            // 失败域按空数据渲染，页面结构与错误横幅一起给出，不留一个转不完的加载中
+            setHistory((h) => h ?? []);
+            setFavorites((f) => f ?? []);
+            setDownloads((d) => d ?? []);
+        }
     }, []);
 
     useEffect(() => {
@@ -64,15 +76,21 @@ export default function Library() {
     }, [refresh, tab]);
 
     async function pickLocalDir() {
-        const dir = await open({ directory: true });
-        if (typeof dir !== "string") return;
-        setLastScanDir(dir);
-        setLocal(await scanLocal(dir));
+        try {
+            const dir = await open({ directory: true });
+            if (typeof dir !== "string") return;
+            setLastScanDir(dir);
+            setLocal(await scanLocal(dir));
+        } catch (e) {
+            toast.show(`扫描文件夹失败：${errorText(e)}`, "error");
+        }
     }
 
     return (
         <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
             <PageHeader title="书架" sub="看过的、收藏的、下载的都在这里" />
+
+            {error && <Banner>读取本地数据失败：{error}</Banner>}
 
             <Tabs
                 value={tab}
@@ -202,8 +220,16 @@ export default function Library() {
     );
 }
 
+/** 命令失败时的可读文案（Tauri 的 Err 是字符串，JS 侧异常是 Error）。 */
+function errorText(e: unknown): string {
+    if (typeof e === "string" && e) return e;
+    if (e instanceof Error && e.message) return e.message;
+    return "未知错误";
+}
+
 /** 下载/本地漫画列表（wayfinder #19）：点漫画就地展开章节，点章节进本地阅读器。 */
 function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
+    const toast = useToast();
     const [expanded, setExpanded] = useState<string | null>(null);
     const [chapters, setChapters] = useState<
         Record<string, Record<string, DownloadedPage[]>>
@@ -216,8 +242,12 @@ function DirList({ dir, items }: { dir: string; items: LocalComic[] }) {
         }
         setExpanded(key);
         if (!chapters[key]) {
-            const listed = await listDownloaded(dir, item.source, item.comicId);
-            setChapters((c) => ({ ...c, [key]: listed }));
+            try {
+                const listed = await listDownloaded(dir, item.source, item.comicId);
+                setChapters((c) => ({ ...c, [key]: listed }));
+            } catch (e) {
+                toast.show(`读取章节失败：${errorText(e)}`, "error");
+            }
         }
     }
 

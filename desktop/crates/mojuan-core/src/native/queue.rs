@@ -1,9 +1,9 @@
 //! 下载任务队列状态机（wayfinder #20/#22 定案）。
 //!
 //! 纯逻辑、无 Tauri 依赖：任务 = 一话（章内按页下载）；状态机
-//! queued/downloading/done/failed/cancelled；单页失败重试 2 次由 worker 侧驱动；
-//! 去重 = 已在磁盘入队即 done；内存态不持久化（重启清空）。
-//! 并发（全局 2 页、章内顺序）与进度推送（Channel）在 src-tauri worker 层实现。
+//! queued/downloading/done/failed/cancelled；去重 = 已在磁盘入队即 done；
+//! 内存态不持久化（重启清空）。
+//! 并发（全局 2 页、章内顺序）、重试、取消检查与进度推送在 `native::download` 的运行时。
 
 use serde::Serialize;
 
@@ -63,6 +63,31 @@ pub struct DownloadTask {
 }
 
 impl DownloadTask {
+    /// 一话的下载任务：taskId 由 `source/comicId/chapterIndex` 派生，状态从 queued 起。
+    pub fn new(
+        source: &str,
+        comic_id: &str,
+        comic_title: &str,
+        chapter_index: i64,
+        dir: &str,
+        referer: &str,
+        urls: Vec<String>,
+    ) -> Self {
+        Self {
+            task_id: task_id(source, comic_id, chapter_index),
+            source: source.to_string(),
+            comic_id: comic_id.to_string(),
+            comic_title: comic_title.to_string(),
+            chapter_index,
+            dir: dir.to_string(),
+            referer: referer.to_string(),
+            urls,
+            done: 0,
+            status: TaskStatus::Queued,
+            error: None,
+        }
+    }
+
     pub fn total(&self) -> usize {
         self.urls.len()
     }

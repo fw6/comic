@@ -19,8 +19,9 @@
 - **进度（progress）**：读者的阅读位置，由应用自动记录（当前章节 + 话内第几张图 + 图内位置，按视口中心算），阅读时静默落盘，重进阅读器恢复。不提供手动保存。
 - **收藏（favorites）**：用户收藏的漫画列表。
 - **历史（history）**：最近阅读记录。
-- **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；入口在漫画详情页的章节区：点「下载」进入多选模式，勾选的章节逐话**入队**（wayfinder #20/#22），由 Rust 侧队列 worker 按章内顺序、全局 2 页并发下载，进度经 IPC Channel 推送（`download://progress`）。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经本机 HTTP 代理的本地文件模式渲染）。
-- **下载任务（download task）**：多任务下载队列（wayfinder #20 已实现）：一话一个任务，taskId = `source/comicId/chapterIndex`；状态 queued/downloading/done/failed/cancelled；单页失败重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；TopBar「下载」页管理（进度条/取消/重试/清空已完成）。
+- **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；入口在漫画详情页的章节区：点「下载」进入多选模式，勾选的章节逐话**入队**（wayfinder #20/#22），由 **下载运行时**按章内顺序、全局 2 页并发下载，进度经 IPC Channel 推送（`download://progress`）。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经本机 HTTP 代理的本地文件模式渲染）。
+- **下载任务（download task）**：多任务下载队列（wayfinder #20 已实现）：一话一个任务，taskId = `source/comicId/chapterIndex`；状态 queued/downloading/done/failed/cancelled；单页失败重试 2 次（共 3 次尝试）；去重 = 已在磁盘入队即 done；内存态不持久化；TopBar「下载」页管理（进度条/取消/重试/清空已完成）。
+- **下载运行时（download runtime）**：下载任务的队列状态机与下载策略（常驻 worker、章内顺序、单页重试、取消检查、进度推送）同处一层，在 mojuan-core 的 `native::download`；宿主只接页面下载与进度出口两件事（见 `docs/agents/mojuan-core.md` 的「下载运行时」）。
 - **本地扫描（local scan）**：用户选择一个文件夹，导入其中已下载的漫画（Library「本地」入口）。
 - **自动更新（auto-update）**：Windows/Linux 的 tauri-updater 自动更新（wayfinder #26 已实现；**不发 macOS 端**）：设置页「检查更新」→ 下载（进度）→「重启安装」；tauri signer 密钥对（公钥在 tauri.conf.json `plugins.updater.pubkey`，私钥在 CI secret `TAURI_SIGNING_PRIVATE_KEY`）；发布走 release.yml（tag 推上去直接发布，不停在 draft）。
 - **更新通道（update channel）**：给更新器提供清单与制品的服务（`updater/`，Cloudflare Worker，域名 `mojuan.fengw.site`，运维步骤见 `updater/README.md`）。仓库私有、GitHub Releases 对未登录客户端返回 404，所以清单与制品都由这个 Worker 用 `GITHUB_TOKEN` 从 GitHub Releases 取回后对外提供；只提供 GitHub 判定的「最新已发布版本」，草稿与预发布版本不对外。

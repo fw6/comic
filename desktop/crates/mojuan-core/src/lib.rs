@@ -49,20 +49,6 @@ pub fn webdav_get(base: &str, user: &str, password: &str, file_name: &str) -> St
     native::webdav::webdav_get(base, user, password, file_name)
 }
 
-/// 下载单张图片到 `<dir>/<source>/<comicId>/chapter_<n>/<page>.<ext>`，返回 `"true"`/`"false"`。
-/// referer 非空时带上（热链域需要）。
-pub fn download_image(
-    url: &str,
-    dir: &str,
-    source: &str,
-    comic_id: &str,
-    chapter_index: i64,
-    page_index: i64,
-    referer: &str,
-) -> String {
-    native::files::download_image(url, dir, source, comic_id, chapter_index, page_index, referer)
-}
-
 /// 已下载章节文件列表：返回 JSON `{chapterIndex: [paths]}`（source = "local" 走扁平布局）。
 pub fn list_downloaded(dir: &str, source: &str, comic_id: &str) -> String {
     native::files::list_downloaded(dir, source, comic_id)
@@ -73,13 +59,10 @@ pub fn scan_local(dir: &str) -> String {
     native::files::scan_local(dir)
 }
 
-/// 某章节是否已在磁盘（下载队列去重）。
-pub fn chapter_downloaded(dir: &str, source: &str, comic_id: &str, chapter_index: i64) -> bool {
-    native::files::chapter_downloaded(dir, source, comic_id, chapter_index)
-}
-
-// 下载任务队列（wayfinder #20/#22）：状态机在 core，worker/Channel 推送在 src-tauri。
-pub use native::queue::{task_id, DownloadQueue, DownloadTask, EnqueueResult, TaskStatus};
+// 下载运行时（wayfinder #20/#22）：队列状态机、并发、重试、取消与进度推送同处 core；
+// 宿主只接页面下载（core 已内置）与进度出口（构造时传入的回调）。
+pub use native::download::{DownloadRuntime, PageDownloader, ProgressSink, DEFAULT_WORKERS};
+pub use native::queue::{DownloadProgress, DownloadTask, DownloadTaskView, EnqueueResult};
 
 #[cfg(test)]
 mod tests {
