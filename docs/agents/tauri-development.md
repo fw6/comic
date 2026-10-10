@@ -27,8 +27,9 @@
 
 ## 隐藏 webview 渲染通道（Cloudflare / 自建验证防护源）
 
-- 判据在 mojuan-core（`crawler/render.rs`）：`STATE_SCRIPT` / `HTML_SCRIPT` / `is_clean` / `is_denied`
-  与 `POLL_INTERVAL` / `RENDER_TIMEOUT`。挑战页形态变化只改这里，桌面与移动端同时生效。
+哪些源走这条通道、判据脚本（`STATE_SCRIPT` / `HTML_SCRIPT` / `is_clean` / `is_denied`）与轮询节奏
+在 mojuan-core 侧怎么定义，见 `docs/agents/mojuan-core.md` 的「渲染源」一节。这里只记宿主侧：
+
 - 桌面端：`src-tauri/src/render.rs`，单例不可见窗口（label `render`）+ Rust 侧轮询；远程页面
   零 IPC 权限（capability 不覆盖 render 窗口），HTML 经宿主侧 `eval_with_callback` 取回。
 - 移动端：`crates/tauri-plugin-mojuan-render/`（自建 tauri 插件，Kotlin `WebView` / Swift `WKWebView`
