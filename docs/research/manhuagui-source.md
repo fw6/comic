@@ -9,9 +9,8 @@
 
 实现文件：
 - `desktop/crates/mojuan-core/src/js/sources/manhuagui.js` — 源脚本（buildUrl/parse，五 op；含 p.a.c.k.e.r 解包）
-- `desktop/crates/mojuan-core/src/crawler/manhuagui.rs` — 请求头（薄文件；图片 URL 全在脚本侧）
-- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
-- `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts`、`src/api.ts` — 书源 tab、SOURCE_NAMES、imgSrc 热链代理
+- `desktop/crates/mojuan-core/src/crawler/sources/manhuagui.rs` — 源适配器（请求头、detail 的 ctx、图片热链对）
+- `desktop/src/screens/Sources.tsx` — 书源 tab（源清单来自源注册表，无需按源改动）
 - fixture：`tests/fixtures/manhuagui-{search,detail,chapter}.html`（chapter fixture 是**真实生成的 p.a.c.k.e.r 包**）
 
 测试：cargo test 44 项、source_script_test 23 项、vitest 97 项、tsc 0，全绿。

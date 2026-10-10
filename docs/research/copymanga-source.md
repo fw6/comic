@@ -10,9 +10,8 @@ Copymanga（拷贝漫画）已作为内置源接入源脚本系统，提交于�
 
 实现文件：
 - `desktop/crates/mojuan-core/src/js/sources/copymanga.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/mojuan-core/src/crawler/copymanga.rs` — 请求头、章节 feed（group/default）、chapter uuid 缓存
-- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
-- `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES、initSources 合并新内置源
+- `desktop/crates/mojuan-core/src/crawler/sources/copymanga.rs` — 源适配器（请求头、章节 feed（group/default）、chapter uuid 缓存与 ctx）
+- `desktop/src/screens/Sources.tsx` — 书源 tab（源清单来自源注册表，无需按源改动）
 
 测试：cargo test 55 项（含 2 个本地 mock 集成测试）、vitest 82 项、tsc 0，全绿；真网冒烟 `copymanga_live_search` 通过。
 
@@ -48,7 +47,7 @@ copymanga 为内置源（随 app 打包，无需发布即可使用）。若要�
 
 ## 维护注意
 
-- **API 域名轮换**：Copymanga 域名频繁更换（曾用 mangacopy.com / copy3000.com / copymanga.site 等）。当前默认 `https://api.mangacopy.com`（源自官网 www.mangacopy.com，搜索/列表/分类已实测）。域名失效时改两处常量即可：`copymanga.js` 顶部 `API` 与 `crawler/copymanga.rs` 的 `API`。
+- **API 域名轮换**：Copymanga 域名频繁更换（曾用 mangacopy.com / copy3000.com / copymanga.site 等）。当前默认 `https://api.mangacopy.com`（源自官网 www.mangacopy.com，搜索/列表/分类已实测）。域名失效时改两处常量即可：`copymanga.js` 顶部 `API` 与 `crawler/sources/copymanga.rs` 的 `API`。
 - **请求头配方**：`platform: 3` / `version: 3.0.0` / `hc-lang: zh-hans` 为本主机所需（缺省或 platform=1+Chrome UA 返回空/210）。`version` 若被要求升级，更新该常量。
 - **章节上限**：feed 单次 `limit=1000`（超长连载截断；开源下载器同样限 500）。取默认「正序」翻译组（group=default），多翻译组漫画仅正序组。
 - **风控**：detail/章节/图片端点对数据中心 IP 有信誉封锁（临时，1 小时自动解除）。家用住宅 IP 正常。

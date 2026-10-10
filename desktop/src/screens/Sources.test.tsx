@@ -19,14 +19,15 @@ vi.mock("../api", () => ({
 }));
 
 vi.mock("../lib/storage", () => ({
-    persistWebtoonsCache: vi.fn().mockResolvedValue(undefined),
+    persistSourceCache: vi.fn().mockResolvedValue(undefined),
     whenSourcesReady: vi.fn().mockResolvedValue(undefined),
     getSettings: vi.fn(),
     rememberDiscovery: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { crawl, crawlCached, sourceErrors } from "../api";
-import { getSettings, persistWebtoonsCache, rememberDiscovery } from "../lib/storage";
+import { getSettings, persistSourceCache, rememberDiscovery } from "../lib/storage";
+import { applyBundledSources } from "../lib/sources";
 
 const mockedCrawl = vi.mocked(crawl);
 const mockedCached = vi.mocked(crawlCached);
@@ -90,6 +91,21 @@ function renderSources() {
 beforeEach(() => {
     vi.clearAllMocks();
     setupCrawl();
+    // 源清单与热链对来自 Rust 侧注册表（真实启动由 initSources 填充）
+    applyBundledSources(
+        [
+            { id: "mangadex", title: "MangaDex", hotlinkReferers: [] },
+            { id: "webtoons", title: "Webtoons", hotlinkReferers: [] },
+            { id: "copymanga", title: "Copymanga", hotlinkReferers: [] },
+            { id: "dongman", title: "咚漫", hotlinkReferers: [] },
+            { id: "manhuagui", title: "漫画柜", hotlinkReferers: [] },
+            { id: "baozimh", title: "包子漫画", hotlinkReferers: [] },
+            { id: "nnhanman", title: "鸟鸟韩漫", hotlinkReferers: [] },
+            { id: "kxmanhua", title: "开心看漫画", hotlinkReferers: [] },
+            { id: "hentara", title: "Hentara", hotlinkReferers: [] },
+        ],
+        {},
+    );
     // 默认无缓存、无源错误：各用例走干净路径，需要的用例自行覆盖实现
     mockedCached.mockResolvedValue(null);
     mockedErrors.mockResolvedValue({});
@@ -142,7 +158,7 @@ describe("Sources 发现 List 页面（tab 切换）", () => {
         expect(await screen.findByText("webtoons-动作")).toBeTruthy();
     });
 
-    it("搜索触发 search op，Webtoons 源搜索后回灌缓存", async () => {
+    it("搜索触发 search op，列表加载后回灌当前源的进程内缓存", async () => {
         renderSources();
         await screen.findByRole("tab", { name: "动作" });
         fireEvent.change(screen.getByPlaceholderText("搜索漫画标题…"), {
@@ -155,11 +171,11 @@ describe("Sources 发现 List 页面（tab 切换）", () => {
                 keyword: "海贼王",
             }),
         );
-        // mangadex 源不触发 webtoons 缓存
-        expect(persistWebtoonsCache).not.toHaveBeenCalled();
+        // 回灌的是当前源；没有持久缓存的源 dump 出空对象、不写存储（storage 层测）
+        await waitFor(() => expect(persistSourceCache).toHaveBeenCalledWith("mangadex"));
     });
 
-    it("Webtoons 源列表加载后回灌 series URL 缓存", async () => {
+    it("Webtoons 源列表加载后回灌该源缓存", async () => {
         mockedCrawl.mockImplementation((op: string, source: string, payload: unknown) => {
             if (op === "categories") return Promise.resolve(["动作"]);
             const p = (payload ?? {}) as { label?: string };
@@ -174,7 +190,7 @@ describe("Sources 发现 List 页面（tab 切换）", () => {
         await screen.findByRole("tab", { name: "动作" });
         fireEvent.click(screen.getByRole("button", { name: "MangaDex" }));
         fireEvent.click(await screen.findByRole("button", { name: "Webtoons" }));
-        await waitFor(() => expect(persistWebtoonsCache).toHaveBeenCalled());
+        await waitFor(() => expect(persistSourceCache).toHaveBeenCalledWith("webtoons"));
     });
 
     it("源错误行显示最近一次错误（wayfinder #17）", async () => {

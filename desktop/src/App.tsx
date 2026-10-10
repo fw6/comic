@@ -6,7 +6,7 @@ import Reader from "./screens/Reader";
 import Library from "./screens/Library";
 import Settings from "./screens/Settings";
 import Downloads from "./screens/Downloads";
-import { hydrateWebtoonsCache, whenSourcesReady } from "./lib/storage";
+import { hydrateSourceCaches, whenSourcesReady } from "./lib/storage";
 import { ThemeProvider } from "./lib/theme";
 import { ToastProvider } from "./components/toast";
 import { AppShell } from "./components/shell";
@@ -40,8 +40,8 @@ export default function App() {
         // 源脚本注册（#16/#17：首启种子 / dev 磁盘覆盖 → 同步 Rust registry）；
         // 取数方经 whenSourcesReady 等它完成
         void whenSourcesReady();
-        // Webtoons series URL 缓存持久化回灌（grilling #6 存储域）
-        void hydrateWebtoonsCache();
+        // 源进程内缓存的持久化回灌（grilling #6 存储域）
+        void hydrateSourceCaches();
     }, []);
 
     return (

@@ -77,8 +77,8 @@ import {
     setSettings,
     rememberDiscovery,
     comicKey,
-    hydrateWebtoonsCache,
-    persistWebtoonsCache,
+    hydrateSourceCaches,
+    persistSourceCache,
     whenSourcesReady,
     exportBackupJson,
     parseBackupJson,
@@ -341,16 +341,18 @@ describe("storage-fs（移动端存储层，wayfinder #31）", () => {
     });
 });
 
-describe("Webtoons series URL 缓存持久化", () => {
+describe("源进程内缓存的持久化", () => {
     beforeEach(() => {
         invokeMock.mockReset();
     });
 
-    it("hydrate：把已存映射回灌 Rust 进程内缓存", async () => {
+    it("hydrate：把各源已存映射回灌 Rust 进程内缓存", async () => {
         invokeMock.mockResolvedValue(JSON.stringify({}));
-        const store = await mocks.load("webtoons-cache.json");
-        await store.set("cache", { "1571": "https://www.webtoons.com/x/list?title_no=1571" });
-        await hydrateWebtoonsCache();
+        const store = await mocks.load("sources-cache.json");
+        await store.set("caches", {
+            webtoons: { "1571": "https://www.webtoons.com/x/list?title_no=1571" },
+        });
+        await hydrateSourceCaches();
         expect(invokeMock).toHaveBeenCalledWith("crawl", {
             op: "cache_hydrate",
             source: "webtoons",
@@ -359,26 +361,42 @@ describe("Webtoons series URL 缓存持久化", () => {
     });
 
     it("hydrate：无已存数据时不做任何调用", async () => {
-        await hydrateWebtoonsCache();
+        await hydrateSourceCaches();
         expect(invokeMock).not.toHaveBeenCalled();
     });
 
-    it("persist：把 cache_dump 结果写入存储", async () => {
+    it("persist：把 cache_dump 结果按源写入存储", async () => {
         invokeMock.mockResolvedValue(
             JSON.stringify({ "1571": "https://www.webtoons.com/x/list?title_no=1571" }),
         );
-        await persistWebtoonsCache();
-        const store = await mocks.load("webtoons-cache.json");
-        expect(await store.get("cache")).toEqual({
-            "1571": "https://www.webtoons.com/x/list?title_no=1571",
+        await persistSourceCache("webtoons");
+        const store = await mocks.load("sources-cache.json");
+        expect(await store.get("caches")).toEqual({
+            webtoons: { "1571": "https://www.webtoons.com/x/list?title_no=1571" },
         });
+    });
+
+    it("persist：该源没有持久缓存（dump 出空对象）时不写存储", async () => {
+        invokeMock.mockResolvedValue(JSON.stringify({}));
+        await persistSourceCache("hentara");
+        const store = await mocks.load("sources-cache.json");
+        expect(await store.get("caches")).toBeUndefined();
     });
 });
 
 describe("whenSourcesReady（源脚本同步单例）", () => {
     it("并发与重复调用共享同一次同步（sync_sources 只发一次）", async () => {
         invokeMock.mockImplementation(async (cmd: string) => {
-            if (cmd === "bundled_sources") return { mangadex: "script-v1" };
+            if (cmd === "bundled_sources") {
+                return [
+                    {
+                        id: "mangadex",
+                        title: "MangaDex",
+                        script: "script-v1",
+                        hotlinkReferers: [],
+                    },
+                ];
+            }
             return undefined;
         });
         await Promise.all([whenSourcesReady(), whenSourcesReady()]);

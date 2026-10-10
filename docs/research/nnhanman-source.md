@@ -6,16 +6,14 @@
 搜索 7 条 / 分类「热门」18 条 / 详情 5 话 / 首话 262 张图。
 
 该站对数据中心 IP 是**整站 TLS 连接重置**（curl、reqwest 握手阶段即 `Connection reset`，
-非内容剥离），所以**整源走隐藏 webview 渲染通道**（与包子漫画同一路，`crawler/render.rs`
-的 `needed("nnhanman")` 声明）；图片 CDN 无热链校验，由阅读器直接加载（已确认
+非内容剥离），所以**整源走隐藏 webview 渲染通道**（与包子漫画同一路，源适配器的
+`render_channel()` 声明）；图片 CDN 无热链校验，由阅读器直接加载（已确认
 `new.niaopic.com` / `thumb.niaopic.com` / `img.nnpic.xyz` 在 webview 里都能出图）。
 
 实现文件：
 - `desktop/crates/mojuan-core/src/js/sources/nnhanman.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/mojuan-core/src/crawler/render.rs` — 渲染源声明（`needed`）
-- `desktop/crates/mojuan-core/src/crawler/script.rs` — detail 的 ctx（comicId，用于过滤本作章节）
-- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
-- `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES
+- `desktop/crates/mojuan-core/src/crawler/sources/nnhanman.rs` — 源适配器（渲染通道声明、detail 的 ctx）
+- `desktop/src/screens/Sources.tsx` — 书源 tab（源清单来自源注册表，无需按源改动）
 - fixture：`tests/fixtures/nnhanman-{search,detail,chapter}.html`（真网渲染转储裁剪）
 
 测试：cargo test 44 项、source_script_test 新增 5 项、vitest 128 项、tsc 0，全绿。

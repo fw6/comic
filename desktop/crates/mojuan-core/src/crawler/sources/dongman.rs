@@ -1,24 +1,32 @@
-//! 咚漫（中文 Webtoon）图源（脚本源，2026-08-19 新增）。
-//! 解析与 op URL 构造在源脚本 `js/sources/dongman.js`；本模块保留 Rust 侧职责：
-//! 网络请求头、章节 viewer URL 缓存（images 的 ctx）。
-//! 详情页章节的 viewer URL 含不可重建的章节 slug，由 Rust 从详情页提取后经
-//! ctx.viewerUrl 交给脚本——cache miss 时拉一次详情页（/episodeList?titleNo=N，
-//! 301 到规范页，http 客户端自动跟随）。
+//! 咚漫（中文 Webtoon）源适配器。
+//!
+//! 解析与 op URL 构造在源脚本 `js/sources/dongman.js`；Rust 侧提供网络请求头与章节
+//! viewer URL 缓存（images 的 ctx）。详情页章节的 viewer URL 含不可重建的章节 slug，
+//! 由 Rust 从详情页提取后经 ctx.viewerUrl 交给脚本——cache miss 时拉一次详情页
+//! （/episodeList?titleNo=N，301 到规范页，http 客户端自动跟随）。
 
+use super::{chapter_index, comic_id, ErrorSlot, HotlinkReferer, Source};
 use crate::crawler::http;
 use scraper::{Html, Selector};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
-pub const API: &str = "https://www.dongmanmanhua.cn";
-pub const PREFIX: &str = "dongman-";
+const API: &str = "https://www.dongmanmanhua.cn";
+/// 漫画 id 前缀。
+const PREFIX: &str = "dongman-";
+
+pub static DONGMAN: Dongman = Dongman;
+pub struct Dongman;
+
+static ERROR: ErrorSlot = ErrorSlot::new();
 
 /// 章节 viewer URL 缓存：title_no -> [(episode_no, viewer_url)]（images 复用详情已拉取）。
 static VIEWER_CACHE: LazyLock<Mutex<HashMap<String, Vec<(f64, String)>>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// 常规 HTML 请求头（移动站无风控，浏览器 UA 即可）。
-pub fn headers() -> Vec<(&'static str, &'static str)> {
+fn headers() -> Vec<(&'static str, &'static str)> {
     vec![
         (
             "User-Agent",
@@ -33,7 +41,7 @@ pub fn headers() -> Vec<(&'static str, &'static str)> {
 }
 
 /// chapterIndex（= episode_no）-> viewer URL（images 的 ctx；抓取/缓存失败或未找到返回 None）。
-pub fn viewer_url_for(title_no: &str, episode_no: f64) -> Option<String> {
+fn viewer_url_for(title_no: &str, episode_no: f64) -> Option<String> {
     viewer_url_for_with_base(API, title_no, episode_no)
 }
 
@@ -90,11 +98,47 @@ fn episode_no_from(href: &str) -> Option<f64> {
     let key = "episode_no=";
     let i = href.find(key)?;
     let rest = &href[i + key.len()..];
-    let digits: String = rest
-        .chars()
-        .take_while(|c| c.is_ascii_digit())
-        .collect();
+    let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
     digits.parse::<f64>().ok()
+}
+
+impl Source for Dongman {
+    fn title(&self) -> &'static str {
+        "咚漫"
+    }
+
+    fn script(&self) -> &'static str {
+        include_str!("../../js/sources/dongman.js")
+    }
+
+    fn headers(&self, _op: &str, _ctx: &Value) -> Vec<(&'static str, String)> {
+        headers()
+            .into_iter()
+            .map(|(k, v)| (k, v.to_string()))
+            .collect()
+    }
+
+    fn ctx(&self, op: &str, payload: &Value) -> Value {
+        let title_no = comic_id(payload).strip_prefix(PREFIX).unwrap_or("");
+        match op {
+            "images" => {
+                json!({ "viewerUrl": viewer_url_for(title_no, chapter_index(payload)) })
+            }
+            "detail" => json!({ "titleNo": title_no }),
+            _ => json!({}),
+        }
+    }
+
+    fn hotlink_referers(&self) -> &'static [HotlinkReferer] {
+        &[HotlinkReferer {
+            domain: "dongmanmanhua.cn",
+            referer: "https://www.dongmanmanhua.cn/",
+        }]
+    }
+
+    fn errors(&self) -> &'static ErrorSlot {
+        &ERROR
+    }
 }
 
 #[cfg(test)]
@@ -184,5 +228,32 @@ mod tests {
         });
         let base = format!("http://127.0.0.1:{port}");
         assert_eq!(viewer_url_for_with_base(&base, "999", 1.0), None);
+    }
+
+    /// images 的 ctx 取缓存里的 viewerUrl；detail 的 ctx 只带 titleNo（前缀剥掉）。
+    #[test]
+    fn ctx_reads_cached_viewer_url_and_title_no() {
+        VIEWER_CACHE.lock().unwrap().insert(
+            "2859".to_string(),
+            vec![(2.0, "https://www.dongmanmanhua.cn/BOY/x/ep-2/viewer?episode_no=2".to_string())],
+        );
+        let ctx = DONGMAN.ctx(
+            "images",
+            &json!({"comicId": "dongman-2859", "chapterIndex": 2}),
+        );
+        assert_eq!(
+            ctx["viewerUrl"],
+            "https://www.dongmanmanhua.cn/BOY/x/ep-2/viewer?episode_no=2"
+        );
+        // 缓存未命中的章节 → null
+        let missing = DONGMAN.ctx(
+            "images",
+            &json!({"comicId": "dongman-2859", "chapterIndex": 99}),
+        );
+        assert!(missing["viewerUrl"].is_null());
+
+        let detail = DONGMAN.ctx("detail", &json!({"comicId": "dongman-2859"}));
+        assert_eq!(detail["titleNo"], "2859");
+        assert_eq!(DONGMAN.ctx("search", &json!({})), json!({}));
     }
 }

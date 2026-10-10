@@ -66,7 +66,7 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
             // 禁用结果缓存（空 cache_dir）：探针每次走真实链路
             let out = mojuan_core::crawl(op, source, payload, &script, "");
             println!("{out}");
-            if let Some((msg, _)) = mojuan_core::crawler::script::last_error(source) {
+            if let Some((msg, _)) = mojuan_core::crawler::sources::last_error(source) {
                 eprintln!("源错误: {msg}");
             }
             0
@@ -77,14 +77,14 @@ fn run(app: &tauri::AppHandle, args: &[String]) -> i32 {
             };
             let payload = format!(r#"{{"comicId":"{comic_id}"}}"#);
             let detail = mojuan_core::crawl("detail", source, &payload, &script, "");
-            if let Some((msg, _)) = mojuan_core::crawler::script::last_error(source) {
+            if let Some((msg, _)) = mojuan_core::crawler::sources::last_error(source) {
                 eprintln!("detail 源错误: {msg}");
                 return 1;
             }
             println!("detail: {}", summarize_detail(&detail));
             let payload = format!(r#"{{"comicId":"{comic_id}","chapterIndex":{chapter_index}}}"#);
             let images = mojuan_core::crawl("images", source, &payload, &script, "");
-            if let Some((msg, _)) = mojuan_core::crawler::script::last_error(source) {
+            if let Some((msg, _)) = mojuan_core::crawler::sources::last_error(source) {
                 eprintln!("images 源错误: {msg}");
                 return 1;
             }

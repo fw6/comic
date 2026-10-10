@@ -50,7 +50,15 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 
 切换源是低频操作：源列表收在页头右侧的「当前源」按钮后，点击打开底部面板（`src/components/source-sheet.tsx`，beui `BottomSheet`；两端同一形态——贴底、居中限宽 672px）。面板里每个源一行，当前项用蓝色 12% 底与勾选标记，该源最近一次抓取失败时行内标出「上次加载失败」（打开面板时经 `sourceErrors()` 取一次）。打开时焦点落在当前源行，关闭（选择 / Escape / 点遮罩）后回到页头按钮。分类 tab 留在页面上：切分类是高频操作。面板组件来自 beui registry（`fetch-beui.mjs` 的 FILES 清单），可访问名已用 PATCHES 改为中文。
 
-浏览位置持久化：选中的源与每个源停留的分类写在 settings 域（`lastSource` / `lastCategory`，经 `rememberDiscovery()` 一次写入，避免两次读改写互相覆盖），重启后恢复。`Sources` 组件分两层——外层先读回这两个值再渲染，免得开局按默认源拉一次列表又立刻切走；内层是原来的 `Discovery`。URL 上的 `?source=`（命令面板跳转）优先级最高，且在页面已挂载时也跟随变化。记忆的分类在该源上已不存在时退回第一个分类。
+浏览位置持久化：选中的源与每个源停留的分类写在 settings 域（`lastSource` / `lastCategory`，经 `rememberDiscovery()` 一次写入，避免两次读改写互相覆盖），重启后恢复。`Sources` 组件分两层——外层等 `whenSourcesReady()` 完成后读回这两个值再渲染（源清单由源注册表填充，就绪前为空），免得开局按默认源拉一次列表又立刻切走；内层是原来的 `Discovery`。URL 上的 `?source=`（命令面板跳转）优先级最高，且在页面已挂载时也跟随变化。记忆的分类在该源上已不存在时退回第一个分类。
+
+## 源清单与按源事实（`src/lib/sources.ts`）
+
+源清单（`SOURCES`，顺序 = 源注册表的注册顺序，首个为默认源）与图片热链对都来自 Rust 侧的源注册表：`initSources`（`whenSourcesReady` 的实体）经 `bundled_sources` 取回后调 `applyBundledSources` 填充，显示名优先取已装源的 `name`（源仓库可改名）。前端不再按源硬编码任何东西——加源、改热链域名、改显示名都只改 `crawler/sources/` 的那个文件。
+
+- 消费方（源面板、命令面板、`sourceTitle`）都排在 `whenSourcesReady()` 之后；就绪前 `SOURCES` 是空数组。
+- `api.ts` 的 `imgSrc` 经 `hotlinkRefererFor(url)` 按 URL 子串查热链对（命中才重写为本机代理）；`Detail.tsx` 的下载 Referer 取 `sourceReferer(source)`（该源声明的第一条）。
+- 源进程内缓存的持久化是通用协议：`cache_dump`/`cache_hydrate` 对任意源都可用，没有持久缓存的源 dump 出空对象。`persistSourceCache(source)` 在列表加载后调用，`hydrateSourceCaches()` 在启动时回灌（存储域 `sources-cache.json`，按 sourceId 存）。
 
 ## 发现页的分类与搜索
 

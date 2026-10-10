@@ -8,10 +8,8 @@
 
 实现文件：
 - `desktop/crates/mojuan-core/src/js/sources/kxmanhua.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/mojuan-core/src/crawler/kxmanhua.rs` — 请求头（薄文件）
-- `desktop/crates/mojuan-core/src/crawler/script.rs` — detail 的 ctx（comicId，用于过滤本作章节）
-- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
-- `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES
+- `desktop/crates/mojuan-core/src/crawler/sources/kxmanhua.rs` — 源适配器（请求头、detail 的 ctx）
+- `desktop/src/screens/Sources.tsx` — 书源 tab（源清单来自源注册表，无需按源改动）
 - fixture：`tests/fixtures/kxmanhua-{search,detail,chapter}.html`（真网转储裁剪）
 
 测试：cargo test 44 项、source_script_test 新增 5 项、vitest 128 项、tsc 0，全绿。

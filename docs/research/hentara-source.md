@@ -20,10 +20,8 @@ Hentara（英文成人韩漫站）已作为内置源接入源脚本系统，**�
 
 实现文件：
 - `desktop/crates/mojuan-core/src/js/sources/hentara.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/mojuan-core/src/crawler/hentara.rs` — 请求头（薄文件）
-- `desktop/crates/mojuan-core/src/crawler/script.rs` — search 的 ctx（keyword，脚本内过滤用）
-- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`js/sources.rs` — 分派/内置
-- `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts` — 书源 tab、SOURCE_NAMES
+- `desktop/crates/mojuan-core/src/crawler/sources/hentara.rs` — 源适配器（请求头、search 的 ctx）
+- `desktop/src/screens/Sources.tsx` — 书源 tab（源清单来自源注册表，无需按源改动）
 - fixture：`tests/fixtures/hentara-{index.json,browse.html,genre.html,detail.json,episode.json}`
   （目录 fixture 是从真网 110KB 的 index.json 裁剪出的 3 部样本）
 

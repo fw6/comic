@@ -946,7 +946,7 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     assert_eq!(crawl("search", "baozimh", "{}", ""), "[]");
     let out = crawl("search", "baozimh", r#"{"keyword":"海贼"}"#, BAOZIMH_JS);
     assert_eq!(out, "[]");
-    let (msg, _) = mojuan_core::crawler::script::last_error("baozimh").expect("应记录源错误");
+    let (msg, _) = mojuan_core::crawler::sources::last_error("baozimh").expect("应记录源错误");
     assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
 
     // kxmanhua / hentara：普通抓取源，categories 静态输出走脚本
@@ -962,6 +962,6 @@ fn crawl_dispatch_routes_script_and_cache_ops() {
     assert_eq!(crawl("search", "nnhanman", "{}", ""), "[]");
     let out = crawl("search", "nnhanman", r#"{"keyword":"韓"}"#, NNHANMAN_JS);
     assert_eq!(out, "[]");
-    let (msg, _) = mojuan_core::crawler::script::last_error("nnhanman").expect("应记录源错误");
+    let (msg, _) = mojuan_core::crawler::sources::last_error("nnhanman").expect("应记录源错误");
     assert!(msg.contains("渲染通道未注册"), "msg = {msg}");
 }

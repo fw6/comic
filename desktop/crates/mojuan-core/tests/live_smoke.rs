@@ -65,7 +65,7 @@ fn copymanga_live_detail_and_images() {
         .and_then(|c| c.as_array())
         .cloned()
         .unwrap_or_default();
-    let err = mojuan_core::crawler::script::last_error("copymanga")
+    let err = mojuan_core::crawler::sources::last_error("copymanga")
         .map(|(m, _)| m)
         .unwrap_or_default();
     if chapters.is_empty() {
@@ -139,7 +139,7 @@ fn manhuagui_live_detail_and_images() {
         .and_then(|c| c.as_array())
         .cloned()
         .unwrap_or_default();
-    let err = mojuan_core::crawler::script::last_error("manhuagui")
+    let err = mojuan_core::crawler::sources::last_error("manhuagui")
         .map(|(m, _)| m)
         .unwrap_or_default();
     if chapters.is_empty() {

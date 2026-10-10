@@ -1,6 +1,7 @@
 import { load, type Store } from "@tauri-apps/plugin-store";
 import { downloadDir } from "@tauri-apps/api/path";
 import { crawl, bundledSources, syncSources, type Comic } from "../api";
+import { applyBundledSources } from "./sources";
 import { getStore as getFsStore } from "./storage-fs";
 
 // S3 seam：进度/收藏/历史/设置持久化（grilling #6：每域一 JSON，tauri-plugin-store）。
@@ -46,7 +47,7 @@ const FILES = {
     favorites: "favorites.json",
     history: "history.json",
     progress: "progress.json",
-    webtoonsCache: "webtoons-cache.json",
+    sourceCache: "sources-cache.json",
     sources: "sources.json",
 } as const;
 
@@ -203,54 +204,42 @@ export async function setSources(entries: Record<string, SourceEntry>): Promise<
     await store.set("sources", entries);
 }
 
-const SOURCE_NAMES: Record<string, string> = {
-    webtoons: "Webtoons",
-    mangadex: "MangaDex",
-    copymanga: "Copymanga",
-    dongman: "咚漫",
-    manhuagui: "漫画柜",
-    baozimh: "包子漫画",
-    nnhanman: "鸟鸟韩漫",
-    kxmanhua: "开心看漫画",
-    hentara: "Hentara",
-};
-
 /**
- * 启动时同步源脚本：sources.json 缺失时用内置脚本初始化（#16 Q8：首启种子）；
+ * 启动时同步源脚本：sources.json 缺失时用内置源初始化（#16 Q8：首启种子）；
  * 老安装合并新增的内置源（#32：避免缺新内置源需手动清 sources.json）；
- * dev 模式每次覆盖（#17 开发回路：改脚本重启即生效）。随后把脚本同步进 Rust registry。
+ * dev 模式每次覆盖（#17 开发回路：改脚本重启即生效）。随后把脚本同步进 Rust registry，
+ * 并用内置源清单填充前端的源列表与热链对（显示名取已装源的 name）。
  */
 export async function initSources(): Promise<void> {
     const dev = import.meta.env.DEV;
     const existing = await getSources();
     const missing = Object.keys(existing).length === 0;
+    const bundled = await bundledSources();
     if (missing || dev) {
-        const bundled = await bundledSources();
         const now = Date.now();
         const next: Record<string, SourceEntry> = {};
-        for (const [id, script] of Object.entries(bundled)) {
-            next[id] = {
-                sourceId: id,
-                name: SOURCE_NAMES[id] ?? id,
+        for (const s of bundled) {
+            next[s.id] = {
+                sourceId: s.id,
+                name: s.title,
                 version: 1,
-                script,
+                script: s.script,
                 updatedAt: now,
             };
         }
         await setSources(next);
     } else {
         // 老安装：把内置源里缺失的新源合并进来（不覆盖已装版本）。
-        const bundled = await bundledSources();
         const now = Date.now();
         let changed = false;
         const merged: Record<string, SourceEntry> = { ...existing };
-        for (const [id, script] of Object.entries(bundled)) {
-            if (!merged[id]) {
-                merged[id] = {
-                    sourceId: id,
-                    name: SOURCE_NAMES[id] ?? id,
+        for (const s of bundled) {
+            if (!merged[s.id]) {
+                merged[s.id] = {
+                    sourceId: s.id,
+                    name: s.title,
                     version: 1,
-                    script,
+                    script: s.script,
                     updatedAt: now,
                 };
                 changed = true;
@@ -262,6 +251,7 @@ export async function initSources(): Promise<void> {
     const scripts: Record<string, string> = {};
     for (const [id, entry] of Object.entries(current)) scripts[id] = entry.script;
     await syncSources(scripts);
+    applyBundledSources(bundled, current);
 }
 
 /** 源脚本同步的单例：首次调用执行，后续调用等待同一个 Promise。
@@ -275,24 +265,27 @@ export function whenSourcesReady(): Promise<void> {
     return sourcesReady;
 }
 
-// ---------- Webtoons series URL 缓存（进程内静态 → 持久化，grilling #6 存储域） ----------
+// ---------- 源进程内缓存的持久化（cache_dump / cache_hydrate，grilling #6 存储域） ----------
 
-/** 启动时把上次保存的 series URL 映射回灌进 Rust 进程内缓存。 */
-export async function hydrateWebtoonsCache(): Promise<void> {
-    const store = await getStore(FILES.webtoonsCache);
-    const data = await store.get<Record<string, string>>("cache");
-    if (data && Object.keys(data).length > 0) {
-        await crawl("cache_hydrate", "webtoons", data);
+/** 启动时把上次保存的各源进程内缓存回灌进 Rust。没有持久缓存的源 hydrate 是空操作。 */
+export async function hydrateSourceCaches(): Promise<void> {
+    const store = await getStore(FILES.sourceCache);
+    const all = (await store.get<Record<string, unknown>>("caches")) ?? {};
+    for (const [id, data] of Object.entries(all)) {
+        if (data && Object.keys(data).length > 0) {
+            await crawl("cache_hydrate", id, data);
+        }
     }
 }
 
-/** 搜索/详情后把进程内缓存落盘（仅 webtoons 有该缓存）。 */
-export async function persistWebtoonsCache(): Promise<void> {
-    const store = await getStore(FILES.webtoonsCache);
-    const dump = await crawl<Record<string, string>>("cache_dump", "webtoons", {});
-    if (Object.keys(dump).length > 0) {
-        await store.set("cache", dump);
-    }
+/** 抓取后把某源的进程内缓存写入磁盘；该源没有持久缓存时 dump 出空对象，不写。 */
+export async function persistSourceCache(source: string): Promise<void> {
+    const dump = await crawl<Record<string, unknown>>("cache_dump", source, {});
+    if (Object.keys(dump).length === 0) return;
+    const store = await getStore(FILES.sourceCache);
+    const all = (await store.get<Record<string, unknown>>("caches")) ?? {};
+    all[source] = dump;
+    await store.set("caches", all);
 }
 
 // ---------- WebDAV 备份/恢复（wayfinder #24/#25 定案） ----------

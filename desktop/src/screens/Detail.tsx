@@ -20,7 +20,7 @@ import {
     whenSourcesReady,
 } from "../lib/storage";
 import { cn } from "../lib/utils";
-import { sourceTitle } from "../lib/sources";
+import { sourceReferer, sourceTitle } from "../lib/sources";
 import { useScrollContainerRef } from "../lib/scroll-container";
 import {
     Banner,
@@ -171,7 +171,7 @@ export default function Detail() {
             return;
         }
         const indexes = [...selected].sort((a, b) => a - b);
-        const referer = source === "webtoons" ? "https://www.webtoons.com/" : "";
+        const referer = sourceReferer(source!);
         setSubmitting({ done: 0, total: indexes.length });
         let queuedCount = 0;
         let skipped = 0;

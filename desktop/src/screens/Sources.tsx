@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { crawl, crawlCached, sourceErrors, type Comic, type SourceError } from "../api";
 import {
     getSettings,
-    persistWebtoonsCache,
+    persistSourceCache,
     rememberDiscovery,
     whenSourcesReady,
 } from "../lib/storage";
@@ -51,10 +51,12 @@ export default function Sources() {
     useEffect(() => {
         let cancelled = false;
         void (async () => {
+            // 源清单（含默认源）由源注册表填充，等同步完成再取
+            await whenSourcesReady();
             const s = await getSettings();
             if (cancelled) return;
             setPrefs({
-                source: params.get("source") ?? s.lastSource ?? SOURCES[0].id,
+                source: params.get("source") ?? s.lastSource ?? SOURCES[0]?.id ?? "",
                 lastCategory: s.lastCategory,
             });
         })();
@@ -198,7 +200,7 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                 loadedRequest.current = request;
                 // 源返回空（可能失败）且已有缓存展示时，保留缓存列表（错误行经 sourceErr 呈现）
                 if (results.length > 0 || !cached) setComics(results);
-                if (request.source === "webtoons") void persistWebtoonsCache();
+                void persistSourceCache(request.source);
             } catch (e) {
                 console.error("list failed", e);
             } finally {

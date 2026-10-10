@@ -7,10 +7,11 @@
 
 ## 方案
 
-- **mojuan-core**（`crawler/render.rs`）：注册式渲染钩子 + 判据的唯一定义处。`render::needed(source)`
-  声明按源走渲染（当前 baozimh / nnhanman）；`script.rs::fetch` 对渲染源整源改经 `render::fetch`。
-  宿主未注册时返回「渲染通道未注册」错误，由 `record_error` 呈现到前端错误行（mojuan-core 单独跑
-  测试不依赖 webview）。判据与节奏都在这里：`STATE_SCRIPT`（状态探测脚本，返回
+- **mojuan-core**（`crawler/render.rs`）：注册式渲染钩子 + 判据的唯一定义处。渲染源由各自的
+  源适配器（`crawler/sources/*.rs` 的 `render_channel()`）声明（当前 baozimh / nnhanman）；
+  `script.rs::fetch` 对渲染源整源改经 `render::fetch`。宿主未注册时返回「渲染通道未注册」错误，
+  由该源 adapter 的错误存放处记录并呈现到前端错误行（mojuan-core 单独跑测试不依赖 webview）。
+  判据与节奏都在这里：`STATE_SCRIPT`（状态探测脚本，返回
   `{rs, href, ch, denied, clean}`）、`HTML_SCRIPT`（取 `document.documentElement.outerHTML`）、
   `is_clean` / `is_denied`、`POLL_INTERVAL`（500ms）、`RENDER_TIMEOUT`（60s）。挑战页容器与标题
   随站点改版变动，改这一处两端（桌面 / 移动）同时生效。

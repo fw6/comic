@@ -6,9 +6,8 @@
 
 实现文件：
 - `desktop/crates/mojuan-core/src/js/sources/dongman.js` — 源脚本（buildUrl/parse，五 op）
-- `desktop/crates/mojuan-core/src/crawler/dongman.rs` — 请求头、章节 viewer URL 缓存（images 的 ctx）
-- `desktop/crates/mojuan-core/src/crawler/mod.rs`、`script.rs`、`js/sources.rs` — 分派/ctx/内置
-- `desktop/src/screens/Sources.tsx`、`src/lib/storage.ts`、`src/api.ts` — 书源 tab、SOURCE_NAMES、imgSrc 热链代理
+- `desktop/crates/mojuan-core/src/crawler/sources/dongman.rs` — 源适配器（请求头、章节 viewer URL 缓存与 images 的 ctx、图片热链对）
+- `desktop/src/screens/Sources.tsx` — 书源 tab（源清单来自源注册表，无需按源改动）
 - fixture：`tests/fixtures/dongman-{search,detail,viewer}.html`
 
 测试：cargo test 44 项（lib，含 dongman.rs 4 个单测 + mock）、source_script_test 23 项、vitest 97 项、tsc 0，全绿。

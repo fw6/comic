@@ -281,7 +281,7 @@ async fn crawl(
     })
     .await
     .unwrap_or_default();
-    if let Some((msg, at)) = mojuan_core::crawler::script::last_error(&source) {
+    if let Some((msg, at)) = mojuan_core::crawler::sources::last_error(&source) {
         if let Ok(log_dir) = app.path().app_log_dir() {
             let _ = std::fs::create_dir_all(&log_dir);
             let line = format!("[{at}] {source}: {msg}\n");
@@ -319,16 +319,26 @@ async fn crawl_cached(
     Ok(out)
 }
 
-/// 内置源脚本（debug 读磁盘实现 #17 开发回路，release 用 include_str! 打包）。
+/// 内置源清单（顺序 = 源注册表的注册顺序，前端据此排源列表；首个为默认源）。
+/// 每个源带显示名、脚本（debug 读磁盘实现 #17 开发回路，release 用 include_str! 打包）
+/// 与图片热链对（前端图片代理与下载 Referer 用）。
 #[tauri::command]
-fn bundled_sources() -> HashMap<String, String> {
-    let mut m = HashMap::new();
-    for (id, _) in mojuan_core::js::sources::bundled() {
-        if let Some(script) = mojuan_core::js::sources::load(id) {
-            m.insert(id.to_string(), script);
-        }
-    }
-    m
+fn bundled_sources() -> Vec<serde_json::Value> {
+    mojuan_core::crawler::sources::SOURCES
+        .iter()
+        .map(|(id, src)| {
+            serde_json::json!({
+                "id": id,
+                "title": src.title(),
+                "script": mojuan_core::js::sources::load(id).unwrap_or_default(),
+                "hotlinkReferers": src
+                    .hotlink_referers()
+                    .iter()
+                    .map(|h| serde_json::json!({ "domain": h.domain, "referer": h.referer }))
+                    .collect::<Vec<_>>(),
+            })
+        })
+        .collect()
 }
 
 /// 前端启动/更新后把 sources.json 里的脚本同步进 registry。
@@ -340,7 +350,7 @@ fn sync_sources(state: tauri::State<'_, SourceRegistry>, entries: HashMap<String
 /// 各源最近一次错误（Sources 错误行 / Settings 源区展示，wayfinder #17）。
 #[tauri::command]
 fn source_errors() -> HashMap<String, serde_json::Value> {
-    mojuan_core::crawler::script::all_errors()
+    mojuan_core::crawler::sources::all_errors()
         .into_iter()
         .map(|(source, (message, at))| (source, serde_json::json!({ "message": message, "at": at })))
         .collect()

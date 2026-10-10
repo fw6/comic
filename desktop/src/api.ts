@@ -1,4 +1,5 @@
 import { invoke, Channel } from "@tauri-apps/api/core";
+import { hotlinkRefererFor, type SourceFacts } from "./lib/sources";
 
 export interface Comic {
     id: string;
@@ -158,8 +159,13 @@ export interface SourceError {
     at: number;
 }
 
-/** 内置源脚本（debug 从磁盘读，release 内置打包）。 */
-export const bundledSources = (): Promise<Record<string, string>> => invoke("bundled_sources");
+/** 内置源：清单顺序即注册表顺序，附带脚本与图片热链对。 */
+export interface BundledSource extends SourceFacts {
+    script: string;
+}
+
+/** 内置源清单（debug 从磁盘读脚本，release 内置打包）。 */
+export const bundledSources = (): Promise<BundledSource[]> => invoke("bundled_sources");
 
 /** 把 sources.json 的脚本同步进 Rust registry（启动/更新后调用）。 */
 export const syncSources = (entries: Record<string, string>) =>
@@ -186,26 +192,14 @@ function proxyBase(): string {
     return imgProxyPort ? `http://127.0.0.1:${imgProxyPort}` : "";
 }
 
-/** 热链保护域（research #4 结论）：重写为本机代理 /img?url=..，其余保持直连吃 webview 缓存。
- * 各源图片 CDN 域名 → 需带上的 Referer（多源共用一个代理端点）。 */
-const HOTLINK_REFERERS: Array<[string, string]> = [
-    // webtoons 图片（pstatic.net）
-    ["pstatic.net", "https://www.webtoons.com/"],
-    // 咚漫图片（cdn.dongmanmanhua.cn）
-    ["dongmanmanhua.cn", "https://www.dongmanmanhua.cn/"],
-    // 漫画柜图片（us.hamreus.com 等）
-    ["hamreus.com", "https://www.manhuagui.com/"],
-];
-
+/** 热链保护的图片重写为本机代理 /img?url=..&ref=..（Referer 由源注册表声明），
+ * 其余保持直连吃 webview 缓存。 */
 export function imgSrc(url: string): string {
     const base = proxyBase();
     if (!base) return url;
-    for (const [domain, referer] of HOTLINK_REFERERS) {
-        if (url.includes(domain)) {
-            return `${base}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent(referer)}`;
-        }
-    }
-    return url;
+    const referer = hotlinkRefererFor(url);
+    if (!referer) return url;
+    return `${base}/img?url=${encodeURIComponent(url)}&ref=${encodeURIComponent(referer)}`;
 }
 
 /** 离线/本地页 → 本机代理 /img（wayfinder #31：离线也传 url）。

@@ -52,12 +52,6 @@ pub const STATE_SCRIPT: &str = r#"(function () {
 /// 取回渲染结果的脚本（在页面稳定后评估）。
 pub const HTML_SCRIPT: &str = "document.documentElement.outerHTML";
 
-/// 该源是否整源经渲染通道抓取页面（按源声明；baozimh —— Cloudflare 防护；
-/// nnhanman —— 整站 TLS 连接对本机重置，普通 HTTP 客户端拿不到页面）。
-pub fn needed(source: &str) -> bool {
-    matches!(source, "baozimh" | "nnhanman")
-}
-
 /// [`STATE_SCRIPT`] 的结果是否「干净」（可以提取 HTML）。
 pub fn is_clean(state: &serde_json::Value) -> bool {
     state
@@ -122,16 +116,6 @@ mod tests {
                 .expect("状态脚本");
             serde_json::from_str(&out).expect("状态脚本返回 JSON")
         })
-    }
-
-    #[test]
-    fn render_sources_declared() {
-        assert!(needed("baozimh"));
-        assert!(needed("nnhanman"));
-        assert!(!needed("manhuagui"));
-        assert!(!needed("kxmanhua"));
-        assert!(!needed("hentara"));
-        assert!(!needed("webtoons"));
     }
 
     #[test]

@@ -4,7 +4,8 @@
 
 ## 术语
 
-- **漫画源（source）**：提供漫画内容的站点（如 webtoons、mangadex、copymanga、dongman、manhuagui、baozimh、nnhanman、kxmanhua、hentara）。每个源 = 一个运行时加载的爬虫脚本模块（执行于 Rust 核心的嵌入 JS 运行时），定义 URL 构造、解析规则、请求头与热链域名，以 sourceId 标识，经源仓库分发更新（grilling #11 定案）。
+- **漫画源（source）**：提供漫画内容的站点（如 webtoons、mangadex、copymanga、dongman、manhuagui、baozimh、nnhanman、kxmanhua、hentara）。每个源 = 一个运行时加载的爬虫脚本模块（执行于 Rust 核心的嵌入 JS 运行时），定义 URL 构造与解析规则，以 sourceId 标识，经源仓库分发更新（grilling #11 定案）。
+- **源适配器（source adapter）**：一个源在 Rust 侧的全部知识，收在 `crawler/sources/` 的一个文件里：网络请求头、ctx 派生（交给脚本的缓存/网络派生值）、Rust 直连的 op、隐藏字段提取、是否走渲染通道、默认脚本、图片热链对、最近错误。以 sourceId 注册进注册表（顺序即前端源清单的显示顺序，首个为默认源）；新增一个源 = 加一个文件 + 在注册表里加一行。
 - **渲染源（render source）**：带 JS 挑战 / 客户端环境校验防护、普通 HTTP 客户端过不去的源（baozimh —— Cloudflare 防护；nnhanman —— 整站 TLS 连接被重置）。页面经**渲染通道（render channel）**取：宿主（桌面端 src-tauri）用不可见 webview 加载目标 URL，等验证自动完成后取回渲染好的 HTML，再走与普通源完全相同的 parse 契约；无 webview 宿主（core 测试）下渲染源返回「渲染通道未注册」。设计见 `docs/research/webview-render-channel.md`。
 - **源仓库（source repository）**：分发源脚本的公开远程索引——单一 index.json，每个源条目内嵌脚本源码 + 元数据 + 递增整数版本 + sha256 校验；app 内手动检查更新（版本对比、sha256 校验通过后原子替换已装源）。签名体系后置（grilling #16 定案）。
 - **已装源（installed source）**：app 内已安装、可用的源；内置源（webtoons/mangadex/copymanga/dongman/manhuagui/baozimh/nnhanman/kxmanhua/hentara）随 app 内置，版本独立于 app 版本，经源仓库手动更新。源管理入口在设置（列表 / 检查更新 / 应用更新；grilling #16 定案）。
@@ -18,7 +19,7 @@
 - **进度（progress）**：读者的阅读位置，由应用自动记录（当前章节 + 话内第几张图 + 图内位置，按视口中心算），阅读时静默落盘，重进阅读器恢复。不提供手动保存。
 - **收藏（favorites）**：用户收藏的漫画列表。
 - **历史（history）**：最近阅读记录。
-- **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；入口在漫画详情页的章节区：点「下载」进入多选模式，勾选的章节逐话**入队**（wayfinder #20/#22），由 Rust 侧队列 worker 按章内顺序、全局 2 页并发下载，进度经 IPC Channel 推送（`download://progress`）。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经 mojuan-img:// 本地模式渲染）。
+- **下载（download）**：把章节图片保存到本地，目录约定为「下载目录/<source>/<comic>/<chapter>/<page>」（wayfinder #19 命名空间，跨源同 id 不撞目录）；入口在漫画详情页的章节区：点「下载」进入多选模式，勾选的章节逐话**入队**（wayfinder #20/#22），由 Rust 侧队列 worker 按章内顺序、全局 2 页并发下载，进度经 IPC Channel 推送（`download://progress`）。已下载漫画在 Library「下载/本地」tab 离线阅读（/local 本地阅读器，图片经本机 HTTP 代理的本地文件模式渲染）。
 - **下载任务（download task）**：多任务下载队列（wayfinder #20 已实现）：一话一个任务，taskId = `source/comicId/chapterIndex`；状态 queued/downloading/done/failed/cancelled；单页失败重试 2 次；去重 = 已在磁盘入队即 done；内存态不持久化；TopBar「下载」页管理（进度条/取消/重试/清空已完成）。
 - **本地扫描（local scan）**：用户选择一个文件夹，导入其中已下载的漫画（Library「本地」入口）。
 - **自动更新（auto-update）**：Windows/Linux 的 tauri-updater 自动更新（wayfinder #26 已实现；**不发 macOS 端**）：设置页「检查更新」→ 下载（进度）→「重启安装」；tauri signer 密钥对（公钥在 tauri.conf.json `plugins.updater.pubkey`，私钥在 CI secret `TAURI_SIGNING_PRIVATE_KEY`）；发布走 release.yml（tag 推上去直接发布，不停在 draft）。
