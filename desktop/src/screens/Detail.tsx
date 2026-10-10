@@ -4,20 +4,19 @@ import { useScroll } from "motion/react";
 import { ArrowLeft, BookOpen, Check, Download, Heart, X } from "lucide-react";
 import {
     crawl,
-    crawlCached,
     enqueueDownload,
     imgSrc,
     listDownloaded,
     type Chapter,
     type Comic,
 } from "../api";
+import { useCrawl } from "../lib/hooks/use-crawl";
 import { filterExternalChapters } from "../lib/chapters";
 import {
     getProgress,
     getSettings,
     isFavorite,
     toggleFavorite,
-    whenSourcesReady,
 } from "../lib/storage";
 import { cn } from "../lib/utils";
 import { sourceReferer, sourceTitle } from "../lib/sources";
@@ -46,12 +45,8 @@ export default function Detail() {
     const navigate = useNavigate();
     const toast = useToast();
     const id = comicId ? decodeURIComponent(comicId) : "";
-    const [comic, setComic] = useState<Comic | null>(null);
-    const [chapters, setChapters] = useState<Chapter[]>([]);
     const [favorite, setFavorite] = useState(false);
     const [resume, setResume] = useState<number | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [reloadKey, setReloadKey] = useState(0);
     // 下载（多选）：磁盘上已有的章节 + 用户勾选 + 提交进度
     const [downloadDir, setDownloadDir] = useState<string | null>(null);
     const [onDisk, setOnDisk] = useState<Set<number>>(new Set());
@@ -67,73 +62,46 @@ export default function Detail() {
         container ? { container } : { container: undefined },
     );
 
+    // 详情每次都拉网络（新鲜窗口为 0）：渲染源的章节中转链经 post_process 写入进程内
+    // 缓存（baozimh 的 images 依赖它），跳过抓取会让章节打不开。
+    const detail = useCrawl<{ comic: Comic; chapters: Chapter[] }>(
+        "detail",
+        source ?? "",
+        { comicId: id },
+    );
+    const comic = detail.data?.comic ?? null;
+    const chapters = filterExternalChapters(detail.data?.chapters ?? []);
+
+    // 收藏 / 阅读进度 / 下载目录 / 磁盘上已有的章节：与抓取无关，各取一次
     useEffect(() => {
         let cancelled = false;
-        setError(null);
-        (async () => {
-            try {
-                // 等源脚本同步完成：registry 未就绪时脚本源的 op 会返回空
-                await whenSourcesReady();
-                if (cancelled) return;
-                // SWR：先渲染缓存的详情与章节（立即），随后 crawl 拉最新覆盖。
-                // detail 每次都拉网络：渲染源的章节中转链经 post_process 写入进程内缓存
-                // （baozimh 的 images 依赖它），跳过抓取会让章节打不开。
-                const [cached, fav, prog, settings] = await Promise.all([
-                    crawlCached<{ comic: Comic; chapters: Chapter[] }>("detail", source!, {
-                        comicId: id,
-                    }),
-                    isFavorite(source!, id),
-                    getProgress(source!, id),
-                    getSettings(),
-                ]);
-                if (cancelled) return;
-                if (cached) {
-                    setComic(cached.data.comic);
-                    setChapters(filterExternalChapters(cached.data.chapters));
-                }
-                setFavorite(fav);
-                if (prog) setResume(prog.chapterIndex);
-                setDownloadDir(settings.downloadDir);
-                setSelecting(false);
-                setSelected(new Set());
-                setQueued(new Set());
-                setOnDisk(
-                    settings.downloadDir
-                        ? new Set(
-                              Object.keys(
-                                  await listDownloaded(
-                                      settings.downloadDir,
-                                      source!,
-                                      id,
-                                  ),
-                              ).map(Number),
-                          )
-                        : new Set(),
-                );
-                const d = await crawl<{ comic: Comic; chapters: Chapter[] }>(
-                    "detail",
-                    source!,
-                    { comicId: id },
-                );
-                if (cancelled) return;
-                // 源失败时返回空对象：保留缓存展示
-                if (d.comic) {
-                    setComic(d.comic);
-                    setChapters(filterExternalChapters(d.chapters));
-                }
-            } catch (e) {
-                if (cancelled) return;
-                setError(
-                    e instanceof Error && e.message
-                        ? e.message
-                        : "这个漫画源没有返回作品信息",
-                );
-            }
+        void (async () => {
+            const [fav, prog, settings] = await Promise.all([
+                isFavorite(source!, id),
+                getProgress(source!, id),
+                getSettings(),
+            ]);
+            if (cancelled) return;
+            setFavorite(fav);
+            if (prog) setResume(prog.chapterIndex);
+            setDownloadDir(settings.downloadDir);
+            setSelecting(false);
+            setSelected(new Set());
+            setQueued(new Set());
+            setOnDisk(
+                settings.downloadDir
+                    ? new Set(
+                          Object.keys(
+                              await listDownloaded(settings.downloadDir, source!, id),
+                          ).map(Number),
+                      )
+                    : new Set(),
+            );
         })();
         return () => {
             cancelled = true;
         };
-    }, [source, id, reloadKey]);
+    }, [source, id]);
 
     async function onToggleFavorite() {
         if (!comic) return;
@@ -216,30 +184,26 @@ export default function Detail() {
         toast.show(parts.join("，"), failed > 0 ? "error" : "success");
     }
 
-    if (error) {
-        return (
-            <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8">
-                <BackButton onClick={() => navigate(-1)} />
-                <Banner>
-                    加载失败：{error}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="ml-2"
-                        onClick={() => setReloadKey((k) => k + 1)}
-                    >
-                        重试
-                    </Button>
-                </Banner>
-            </div>
-        );
-    }
+    // 抓取失败时横幅挂在页面上，缓存里的作品与章节照常显示；没有可显示的内容时只剩它
+    const failure = detail.error ? (
+        <Banner>
+            加载失败：{detail.error}
+            <Button
+                variant="ghost"
+                size="sm"
+                className="ml-2"
+                onClick={() => detail.reload()}
+            >
+                重试
+            </Button>
+        </Banner>
+    ) : null;
 
     if (!comic) {
         return (
             <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8">
                 <BackButton onClick={() => navigate(-1)} />
-                <Loading label="正在加载作品信息" />
+                {failure ?? <Loading label="正在加载作品信息" />}
             </div>
         );
     }
@@ -256,6 +220,7 @@ export default function Detail() {
                 className="mx-auto w-full max-w-5xl px-4 py-6 md:px-8"
             >
                 <BackButton onClick={() => navigate(-1)} />
+                {failure}
 
                 <div className="flex flex-col gap-6 md:flex-row md:gap-8">
                     <Cover

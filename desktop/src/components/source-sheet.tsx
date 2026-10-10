@@ -2,6 +2,7 @@ import { useEffect, useState, type RefObject } from "react";
 import { Check, TriangleAlert } from "lucide-react";
 import { sourceErrors, type SourceError } from "../api";
 import { SOURCES } from "../lib/sources";
+import { errorFirstLine } from "../lib/errors";
 import { cn } from "../lib/utils";
 import { BottomSheet } from "./beui/bottom-sheet";
 
@@ -84,7 +85,7 @@ export function SourceSheet({
                                 {err && (
                                     <span
                                         className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground"
-                                        title={err.message.split("\n")[0]}
+                                        title={errorFirstLine(err.message)}
                                     >
                                         <TriangleAlert
                                             className="size-3.5 text-warning"

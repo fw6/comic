@@ -42,7 +42,7 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 - 实例按完整路径区分（同一路由的不同作品各占一个槽位，各自读自己那次导航的参数）；`keep` 是每个路由的实例上限，按最近使用淘汰：主导航四条各 1 个，详情页 5 个，阅读器 `keep: 0`（图片与虚拟列表占用大，离开即卸载）。
 - 滚动位置在离开的瞬间读一次（浏览器会把隐藏容器的位置归零，滚动事件不一定来得及派发），显示时写回；内容还没铺满时会在随后的帧里补。
 - `AppShell` 只有一棵常驻布局树：沉浸模式（阅读器）只是不渲染导航壳，页面区始终在同一位置，切进切出不会卸载保留的页面。所以滚动容器不再由壳提供，改由每个槽位提供。
-- 页面要能忍受 effect 被重放：React 在开发期（StrictMode）会在隐藏的子树重新显示时销毁并重跑它里面所有 effect。取数据的 effect 不要顺手把用户状态清掉（`src/screens/Sources.tsx` 用 `loadedSource` / `loadedRequest` 记住「这个源/这个请求已经取过」，重放时直接跳过；请求换了新对象才重新取，重试按钮照常工作）。
+- 页面要能忍受 effect 被重放：React 在开发期（StrictMode）会在隐藏的子树重新显示时销毁并重跑它里面所有 effect。取数据的 effect 不要顺手把用户状态清掉（取数走 `useCrawl`，它用内部 ref 记住「这个请求已经取过」，重放时直接跳过；`reload()` 照常工作）。
 
 验证走 `probe-app.mjs`：`[data-page]` 上的 `style.display` 看哪个页面是当前页，`scrollTop` 看位置是否还原，DOM 节点身份可以确认实例有没有被重建。
 
@@ -58,27 +58,37 @@ Tauri v2 + React 19 + Vite 的前端。UI 由 Tailwind CSS v4 与 beui 组件构
 
 - 消费方（源面板、命令面板、`sourceTitle`）都排在 `whenSourcesReady()` 之后；就绪前 `SOURCES` 是空数组。
 - `api.ts` 的 `imgSrc` 经 `hotlinkRefererFor(url)` 按 URL 子串查热链对（命中才重写为本机代理）；`Detail.tsx` 的下载 Referer 取 `sourceReferer(source)`（该源声明的第一条）。
-- 源进程内缓存的持久化是通用协议：`cache_dump`/`cache_hydrate` 对任意源都可用，没有持久缓存的源 dump 出空对象。`persistSourceCache(source)` 在列表加载后调用，`hydrateSourceCaches()` 在启动时回灌（存储域 `sources-cache.json`，按 sourceId 存）。
+- 源进程内缓存的持久化是通用协议：`cache_dump`/`cache_hydrate` 对任意源都可用，没有持久缓存的源 dump 出空对象。`persistSourceCache(source)` 由 `useCrawl` 在每次抓取成功后调用，`hydrateSourceCaches()` 在启动时回灌（存储域 `sources-cache.json`，按 sourceId 存）。
 
 ## 发现页的分类与搜索
 
-分类浏览与搜索是两种模式，同一时刻只有一种在屏上（`Sources.tsx` 的 `inSearch`）：浏览模式渲染分类 tabs（beui Tabs 的 `segment` 变体）与当前分类的列表；搜索模式把 tabs 整块换成搜索头（搜索图标 + 「搜索 “关键词”」+ `N 部作品` + 退出按钮），下面是搜索结果。搜索开始时清空 `comics`——搜索结果与上一个分类的列表不是一回事，不能拿旧数据冒充；`exitSearch()` 回到搜索前停留的分类并清空输入框。切源会退出搜索（新源的分类与旧源的搜索结果无关）。
+分类浏览与搜索是两种模式，同一时刻只有一种在屏上（`Sources.tsx` 的 `inSearch`）：浏览模式渲染分类 tabs（beui Tabs 的 `segment` 变体）与当前分类的列表；搜索模式把 tabs 整块换成搜索头（搜索图标 + 「搜索 “关键词”」+ `N 部作品` + 退出按钮），下面是搜索结果。两者是不同的请求键，结果不会互相冒充；`exitSearch()` 回到搜索前停留的分类并清空输入框。切源会退出搜索（新源的分类与旧源的搜索结果无关）。
+
+选中的分类与已提交的搜索都连同「属于哪个源」一起记（`picked` / `search`），切源时按源推导出「还没选」，页面不需要为切源写清空逻辑；分类表到达后为该源选一次分类（优先该源上次停留的，否则第一个），网络结果后到时不再改选。
 
 beui registry 里没有可用于远程搜索的现成组件：`morphing-search` 与 `combobox` 都是「`items` 先给全量、组件内部按关键词过滤」，`infinite-masonry` 是瀑布流，形态与数据流都对不上，所以搜索头是应用自己组装的（`ui.tsx` 之外，直接用 Tailwind 与令牌）。
 
 ## 数据加载与结果缓存（stale-while-revalidate）
 
 列表与详情的抓取结果由 Rust 侧缓存（`crawler/result_cache.rs`，见 `docs/agents/mojuan-core.md`），
-前端加载一律两段式，并先 `await whenSourcesReady()`（`lib/storage.ts` 的源脚本同步单例，
-registry 未就绪时脚本源的 op 会返回空结果）：
+前端取数一律走 `useCrawl(op, source, payload, opts)`（`src/lib/hooks/use-crawl.ts`）：两段式加载、
+新鲜窗口、空结果保留、错误呈现与源进程内缓存的回灌都收在这一个 module 里，页面只拿
+`{data, loading, stale, error, reload}`。它按顺序做三件事：
 
-- 先 `crawlCached(op, source, payload)` 读缓存（不触发网络，未命中返回 `null`），有就立即渲染；
-- 再 `crawl(op, source, payload)` 拉最新并覆盖，Rust 侧把成功结果写回缓存。
+- 先 `await whenSourcesReady()`（`lib/storage.ts` 的源脚本同步单例，registry 未就绪时脚本源的
+  op 会返回空结果）；
+- 再 `crawlCached(op, source, payload)` 读缓存（不触发网络，未命中返回 `null`），有就立即渲染；
+- 最后 `crawl(op, source, payload)` 拉最新并覆盖，Rust 侧把成功结果写回缓存。
 
-`Sources.tsx` 的列表加载在缓存命中且 `fetchedAt` 处于新鲜窗口（`LIST_MAX_AGE_MS`，2 分钟）内时
-跳过本次请求（来回切源不重复拉取）；源返回空列表而缓存有数据时保留缓存展示（错误行另经
-`sourceErrors` 呈现）。`Detail.tsx` 只做「先缓存后拉新」、不跳过请求——渲染源的章节中转链依赖
-detail 的 post_process 写入进程内缓存（baozimh 的 images 依赖它）。
+策略由调用点用 `opts` 声明：`maxAge` 是新鲜窗口，窗口内的缓存直接收工、不发请求（发现页的列表传
+2 分钟，来回切源不重复拉取；分类与详情传 0，每次都拉最新——渲染源的章节中转链依赖 detail 的
+post_process 写入进程内缓存，baozimh 的 images 依赖它）；`enabled` 为 false 时不发请求。请求键是
+`op` + `source` + 序列化后的 payload，键变了才重新取：缓存命中直接替换，未命中清空 `data`、由页面
+显示自己的加载态。
+
+错误呈现也在这里：抛出的错误优先，没有抛出但结果为空时取源错误登记表（`sourceErrors()`）里该源的
+最近一条首行，结果非空时不挂旧错误。`loading` 覆盖整次抓取，`stale` 表示「数据来自缓存、后台正在
+拉最新」，页面用 `loading && !stale` 决定压暗与禁用，后台刷新不挡操作。
 
 ## 阅读器的分页策略
 

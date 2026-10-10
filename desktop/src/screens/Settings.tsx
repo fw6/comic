@@ -23,6 +23,7 @@ import {
     type SourceEntry,
 } from "../lib/storage";
 import { useTheme } from "../lib/theme";
+import { errorFirstLine } from "../lib/errors";
 import {
     syncSources,
     sourceErrors,
@@ -680,7 +681,7 @@ export default function Settings() {
                                 label={entry.name}
                                 hint={
                                     err
-                                        ? `上次出错：${err.message.split("\n")[0]}`
+                                        ? `上次出错：${errorFirstLine(err.message)}`
                                         : new Date(entry.updatedAt).toLocaleString()
                                 }
                             >

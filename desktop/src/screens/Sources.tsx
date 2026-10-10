@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { crawl, crawlCached, sourceErrors, type Comic, type SourceError } from "../api";
-import {
-    getSettings,
-    persistSourceCache,
-    rememberDiscovery,
-    whenSourcesReady,
-} from "../lib/storage";
+import type { Comic } from "../api";
+import { getSettings, rememberDiscovery, whenSourcesReady } from "../lib/storage";
+import { useCrawl } from "../lib/hooks/use-crawl";
 import { useIsMobile } from "../lib/platform";
 import { SOURCES, sourceTitle } from "../lib/sources";
 import { cn } from "../lib/utils";
@@ -23,14 +19,6 @@ import { Tabs, TabsList, TabsTrigger } from "../components/beui/tabs";
 import { Input } from "../components/beui/input";
 import { SourceSheet } from "../components/source-sheet";
 import { ChevronDown, Compass, Search, X } from "lucide-react";
-
-/** 当前列表要加载什么：分类浏览（label）或搜索（keyword）。 */
-interface ListRequest {
-    source: string;
-    op: "category" | "search";
-    category: string | null;
-    keyword: string;
-}
 
 /** 列表缓存的新鲜窗口：窗口内切换源/分类直接用缓存、不发请求；
  * 窗口外先显示缓存（stale），再拉最新覆盖（revalidate）。 */
@@ -81,33 +69,35 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
     const mobile = useIsMobile();
     const [params] = useSearchParams();
     const [source, setSource] = useState(prefs.source);
-    const [categories, setCategories] = useState<string[]>([]);
-    // 高亮的分类 tab（浏览模式）
-    const [category, setCategory] = useState<string | null>(null);
-    // 当前视图是否为搜索结果（用于 tab 高亮/输入框提示）
-    const [inSearch, setInSearch] = useState(false);
+    // 选中的分类：连同它属于哪个源一起记，切源后自动回到「还没选」的状态
+    const [picked, setPicked] = useState<{ source: string; category: string } | null>(
+        null,
+    );
+    const category = picked?.source === source ? picked.category : null;
+    // 已提交的搜索：同样连同源一起记，切源后回到分类浏览
+    const [search, setSearch] = useState<{ source: string; keyword: string } | null>(
+        null,
+    );
+    const inSearch = search?.source === source;
+    // 搜索框里正在输入的内容
     const [keyword, setKeyword] = useState("");
-    const [request, setRequest] = useState<ListRequest>({
-        source: prefs.source,
-        op: "category",
-        category: null,
-        keyword: "",
-    });
-    const [comics, setComics] = useState<Comic[]>([]);
-    const [loading, setLoading] = useState(false);
-    // 源脚本错误行（wayfinder #17：源坏了不再伪装成空列表）
-    const [sourceErr, setSourceErr] = useState<string | null>(null);
-    // 请求序号：丢弃过期响应，避免分类/搜索竞态
-    const listSeq = useRef(0);
-    // 已经建好目录的源 / 已经取到结果的请求：effect 被重放（React 开发期会重跑）时不再
-    // 重复取，也不清掉用户正在看的分类与列表。只在拿到结果后才记，重放时没取完的照常重取。
-    const loadedSource = useRef<string | null>(null);
-    const loadedRequest = useRef<ListRequest | null>(null);
     // 每个源记忆的分类（切回该源时优先恢复，标签已失效则退回第一个）
     const lastCategoryRef = useRef<Record<string, string>>({ ...prefs.lastCategory });
     // 源选择面板（切换源是低频操作，列表收进面板；页头只留当前源按钮）
     const [sheetOpen, setSheetOpen] = useState(false);
     const sourceTriggerRef = useRef<HTMLButtonElement>(null);
+
+    const categories = useCrawl<string[]>("categories", source, {});
+    const list = useCrawl<Comic[]>(
+        inSearch ? "search" : "category",
+        source,
+        inSearch ? { keyword: search?.keyword ?? "" } : { label: category },
+        { maxAge: LIST_MAX_AGE_MS, enabled: inSearch || category !== null },
+    );
+    const comics = list.data ?? [];
+    const sourceErr = list.error ?? categories.error;
+    // 缓存已经在屏上时不算忙：后台拉最新不挡操作，也不压暗列表
+    const busy = list.loading && !list.stale;
 
     // 命令面板跳转（/?source=xxx）：URL 指定的源优先
     useEffect(() => {
@@ -118,102 +108,19 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
         }
     }, [params, source]);
 
-    // 切换源：加载分类 tab，回到该源记忆的分类。SWR：先渲染缓存分类（立即出 tab），再拉最新。
+    // 分类表到达（缓存或网络）后为该源选一个分类；网络结果后到时不再改选。
+    // 只在分类表变化时触发：切源不触发（那时 data 还属于上一个源），新源的数据
+    // 到达时这里读到的是新 source。
     useEffect(() => {
-        if (loadedSource.current === source) return;
-        let cancelled = false;
-        setCategories([]);
-        setInSearch(false);
-        setComics([]);
+        const cats = categories.data;
+        if (!cats || cats.length === 0) return;
+        if (picked?.source === source) return;
         const want = lastCategoryRef.current[source];
-        const pick = (list: string[]) =>
-            want && list.includes(want) ? want : (list[0] ?? null);
-        (async () => {
-            // 等源脚本同步完成：registry 未就绪时脚本源的 op 会返回空
-            await whenSourcesReady();
-            if (cancelled) return;
-            const cached = await crawlCached<string[]>("categories", source, {});
-            if (cancelled) return;
-            if (cached) {
-                setCategories(cached.data);
-                const cat = pick(cached.data);
-                setCategory(cat);
-                setRequest({ source, op: "category", category: cat, keyword: "" });
-            }
-            const cats = await crawl<string[]>("categories", source, {}).catch(
-                (): string[] => [],
-            );
-            if (cancelled) return;
-            loadedSource.current = source;
-            // 源返回空（可能失败）且已有缓存时，保留缓存分类
-            if (cats.length > 0 || !cached) setCategories(cats);
-            if (!cached) {
-                const cat = pick(cats);
-                setCategory(cat);
-                setRequest({ source, op: "category", category: cat, keyword: "" });
-            }
-            const errs = await sourceErrors().catch(
-                (): Record<string, SourceError> => ({}),
-            );
-            if (cancelled) return;
-            setSourceErr(errs[source]?.message.split("\n")[0] ?? null);
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, [source]);
-
-    // 按 request 加载列表（分类浏览或搜索结果）。SWR：先渲染缓存列表，再拉最新替换；
-    // 缓存足够新（窗口内）时跳过本次请求（切源往返不重复拉取）。
-    useEffect(() => {
-        if (request.op === "category" && !request.category) return;
-        if (loadedRequest.current === request) return;
-        const seq = ++listSeq.current;
-        setLoading(true);
-        setSourceErr(null);
-        (async () => {
-            const payload =
-                request.op === "search"
-                    ? { keyword: request.keyword }
-                    : { label: request.category };
-            try {
-                const cached = await crawlCached<Comic[]>(
-                    request.op,
-                    request.source,
-                    payload,
-                );
-                if (seq !== listSeq.current) return;
-                if (cached) {
-                    setComics(cached.data);
-                    setLoading(false);
-                    if (Date.now() - cached.fetchedAt < LIST_MAX_AGE_MS) {
-                        loadedRequest.current = request;
-                        return;
-                    }
-                }
-                const results = await crawl<Comic[]>(
-                    request.op,
-                    request.source,
-                    payload,
-                );
-                if (seq !== listSeq.current) return;
-                loadedRequest.current = request;
-                // 源返回空（可能失败）且已有缓存展示时，保留缓存列表（错误行经 sourceErr 呈现）
-                if (results.length > 0 || !cached) setComics(results);
-                void persistSourceCache(request.source);
-            } catch (e) {
-                console.error("list failed", e);
-            } finally {
-                if (seq !== listSeq.current) return;
-                const errs = await sourceErrors().catch(
-                    (): Record<string, SourceError> => ({}),
-                );
-                if (seq !== listSeq.current) return;
-                setSourceErr(errs[request.source]?.message.split("\n")[0] ?? null);
-                setLoading(false);
-            }
-        })();
-    }, [request]);
+        const cat = want && cats.includes(want) ? want : (cats[0] ?? null);
+        if (cat === null) return;
+        setPicked({ source, category: cat });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [categories.data]);
 
     function selectSource(id: string) {
         setSource(id);
@@ -223,10 +130,9 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
     function selectCategory(label: string) {
         lastCategoryRef.current[source] = label;
         void rememberDiscovery(source, label);
-        setCategory(label);
-        setInSearch(false);
+        setPicked({ source, category: label });
+        setSearch(null);
         setKeyword("");
-        setRequest({ source, op: "category", category: label, keyword: "" });
     }
 
     function onSearch() {
@@ -235,21 +141,17 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
             exitSearch();
             return;
         }
-        setInSearch(true);
         // 搜索结果与分类列表不是一回事，别把上一个分类的结果留在屏幕上冒充它
-        setComics([]);
-        setRequest({ source, op: "search", category: null, keyword: kw });
+        setSearch({ source, keyword: kw });
     }
 
     /** 退出搜索，回到分类浏览（输入框一并清空）。 */
     function exitSearch() {
         setKeyword("");
-        setInSearch(false);
-        if (category)
-            setRequest({ source, op: "category", category, keyword: "" });
+        setSearch(null);
     }
 
-    const isEmpty = !loading && comics.length === 0;
+    const isEmpty = !busy && comics.length === 0;
 
     return (
         <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
@@ -291,9 +193,9 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                     variant="primary"
                     size="md"
                     onClick={onSearch}
-                    disabled={loading}
+                    disabled={busy}
                 >
-                    {loading ? "加载中…" : "搜索"}
+                    {busy ? "加载中…" : "搜索"}
                 </Button>
             </div>
 
@@ -307,9 +209,9 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                     />
                     <p className="min-w-0 flex-1 truncate text-sm">
                         搜索 “
-                        <span className="font-semibold">{request.keyword}</span>”
+                        <span className="font-semibold">{search?.keyword}</span>”
                     </p>
-                    {!loading && comics.length > 0 && (
+                    {!busy && comics.length > 0 && (
                         <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                             {comics.length} 部作品
                         </span>
@@ -327,7 +229,7 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                         <X className="size-3.5" aria-hidden="true" />
                     </button>
                 </div>
-            ) : categories.length > 0 ? (
+            ) : categories.data && categories.data.length > 0 ? (
                 <Tabs
                     value={category ?? ""}
                     onValueChange={selectCategory}
@@ -335,7 +237,7 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                     className="mb-5 w-full"
                 >
                     <TabsList className="max-w-full bg-card">
-                        {categories.map((c) => (
+                        {categories.data.map((c) => (
                             <TabsTrigger key={c} value={c}>
                                 {c}
                             </TabsTrigger>
@@ -351,14 +253,17 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                         variant="ghost"
                         size="sm"
                         className="ml-2"
-                        onClick={onSearch}
+                        onClick={() => {
+                            categories.reload();
+                            list.reload();
+                        }}
                     >
                         重试
                     </Button>
                 </Banner>
             )}
 
-            {loading && comics.length === 0 ? (
+            {busy && comics.length === 0 ? (
                 <Loading label={inSearch ? "正在搜索" : "正在加载列表"} />
             ) : isEmpty ? (
                 <EmptyState
@@ -382,9 +287,9 @@ function Discovery({ prefs }: { prefs: DiscoveryPrefs }) {
                 <div
                     className={cn(
                         "transition-opacity duration-200",
-                        loading && "pointer-events-none opacity-50",
+                        busy && "pointer-events-none opacity-50",
                     )}
-                    aria-busy={loading}
+                    aria-busy={busy}
                 >
                     {mobile ? (
                         <div className="flex flex-col gap-2">
