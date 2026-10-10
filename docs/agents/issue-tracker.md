@@ -1,6 +1,6 @@
 # Issue tracker: GitHub Issues
 
-Issues live in the `fw6/comic` GitHub repository, managed with the `gh` CLI. Engineering skills (`to-tickets`, `to-spec`, `wayfinder`, …) read and write issues here.
+Issues live in the `fw6/mojuan` GitHub repository, managed with the `gh` CLI. Engineering skills (`to-tickets`, `to-spec`, `wayfinder`, …) read and write issues here.
 
 PRs are **not** used as a request surface (tracker flag: off).
 
@@ -17,7 +17,7 @@ The wayfinder skill expresses its map on this tracker as follows.
 - **Frontier query**:
 
   ```
-  gh issue list --repo fw6/comic --state open --search 'label:"wayfinder:prototype" OR label:"wayfinder:research" OR label:"wayfinder:grilling" OR label:"wayfinder:task"'
+  gh issue list --repo fw6/mojuan --state open --search 'label:"wayfinder:prototype" OR label:"wayfinder:research" OR label:"wayfinder:grilling" OR label:"wayfinder:task"'
   ```
 
   Note: do not use the `-l a,b,c` form — GitHub treats comma-separated label values as AND (an issue must carry every label), so that query silently matches nothing. `--search` with explicit `OR` qualifiers is the working form.

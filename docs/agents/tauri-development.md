@@ -13,10 +13,17 @@
 
 ## 图片加载（热链域必须走代理）
 
-- 热链域（如 Webtoons pstatic.net）必须走 `mojuan-img://` 自定义 scheme 代理（Rust 加 Referer + 磁盘缓存/LRU）。
+- 热链域（如 Webtoons pstatic.net）的图片走本机 HTTP 代理：`src-tauri/src/img_proxy.rs` 在
+  127.0.0.1 上起 hyper 服务，端点 `/img`（`url` 走热链缓存取图，`path` 走本地文件）；Rust 侧
+  补 Referer 并复用磁盘缓存与内存 LRU（`mojuan_core::cache::fetch_image`）。
+- 前端把这类图片的 `src` 重写成 `http://127.0.0.1:<port>/img?url=…&ref=…`（`api.ts` 的
+  `imgSrc`，端口经 `img_proxy_port` 命令取）。哪些域名属于热链域由源注册表声明，见
+  `docs/agents/frontend.md` 的「源清单与按源事实」。
 - 其余域 `<img>` 直连，吃 webview HTTP 缓存。
-- 原因：macOS/Linux 无法给 `<img>` 注入 Referer，只能走代理。
-- 详见 `docs/research/desktop-webview-images.md`。
+- 原因：macOS/Linux 无法给 `<img>` 注入 Referer，只能走代理。各平台给 `<img>` 注入请求头的
+  能力与早期自定义 scheme 方案的取舍见 `docs/research/desktop-webview-images.md`；后来改成
+  本机 HTTP 代理的原因（自定义 scheme 撞上 wry `shouldInterceptRequest` 的 30s 响应上限）见
+  `docs/research/mobile-storage-webview.md` 的结论一节。
 
 ## 隐藏 webview 渲染通道（Cloudflare / 自建验证防护源）
 
@@ -33,9 +40,11 @@
 
 - 桌面端用官方 tauri-plugin-updater；`plugins.updater.endpoints` 指向
   `https://mojuan.fengw.site/latest.json`，服务是 `updater/` 里的 Cloudflare Worker。
-- 仓库私有，GitHub Releases 对未登录客户端一律 404，所以清单与制品都由 Worker 用
-  `GITHUB_TOKEN` 从 GitHub Releases 取回后对外提供；只提供 GitHub 判定的「最新已发布
-  版本」。`release.yml` 直接发布（`releaseDraft: false`），workflow 跑完即开始推送。
+- 清单与制品都由 `updater/` 的 Cloudflare Worker 取回后对外提供：tauri-action 写进清单的制品
+  地址是 GitHub 的 API 资产地址（`api.github.com/repos/.../releases/assets/<id>`），普通 GET 取回
+  的是资产元数据而不是文件，所以 Worker 换成自己的 `/dl` 路径、带上正确的请求头取回；只提供
+  GitHub 判定的「最新已发布版本」。`release.yml` 直接发布（`releaseDraft: false`），workflow
+  跑完即开始推送。
 - `*.workers.dev` 在本机所在网络连不上（实测 443 超时，而 Cloudflare 边缘 IP 与
   github.com 都通），所以 Worker 挂在自有域名的子域下，与 `blog.fengw.site` 同一做法。
 - 改了 `updater/src/` 或 `updater/wrangler.toml` 要 `cd updater && npx wrangler deploy`；
@@ -75,8 +84,10 @@
 
 整条链路在模拟器上跑通过（API 37 arm64），做法如下：
 
-1. 起模拟器（`emulator -avd <名字> -no-window -gpu swiftshader_indirect`），关掉安装校验
-   与动画：`settings put global package_verifier_enable 0`、`verifier_verify_adb_installs 0`。
+1. 起模拟器（现成的 AVD 是 `cimoc-ota`；`emulator` 不在 PATH 上时用绝对路径
+   `~/Library/Android/sdk/emulator/emulator`）：`emulator -avd cimoc-ota -no-window -gpu
+   swiftshader_indirect`，关掉安装校验与动画：`settings put global package_verifier_enable 0`、
+   `verifier_verify_adb_installs 0`。
 2. 在主机上用一个静态 HTTP 服务当更新通道，目录里放 `android.json` 与 APK。**`url` 要写
    绝对地址**——真实通道里这一步是 Worker 把清单里的文件名改写成自己的 `/dl` 路径，客户端
    只接受完整 URL。
@@ -119,7 +130,9 @@ feature 且只在 `wkwebview`（macOS）里用到，在别的平台上不产生�
 ## 坑（Gotchas）
 
 1. **Tauri 同步命令在主线程执行**：阻塞式 reqwest 必须放 async 命令 + `tauri::async_runtime::spawn_blocking`，否则冻结 UI。
-2. **自定义 scheme 回调（mojuan-img://）**：macOS WKURLSchemeHandler 回调跑在主线程，同样需要 spawn_blocking。
+2. **本机图片代理的端口是启动时分配的**：代理在 127.0.0.1 上绑随机端口，前端必须在渲染任何
+   图片之前经 `img_proxy_port` 命令取回（`main.tsx` 的 `bootstrap` 里 `initImgProxy`）。没取到时
+   `imgSrc` 原样返回地址，热链域的图会直连并失败。
 3. **`withGlobalTauri` 必须放 `tauri.conf.json` 的 `app` 段**（不在 `security` 段；`app.withGlobalTauri: true`）。
 4. **`on_page_load` 事件在 macOS 跨站重定向时会丢失**（纯 302 链一条 Finished 都不发）：页面就绪
    判定不要用它，改用 `eval_with_callback` 轮询 `location.href` + `readyState`（渲染通道的做法）。

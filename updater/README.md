@@ -25,9 +25,14 @@ Worker 只把 `url` 换成自己的 `/dl` 路径，`version` 与 `sha256` 原样
 
 ## 为什么要经 Worker 中转
 
-`fw6/mojuan` 是私有仓库，GitHub Releases 对未登录客户端一律返回 404，tauri-action
-写进清单的制品地址（`api.github.com/repos/.../releases/assets/<id>`）同样需要登录。
-Worker 用 `GITHUB_TOKEN` 把清单与制品取回来再对外提供，客户端不需要任何凭据。
+tauri-action 写进清单的制品地址是 GitHub 的 API 资产地址
+（`api.github.com/repos/.../releases/assets/<id>`）。这个地址用普通 GET 取回的是资产元数据
+而不是文件本身——GitHub 只在 `Accept: application/octet-stream` 时回字节，而客户端的更新器
+不会带这个请求头。所以 Worker 把清单里的地址换成自己的 `/dl/<tag>/<文件名>`，再带上正确的
+请求头从 GitHub 取回制品，客户端不需要任何凭据。
+
+Worker 的每次 GitHub 调用都带 `GITHUB_TOKEN`（未配置时直接报 500）：未登录调用 GitHub API
+有每小时 60 次的限制，而 Worker 的出口 IP 是共享的。
 
 只有 GitHub 判定为「最新已发布版本」的那个 release 会被提供：草稿与预发布版本不在
 其中。`release.yml` 直接发布（`releaseDraft: false`），所以 workflow 跑完就开始推给
@@ -43,7 +48,7 @@ Cloudflare 边缘的子域。
 
 ## 首次配置：GITHUB_TOKEN
 
-Worker 读私有仓库需要一个只读凭据，由 GitHub 的 fine-grained PAT 提供：
+Worker 的 GitHub 调用需要一个只读凭据，由 GitHub 的 fine-grained PAT 提供：
 
 1. 打开 <https://github.com/settings/personal-access-tokens/new>。
 2. Resource owner 选 `fw6`，Repository access 选 `Only select repositories` →

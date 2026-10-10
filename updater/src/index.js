@@ -6,8 +6,9 @@
  *   GET /android.json      Android OTA 的清单：版本 + APK 的 sha256 + 下载地址（同上）
  *   GET /dl/<tag>/<文件名>  该版本制品的下载代理
  *
- * 仓库 fw6/mojuan 是私有的，GitHub Releases 对未登录客户端一律返回 404，所以清单
- * 与制品都由这个 Worker 用 GITHUB_TOKEN 取回后对外提供。
+ * 清单里 tauri-action 写的制品地址是 GitHub 的 API 资产地址，普通 GET 取回的是资产元数据
+ * 而不是文件（GitHub 只在 Accept: octet-stream 时回字节），所以清单与制品都由这个 Worker
+ * 取回、换成自己的地址后对外提供。
  */
 
 const GITHUB_API = "https://api.github.com";

@@ -1,5 +1,10 @@
 # Desktop webview 图片加载架构（wayfinder #4）
 
+> **后续变更**：这份调研推荐的「热链域走自定义 scheme 代理」在 2026-08 被换成 127.0.0.1 的
+> 本机 HTTP 代理（自定义 scheme 撞上 wry `shouldInterceptRequest` 的 30s 响应上限，Android 上
+> 表现为图片时好时坏）。下面的平台能力与格式/缓存结论仍然有效，代理的形态以
+> `docs/research/mobile-storage-webview.md` 的结论一节与 `src-tauri/src/img_proxy.rs` 为准。
+
 Ticket: https://github.com/fw6/mojuan/issues/4 · 迁移背景：mobile Lynx → Tauri 桌面（macOS WKWebView / Windows WebView2 / Linux WebKitGTK）。pstatic.net 有热链保护，图片请求必须带 `Referer`（Android 现状：OkHttp interceptor 补 `https://www.webtoons.com/`，见 `sparkling-cimoc/android/app/src/main/java/com/example/sparkling/go/SparklingApplication.kt`）。
 
 ## 结论与推荐（TL;DR）

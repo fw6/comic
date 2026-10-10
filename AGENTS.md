@@ -12,7 +12,7 @@
 
 ## 约定（渐进式披露，按需阅读）
 
-- [Tauri / 桌面开发](docs/agents/tauri-development.md) — 处理任何 Tauri 任务前**必读** Tauri llms.txt；前端 HMR 工作流；图片加载 scheme 代理；同步命令/主线程坑
+- [Tauri / 桌面开发](docs/agents/tauri-development.md) — 处理任何 Tauri 任务前**必读** Tauri llms.txt；前端 HMR 工作流；图片加载走本机 HTTP 代理；同步命令/主线程坑
 - [前端 desktop/src](docs/agents/frontend.md) — Tailwind v4 + beui 组件（`scripts/fetch-beui.mjs` 拉取）、设计令牌位置、断点约定、阅读器分页策略、不用截图验证界面的方法
 - [Rust 核心 mojuan-core](docs/agents/mojuan-core.md) — 架构、运行时源脚本契约、命令 API 约定（`&str` → JSON）、测试
 - [构建环境](docs/agents/build-environment.md) — cargo 源（勿改）、workspace target/gitignore
