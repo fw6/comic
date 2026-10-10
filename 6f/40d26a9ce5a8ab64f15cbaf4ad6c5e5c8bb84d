@@ -1,0 +1,46 @@
+docs/agents/frontend.md
+  s_2c8205eb720f03::t_5cb6bad2edf245 74-91
+  s_2c8205eb720f03::t_b41496232d0263 45
+  s_2c8205eb720f03::t_4e96027cb0096e 61
+  s_2c8205eb720f03::t_6b24fa46f7ba2e 65-67
+desktop/src/lib/hooks/use-crawl.ts
+  s_2c8205eb720f03::t_677987cd4cf185 1-8,12-131,136-144,151-159
+  s_2c8205eb720f03::t_127e77569ea1eb 9-11
+  s_2c8205eb720f03::t_253152bba8121c 132-135,145-150
+desktop/src/lib/errors.ts
+  s_2c8205eb720f03::t_3174967747205b 1-4
+desktop/src/screens/Detail.tsx
+  s_2c8205eb720f03::t_a5681217b9e69d 223
+  s_2c8205eb720f03::t_12aace79ea8398 13,65-75,78-99,104
+  s_2c8205eb720f03::t_0fa5955b7a71df 187-200,206
+desktop/src/screens/Detail.test.tsx
+  s_2c8205eb720f03::t_4af09e1c75d12f 1-43,45-113
+  s_2c8205eb720f03::t_225595da012949 44
+desktop/src/screens/Sources.tsx
+  s_2c8205eb720f03::t_14f3147702e6e3 3-5,72-82,90-101,111-113,115-117,119-123,133-134,145,151,154,196,198,212,214,232,240,256-259,266,290,292
+desktop/src/components/source-sheet.tsx
+  s_2c8205eb720f03::t_b3a00992fe5092 5
+  s_2c8205eb720f03::t_33b9176a43713d 88
+desktop/src/screens/Settings.tsx
+  s_2c8205eb720f03::t_674468e372518a 684
+  s_2c8205eb720f03::t_93759b94645dce 26
+desktop/src/lib/hooks/use-crawl.test.ts
+  s_2c8205eb720f03::t_ad7e0aa6e2087f 126-135
+  s_2c8205eb720f03::t_6f46d0d2120577 1-125,136-261
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "6f40d26a9ce5a8ab64f15cbaf4ad6c5e5c8bb84d",
+  "prompts": {},
+  "sessions": {
+    "s_2c8205eb720f03": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_16151bfe-dfc5-4c29-b6fb-b4364b746c30",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
