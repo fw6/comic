@@ -1,0 +1,50 @@
+docs/agents/mojuan-core.md
+  s_2c8205eb720f03::t_34ce9f16f2fd6e 7
+desktop/crates/mojuan-core/src/native/download_index.rs
+  s_2c8205eb720f03::t_44cc2caf4f1848 6
+desktop/crates/mojuan-core/src/native/files.rs
+  s_2c8205eb720f03::t_3d02e8c1b45bd2 8
+desktop/crates/mojuan-core/src/crawler/sources/mod.rs
+  s_2c8205eb720f03::t_fcef0fac52dcce 20
+desktop/crates/mojuan-core/src/native/paths.rs
+  s_2c8205eb720f03::t_247f6aa2a92ba5 1-16
+desktop/crates/mojuan-core/src/native/ota.rs
+  s_2c8205eb720f03::t_82027df16ca590 10
+desktop/crates/mojuan-core/src/lib.rs
+  s_2c8205eb720f03::t_bc850481a4f487 11
+desktop/crates/mojuan-core/src/native/mod.rs
+  s_2c8205eb720f03::t_3fe515409491f2 10-11
+desktop/crates/mojuan-core/src/crawler/result_cache.rs
+  s_2c8205eb720f03::t_4794b310fc2f04 58
+  s_2c8205eb720f03::t_4397a1cd31491a 153
+  s_2c8205eb720f03::t_c7ebebfb15cfeb 44
+  s_2c8205eb720f03::t_8fd334f41fbba5 9,13,34
+  s_2c8205eb720f03::t_abb6c5cda3b03c 70
+  s_2c8205eb720f03::t_af8a3bc00a5187 14
+desktop/crates/mojuan-core/src/util.rs
+  s_2c8205eb720f03::t_2b73927a3d8392 33,39-46,48,50
+  s_2c8205eb720f03::t_a3577868a24589 22-30
+  s_2c8205eb720f03::t_2a48912dac13a3 1-21,31-32,34-38,47,49,51-152
+desktop/crates/mojuan-core/src/cache.rs
+  s_2c8205eb720f03::t_51e910ead6bccf 33,41
+  s_2c8205eb720f03::t_65cf077ef23274 83
+  s_2c8205eb720f03::t_9708b0e3445ec1 12
+  s_2c8205eb720f03::t_8d41620c126a9b 182
+  s_2c8205eb720f03::t_baf071b861b4cf 9,21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "30b6afc8ac9b42837e800ec8e64dd51247422ddb",
+  "prompts": {},
+  "sessions": {
+    "s_2c8205eb720f03": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_16151bfe-dfc5-4c29-b6fb-b4364b746c30",
+        "model": "claude-deepseek-v4.1-flash[1M]"
+      },
+      "human_author": "mekhi <lyman.von9506@gmail.com>"
+    }
+  }
+}
